@@ -1,0 +1,16 @@
+*.aps
+*.cmake
+*.sln
+*.tt[cf]
+*.vcxproj*
+
+.vs
+build
+CMakeCache.txt
+CMakeFiles
+Debug
+Release
+x64
+
+.DS_Store
+xcuserdata

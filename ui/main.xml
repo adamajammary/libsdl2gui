@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<window title="Test SDL2 GUI" width="800" height="600" color-theme-file="ui/dark.colortheme">
+  <panel id="Root" orientation="vertical" spacing="5">
+    <menu id="MenuIdMenu" height="30" valign="middle">
+      <menu-sub label="File">
+        <menu-sub label="Color Theme">
+          <menu-item id="MenuIdColorThemeDark">Dark</menu-item>
+          <menu-item id="MenuIdColorThemeLight">Light</menu-item>
+        </menu-sub>
+
+        <menu-item id="MenuIdQuit">Quit\tCtrl+Q</menu-item>
+      </menu-sub>
+
+      <menu-sub label="Help">
+        <menu-item id="MenuIdAbout">About</menu-item>
+      </menu-sub>
+    </menu>
+
+    <panel height="80" orientation="vertical">
+      <panel halign="center" valign="middle">
+        <text font-size="20">Color Theme</text>
+      </panel>
+
+      <panel height="50" padding="5" spacing="5">
+        <button id="ButtonIdColorThemeDark" halign="center" valign="middle" spacing="5" background-color="#202020" text-color="#FFFFFF" border-color="#909090" border="2">
+          <image file="img/dark-24.png" halign="center" valign="middle"></image>
+          <text halign="center" valign="middle">Dark</text>
+        </button>
+
+        <button id="ButtonIdColorThemeLight" halign="center" valign="middle" spacing="5" background-color="#F0F0F0" text-color="#000000" border-color="#909090" border="2">
+          <image file="img/light-24.png" halign="center" valign="middle"></image>
+          <text halign="center" valign="middle">Light</text>
+        </button>
+      </panel>
+    </panel>
+
+    <panel orientation="vertical" padding="10" spacing="10">
+      <panel height="35" font-size="18">
+        <panel halign="left">
+          <text bold="true" valign="middle">Text with wrapping</text>
+        </panel>
+
+        <panel halign="right">
+          <text italic="true" valign="middle">List: </text>
+          <text id="ListRow" valign="middle"></text>
+        </panel>
+      </panel>
+
+      <panel spacing="10">
+        <panel padding="10" border="1">
+          <text wrap="true">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+Risus sed vulputate odio ut.
+Volutpat commodo sed egestas egestas fringilla.
+Pretium lectus quam id leo in.
+Morbi non arcu risus quis varius.
+Tellus mauris a diam maecenas sed.
+
+Nibh tortor id aliquet lectus proin nibh nisl condimentum id.
+Donec massa sapien faucibus et molestie.
+Dignissim diam quis enim lobortis scelerisque fermentum.
+Dolor sit amet consectetur adipiscing elit duis.
+Elementum nisi quis eleifend quam adipiscing vitae.
+Nam libero justo laoreet sit amet cursus sit amet.
+
+Vitae semper quis lectus nulla at volutpat diam.
+Aliquam faucibus purus in massa tempor nec feugiat.
+A erat nam at lectus urna.
+Cursus vitae congue mauris rhoncus aenean vel.
+Libero enim sed faucibus turpis.
+Ullamcorper eget nulla facilisi etiam.
+Ac auctor augue mauris augue neque.
+Euismod lacinia at quis risus.
+          </text>
+        </panel>
+
+        <panel padding="10" border="1">
+          <list id="List" sort="ascending">
+            <list-item>Lorem ipsum dolor sit amet</list-item>
+            <list-item>consectetur adipiscing elit</list-item>
+            <list-item>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</list-item>
+            <list-item>Cursus sit amet dictum sit</list-item>
+            <list-item>Turpis in eu mi bibendum neque egestas congue quisque</list-item>
+            <list-item>Tellus in hac habitasse platea dictumst</list-item>
+            <list-item>Sed elementum tempus egestas sed sed risus pretium quam vulputate</list-item>
+            <list-item>Placerat duis ultricies lacus sed turpis tincidunt</list-item>
+            <list-item>Amet purus gravida quis blandit turpis cursus in hac habitasse</list-item>
+            <list-item>Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi cras</list-item>
+            <list-item>Vulputate ut pharetra sit amet aliquam id diam maecenas ultricies</list-item>
+            <list-item>Eu augue ut lectus arcu bibendum at varius vel pharetra</list-item>
+          </list>
+        </panel>
+      </panel>
+
+      <panel height="35" font-size="18">
+        <panel halign="left">
+          <text underline="true" valign="middle">Table: </text>
+          <text id="TableRow" valign="middle"></text>
+        </panel>
+
+        <panel halign="right">
+          <text strike-through="true" valign="middle">Table with groups: </text>
+          <text id="TableWithGroupsRow" valign="middle"></text>
+        </panel>
+      </panel>
+
+      <panel spacing="10">
+        <panel padding="10" border="1">
+          <table id="Table" sort="ascending" sort-column="0">
+            <table-header>
+              <table-column>DOLOR</table-column>
+              <table-column>MAGNA</table-column>
+            </table-header>
+            <table-row>
+              <table-column>Adipiscing</table-column>
+              <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Congue</table-column>
+              <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Consequat</table-column>
+              <table-column>Ac felis donec et odio pellentesque diam volutpat commodo</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Blandit</table-column>
+              <table-column>Imperdiet nulla malesuada</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Cursus</table-column>
+              <table-column>Pellentesque elit eget gravida</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Risus</table-column>
+              <table-column>Sociis natoque penatibus</table-column>
+            </table-row>
+          </table>
+        </panel>
+
+        <panel padding="10" border="1">
+          <table id="TableWithGroups" sort="ascending" sort-column="0">
+            <table-header>
+              <table-column>DOLOR</table-column>
+              <table-column>MAGNA</table-column>
+            </table-header>
+            <table-group>
+              <table-column>Vestibulum</table-column>
+              <table-column></table-column>
+            </table-group>
+            <table-row>
+              <table-column>Risus</table-column>
+              <table-column>Sociis natoque penatibus</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Blandit</table-column>
+              <table-column>Imperdiet nulla malesuada</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Cursus</table-column>
+              <table-column>Pellentesque elit eget gravida</table-column>
+            </table-row>
+            <table-group>
+              <table-column>Quis Hendrerit</table-column>
+              <table-column></table-column>
+            </table-group>
+            <table-row>
+              <table-column>Congue</table-column>
+              <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Adipiscing</table-column>
+              <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
+            </table-row>
+            <table-row>
+              <table-column>Consequat</table-column>
+              <table-column>Ac felis donec et odio pellentesque diam volutpat commodo</table-column>
+            </table-row>
+          </table>
+        </panel>
+      </panel>
+    </panel>
+
+    <panel height="70" orientation="vertical" spacing="10">
+      <panel font-size="18" halign="center">
+        <text>Slider: </text>
+        <text id="SliderValue">0.40</text>
+      </panel>
+
+      <slider
+        id="Slider"
+        value="0.40"
+        fill-progress="true"
+        progress-color="rgb(20, 130, 255)"
+        thumb-color="rgb(128, 128, 128)"
+        thumb-border-color="#000000"
+        background-color="rgb(192, 192, 192)">
+      </slider>
+    </panel>
+  </panel>
+</window>
