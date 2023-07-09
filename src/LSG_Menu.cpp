@@ -54,15 +54,18 @@ bool LSG_Menu::MouseClick(const SDL_MouseButtonEvent& event)
 	if (!this->visible)
 		return false;
 
+	auto currentSelectedMenu = this->selectedMenu;
+
 	LSG_UI::CloseSubMenu();
 
 	auto mousePosition = SDL_Point(event.x, event.y);
 	auto menuAreas     = this->getTextureDestinations();
+	auto selectedMenu  = this->getSelectedMenu(mousePosition, menuAreas);
 
-	this->selectedMenu = this->getSelectedMenu(mousePosition, menuAreas);
-
-	if ((this->selectedMenu < 0) || (this->selectedMenu >= (int)menuAreas.size()))
+	if ((selectedMenu < 0) || (selectedMenu >= (int)menuAreas.size()) || (selectedMenu == currentSelectedMenu))
 		return false;
+
+	this->selectedMenu = selectedMenu;
 
 	SDL_Rect menuArea = SDL_Rect(menuAreas[this->selectedMenu]);
 
