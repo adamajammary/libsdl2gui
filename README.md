@@ -32,10 +32,8 @@ You must call [LSG_Start](#lsg_start-xml) before using other *LSG_\** methods, s
 try {
   SDL_Renderer* renderer = LSG_Start("ui/main.xml");
 
-  std::vector<SDL_Event> events;
-
   while (LSG_IsRunning()) {
-    events = LSG_Run();
+    std::vector<SDL_Event> events = LSG_Run();
 
     myapp_handleEvents(events);
     myapp_render(renderer);
