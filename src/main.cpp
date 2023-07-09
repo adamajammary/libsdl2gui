@@ -92,6 +92,36 @@ LSG_ListItems LSG_GetListItems(const std::string& id)
 	return static_cast<LSG_List*>(component)->GetItems();
 }
 
+SDL_Point LSG_GetPosition(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id).c_str());
+
+	auto position = SDL_Point(component->background.x, component->background.y);
+
+	return position;
+}
+
+SDL_Size LSG_GetSize(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id).c_str());
+
+	auto size = SDL_Size(component->background.w, component->background.h);
+
+	return size;
+}
+
 LSG_TableColumns LSG_GetTableRow(const std::string& id, int row)
 {
 	if (!isRunning)

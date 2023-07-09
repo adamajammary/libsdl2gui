@@ -641,6 +641,40 @@ Exceptions
 - invalid_argument
 - exception
 
+### LSG_GetPosition
+
+```cpp
+SDL_Point LSG_GetPosition(const std::string& id);
+```
+
+Returns the component position.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_GetSize
+
+```cpp
+SDL_Size LSG_GetSize(const std::string& id);
+```
+
+Returns the component size.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
 ### LSG_GetTableRow
 
 ```cpp

@@ -123,6 +123,22 @@ DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
 DLLEXPORT LSG_TableColumns DLL LSG_GetListItems(const std::string& id);
 
 /**
+ * @returns the component position
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT SDL_Point DLL LSG_GetPosition(const std::string& id);
+
+/**
+ * @returns the component size
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
+
+/**
  * @returns the row columns from the <table> component
  * @param id  <table> component ID
  * @param row 0-based row index
