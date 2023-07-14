@@ -54,18 +54,23 @@ bool LSG_Menu::MouseClick(const SDL_MouseButtonEvent& event)
 	if (!this->visible)
 		return false;
 
+	auto mousePosition = SDL_Point(event.x, event.y);
+	auto destinations  = this->getTextureDestinations();
+	auto index         = this->getSelectedMenu(mousePosition, destinations);
+
+	return this->open(mousePosition, destinations, index);
+}
+
+bool LSG_Menu::open(const SDL_Point& mousePosition, const std::vector<SDL_Rect>& menuAreas, int index)
+{
 	auto currentSelectedMenu = this->selectedMenu;
 
 	LSG_UI::CloseSubMenu();
 
-	auto mousePosition = SDL_Point(event.x, event.y);
-	auto menuAreas     = this->getTextureDestinations();
-	auto selectedMenu  = this->getSelectedMenu(mousePosition, menuAreas);
-
-	if ((selectedMenu < 0) || (selectedMenu >= (int)menuAreas.size()) || (selectedMenu == currentSelectedMenu))
+	if ((index < 0) || (index >= (int)menuAreas.size()) || (index == currentSelectedMenu))
 		return false;
 
-	this->selectedMenu = selectedMenu;
+	this->selectedMenu = index;
 
 	SDL_Rect menuArea = SDL_Rect(menuAreas[this->selectedMenu]);
 
@@ -136,23 +141,21 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 		}
 	}
 
+	SDL_Point mousePosition = {};
+	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+
+	auto index = this->getSelectedMenu(mousePosition, destinations);
+
 	if (this->selectedMenu >= 0)
 		this->renderHighlightSelection(renderer, destinations, this->selectedMenu);
 
 	if (!this->enabled)
 		this->renderDisabledOverlay(renderer);
 	else if (this->highlighted)
-		this->renderHighlight(renderer, destinations);
-}
+		this->renderHighlightSelection(renderer, destinations, index);
 
-void LSG_Menu::renderHighlight(SDL_Renderer* renderer, const std::vector<SDL_Rect>& menuAreas)
-{
-	SDL_Point mousePosition = {};
-	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
-
-	auto index = this->getSelectedMenu(mousePosition, menuAreas);
-
-	this->renderHighlightSelection(renderer, menuAreas, index);
+	if ((this->selectedMenu >= 0) && (index >= 0) && (this->selectedMenu != index))
+		this->open(mousePosition, destinations, index);
 }
 
 void LSG_Menu::renderHighlightSelection(SDL_Renderer* renderer, const std::vector<SDL_Rect>& menuAreas, int index)

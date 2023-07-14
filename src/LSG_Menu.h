@@ -23,7 +23,7 @@ public:
 private:
 	int                   getSelectedMenu(const SDL_Point& mousePosition, const std::vector<SDL_Rect>& menuAreas);
 	std::vector<SDL_Rect> getTextureDestinations();
-	void                  renderHighlight(SDL_Renderer* renderer, const std::vector<SDL_Rect>& menuAreas);
+	bool                  open(const SDL_Point& mousePosition, const std::vector<SDL_Rect>& menuAreas, int index);
 	void                  renderHighlightSelection(SDL_Renderer* renderer, const std::vector<SDL_Rect>& menuAreas, int index);
 	virtual void          sendEvent(LSG_EventType type) override;
 
