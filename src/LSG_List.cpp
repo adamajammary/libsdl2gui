@@ -10,7 +10,8 @@ LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, Lib
 	this->rows        = {};
 	this->wrap        = true;
 
-	this->sortOrder = this->GetXmlAttribute("sort");
+	this->showRowBorder = (this->GetXmlAttribute("row-border") == "true");
+	this->sortOrder     = this->GetXmlAttribute("sort");
 }
 
 void LSG_List::AddItem(const std::string& item)
@@ -127,6 +128,10 @@ void LSG_List::Render(SDL_Renderer* renderer)
 
 	this->setRowHeights(rowHeight, listBackground);
 	this->renderTexture(renderer, listBackground);
+
+	if (this->showRowBorder)
+		this->renderRowBorder(renderer, rowHeight, listBackground);
+
 	this->renderHighlightSelection(renderer, listBackground);
 
 	if (this->showScrollX)
@@ -174,6 +179,39 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
 
 	SDL_RenderFillRect(renderer, &row);
+}
+
+void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea)
+{
+	const int BORDER = 1;
+
+	auto firstRow = this->getFirstRow();
+	auto offsetY  = (firstRow > 0 ? rowHeight : 0);
+	auto topY     = (backgroundArea.y + offsetY);
+	auto bottomY  = (backgroundArea.y + backgroundArea.h);
+
+	if (this->showScrollX)
+		bottomY -= LSG_SCROLL_WIDTH;
+
+	for (const auto& row : this->rows)
+	{
+		SDL_Rect borderBottom = SDL_Rect(row.background);
+
+		borderBottom.y += (row.background.h - BORDER - this->scrollOffsetY);
+		borderBottom.h  = BORDER;
+
+		if (this->showScrollY)
+			borderBottom.w -= LSG_SCROLL_WIDTH;
+
+		bool isVisible = ((borderBottom.y >= topY) && (borderBottom.y <= bottomY));
+
+		if (!isVisible)
+			continue;
+
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
+		SDL_RenderFillRect(renderer, &borderBottom);
+	}
 }
 
 bool LSG_List::select(int row)

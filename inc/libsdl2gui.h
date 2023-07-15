@@ -191,18 +191,32 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
 DLLEXPORT bool DLL LSG_IsRunning();
 
 /**
- * @brief Displays an Open File dialog.
+ * @brief Displays an Open File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
  * @throws exception
  */
 DLLEXPORT std::string DLL LSG_OpenFile();
 
 /**
- * @brief Displays an Open Folder dialog.
+ * @brief Displays an Open File dialog where you can select multiple files.
+ * @returns the selected file paths or an empty list if cancelled
+ * @throws exception
+ */
+DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles();
+
+/**
+ * @brief Displays an Open Folder dialog where you can select a single folder.
  * @returns the selected folder path or an empty string if cancelled
  * @throws exception
  */
 DLLEXPORT std::string DLL LSG_OpenFolder();
+
+/**
+ * @brief Displays an Open Folder dialog where you can select multiple folders.
+ * @returns the selected folder paths or an empty list if cancelled
+ * @throws exception
+ */
+DLLEXPORT std::vector<std::string> DLL LSG_OpenFolders();
 
 /**
  * @brief Presents the render buffer to the screen/window.
@@ -526,6 +540,14 @@ DLLEXPORT void DLL LSG_SetWindowTitle(const std::string& title);
  * @param message Error message
  */
 DLLEXPORT void DLL LSG_ShowError(const std::string& message);
+
+/**
+ * @brief Shows or hides the border/rule between rows.
+ * @param show true to show or false to hide
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_ShowRowBorder(const std::string& id, bool show = true);
 
 /**
  * @brief Sorts the list items.

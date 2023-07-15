@@ -78,8 +78,14 @@ int LSG_Table::getClickedHeaderColumn(const SDL_Point& mousePosition, const std:
 
 int LSG_Table::getColumnCount()
 {
-	auto firstRow    = this->getFirstRow();
-	auto columnCount = (int)(firstRow > 0 ? this->header.columns.size() : (!this->rows.empty() ? this->rows[0].columns.size() : 0));
+	int columnCount = 0;
+
+	if (this->getFirstRow() > 0)
+		columnCount = (int)this->header.columns.size();
+	else if (!this->rows.empty())
+		columnCount = (int)this->rows[0].columns.size();
+	else if (!this->groups.empty())
+		columnCount = (int)this->groups[0].columns.size();
 
 	return columnCount;
 }
@@ -95,6 +101,18 @@ int LSG_Table::getLastRowIndex()
 		index = max(group.index, index);
 
 	return index;
+}
+
+SDL_Color LSG_Table::getOffsetColor(const SDL_Color& color, int offset)
+{
+	const int DEFAULT = (255 - offset);
+	const int MAX     = (DEFAULT - offset);
+
+	auto r = (color.r < MAX ? (color.r + offset) : DEFAULT);
+	auto g = (color.g < MAX ? (color.g + offset) : DEFAULT);
+	auto b = (color.b < MAX ? (color.b + offset) : DEFAULT);
+
+	return SDL_Color(r, g, b, 255);
 }
 
 LSG_TableColumns LSG_Table::GetRow(int row)
@@ -319,6 +337,9 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 	this->setRowHeights(rowHeight, tableBackground);
 	this->renderTextures(renderer, tableBackground);
 
+	if (this->showRowBorder)
+		this->renderRowBorder(renderer, rowHeight, tableBackground);
+
 	if (!this->enabled)
 		this->renderDisabledOverlay(renderer);
 }
@@ -329,8 +350,10 @@ void LSG_Table::renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderD
 
 	headerFillDest.h = rowHeight;
 
+	auto fillColor = this->getOffsetColor(this->backgroundColor, 30);
+
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, this->backgroundColor.r, this->backgroundColor.g, this->backgroundColor.b, 255);
+	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 255);
 	SDL_RenderFillRect(renderer, &headerFillDest);
 }
 
@@ -351,8 +374,10 @@ void LSG_Table::renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, c
 
 		SDL_RenderCopy(renderer, this->textures[i], &clip, &destination);
 
-		destination.x    += (clip.w + LSG_TABLE_COLUMN_SPACING);
-		remainingX       -= (clip.w + LSG_TABLE_COLUMN_SPACING);
+		auto columnSpacing = (clip.w > 0 ? LSG_TABLE_COLUMN_SPACING : 0);
+
+		destination.x    += (clip.w + columnSpacing);
+		remainingX       -= (clip.w + columnSpacing);
 		remainingOffsetX -= columnSizes[i].width;
 	}
 }
@@ -542,7 +567,7 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 
 void LSG_Table::setRows()
 {
-	if (this->header.columns.empty() && this->rows.empty())
+	if (this->header.columns.empty() && this->rows.empty() && this->groups.empty())
 		return;
 
 	auto firstRow    = this->getFirstRow();

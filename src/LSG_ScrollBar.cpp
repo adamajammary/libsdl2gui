@@ -24,9 +24,13 @@ LSG_ScrollBar::LSG_ScrollBar()
 
 SDL_Color LSG_ScrollBar::getFillColor(const SDL_Color& backgroundColor)
 {
-	auto r = (backgroundColor.r < 215 ? (backgroundColor.r + 20) : 235);
-	auto g = (backgroundColor.g < 215 ? (backgroundColor.g + 20) : 235);
-	auto b = (backgroundColor.b < 215 ? (backgroundColor.b + 20) : 235);
+	const int OFFSET  = 20;
+	const int DEFAULT = (255 - OFFSET);
+	const int MAX     = (DEFAULT - OFFSET);
+
+	auto r = (backgroundColor.r < MAX ? (backgroundColor.r + OFFSET) : DEFAULT);
+	auto g = (backgroundColor.g < MAX ? (backgroundColor.g + OFFSET) : DEFAULT);
+	auto b = (backgroundColor.b < MAX ? (backgroundColor.b + OFFSET) : DEFAULT);
 
 	return SDL_Color(r, g, b, 255);
 }

@@ -13,6 +13,13 @@ private:
     static SDL_Renderer* renderer;
     static SDL_Window*   window;
 
+    #if defined _windows
+        static std::vector<std::wstring> openFiles(bool   allowMultipleSelection = false);
+        static std::vector<std::wstring> openFolders(bool allowMultipleSelection = false);
+    #else
+        static std::vector<std::string> openFiles(bool openFolder = false, bool allowMultipleSelection = false);
+    #endif
+
 public:
     static void          Close();
     static SDL_Size      GetMinimumSize();
@@ -33,11 +40,15 @@ public:
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
 
     #if defined _windows
-        static std::wstring OpenFile();
-        static std::wstring OpenFolder();
+        static std::wstring              OpenFile();
+        static std::wstring              OpenFolder();
+        static std::vector<std::wstring> OpenFiles();
+        static std::vector<std::wstring> OpenFolders();
     #else
-        static std::string OpenFile(bool openFolder = false);
-        static std::string OpenFolder();
+        static std::string              OpenFile();
+        static std::string              OpenFolder();
+        static std::vector<std::string> OpenFiles();
+        static std::vector<std::string> OpenFolders();
     #endif
 
 };

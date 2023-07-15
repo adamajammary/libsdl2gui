@@ -31,15 +31,16 @@ public:
 	void             Sort(LSG_SortOrder sortOrder, int sortColumn);
 
 private:
-	int  getClickedHeaderColumn(const SDL_Point& mousePosition, const std::vector<SDL_Size>& columnSizes, int maxWidth);
-	int  getColumnCount();
-	int  getLastRowIndex();
-	int  getRowHeight(const SDL_Size& textureSize);
-	void renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderDestination, int rowHeight);
-	void renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, const std::vector<SDL_Size>& columnSizes, const SDL_Rect& renderClip, const SDL_Rect& renderDestination);
-	void renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea);
-	void setRows();
-	void sort();
+	int       getClickedHeaderColumn(const SDL_Point& mousePosition, const std::vector<SDL_Size>& columnSizes, int maxWidth);
+	int       getColumnCount();
+	int       getLastRowIndex();
+	SDL_Color getOffsetColor(const SDL_Color& color, int offset);
+	int       getRowHeight(const SDL_Size& textureSize);
+	void      renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderDestination, int rowHeight);
+	void      renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, const std::vector<SDL_Size>& columnSizes, const SDL_Rect& renderClip, const SDL_Rect& renderDestination);
+	void      renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea);
+	void      setRows();
+	void      sort();
 
 };
 

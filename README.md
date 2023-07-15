@@ -303,6 +303,7 @@ height="size"
 background-color="color"
 border="int"
 border-color="color"
+row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -325,6 +326,7 @@ height="size"
 background-color="color"
 border="int"
 border-color="color"
+row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -778,7 +780,7 @@ Returns true if the library has been initialized and window created.
 
 ### LSG_OpenFile
 
-Displays an Open File dialog.
+Displays an Open File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
 
@@ -790,14 +792,42 @@ Exceptions
 
 - exception
 
+### LSG_OpenFiles
+
+Displays an Open File dialog where you can select multiple files.
+
+Returns the selected file paths or an empty list if cancelled.
+
+```cpp
+std::vector<std::string> LSG_OpenFiles();
+```
+
+Exceptions
+
+- exception
+
 ### LSG_OpenFolder
 
-Displays an Open Folder dialog.
+Displays an Open Folder dialog where you can select a single folder.
 
 Returns the selected folder path or an empty string if cancelled.
 
 ```cpp
 std::string LSG_OpenFolder();
+```
+
+Exceptions
+
+- exception
+
+### LSG_OpenFolders
+
+Displays an Open Folder dialog where you can select multiple folders.
+
+Returns the selected folder paths or an empty list if cancelled.
+
+```cpp
+std::vector<std::string> LSG_OpenFolders();
 ```
 
 Exceptions
@@ -1698,6 +1728,24 @@ Shows a modal dialog with an error icon and the error message.
 Parameters
 
 - **message** Error message
+
+### LSG_ShowRowBorder
+
+```cpp
+void LSG_ShowRowBorder(const std::string& id, bool show = true);
+```
+
+Shows or hides the border/rule between rows.
+
+Parameters
+
+- **id** \<list\> or  \<table\> component ID
+- **show** true to show or false to hide
+
+Exceptions
+
+- invalid_argument
+- exception
 
 ### LSG_SortList
 

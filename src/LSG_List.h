@@ -19,6 +19,9 @@ public:
 	LSG_List(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_List() {}
 
+public:
+	bool showRowBorder;
+
 protected:
 	LSG_ListRows groups;
 	LSG_ListRow  header;
@@ -46,6 +49,7 @@ protected:
 	int          getLastRow();
 	int          getRowHeight();
 	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea);
+	void         renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea);
 	bool         select(int row);
 	virtual void sendEvent(LSG_EventType type) override;
 	void         setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);

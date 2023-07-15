@@ -211,6 +211,31 @@ std::string LSG_OpenFile()
 	#endif
 }
 
+std::vector<std::string> LSG_OpenFiles()
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	#if defined _windows
+		std::vector<std::string> filePaths;
+
+		auto filePathsWide = LSG_Window::OpenFiles();
+
+		for (const auto& filePathWide : filePathsWide)
+		{
+			auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
+
+			filePaths.push_back(std::string(filePathUTF8));
+
+			SDL_free(filePathUTF8);
+		}
+
+		return filePaths;
+	#else
+		return LSG_Window::OpenFiles();
+	#endif
+}
+
 std::string LSG_OpenFolder()
 {
 	if (!isRunning)
@@ -226,6 +251,31 @@ std::string LSG_OpenFolder()
 		return folderPath;
 	#else
 		return LSG_Window::OpenFolder();
+	#endif
+}
+
+std::vector<std::string> LSG_OpenFolders()
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	#if defined _windows
+		std::vector<std::string> folderPaths;
+
+		auto folderPathsWide = LSG_Window::OpenFolders();
+
+		for (const auto& folderPathWide : folderPathsWide)
+		{
+			auto folderPathUTF8 = SDL_iconv_wchar_utf8(folderPathWide.c_str());
+
+			folderPaths.push_back(std::string(folderPathUTF8));
+
+			SDL_free(folderPathUTF8);
+		}
+
+		return folderPaths;
+	#else
+		return LSG_Window::OpenFolders();
 	#endif
 }
 
@@ -711,6 +761,19 @@ void LSG_SetWindowTitle(const std::string& title)
 void LSG_ShowError(const std::string& message)
 {
 	LSG_Window::ShowMessage(message);
+}
+
+void LSG_ShowRowBorder(const std::string& id, bool show)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	static_cast<LSG_List*>(component)->showRowBorder = show;
 }
 
 void LSG_SortList(const std::string& id, LSG_SortOrder sortOrder)

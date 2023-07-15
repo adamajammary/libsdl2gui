@@ -107,7 +107,7 @@ Euismod lacinia at quis risus.
 
       <panel spacing="10">
         <panel padding="10" border="1">
-          <table id="Table" sort="ascending" sort-column="0">
+          <table id="Table" row-border="true" sort="ascending" sort-column="0">
             <table-header>
               <table-column>DOLOR</table-column>
               <table-column>MAGNA</table-column>
