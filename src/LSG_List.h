@@ -5,13 +5,13 @@
 
 struct LSG_ListRow
 {
-	SDL_Rect         background = {};
-	LSG_TableColumns columns    = {};
-	int              index      = -1;
-	std::string      text       = "";
+	SDL_Rect    background = {};
+	LSG_Strings columns    = {};
+	int         index      = -1;
+	std::string text       = "";
 };
 
-typedef std::vector<LSG_ListRow> LSG_ListRows;
+using LSG_ListRows = std::vector<LSG_ListRow>;
 
 class LSG_List : public LSG_Text, public LSG_IEvent
 {
@@ -30,19 +30,19 @@ protected:
 	std::string  sortOrder;
 
 public:
-	void          AddItem(const std::string& item);
-	std::string   GetItem(int row);
-	LSG_ListItems GetItems();
-	virtual bool  MouseClick(const SDL_MouseButtonEvent& event) override;
-	void          RemoveItem(int row);
-	virtual void  Render(SDL_Renderer* renderer) override;
-	void          SelectFirstRow();
-	void          SelectLastRow();
-	void          SelectRow(int offset);
-	void          SetItem(int row, const std::string& item);
-	void          SetItems(LSG_ListItems& items);
-	void          SetItems();
-	void          Sort(LSG_SortOrder sortOrder);
+	void         AddItem(const std::string& item);
+	std::string  GetItem(int row);
+	LSG_Strings  GetItems();
+	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
+	void         RemoveItem(int row);
+	virtual void Render(SDL_Renderer* renderer) override;
+	void         SelectFirstRow();
+	void         SelectLastRow();
+	void         SelectRow(int offset);
+	void         SetItem(int row, const std::string& item);
+	void         SetItems(LSG_Strings& items);
+	void         SetItems();
+	void         Sort(LSG_SortOrder sortOrder);
 
 protected:
 	int          getFirstRow();

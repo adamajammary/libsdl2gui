@@ -39,10 +39,10 @@ namespace LibXml {
 
 class LSG_Component;
 
-typedef std::vector<LSG_Component*>                     LSG_Components;
-typedef std::map<int, LSG_Component*>                   LSG_MapIntComponent;
-typedef std::unordered_map<std::string, std::string>    LSG_UMapStrStr;
-typedef std::unordered_map<std::string, LSG_Component*> LSG_UMapStrComponent;
+using LSG_Components       = std::vector<LSG_Component*>;
+using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
+using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
+using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
 
 const char        LSG_ARROW_UP[4]             = { (char)0xE2, (char)0x86, (char)0x91, 0 };
 const char        LSG_ARROW_DOWN[4]           = { (char)0xE2, (char)0x86, (char)0x93, 0 };

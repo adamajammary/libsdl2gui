@@ -3,8 +3,6 @@
 #ifndef LSG_MENU_H
 #define LSG_MENU_H
 
-typedef std::vector<std::string> LSG_MenuItems;
-
 class LSG_Menu : public LSG_Text, public LSG_IEvent
 {
 public:

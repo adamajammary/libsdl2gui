@@ -53,7 +53,7 @@ void LSG_AddTableGroup(const std::string& id, const std::string& group, const LS
 	static_cast<LSG_Table*>(component)->AddGroup(group, rows);
 }
 
-void LSG_AddTableRow(const std::string& id, const LSG_TableColumns& columns)
+void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
@@ -79,7 +79,7 @@ std::string LSG_GetListItem(const std::string& id, int row)
 	return static_cast<LSG_List*>(component)->GetItem(row);
 }
 
-LSG_ListItems LSG_GetListItems(const std::string& id)
+LSG_Strings LSG_GetListItems(const std::string& id)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
@@ -122,7 +122,7 @@ SDL_Size LSG_GetSize(const std::string& id)
 	return size;
 }
 
-LSG_TableColumns LSG_GetTableRow(const std::string& id, int row)
+LSG_Strings LSG_GetTableRow(const std::string& id, int row)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
@@ -519,7 +519,7 @@ void LSG_SetListItem(const std::string& id, int row, const std::string& item)
 	static_cast<LSG_List*>(component)->SetItem(row, item);
 }
 
-void LSG_SetListItems(const std::string& id, LSG_ListItems& items)
+void LSG_SetListItems(const std::string& id, LSG_Strings& items)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
@@ -634,7 +634,7 @@ void LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups)
 	static_cast<LSG_Table*>(component)->SetGroups(groups);
 }
 
-void LSG_SetTableHeader(const std::string& id, const LSG_TableColumns& header)
+void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
@@ -647,7 +647,7 @@ void LSG_SetTableHeader(const std::string& id, const LSG_TableColumns& header)
 	static_cast<LSG_Table*>(component)->SetHeader(header);
 }
 
-void LSG_SetTableRow(const std::string& id, int row, const LSG_TableColumns& columns)
+void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);

@@ -26,7 +26,7 @@ void LSG_Table::AddGroup(const std::string& group, const LSG_TableRows& rows)
 
 	auto lastIndex = (this->getLastRowIndex() + 1);
 
-	auto groupRow = LSG_TableColumns(rows[0].size(), "");
+	auto groupRow = LSG_Strings(rows[0].size(), "");
 	groupRow[0]   = group;
 
 	this->groups.push_back({ .columns = groupRow, .index = lastIndex });
@@ -40,7 +40,7 @@ void LSG_Table::AddGroup(const std::string& group, const LSG_TableRows& rows)
 	this->setRows();
 }
 
-void LSG_Table::AddRow(const LSG_TableColumns& columns)
+void LSG_Table::AddRow(const LSG_Strings& columns)
 {
 	if (columns.empty())
 		return;
@@ -115,7 +115,7 @@ SDL_Color LSG_Table::getOffsetColor(const SDL_Color& color, int offset)
 	return SDL_Color(r, g, b, 255);
 }
 
-LSG_TableColumns LSG_Table::GetRow(int row)
+LSG_Strings LSG_Table::GetRow(int row)
 {
 	for (const auto& r : this->rows) {
 		if (r.index == row)
@@ -484,7 +484,7 @@ void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 		if (group.second.empty())
 			continue;
 
-		auto groupRow = LSG_TableColumns(group.second[0].size(), "");
+		auto groupRow = LSG_Strings(group.second[0].size(), "");
 		groupRow[0]   = group.first;
 
 		this->groups.push_back({ .columns = groupRow, .index = (firstRow + index) });
@@ -499,7 +499,7 @@ void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 	this->setRows();
 }
 
-void LSG_Table::SetHeader(const LSG_TableColumns& header)
+void LSG_Table::SetHeader(const LSG_Strings& header)
 {
 	if (header.empty())
 		return;
@@ -520,7 +520,7 @@ void LSG_Table::SetHeader(const LSG_TableColumns& header)
 	this->setRows();
 }
 
-void LSG_Table::SetRow(int row, const LSG_TableColumns& columns)
+void LSG_Table::SetRow(int row, const LSG_Strings& columns)
 {
 	if (columns.empty())
 		return;
@@ -580,11 +580,11 @@ void LSG_Table::setRows()
 	auto rowCount = (firstRow + this->groups.size() + this->rows.size());
 	auto rows     = LSG_TableRows(rowCount);
 
-	this->textColumns = LSG_TableColumns(columnCount, "");
+	this->textColumns = LSG_Strings(columnCount, "");
 
 	if (firstRow > 0)
 	{
-		auto columns    = LSG_TableColumns(this->header.columns);
+		auto columns    = LSG_Strings(this->header.columns);
 		auto sortColumn = ((this->sortColumn >= 0) && (this->sortColumn < (int)columns.size()) ? this->sortColumn : 0);
 
 		if (this->sortOrder == LSG_ASCENDING)
@@ -676,7 +676,7 @@ void LSG_Table::SetRows()
 			if (children.empty())
 				break;
 
-			LSG_TableColumns columns;
+			LSG_Strings columns;
 
 			columns.push_back(children[0]->GetXmlValue());
 

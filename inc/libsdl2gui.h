@@ -62,10 +62,9 @@ struct SDL_Size
 	int height = 0;
 };
 
-typedef std::vector<std::string>                       LSG_ListItems;
-typedef std::vector<std::string>                       LSG_TableColumns;
-typedef std::vector<LSG_TableColumns>                  LSG_TableRows;
-typedef std::unordered_map<std::string, LSG_TableRows> LSG_TableGroups;
+using LSG_Strings     = std::vector<std::string>;
+using LSG_TableRows   = std::vector<LSG_Strings>;
+using LSG_TableGroups = std::unordered_map<std::string, LSG_TableRows>;
 
 /**
  * @brief Adds a new item to the <list> component.
@@ -103,7 +102,7 @@ DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const std::string& g
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_TableColumns& columns);
+DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 
 /**
  * @returns the item row from the <list> component
@@ -120,7 +119,7 @@ DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT LSG_TableColumns DLL LSG_GetListItems(const std::string& id);
+DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 
 /**
  * @returns the component position
@@ -145,7 +144,7 @@ DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT LSG_TableColumns DLL LSG_GetTableRow(const std::string& id, int row);
+DLLEXPORT LSG_Strings DLL LSG_GetTableRow(const std::string& id, int row);
 
 /**
  * @returns all rows from the <table> component
@@ -377,7 +376,7 @@ DLLEXPORT void DLL LSG_SetListItem(const std::string& id, int row, const std::st
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT void DLL LSG_SetListItems(const std::string& id, LSG_ListItems& items);
+DLLEXPORT void DLL LSG_SetListItems(const std::string& id, LSG_Strings& items);
 
 /**
  * @brief Sets the margin around a component.
@@ -449,7 +448,7 @@ DLLEXPORT void DLL LSG_SetTableGroups(const std::string& id, const LSG_TableGrou
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT void DLL LSG_SetTableHeader(const std::string& id, const LSG_TableColumns& header);
+DLLEXPORT void DLL LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 
 /**
  * @brief Updates and overwrites the row columns in a <table> component.
@@ -459,7 +458,7 @@ DLLEXPORT void DLL LSG_SetTableHeader(const std::string& id, const LSG_TableColu
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT void DLL LSG_SetTableRow(const std::string& id, int row, const LSG_TableColumns& columns);
+DLLEXPORT void DLL LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 
 /**
  * @brief Sets the rows of a <table> component.

@@ -10,16 +10,16 @@ public:
 	~LSG_MenuSub() {}
 
 private:
-	LSG_MenuItems items;
-	int           selectedSubMenu;
+	LSG_Strings items;
+	int         selectedSubMenu;
 
 public:
-	void          AddItem(const std::string& item, const std::string& itemId = "");
-	void          Close();
-	LSG_MenuItems GetItems();
-	virtual bool  MouseClick(const SDL_MouseButtonEvent& event) override;
-	virtual void  Render(SDL_Renderer* renderer) override;
-	void          SetItems();
+	void         AddItem(const std::string& item, const std::string& itemId = "");
+	void         Close();
+	LSG_Strings  GetItems();
+	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
+	virtual void Render(SDL_Renderer* renderer) override;
+	void         SetItems();
 
 private:
 	int          getRowHeight(LSG_Component* component);

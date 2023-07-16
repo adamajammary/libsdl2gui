@@ -37,7 +37,7 @@ void LSG_MenuSub::Close()
 	this->destroyTextures();
 }
 
-LSG_MenuItems LSG_MenuSub::GetItems()
+LSG_Strings LSG_MenuSub::GetItems()
 {
 	return this->items;
 }

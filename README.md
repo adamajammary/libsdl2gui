@@ -476,28 +476,22 @@ struct SDL_Size {
 };
 ```
 
-### LSG_ListItems
+### LSG_Strings
 
 ```cpp
-typedef std::vector<std::string> LSG_ListItems;
-```
-
-### LSG_TableColumns
-
-```cpp
-typedef std::vector<std::string> LSG_TableColumns;
+using LSG_Strings = std::vector<std::string>;
 ```
 
 ### LSG_TableRows
 
 ```cpp
-typedef std::vector<LSG_TableColumns> LSG_TableRows;
+using LSG_TableRows = std::vector<LSG_Strings>;
 ```
 
 ### LSG_TableGroups
 
 ```cpp
-typedef std::unordered_map<std::string, LSG_TableRows> LSG_TableGroups;
+using LSG_TableGroups = std::unordered_map<std::string, LSG_TableRows>;
 ```
 
 ### LSG_AddListItem
@@ -583,7 +577,7 @@ LSG_AddTableGroup("TableWithGroups", "New Group", rows);
 ### LSG_AddTableRow
 
 ```cpp
-void LSG_AddTableRow(const std::string& id, const LSG_TableColumns& columns);
+void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 ```
 
 Adds a new row to the \<table\> component.
@@ -601,7 +595,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableColumns row = { "New Row", "My new table row" };
+LSG_Strings row = { "New Row", "My new table row" };
 
 LSG_AddTableRow("Table", row);
 ```
@@ -627,7 +621,7 @@ Exceptions
 ### LSG_GetListItems
 
 ```cpp
-LSG_TableColumns LSG_GetListItems(const std::string& id);
+LSG_Strings LSG_GetListItems(const std::string& id);
 ```
 
 Returns all items from the \<list\> component.
@@ -678,7 +672,7 @@ Exceptions
 ### LSG_GetTableRow
 
 ```cpp
-LSG_TableColumns LSG_GetTableRow(const std::string& id, int row);
+LSG_Strings LSG_GetTableRow(const std::string& id, int row);
 ```
 
 Returns the row columns from the \<table\> component.
@@ -1227,7 +1221,7 @@ LSG_SetListItem("List", 12, "My updated list item.");
 ### LSG_SetListItems
 
 ```cpp
-void LSG_SetListItems(const std::string& id, LSG_ListItems& items);
+void LSG_SetListItems(const std::string& id, LSG_Strings& items);
 ```
 
 Sets the items of a \<list\> component.
@@ -1245,7 +1239,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_ListItems listItems = {
+LSG_Strings listItems = {
   "Lorem ipsum dolor sit amet",
   "consectetur adipiscing elit",
   "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
@@ -1443,7 +1437,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroups);
 ### LSG_SetTableHeader
 
 ```cpp
-void LSG_SetTableHeader(const std::string& id, const LSG_TableColumns& header);
+void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 ```
 
 Sets the header columns of a \<table\> component.
@@ -1461,7 +1455,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableColumns tableHeader = {
+LSG_Strings tableHeader = {
   "DOLOR",
   "MAGNA"
 };
@@ -1472,7 +1466,7 @@ LSG_SetTableHeader("Table", tableHeader);
 ### LSG_SetTableRow
 
 ```cpp
-void LSG_SetTableRow(const std::string& id, int row, const LSG_TableColumns& columns);
+void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
 Updates and overwrites the row columns in a \<table\> component.
@@ -1491,7 +1485,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableColumns row = { "Updated Row", "My updated table row" };
+LSG_Strings row = { "Updated Row", "My updated table row" };
 
 LSG_SetTableRow("Table", 6, row);
 ```

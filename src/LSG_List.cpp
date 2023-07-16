@@ -19,7 +19,7 @@ void LSG_List::AddItem(const std::string& item)
 	if (item.empty())
 		return;
 
-	LSG_ListItems items;
+	LSG_Strings items;
 
 	for (const auto& row : this->rows)
 		items.push_back(row.text);
@@ -45,9 +45,9 @@ std::string LSG_List::GetItem(int row)
 	return "";
 }
 
-LSG_ListItems LSG_List::GetItems()
+LSG_Strings LSG_List::GetItems()
 {
-	LSG_ListItems items;
+	LSG_Strings items;
 
 	for (const auto& row : this->rows)
 		items.push_back(row.text);
@@ -102,7 +102,7 @@ void LSG_List::RemoveItem(int row)
 	if (this->rows.empty() || (row < 0) || (row >= (int)this->rows.size()))
 		return;
 
-	LSG_ListItems items;
+	LSG_Strings items;
 
 	for (int i = 0; i < (int)this->rows.size(); i++) {
 		if (i != row)
@@ -328,7 +328,7 @@ void LSG_List::SetItem(int row, const std::string& item)
 	if (item.empty() || this->rows.empty() || (row < 0) || (row >= (int)this->rows.size()))
 		return;
 
-	LSG_ListItems items;
+	LSG_Strings items;
 
 	this->rows[row].text = item;
 
@@ -338,7 +338,7 @@ void LSG_List::SetItem(int row, const std::string& item)
 	this->SetItems(items);
 }
 
-void LSG_List::SetItems(LSG_ListItems& items)
+void LSG_List::SetItems(LSG_Strings& items)
 {
 	if (items.empty())
 		return;
@@ -388,7 +388,7 @@ void LSG_List::SetItems()
 		this->rows.clear();
 		this->text = "";
 
-		LSG_ListItems items;
+		LSG_Strings items;
 
 		for (auto child : this->children)
 		{
@@ -421,7 +421,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 {
 	this->sortOrder = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
 
-	LSG_ListItems items;
+	LSG_Strings items;
 
 	for (const auto& row : this->rows)
 		items.push_back(row.text);
