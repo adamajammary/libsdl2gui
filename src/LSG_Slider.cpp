@@ -159,7 +159,7 @@ void LSG_Slider::sendEvent(LSG_EventType type)
 	SDL_Event sliderEvent = {};
 
 	sliderEvent.type       = SDL_RegisterEvents(1);
-	sliderEvent.user.code  = (int32_t)type;
+	sliderEvent.user.code  = (int)type;
 	sliderEvent.user.data1 = (void*)strdup(this->GetID().c_str());
 	sliderEvent.user.data2 = (void*)&this->value;
 
@@ -197,6 +197,13 @@ void LSG_Slider::setValue(int offset)
 		this->value = (double)((double)((int)((double)this->background.h * this->value) - offset) / (double)this->background.h);
 	else
 		this->value = (double)((double)((int)((double)this->background.w * this->value) - offset) / (double)this->background.w);
+
+	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
+}
+
+void LSG_Slider::SetValue(double value)
+{
+	this->value = max(0.0, min(1.0, value));
 
 	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
 }

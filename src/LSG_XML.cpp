@@ -130,8 +130,18 @@ void LSG_XML::SetAttribute(LibXml::xmlNode* xmlNode, const std::string& attribut
 	if (!xmlNode || attribute.empty())
 		return;
 
-	auto attr = reinterpret_cast<const LibXml::xmlChar*>(attribute.c_str());
-	auto val  = reinterpret_cast<const LibXml::xmlChar*>(value.c_str());
+	auto xmlAttribute = reinterpret_cast<const LibXml::xmlChar*>(attribute.c_str());
+	auto xmlValue     = reinterpret_cast<const LibXml::xmlChar*>(value.c_str());
 
-	LibXml::xmlSetProp(xmlNode, attr, val);
+	LibXml::xmlSetProp(xmlNode, xmlAttribute, xmlValue);
+}
+
+void LSG_XML::SetValue(LibXml::xmlNode* xmlNode, const std::string& value)
+{
+	if (!xmlNode)
+		return;
+
+	auto xmlValue = reinterpret_cast<const LibXml::xmlChar*>(value.c_str());
+
+	LibXml::xmlNodeSetContent(xmlNode, xmlValue);
 }

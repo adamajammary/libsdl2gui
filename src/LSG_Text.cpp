@@ -10,16 +10,16 @@ LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, Lib
 	this->wrap          = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
 }
 
-TTF_Font* LSG_Text::getFont(uint16_t* text)
+TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 {
-	if ((this->fontSize < 1) || !text)
+	if ((fontSize < 1) || !text)
 		return nullptr;
 
 	TTF_Font* font = nullptr;
 
 	if (this->IsMenu() || this->IsSubMenu() || this->IsMenuItem())
 	{
-		font = this->getFontMonoSpace();
+		font = this->getFontMonoSpace(fontSize);
 
 		for (int i = 0; text[i] > 0 && i < 1024; i++)
 		{
@@ -34,7 +34,7 @@ TTF_Font* LSG_Text::getFont(uint16_t* text)
 	}
 
 	if (!font)
-		font = this->getFontArial();
+		font = this->getFontArial(fontSize);
 
 	if (font)
 		TTF_SetFontStyle(font, this->fontStyle);
@@ -42,39 +42,39 @@ TTF_Font* LSG_Text::getFont(uint16_t* text)
 	return font;
 }
 
-TTF_Font* LSG_Text::getFontArial()
+TTF_Font* LSG_Text::getFontArial(int fontSize)
 {
 	TTF_Font* font = nullptr;
 
 	#if defined _android
-		font = TTF_OpenFont("/system/fonts/DroidSans.ttf", this->fontSize);
+		font = TTF_OpenFont("/system/fonts/DroidSans.ttf", fontSize);
 	#elif defined _ios
-		font = TTF_OpenFont("/System/Library/Fonts/Cache/arialuni.ttf", this->fontSize);
+		font = TTF_OpenFont("/System/Library/Fonts/Cache/arialuni.ttf", fontSize);
 	#elif defined _linux
-		font = TTF_OpenFont("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", this->fontSize);
+		font = TTF_OpenFont("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", fontSize);
 	#elif defined  _macosx
-		font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", this->fontSize);
+		font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", fontSize);
 	#elif defined _windows
-		font = TTF_OpenFont("C:/Windows/Fonts/ARIALUNI.TTF", this->fontSize);
+		font = TTF_OpenFont("C:/Windows/Fonts/ARIALUNI.TTF", fontSize);
 	#endif
 
 	return font;
 }
 
-TTF_Font* LSG_Text::getFontMonoSpace()
+TTF_Font* LSG_Text::getFontMonoSpace(int fontSize)
 {
 	TTF_Font* font = nullptr;
 
 	#if defined _android
-		font = TTF_OpenFont("/system/fonts/DroidSansMono.ttf", this->fontSize);
+		font = TTF_OpenFont("/system/fonts/DroidSansMono.ttf", fontSize);
 	#elif defined _ios
-		font = TTF_OpenFont("/System/Library/Fonts/Cache/CourierNewBold.ttf", this->fontSize);
+		font = TTF_OpenFont("/System/Library/Fonts/Cache/CourierNewBold.ttf", fontSize);
 	#elif defined _linux
-		font = TTF_OpenFont("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf", this->fontSize);
+		font = TTF_OpenFont("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf", fontSize);
 	#elif defined  _macosx
-		font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Courier New Bold.ttf", this->fontSize);
+		font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Courier New Bold.ttf", fontSize);
 	#elif defined _windows
-		font = TTF_OpenFont("C:/Windows/Fonts/courbd.ttf", this->fontSize);
+		font = TTF_OpenFont("C:/Windows/Fonts/courbd.ttf", fontSize);
 	#endif
 
 	return font;
@@ -106,7 +106,8 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text)
 	if (!textUTF16)
 		return nullptr;
 
-	auto font = LSG_Text::getFont(textUTF16);
+	auto fontSize = this->getFontSize();
+	auto font     = LSG_Text::getFont(textUTF16, fontSize);
 
 	if (!font) {
 		SDL_free(textUTF16);
@@ -130,7 +131,7 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text)
 
 	SDL_FreeSurface(surface);
 
-	this->lastFontSize  = this->fontSize;
+	this->lastFontSize  = fontSize;
 	this->lastTextColor = SDL_Color(this->textColor);
 
 	return texture;
@@ -138,7 +139,9 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text)
 
 bool LSG_Text::hasChanged()
 {
-	return (!SDL_ColorEquals(this->textColor, this->lastTextColor) || (this->fontSize != this->lastFontSize));
+	auto fontSize = this->getFontSize();
+
+	return (!SDL_ColorEquals(this->textColor, this->lastTextColor) || (fontSize != this->lastFontSize));
 }
 
 void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundArea)

@@ -154,7 +154,7 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 	else if (this->highlighted)
 		this->renderHighlightSelection(renderer, destinations, index);
 
-	if ((this->selectedMenu >= 0) && (index >= 0) && (this->selectedMenu != index))
+	if ((this->selectedMenu >= 0) && (index >= 0) && (index != this->selectedMenu))
 		this->open(mousePosition, destinations, index);
 }
 

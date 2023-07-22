@@ -34,7 +34,7 @@ void LSG_Button::sendEvent(LSG_EventType type)
 	SDL_Event clickEvent = {};
 
 	clickEvent.type       = SDL_RegisterEvents(1);
-	clickEvent.user.code  = (int32_t)type;
+	clickEvent.user.code  = (int)type;
 	clickEvent.user.data1 = (void*)strdup(this->GetID().c_str());
 
 	SDL_PushEvent(&clickEvent);

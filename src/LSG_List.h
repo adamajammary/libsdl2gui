@@ -31,6 +31,7 @@ protected:
 
 public:
 	void         AddItem(const std::string& item);
+	void         Activate();
 	std::string  GetItem(int row);
 	LSG_Strings  GetItems();
 	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;

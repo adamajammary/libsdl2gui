@@ -180,6 +180,8 @@ text-color="color"
 
 [alignment](#alignment) | [color](#color) | [orientation](#orientation) | [size](#size)
 
+Triggers [LSG_EVENT_COMPONENT_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_DOUBLE_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_RIGHT_CLICKED](#handle-events) events.
+
 ```ini
 id="string"
 width="size"
@@ -422,6 +424,9 @@ Slider.thumb-border-color=#000000
 ```cpp
 enum LSG_EventType {
   LSG_EVENT_BUTTON_CLICKED,
+  LSG_EVENT_COMPONENT_CLICKED,
+  LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
+  LSG_EVENT_COMPONENT_RIGHT_CLICKED,
   LSG_EVENT_MENU_ITEM_SELECTED,
   LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
   LSG_EVENT_ROW_SELECTED,
@@ -467,6 +472,22 @@ enum LSG_SortOrder {
 };
 ```
 
+### LSG_DEFAULT_FONT_SIZE
+
+```cpp
+const int LSG_DEFAULT_FONT_SIZE = 14;
+```
+
+### LSG_TableGroupRows
+
+```cpp
+struct LSG_TableGroupRows
+{
+  std::string   header;
+  LSG_TableRows rows;
+};
+```
+
 ### SDL_Size
 
 ```cpp
@@ -482,16 +503,16 @@ struct SDL_Size {
 using LSG_Strings = std::vector<std::string>;
 ```
 
+### LSG_TableGroups
+
+```cpp
+using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
+```
+
 ### LSG_TableRows
 
 ```cpp
 using LSG_TableRows = std::vector<LSG_Strings>;
-```
-
-### LSG_TableGroups
-
-```cpp
-using LSG_TableGroups = std::unordered_map<std::string, LSG_TableRows>;
 ```
 
 ### LSG_AddListItem
@@ -698,6 +719,23 @@ Returns all rows from the \<table\> component.
 Parameters
 
 - **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_GetText
+
+```cpp
+std::string LSG_GetText(const std::string& id);
+```
+
+Returns the text value of a \<text\> component.
+
+Parameters
+
+- **id** \<text\> component ID
 
 Exceptions
 
@@ -1126,11 +1164,11 @@ LSG_SetEnabled("ButtonIdColorThemeLight");
 void LSG_SetFontSize(const std::string& id, int size);
 ```
 
-Sets the font size of a \<text\> component.
+Sets the font size of a component.
 
 Parameters
 
-- **id** \<text\> component ID
+- **id** Component ID
 - **size** Font size
 
 Exceptions
@@ -1281,6 +1319,30 @@ Example
 LSG_SetMargin("Root", 5);
 ```
 
+### LSG_SetMenuItemValue
+
+```cpp
+void LSG_SetMenuItemValue(const std::string& id, const std::string& value);
+```
+
+Sets the text value of a \<menu-item\> component.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+- **value** Text value
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SetMenuItemValue("MenuIdQuit", "Quit\\tCtrl+Q");
+```
+
 ### LSG_SetOrientation
 
 ```cpp
@@ -1349,6 +1411,30 @@ Example
 
 ```cpp
 LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
+```
+
+### LSG_SetSliderValue
+
+```cpp
+void LSG_SetSliderValue(const std::string& id, double percent);
+```
+
+Sets the value of a \<slider\> component as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<slider\> component ID
+- **percent** [0.0-1.0]
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SetSliderValue("Slider", 0.5);
 ```
 
 ### LSG_SetSpacing
@@ -1569,6 +1655,30 @@ Example
 
 ```cpp
 LSG_SetTextColor("TextIdColorTheme", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetVisible
+
+```cpp
+void LSG_SetVisible(const std::string& id, bool visible = true);
+```
+
+Shows or hides the component.
+
+Parameters
+
+- **id** Component ID
+- **visible** true to show or false to hide
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SetVisible("MenuIdMenu", false);
 ```
 
 ### LSG_SetWidth

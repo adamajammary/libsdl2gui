@@ -26,9 +26,20 @@ bool LSG_MenuItem::MouseClick(const SDL_MouseButtonEvent& event)
 void LSG_MenuItem::Render(SDL_Renderer* renderer)
 {
 	if (!this->enabled)
+	{
 		this->renderDisabledOverlay(renderer);
-	else if (this->highlighted )
+	}
+	else if (this->highlighted)
+	{
 		this->renderHighlight(renderer);
+
+		auto parentChildren = this->parent->GetChildren();
+
+		for (auto child : parentChildren) {
+			LSG_UI::SetSubMenuVisible(child, false);
+			child->visible = true;
+		}
+	}
 
 	if (!this->visible)
 		return;
@@ -69,7 +80,7 @@ void LSG_MenuItem::sendEvent(LSG_EventType type)
 	SDL_Event menuEvent = {};
 
 	menuEvent.type       = SDL_RegisterEvents(1);
-	menuEvent.user.code  = (int32_t)type;
+	menuEvent.user.code  = (int)type;
 	menuEvent.user.data1 = (void*)strdup(this->GetID().c_str());
 
 	SDL_PushEvent(&menuEvent);
@@ -88,4 +99,9 @@ void LSG_MenuItem::SetSelected(bool selected)
 	}
 
 	this->selected = selected;
+}
+
+void LSG_MenuItem::SetValue(const std::string& value)
+{
+	LSG_XML::SetValue(this->xmlNode, value);
 }

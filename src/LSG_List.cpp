@@ -14,10 +14,17 @@ LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, Lib
 	this->sortOrder     = this->GetXmlAttribute("sort");
 }
 
+void LSG_List::Activate()
+{
+	this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
+}
+
 void LSG_List::AddItem(const std::string& item)
 {
 	if (item.empty())
 		return;
+
+	this->row = -1;
 
 	LSG_Strings items;
 
@@ -102,6 +109,8 @@ void LSG_List::RemoveItem(int row)
 	if (this->rows.empty() || (row < 0) || (row >= (int)this->rows.size()))
 		return;
 
+	this->row = -1;
+
 	LSG_Strings items;
 
 	for (int i = 0; i < (int)this->rows.size(); i++) {
@@ -146,10 +155,10 @@ void LSG_List::Render(SDL_Renderer* renderer)
 
 void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea)
 {
-	if (this->rows.empty())
+	if (this->rows.empty() && this->groups.empty())
 		return;
 
-	auto row = SDL_Rect(this->rows[0].background);
+	auto row = SDL_Rect(!this->rows.empty() ? this->rows[0].background : this->groups[0].background);
 
 	row.y = (backgroundArea.y + (this->row * row.h));
 
@@ -216,7 +225,7 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_
 
 bool LSG_List::select(int row)
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->rows.empty() && this->groups.empty()))
 		return false;
 
 	auto firstRow = this->getFirstRow();
@@ -224,6 +233,9 @@ bool LSG_List::select(int row)
 
 	if ((row < firstRow) || (row > lastRow))
 		return false;
+
+	if (row == this->row)
+		return true;
 
 	this->row = row;
 
@@ -234,7 +246,7 @@ bool LSG_List::select(int row)
 
 void LSG_List::SelectFirstRow()
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->rows.empty() && this->groups.empty()))
 		return;
 
 	auto firstRow = this->getFirstRow();
@@ -245,7 +257,7 @@ void LSG_List::SelectFirstRow()
 
 void LSG_List::SelectLastRow()
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->rows.empty() && this->groups.empty()))
 		return;
 
 	auto lastRow = this->getLastRow();
@@ -256,7 +268,7 @@ void LSG_List::SelectLastRow()
 
 void LSG_List::SelectRow(int offset)
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->rows.empty() && this->groups.empty()))
 		return;
 
 	auto firstRow    = this->getFirstRow();
@@ -290,7 +302,7 @@ void LSG_List::sendEvent(LSG_EventType type)
 	SDL_Event listEvent = {};
 
 	listEvent.type       = SDL_RegisterEvents(1);
-	listEvent.user.code  = (int32_t)type;
+	listEvent.user.code  = (int)type;
 	listEvent.user.data1 = (void*)strdup(this->GetID().c_str());
 	listEvent.user.data2 = (void*)&this->row;
 
@@ -299,18 +311,21 @@ void LSG_List::sendEvent(LSG_EventType type)
 
 void LSG_List::setRowHeights(int rowHeight, const SDL_Rect& backgroundArea)
 {
-	if (this->rows.empty() || !SDL_RectEmpty(&this->rows[0].background) || SDL_RectEmpty(&this->background))
+	if ((rowHeight < 1) || SDL_RectEmpty(&backgroundArea))
 		return;
 
 	auto firstRow = this->getFirstRow();
 
-	if (firstRow > 0) {
+	if ((firstRow > 0) && (this->header.background.h < 1)) {
 		auto headers = std::vector<LSG_ListRow>{ this->header };
 		this->setRowHeights(headers, rowHeight, backgroundArea);
 	}
 
-	this->setRowHeights(this->groups, rowHeight, backgroundArea);
-	this->setRowHeights(this->rows,   rowHeight, backgroundArea);
+	if (!this->groups.empty() && (this->groups[0].background.h < 1))
+		this->setRowHeights(this->groups, rowHeight, backgroundArea);
+
+	if (!this->rows.empty() && (this->rows[0].background.h < 1))
+		this->setRowHeights(this->rows, rowHeight, backgroundArea);
 }
 
 void LSG_List::setRowHeights(std::vector<LSG_ListRow>& rows, int rowHeight, const SDL_Rect& backgroundArea)
@@ -347,6 +362,8 @@ void LSG_List::SetItems(LSG_Strings& items)
 		this->sort(items);
 
 	this->rows.clear();
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
 	this->text = "";
 
 	for (int i = 0; i < (int)items.size(); i++)
@@ -372,7 +389,7 @@ void LSG_List::SetItems(LSG_Strings& items)
 
 void LSG_List::SetItems()
 {
-	if (!this->rows.empty() && !this->text.empty() && this->texture && SDL_ColorEquals(this->textColor, this->lastTextColor))
+	if (!this->rows.empty() && !this->text.empty() && this->texture && !this->hasChanged())
 	{
 		this->scrollOffsetX = 0;
 		this->scrollOffsetY = 0;
@@ -419,6 +436,7 @@ void LSG_List::SetItems()
 
 void LSG_List::Sort(LSG_SortOrder sortOrder)
 {
+	this->row       = -1;
 	this->sortOrder = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
 
 	LSG_Strings items;

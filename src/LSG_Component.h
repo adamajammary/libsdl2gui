@@ -23,7 +23,6 @@ public:
 	int       border;
 	SDL_Color borderColor;
 	bool      enabled;
-	int       fontSize;
 	bool      highlighted;
 	int       margin;
 	int       padding;
@@ -70,6 +69,7 @@ public:
 	void             SetAlignmentHorizontal(LSG_HAlign alignment);
 	void             SetAlignmentVertical(LSG_VAlign   alignment);
 	virtual void     SetColors();
+	void             SetFontSize(int size);
 	void             SetHeight(int height);
 	void             SetOrientation(LSG_Orientation orientation);
 	void             SetPositionAlign(int x, int y);

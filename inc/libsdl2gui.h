@@ -11,7 +11,6 @@
 
 #include <format>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #ifndef LIB_SDL2_H
@@ -24,6 +23,9 @@ extern "C" {
 enum LSG_EventType
 {
 	LSG_EVENT_BUTTON_CLICKED,
+	LSG_EVENT_COMPONENT_CLICKED,
+	LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
+	LSG_EVENT_COMPONENT_RIGHT_CLICKED,
 	LSG_EVENT_MENU_ITEM_SELECTED,
 	LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_ROW_SELECTED,
@@ -56,15 +58,24 @@ enum LSG_SortOrder
 	LSG_SORT_ORDER_DESCENDING
 };
 
+const int LSG_DEFAULT_FONT_SIZE = 14;
+
 struct SDL_Size
 {
 	int width  = 0;
 	int height = 0;
 };
 
-using LSG_Strings     = std::vector<std::string>;
-using LSG_TableRows   = std::vector<LSG_Strings>;
-using LSG_TableGroups = std::unordered_map<std::string, LSG_TableRows>;
+using LSG_Strings   = std::vector<std::string>;
+using LSG_TableRows = std::vector<LSG_Strings>;
+
+struct LSG_TableGroupRows
+{
+	std::string   header;
+	LSG_TableRows rows;
+};
+
+using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
 
 /**
  * @brief Adds a new item to the <list> component.
@@ -153,6 +164,14 @@ DLLEXPORT LSG_Strings DLL LSG_GetTableRow(const std::string& id, int row);
  * @throws exception
  */
 DLLEXPORT LSG_TableRows DLL LSG_GetTableRows(const std::string& id);
+
+/**
+ * @returns the text value of a <text> component
+ * @param id <text> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT std::string DLL LSG_GetText(const std::string& id);
 
 /**
  * @returns the minimum window size
@@ -332,8 +351,8 @@ DLLEXPORT void DLL LSG_SetColorTheme(const std::string& colorThemeFile);
 DLLEXPORT void DLL LSG_SetEnabled(const std::string& id, bool enabled = true);
 
 /**
- * @brief Sets the font size of a <text> component.
- * @param id   <text> component ID
+ * @brief Sets the font size of a component.
+ * @param id   Component ID
  * @param size Font size
  * @throws invalid_argument
  * @throws exception
@@ -388,6 +407,15 @@ DLLEXPORT void DLL LSG_SetListItems(const std::string& id, LSG_Strings& items);
 DLLEXPORT void DLL LSG_SetMargin(const std::string& id, int margin);
 
 /**
+ * @brief Sets the text value of a <menu-item> component.
+ * @param id    <menu-item> component ID
+ * @param value Text value
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SetMenuItemValue(const std::string& id, const std::string& value);
+
+/**
  * @brief Sets the layout orientation of the children of a component.
  * @param id          Component ID
  * @param orientation Horizontal or vertical
@@ -413,6 +441,15 @@ DLLEXPORT void DLL LSG_SetPadding(const std::string& id, int padding);
  * @throws exception
  */
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size);
+
+/**
+ * @brief Sets the value of a <slider> component as a percent between 0 and 1.
+ * @param id      <slider> component ID
+ * @param percent [0.0-1.0]
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SetSliderValue(const std::string& id, double percent);
 
 /**
  * @brief Sets the spacing between child components.
@@ -486,6 +523,15 @@ DLLEXPORT void DLL LSG_SetText(const std::string& id, const std::string& value);
  * @throws exception
  */
 DLLEXPORT void DLL LSG_SetTextColor(const std::string& id, const SDL_Color& color);
+
+/**
+ * @brief Shows or hides the component.
+ * @param id      Component ID
+ * @param visible true to show or false to hide
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SetVisible(const std::string& id, bool visible = true);
 
 /**
  * @brief Sets the width of a component.

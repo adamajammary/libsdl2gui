@@ -28,6 +28,7 @@ private:
 	static void handleMouseScrollEvent(const SDL_MouseWheelEvent& event);
 	static void handleMouseUp();
 	static void handleWindowEvent(const SDL_WindowEvent& event);
+	static void sendEvent(LSG_EventType type, const std::string& id);
 
 };
 

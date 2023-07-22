@@ -539,20 +539,17 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
  */
 LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 {
-	#if defined _windows && defined _DEBUG
-		auto filePath       = (xmlFile.size() > 1 && xmlFile[1] != ':' ? std::format("Debug/{}", xmlFile) : xmlFile);
-		LSG_UI::xmlDocument = LSG_XML::Open(filePath.c_str());
-	#else
-		LSG_UI::xmlDocument = LSG_XML::Open(xmlFile.c_str());
-	#endif
+	auto filePath = LSG_GetFullPath(xmlFile);
+
+	LSG_UI::xmlDocument = LSG_XML::Open(filePath.c_str());
 
 	if (!LSG_UI::xmlDocument)
-		throw std::exception(std::format("Failed to load XML file: {}", xmlFile).c_str());
+		throw std::exception(std::format("Failed to load XML file: {}", filePath).c_str());
 
 	LSG_UI::windowNode = LSG_XML::GetNode("/window", LSG_UI::xmlDocument);
 
 	if (!LSG_UI::windowNode)
-		throw std::exception(std::format("Failed to find path '/window' in XML file: {}", xmlFile).c_str());
+		throw std::exception(std::format("Failed to find path '/window' in XML file: {}", filePath).c_str());
 
 	auto windowAttribs = LSG_XML::GetAttributes(LSG_UI::windowNode);
 
@@ -600,15 +597,11 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile)
 
 	if (!colorThemeFile.empty())
 	{
-		#if defined _windows && defined _DEBUG
-			auto filePath = (colorThemeFile.size() > 1 && colorThemeFile[1] != ':' ? std::format("Debug/{}", colorThemeFile) : colorThemeFile);
-			auto file     = std::ifstream(filePath);
-		#else
-			auto file = std::ifstream(colorThemeFile);
-		#endif
+		auto filePath = LSG_GetFullPath(colorThemeFile);
+		auto file     = std::ifstream(filePath);
 
-		if (!file.is_open() || !file.good())
-			throw std::exception(std::format("Failed to open Color Theme file: {}", colorThemeFile).c_str());
+		if (!file.is_open())
+			throw std::exception(std::format("Failed to open Color Theme file: {}", filePath).c_str());
 
 		std::string line;
 

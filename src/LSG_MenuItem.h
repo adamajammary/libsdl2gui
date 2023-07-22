@@ -16,6 +16,7 @@ public:
 	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
 	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetSelected(bool selected = true);
+	void         SetValue(const std::string& value);
 
 private:
 	virtual void renderDisabledOverlay(SDL_Renderer* renderer) override;

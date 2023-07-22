@@ -24,6 +24,8 @@ void LSG_Table::AddGroup(const std::string& group, const LSG_TableRows& rows)
 	if (group.empty() || rows.empty())
 		return;
 
+	this->row = -1;
+
 	auto lastIndex = (this->getLastRowIndex() + 1);
 
 	auto groupRow = LSG_Strings(rows[0].size(), "");
@@ -44,6 +46,8 @@ void LSG_Table::AddRow(const LSG_Strings& columns)
 {
 	if (columns.empty())
 		return;
+
+	this->row = -1;
 
 	auto lastIndex = this->getLastRowIndex();
 
@@ -149,9 +153,6 @@ LSG_TableRows LSG_Table::GetRows()
 
 int LSG_Table::getRowHeight(const SDL_Size& textureSize)
 {
-	if (this->rows.empty())
-		return 0;
-
 	auto firstRow   = this->getFirstRow();
 	auto rowCount   = ((int)this->rows.size() + firstRow);
 	auto groupCount = (int)this->groups.size();
@@ -159,14 +160,12 @@ int LSG_Table::getRowHeight(const SDL_Size& textureSize)
 	if (groupCount > 0)
 		rowCount += groupCount;
 
-	auto rowHeight = (textureSize.height / rowCount);
-
-	return rowHeight;
+	return (rowCount > 0 ? (textureSize.height / rowCount) : 0);
 }
 
 bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->rows.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown())
 		return false;
 
 	auto background  = this->getFillArea(this->background, this->border);
@@ -191,6 +190,8 @@ bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 
 		if (sortColumn < 0)
 			return false;
+
+		this->row = -1;
 
 		if ((this->sortOrder == LSG_ASCENDING) && (this->sortColumn == sortColumn))
 			this->sortOrder = LSG_DESCENDING;
@@ -252,6 +253,8 @@ void LSG_Table::RemoveGroup(const std::string& group)
 	if (groupIndex < 0)
 		return;
 
+	this->row = -1;
+
 	for (auto iter = this->rows.begin(); iter != this->rows.end();)
 	{
 		if (((*iter).index > groupIndex) && ((*iter).index < nextGroupIndex))
@@ -306,6 +309,8 @@ void LSG_Table::RemoveRow(int row)
 
 	if (!isRemoved)
 		return;
+
+	this->row = -1;
 
 	for (auto& r : this->rows) {
 		if (r.index > row)
@@ -481,16 +486,16 @@ void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 
 	for (const auto& group : groups)
 	{
-		if (group.second.empty())
+		if (group.rows.empty())
 			continue;
 
-		auto groupRow = LSG_Strings(group.second[0].size(), "");
-		groupRow[0]   = group.first;
+		auto groupRow = LSG_Strings(group.rows[0].size(), "");
+		groupRow[0]   = group.header;
 
 		this->groups.push_back({ .columns = groupRow, .index = (firstRow + index) });
 		index++;
 
-		for (const auto& row : group.second) {
+		for (const auto& row : group.rows) {
 			this->rows.push_back({ .columns = row, .index = (firstRow + index) });
 			index++;
 		}
@@ -641,7 +646,7 @@ void LSG_Table::setRows()
 
 void LSG_Table::SetRows()
 {
-	if (!this->rows.empty() && !this->textColumns.empty() && !this->textures.empty() && SDL_ColorEquals(this->textColor, this->lastTextColor))
+	if (!this->rows.empty() && !this->textColumns.empty() && !this->textures.empty() && !this->hasChanged())
 	{
 		this->scrollOffsetX = 0;
 		this->scrollOffsetY = 0;
@@ -662,6 +667,8 @@ void LSG_Table::SetRows()
 		this->header = {};
 		this->groups.clear();
 		this->rows.clear();
+		this->scrollOffsetX = 0;
+		this->scrollOffsetY = 0;
 		this->textColumns.clear();
 
 		bool isGrouped = false;
@@ -700,6 +707,7 @@ void LSG_Table::SetRows()
 
 void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 {
+	this->row        = -1;
 	this->sortColumn = sortColumn;
 	this->sortOrder  = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
 

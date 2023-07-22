@@ -47,6 +47,7 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 			case SDLK_DOWN:     list->SelectRow(1); break;
 			case SDLK_PAGEUP:   list->SelectRow(-LSG_LIST_UNIT_PAGE); break;
 			case SDLK_PAGEDOWN: list->SelectRow(LSG_LIST_UNIT_PAGE); break;
+			case SDLK_RETURN: case SDLK_KP_ENTER: list->Activate(); break;
 			default: break;
 		}
 
@@ -56,7 +57,7 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 
 void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 {
-	if (LSG_Events::isMouseDown || (event.type != SDL_MOUSEBUTTONDOWN) || (event.button.button != SDL_BUTTON_LEFT))
+	if (LSG_Events::isMouseDown || (event.type != SDL_MOUSEBUTTONDOWN))
 		return;
 
 	SDL_Point mousePosition = { event.button.x, event.button.y };
@@ -64,6 +65,11 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 
 	if (!component || !component->enabled)
 		return;
+
+	if (event.button.button == SDL_BUTTON_RIGHT) {
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_RIGHT_CLICKED, component->GetID());
+		return;
+	}
 
 	bool enableMouseDown = false;
 
@@ -111,9 +117,19 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 	auto button = LSG_UI::GetButton(mousePosition);
 
 	if (button)
-		button->MouseClick(event.button);
+		isClicked = button->MouseClick(event.button);
 
-	LSG_Events::lastClickTime = SDL_GetTicks();
+	if (isClicked) {
+		LSG_Events::lastClickTime = SDL_GetTicks();
+		return;
+	}
+
+	if (LSG_Events::IsDoubleClick(event.button)) {
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
+	} else {
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_CLICKED, component->GetID());
+		LSG_Events::lastClickTime = SDL_GetTicks();
+	}
 }
 
 void LSG_Events::handleMouseLastDownEvent()
@@ -241,4 +257,15 @@ bool LSG_Events::IsDoubleClick(const SDL_MouseButtonEvent& event)
 bool LSG_Events::IsMouseDown()
 {
 	return LSG_Events::isMouseDown;
+}
+
+void LSG_Events::sendEvent(LSG_EventType type, const std::string& id)
+{
+	SDL_Event clickEvent = {};
+
+	clickEvent.type       = SDL_RegisterEvents(1);
+	clickEvent.user.code  = (int)type;
+	clickEvent.user.data1 = (void*)strdup(id.c_str());
+
+	SDL_PushEvent(&clickEvent);
 }

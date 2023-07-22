@@ -5,6 +5,7 @@
 #include <fstream>
 #include <map>
 #include <set>
+#include <unordered_map>
 
 #if defined _linux
 	#include <gtk/gtk.h>
@@ -52,7 +53,6 @@ const SDL_Color   LSG_DEFAULT_BORDER_COLOR    = { 0, 0, 0, 255 };
 const SDL_Color   LSG_DEFAULT_TEXT_COLOR      = { 0, 0, 0, 255 };
 const std::string LSG_DESCENDING              = "descending";
 const int         LSG_DOUBLE_CLICK_TIME_LIMIT = 200;
-const int         LSG_FONT_SIZE               = 14;
 const std::string LSG_HORIZONTAL              = "horizontal";
 const int         LSG_LIST_UNIT_PAGE          = 5;
 const int         LSG_MAX_TEXTURE_SIZE        = 8192;
@@ -83,7 +83,8 @@ const uint32_t    LSG_UINT32_HALF             = (UINT32_MAX / 2);
 const std::string LSG_VERTICAL                = "vertical";
 const int         LSG_WINDOW_MIN_SIZE         = 400;
 
-bool SDL_ColorEquals(const SDL_Color& a, const SDL_Color& b);
+bool        SDL_ColorEquals(const SDL_Color& a, const SDL_Color& b);
+std::string LSG_GetFullPath(const std::string& path);
 
 #include "LSG_IEvent.h"
 #include "LSG_ScrollBar.h"

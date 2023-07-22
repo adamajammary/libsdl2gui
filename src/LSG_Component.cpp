@@ -24,7 +24,6 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlDoc* x
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
 
 	this->enabled     = (enabled == "true");
-	this->fontSize    = this->getFontSize();
 	this->fontStyle   = this->getFontStyle();
 	this->orientation = orientation;
 
@@ -105,7 +104,7 @@ int LSG_Component::getFontSize()
 	if (this->parent)
 		return this->parent->getFontSize();
 
-	return LSG_FONT_SIZE;
+	return LSG_DEFAULT_FONT_SIZE;
 }
 
 int LSG_Component::getFontStyle()
@@ -454,6 +453,11 @@ void LSG_Component::SetColors()
 
 	for (auto child : this->children)
 		child->SetColors();
+}
+
+void LSG_Component::SetFontSize(int size)
+{
+	LSG_XML::SetAttribute(this->xmlNode, "font-size", std::to_string(size));
 }
 
 void LSG_Component::SetHeight(int height)

@@ -37,9 +37,10 @@ void LSG_Image::SetImage(const std::string& file, bool fill)
 
 	this->destroyTextures();
 
-	this->file    = file;
+	this->file = file;
+	this->fill = fill;
+
 	this->texture = LSG_Window::ToTexture(this->file);
-	this->fill    = fill;
 }
 
 void LSG_Image::SetImage()
@@ -51,14 +52,10 @@ void LSG_Image::SetImage()
 
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 	auto xmlFile    = (attributes.contains("file") ? attributes["file"] : "");
+	auto xmlFill    = (attributes.contains("fill") ? attributes["fill"] : "");
 
 	this->file = xmlFile;
-
-	if (this->file.empty())
-		return;
-
-	auto xmlFill = (attributes.contains("fill") ? attributes["fill"] : "");
+	this->fill = (xmlFill == "true");
 
 	this->texture = LSG_Window::ToTexture(this->file);
-	this->fill    = (xmlFill == "true");
 }

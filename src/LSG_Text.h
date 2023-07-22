@@ -22,13 +22,13 @@ public:
 
 protected:
 	SDL_Texture* getTexture(const std::string& text);
+	bool         hasChanged();
 	void         renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundArea);
 
 private:
-	TTF_Font* getFont(uint16_t* text);
-	TTF_Font* getFontArial();
-	TTF_Font* getFontMonoSpace();
-	bool      hasChanged();
+	TTF_Font* getFont(uint16_t* text, int fontSize);
+	TTF_Font* getFontArial(int fontSize);
+	TTF_Font* getFontMonoSpace(int fontSize);
 
 };
 

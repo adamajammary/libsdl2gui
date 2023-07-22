@@ -24,6 +24,7 @@ public:
 private:
 	int          getRowHeight(LSG_Component* component);
 	int          getSelectedSubMenu(const SDL_Point& mousePosition, LSG_Component* component);
+	bool         open(const SDL_Point& mousePosition, int index);
 	virtual void renderDisabledOverlay(SDL_Renderer* renderer) override;
 	void         renderHighlight(SDL_Renderer* renderer);
 	void         renderHighlightSelection(SDL_Renderer* renderer, int index, LSG_Component* component);

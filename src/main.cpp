@@ -2,7 +2,8 @@
 
 const char ERROR_NOT_STARTED[] = "libsdl2gui has not been started, call LSG_Start.";
 
-bool isRunning = false;
+char* basePath  = nullptr;
+bool  isRunning = false;
 
 std::string getErrorNoID(const std::string& component, const std::string& id)
 {
@@ -12,6 +13,15 @@ std::string getErrorNoID(const std::string& component, const std::string& id)
 bool SDL_ColorEquals(const SDL_Color& a, const SDL_Color& b)
 {
 	return ((a.r == b.r) && (a.g == b.g) && (a.b == b.b) && (a.a == b.a));
+}
+
+std::string LSG_GetFullPath(const std::string& path)
+{
+	#if defined _windows
+		return (path.size() > 1 && path[1] != ':' ? std::format("{}{}", basePath, path) : path);
+	#else
+		return (!path.empty() && path[0] != '/' ? std::format("{}{}", basePath, path) : path);
+	#endif
 }
 
 void LSG_AddListItem(const std::string& id, const std::string& item)
@@ -146,6 +156,19 @@ LSG_TableRows LSG_GetTableRows(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<table>", id).c_str());
 
 	return static_cast<LSG_Table*>(component)->GetRows();
+}
+
+std::string LSG_GetText(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextLabel())
+		throw std::invalid_argument(getErrorNoID("<text>", id).c_str());
+
+	return static_cast<LSG_TextLabel*>(component)->GetText();
 }
 
 SDL_Size LSG_GetWindowMinimumSize()
@@ -296,6 +319,11 @@ void LSG_Quit()
 
 	LSG_Window::Close();
 	LSG_UI::Close();
+
+	if (basePath) {
+		SDL_free(basePath);
+		basePath = nullptr;
+	}
 
 	TTF_Quit();
 
@@ -466,14 +494,13 @@ void LSG_SetFontSize(const std::string& id, int size)
 
 	auto component = LSG_UI::GetComponent(id);
 
-	if (!component || !component->IsTextLabel())
-		throw std::invalid_argument(getErrorNoID("<text>", id).c_str());
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id).c_str());
 
-	component->fontSize = size;
+	component->SetFontSize(size);
 
-	static_cast<LSG_TextLabel*>(component)->SetText();
-
-	LSG_UI::LayoutParent(component);
+	LSG_UI::SetText(component);
+	LSG_UI::Layout();
 }
 
 void LSG_SetHeight(const std::string& id, int height)
@@ -547,6 +574,19 @@ void LSG_SetMargin(const std::string& id, int margin)
 	LSG_UI::LayoutParent(component);
 }
 
+void LSG_SetMenuItemValue(const std::string& id, const std::string& value)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id).c_str());
+
+	static_cast<LSG_MenuItem*>(component)->SetValue(value);
+}
+
 void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation)
 {
 	if (!isRunning)
@@ -591,6 +631,19 @@ void LSG_SetSize(const std::string& id, const SDL_Size& size)
 	component->SetHeight(size.height);
 
 	LSG_UI::LayoutRoot();
+}
+
+void LSG_SetSliderValue(const std::string& id, double percent)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id).c_str());
+
+	static_cast<LSG_Slider*>(component)->SetValue(percent);
 }
 
 void LSG_SetSpacing(const std::string& id, int spacing)
@@ -703,6 +756,21 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	LSG_UI::SetText(component);
 }
 
+void LSG_SetVisible(const std::string& id, bool visible)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id).c_str());
+
+	component->visible = visible;
+
+	LSG_UI::LayoutRoot();
+}
+
 void LSG_SetWidth(const std::string& id, int width)
 {
 	if (!isRunning)
@@ -804,6 +872,9 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 
 SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
+	if (!basePath)
+		basePath = SDL_GetBasePath();
+
 	auto windowAttribs = LSG_UI::OpenWindow(xmlFile);
 
 	auto title  = (windowAttribs.contains("title")  ? windowAttribs["title"] : "");
@@ -864,6 +935,9 @@ SDL_Renderer* LSG_Start(const std::string& title, int width, int height)
 
 	if (TTF_Init() < 0)
 		throw std::exception(std::format("Failed to initialize SDL2_ttf: {}", TTF_GetError()).c_str());
+
+	if (!basePath)
+		basePath = SDL_GetBasePath();
 
 	auto renderer = LSG_Window::Open(title, width, height);
 

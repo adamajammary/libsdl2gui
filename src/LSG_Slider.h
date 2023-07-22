@@ -28,6 +28,7 @@ public:
 	void         MouseUp();
 	virtual void Render(SDL_Renderer* renderer) override;
 	virtual void SetColors() override;
+	void         SetValue(double value);
 
 private:
 	virtual void sendEvent(LSG_EventType type) override;

@@ -380,15 +380,11 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 	if (imageFile.empty())
 		return nullptr;
 
-	#if defined _windows && defined _DEBUG
-		auto filePath = (imageFile.size() > 1 && imageFile[1] != ':' ? std::format("Debug/{}", imageFile) : imageFile);
-		auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
-	#else
-		auto texture = IMG_LoadTexture(LSG_Window::renderer, imageFile.c_str());
-	#endif
+	auto filePath = LSG_GetFullPath(imageFile);
+	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
 
 	if (!texture)
-		throw std::exception(std::format("Failed to load Image file: {}", imageFile).c_str());
+		throw std::exception(std::format("Failed to load image file: {}", filePath).c_str());
 
 	return texture;
 }

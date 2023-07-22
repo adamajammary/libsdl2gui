@@ -20,6 +20,7 @@ public:
 	static std::string      GetValue(LibXml::xmlNode* node, LibXml::xmlDoc* xmlDoc);
 	static LibXml::xmlDoc*  Open(const std::string& xmlFile);
 	static void             SetAttribute(LibXml::xmlNode* xmlNode, const std::string& attribute, const std::string& value);
+	static void             SetValue(LibXml::xmlNode* xmlNode, const std::string& value);
 
 };
 
