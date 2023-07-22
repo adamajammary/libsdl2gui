@@ -255,17 +255,17 @@ void LSG_MenuSub::SetItems()
 		if (item.empty())
 			continue;
 
-		if (isSubMenu) {
-			maxLength1 = max(maxLength1, ((int)item.size() + 2));
-			item       = item.append(">");
-		}
-
 		auto tabPos = item.find("\\t");
 
 		if (tabPos != std::string::npos) {
 			maxLength1 = max(maxLength1, (int)(tabPos + 2));
 			maxLength2 = max(maxLength2, (int)(item.size() - (tabPos + 2)));
+		} else {
+			maxLength1 = max(maxLength1, ((int)item.size() + 2));
 		}
+
+		if (isSubMenu)
+			item = item.append(">");
 
 		this->items.push_back(item);
 	}
@@ -277,7 +277,17 @@ void LSG_MenuSub::SetItems()
 		auto tabPos = item.find("\\t");
 		auto subPos = item.rfind(">");
 
-		if (tabPos != std::string::npos)
+		if ((tabPos != std::string::npos) && (subPos != std::string::npos))
+		{
+			auto format = std::format("%-{}s%{}s%3s\n", maxLength1, maxLength2);
+			auto label  = item.substr(0, tabPos);
+			auto accel  = item.substr(tabPos + 2, item.size() - (tabPos + 2) - 1);
+
+			std::sprintf(buffer, format.c_str(), label.c_str(), accel.c_str(), ">");
+
+			this->text.append(buffer);
+		}
+		else if (tabPos != std::string::npos)
 		{
 			auto format = std::format("%-{}s%{}s\n", maxLength1, maxLength2);
 			auto label  = item.substr(0, tabPos);
