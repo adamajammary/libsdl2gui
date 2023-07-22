@@ -57,6 +57,7 @@ const std::string LSG_HORIZONTAL              = "horizontal";
 const int         LSG_LIST_UNIT_PAGE          = 5;
 const int         LSG_MAX_TEXTURE_SIZE        = 8192;
 const int         LSG_MENU_LAYER_OFFSET       = 1000000;
+const int         LSG_MENU_LABEL_SPACING      = 4;
 const int         LSG_MENU_SPACING_HALF       = 5;
 const int         LSG_MENU_SPACING            = 10;
 const int         LSG_MENU_SPACING_2X         = 20;
