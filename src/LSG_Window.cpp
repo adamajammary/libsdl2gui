@@ -328,7 +328,7 @@ std::vector<std::string> LSG_Window::OpenFolders()
 
 void LSG_Window::Present()
 {
-	SDL_RenderPresent(LSG_Window::renderer);
+	LSG_UI::Present(LSG_Window::renderer);
 }
 
 void LSG_Window::Render()

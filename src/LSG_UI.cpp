@@ -556,13 +556,17 @@ LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 	return windowAttribs;
 }
 
+void LSG_UI::Present(SDL_Renderer* renderer)
+{
+	LSG_UI::renderMenu(renderer, LSG_UI::root);
+
+	SDL_RenderPresent(renderer);
+}
+
 void LSG_UI::Render(SDL_Renderer* renderer)
 {
-	if (!LSG_UI::root)
-		return;
-	
-	LSG_UI::root->Render(renderer);
-	LSG_UI::renderMenu(renderer, LSG_UI::root);
+	if (LSG_UI::root)
+		LSG_UI::root->Render(renderer);
 }
 
 void LSG_UI::renderMenu(SDL_Renderer* renderer, LSG_Component* component)

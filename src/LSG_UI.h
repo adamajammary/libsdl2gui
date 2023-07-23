@@ -34,6 +34,7 @@ public:
     static void           LayoutRoot();
     static void           Load(const std::string& colorThemeFile);
     static LSG_UMapStrStr OpenWindow(const std::string& xmlFile);
+    static void           Present(SDL_Renderer* renderer);
     static void           Render(SDL_Renderer* renderer);
     static void           SetColorTheme(const std::string& colorThemeFile);
     static void           SetSubMenuVisible(LSG_Component* component, bool visible = true);
