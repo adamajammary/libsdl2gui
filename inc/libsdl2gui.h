@@ -149,6 +149,14 @@ DLLEXPORT SDL_Point DLL LSG_GetPosition(const std::string& id);
 DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
 
 /**
+ * @returns the value of a <slider> component as a percent between 0 and 1
+ * @param id <slider> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT double DLL LSG_GetSliderValue(const std::string& id);
+
+/**
  * @returns the row columns from the <table> component
  * @param id  <table> component ID
  * @param row 0-based row index

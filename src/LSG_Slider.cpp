@@ -45,6 +45,11 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc,
 		this->thumbBorderColor = LSG_UI::ToSdlColor(thumbBorderColor);
 }
 
+double LSG_Slider::GetValue()
+{
+	return this->value;
+}
+
 bool LSG_Slider::MouseClick(const SDL_MouseButtonEvent& event)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown())
@@ -204,6 +209,4 @@ void LSG_Slider::setValue(int offset)
 void LSG_Slider::SetValue(double value)
 {
 	this->value = max(0.0, min(1.0, value));
-
-	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
 }

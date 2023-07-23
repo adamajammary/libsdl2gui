@@ -132,6 +132,21 @@ SDL_Size LSG_GetSize(const std::string& id)
 	return size;
 }
 
+double LSG_GetSliderValue(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id).c_str());
+
+	auto value = static_cast<LSG_Slider*>(component)->GetValue();
+
+	return value;
+}
+
 LSG_Strings LSG_GetTableRow(const std::string& id, int row)
 {
 	if (!isRunning)

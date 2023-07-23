@@ -22,6 +22,7 @@ private:
 	double      value;
 
 public:
+	double       GetValue();
 	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
 	void         MouseMove(const SDL_Point& mousePosition);
 	void         MouseScroll(int offset);

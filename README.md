@@ -690,6 +690,23 @@ Exceptions
 - invalid_argument
 - exception
 
+### LSG_GetSliderValue
+
+```cpp
+double LSG_GetSliderValue(const std::string& id);
+```
+
+Returns the value of a \<slider\> component as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<slider\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
 ### LSG_GetTableRow
 
 ```cpp
