@@ -41,7 +41,7 @@ public:
 	void         SelectLastRow();
 	void         SelectRow(int offset);
 	void         SetItem(int row, const std::string& item);
-	void         SetItems(LSG_Strings& items);
+	void         SetItems(const LSG_Strings& items);
 	void         SetItems();
 	void         Sort(LSG_SortOrder sortOrder);
 
@@ -55,7 +55,7 @@ protected:
 	virtual void sendEvent(LSG_EventType type) override;
 	void         setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);
 	void         setRowHeights(LSG_ListRows& rows, int rowHeight, const SDL_Rect& backgroundArea);
-	void         sort(std::vector<std::string>& items);
+	LSG_Strings  sort(const LSG_Strings& items);
 
 };
 

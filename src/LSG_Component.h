@@ -46,6 +46,7 @@ public:
 	LSG_Button*      GetButton();
 	LSG_Components   GetChildren();
 	std::string      GetID();
+	int              GetLayer();
 	LSG_Component*   GetParent();
 	SDL_Size         GetTextureSize();
 	std::string      GetXmlAttribute(const std::string& attribute);
@@ -65,6 +66,7 @@ public:
 	bool             IsTableHeader();
 	bool             IsTextLabel();
 	bool             IsVertical();
+	void             RemoveChild(LSG_Component* child);
 	virtual void     Render(SDL_Renderer* renderer);
 	void             SetAlignmentHorizontal(LSG_HAlign alignment);
 	void             SetAlignmentVertical(LSG_VAlign   alignment);

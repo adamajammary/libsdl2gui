@@ -475,8 +475,9 @@ void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea)
 
 void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 {
-	if (groups.empty())
-		return;
+	this->row           = -1;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
 
 	this->groups.clear();
 	this->rows.clear();
@@ -506,20 +507,31 @@ void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 
 void LSG_Table::SetHeader(const LSG_Strings& header)
 {
-	if (header.empty())
-		return;
+	this->row           = -1;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
 
 	auto firstRow = this->getFirstRow();
 
 	this->header = { .columns = header, .index = 0 };
 	
-	if (firstRow < 1)
+	// Add header
+	if ((firstRow == 0) && !header.empty())
 	{
 		for (auto& row : this->rows)
 			row.index++;
 
 		for (auto& group : this->groups)
 			group.index++;
+	}
+	// Remove header
+	else if ((firstRow > 0) && header.empty())
+	{
+		for (auto& row : this->rows)
+			row.index--;
+
+		for (auto& group : this->groups)
+			group.index--;
 	}
 
 	this->setRows();
@@ -555,9 +567,11 @@ void LSG_Table::SetRow(int row, const LSG_Strings& columns)
 
 void LSG_Table::SetRows(const LSG_TableRows& rows)
 {
-	if (rows.empty())
-		return;
+	this->row           = -1;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
 
+	this->groups.clear();
 	this->rows.clear();
 
 	auto firstRow = this->getFirstRow();
@@ -572,14 +586,13 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 
 void LSG_Table::setRows()
 {
-	if (this->header.columns.empty() && this->rows.empty() && this->groups.empty())
-		return;
-
 	auto firstRow    = this->getFirstRow();
 	auto columnCount = this->getColumnCount();
 
-	if (columnCount < 1)
+	if (columnCount < 1) {
+		this->destroyTextures();
 		return;
+	}
 
 	auto groups   = std::set<int>();
 	auto rowCount = (firstRow + this->groups.size() + this->rows.size());

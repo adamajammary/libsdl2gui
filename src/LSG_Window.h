@@ -14,7 +14,7 @@ private:
     static SDL_Window*   window;
 
     #if defined _windows
-        static std::vector<std::wstring> openFiles(bool   allowMultipleSelection = false);
+        static std::vector<std::wstring> openFiles(const wchar_t* filter, bool allowMultipleSelection = false);
         static std::vector<std::wstring> openFolders(bool allowMultipleSelection = false);
     #else
         static std::vector<std::string> openFiles(bool openFolder = false, bool allowMultipleSelection = false);
@@ -40,15 +40,17 @@ public:
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
 
     #if defined _windows
-        static std::wstring              OpenFile();
+        static std::wstring              OpenFile(const wchar_t*  filter = nullptr);
+        static std::vector<std::wstring> OpenFiles(const wchar_t* filter = nullptr);
         static std::wstring              OpenFolder();
-        static std::vector<std::wstring> OpenFiles();
         static std::vector<std::wstring> OpenFolders();
+        static std::wstring              SaveFile(const wchar_t* filter = nullptr);
     #else
         static std::string              OpenFile();
-        static std::string              OpenFolder();
         static std::vector<std::string> OpenFiles();
+        static std::string              OpenFolder();
         static std::vector<std::string> OpenFolders();
+        static std::string              SaveFile();
     #endif
 
 };

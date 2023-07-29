@@ -18,9 +18,10 @@ TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 	TTF_Font* font = nullptr;
 
 	if (this->IsMenu() || this->IsSubMenu() || this->IsMenuItem())
-	{
 		font = this->getFontMonoSpace(fontSize);
 
+	if (font)
+	{
 		for (int i = 0; text[i] > 0 && i < 1024; i++)
 		{
 			if ((text[i] == '\n') || TTF_GlyphIsProvided(font, text[i]))
@@ -199,13 +200,15 @@ void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundA
 
 void LSG_Text::SetText(const std::string &text)
 {
-	if (text.empty())
-		return;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
 
 	this->destroyTextures();
 
-	this->text    = text;
-	this->texture = this->getTexture(this->text);
+	this->text = text;
+
+	if (!text.empty())
+		this->texture = this->getTexture(this->text);
 }
 
 void LSG_Text::SetText()

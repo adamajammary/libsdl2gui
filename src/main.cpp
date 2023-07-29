@@ -231,48 +231,60 @@ bool LSG_IsRunning()
 	return isRunning;
 }
 
+#if defined _windows
+std::string LSG_OpenFile(const wchar_t* filter)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto filePathWide = LSG_Window::OpenFile(filter);
+	auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
+	auto filePath     = std::string(filePathUTF8);
+
+	SDL_free(filePathUTF8);
+
+	return filePath;
+}
+#else
 std::string LSG_OpenFile()
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
 
-	#if defined _windows
-		auto filePathWide = LSG_Window::OpenFile();
+	return LSG_Window::OpenFile();
+}
+#endif
+
+#if defined _windows
+std::vector<std::string> LSG_OpenFiles(const wchar_t* filter)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	std::vector<std::string> filePaths;
+
+	auto filePathsWide = LSG_Window::OpenFiles(filter);
+
+	for (const auto& filePathWide : filePathsWide)
+	{
 		auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
-		auto filePath     = std::string(filePathUTF8);
+
+		filePaths.push_back(std::string(filePathUTF8));
 
 		SDL_free(filePathUTF8);
+	}
 
-		return filePath;
-	#else
-		return LSG_Window::OpenFile();
-	#endif
+	return filePaths;
 }
-
+#else
 std::vector<std::string> LSG_OpenFiles()
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
 
-	#if defined _windows
-		std::vector<std::string> filePaths;
-
-		auto filePathsWide = LSG_Window::OpenFiles();
-
-		for (const auto& filePathWide : filePathsWide)
-		{
-			auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
-
-			filePaths.push_back(std::string(filePathUTF8));
-
-			SDL_free(filePathUTF8);
-		}
-
-		return filePaths;
-	#else
-		return LSG_Window::OpenFiles();
-	#endif
+	return LSG_Window::OpenFiles();
 }
+#endif
 
 std::string LSG_OpenFolder()
 {
@@ -359,6 +371,19 @@ void LSG_RemoveListItem(const std::string& id, int row)
 	static_cast<LSG_List*>(component)->RemoveItem(row);
 }
 
+void LSG_RemoveMenuItem(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id).c_str());
+
+	LSG_UI::RemoveMenuItem(static_cast<LSG_MenuItem*>(component));
+}
+
 void LSG_RemoveTableHeader(const std::string& id)
 {
 	if (!isRunning)
@@ -409,6 +434,30 @@ std::vector<SDL_Event> LSG_Run()
 
 	return events;
 }
+
+#if defined _windows
+std::string LSG_SaveFile(const wchar_t* filter)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto filePathWide = LSG_Window::SaveFile(filter);
+	auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
+	auto filePath     = std::string(filePathUTF8);
+
+	SDL_free(filePathUTF8);
+
+	return filePath;
+}
+#else
+std::string LSG_SaveFile()
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	return LSG_Window::OpenFile();
+}
+#endif
 
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)
 {
@@ -561,7 +610,7 @@ void LSG_SetListItem(const std::string& id, int row, const std::string& item)
 	static_cast<LSG_List*>(component)->SetItem(row, item);
 }
 
-void LSG_SetListItems(const std::string& id, LSG_Strings& items)
+void LSG_SetListItems(const std::string& id, const LSG_Strings& items)
 {
 	if (!isRunning)
 		throw std::exception(ERROR_NOT_STARTED);
@@ -587,6 +636,19 @@ void LSG_SetMargin(const std::string& id, int margin)
 	component->margin = margin;
 
 	LSG_UI::LayoutParent(component);
+}
+
+void LSG_SetMenuItemSelected(const std::string& id, bool selected)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id).c_str());
+
+	static_cast<LSG_MenuItem*>(component)->SetSelected(selected);
 }
 
 void LSG_SetMenuItemValue(const std::string& id, const std::string& value)
@@ -674,19 +736,6 @@ void LSG_SetSpacing(const std::string& id, int spacing)
 	component->SetSpacing(spacing);
 
 	LSG_UI::LayoutParent(component);
-}
-
-void LSG_SetSubMenuItemSelected(const std::string& id, bool selected)
-{
-	if (!isRunning)
-		throw std::exception(ERROR_NOT_STARTED);
-
-	auto component = LSG_UI::GetComponent(id);
-
-	if (!component || !component->IsMenuItem())
-		throw std::invalid_argument(getErrorNoID("<menu-item>", id).c_str());
-
-	static_cast<LSG_MenuItem*>(component)->SetSelected(selected);
 }
 
 void LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups)

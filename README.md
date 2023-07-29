@@ -927,6 +927,29 @@ Example
 LSG_RemoveListItem("List", 12);
 ```
 
+### LSG_RemoveMenuItem
+
+```cpp
+void LSG_RemoveMenuItem(const std::string& id);
+```
+
+Removes the \<menu-item\> component.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_RemoveMenuItem("MenuIdColorThemeDark");
+```
+
 ### LSG_RemoveTableHeader
 
 ```cpp
@@ -1011,6 +1034,16 @@ Returns a list of SDL2 events available during this run.
 Exceptions
 
 - exception
+
+### LSG_SaveFile
+
+Displays a Save File dialog where you can select a single file.
+
+Returns the selected file path or an empty string if cancelled.
+
+```cpp
+std::string LSG_SaveFile();
+```
 
 ### LSG_SetAlignmentHorizontal
 
@@ -1276,7 +1309,7 @@ LSG_SetListItem("List", 12, "My updated list item.");
 ### LSG_SetListItems
 
 ```cpp
-void LSG_SetListItems(const std::string& id, LSG_Strings& items);
+void LSG_SetListItems(const std::string& id, const LSG_Strings& items);
 ```
 
 Sets the items of a \<list\> component.
@@ -1335,6 +1368,24 @@ Example
 ```cpp
 LSG_SetMargin("Root", 5);
 ```
+
+### LSG_SetMenuItemSelected
+
+```cpp
+void LSG_SetMenuItemSelected(const std::string& id, bool selected = true);
+```
+
+Highlights the \<menu-item\> as selected.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+- **selected** true to select or false to unselect
+
+Exceptions
+
+- invalid_argument
+- exception
 
 ### LSG_SetMenuItemValue
 
@@ -1477,24 +1528,6 @@ Example
 ```cpp
 LSG_SetSpacing("Root", 20);
 ```
-
-### LSG_SetSubMenuItemSelected
-
-```cpp
-void LSG_SetSubMenuItemSelected(const std::string& id, bool selected = true);
-```
-
-Highlights the \<menu-item\> as selected.
-
-Parameters
-
-- **id** \<menu-item\> component ID
-- **selected** true to select or false to unselect
-
-Exceptions
-
-- invalid_argument
-- exception
 
 ### LSG_SetTableGroups
 

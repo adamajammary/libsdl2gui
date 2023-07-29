@@ -221,14 +221,22 @@ DLLEXPORT bool DLL LSG_IsRunning();
  * @returns the selected file path or an empty string if cancelled
  * @throws exception
  */
+#if defined _windows
+DLLEXPORT std::string DLL LSG_OpenFile(const wchar_t* filter = nullptr); // https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members
+#else
 DLLEXPORT std::string DLL LSG_OpenFile();
+#endif
 
 /**
  * @brief Displays an Open File dialog where you can select multiple files.
  * @returns the selected file paths or an empty list if cancelled
  * @throws exception
  */
+#if defined _windows
+DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles(const wchar_t* filter = nullptr);
+#else
 DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles();
+#endif
 
 /**
  * @brief Displays an Open Folder dialog where you can select a single folder.
@@ -265,6 +273,14 @@ DLLEXPORT void DLL LSG_Quit();
 DLLEXPORT void DLL LSG_RemoveListItem(const std::string& id, int row);
 
 /**
+ * @brief Removes the <menu-item> component.
+ * @param id  <menu-item> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_RemoveMenuItem(const std::string& id);
+
+/**
  * @brief Removes the header columns from a <table> component.
  * @param id <table> component ID
  * @throws invalid_argument
@@ -296,6 +312,17 @@ DLLEXPORT void DLL LSG_RemoveTableRow(const std::string& id, int row);
  * @throws exception
  */
 DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
+
+/**
+ * @brief Displays a Save File dialog where you can select a single file.
+ * @returns the selected file path or an empty string if cancelled
+ * @throws exception
+ */
+#if defined _windows
+DLLEXPORT std::string DLL LSG_SaveFile(const wchar_t* filter = nullptr); // https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members
+#else
+DLLEXPORT std::string DLL LSG_SaveFile();
+#endif
 
 /**
  * @brief Sets the horizontal alignment of child components in containers like <panel> and <button>, or alignment of textured components like <image> and <text> relative to available space in their background component.
@@ -403,7 +430,7 @@ DLLEXPORT void DLL LSG_SetListItem(const std::string& id, int row, const std::st
  * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT void DLL LSG_SetListItems(const std::string& id, LSG_Strings& items);
+DLLEXPORT void DLL LSG_SetListItems(const std::string& id, const LSG_Strings& items);
 
 /**
  * @brief Sets the margin around a component.
@@ -413,6 +440,15 @@ DLLEXPORT void DLL LSG_SetListItems(const std::string& id, LSG_Strings& items);
  * @throws exception
  */
 DLLEXPORT void DLL LSG_SetMargin(const std::string& id, int margin);
+
+/**
+ * @brief Highlights the <menu-item> as selected.
+ * @param id       <menu-item> component ID
+ * @param selected true to select or false to unselect
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SetMenuItemSelected(const std::string& id, bool selected = true);
 
 /**
  * @brief Sets the text value of a <menu-item> component.
@@ -467,15 +503,6 @@ DLLEXPORT void DLL LSG_SetSliderValue(const std::string& id, double percent);
  * @throws exception
  */
 DLLEXPORT void DLL LSG_SetSpacing(const std::string& id, int spacing);
-
-/**
- * @brief Highlights the <menu-item> as selected.
- * @param id       <menu-item> component ID
- * @param selected true to select or false to unselect
- * @throws invalid_argument
- * @throws exception
- */
-DLLEXPORT void DLL LSG_SetSubMenuItemSelected(const std::string& id, bool selected = true);
 
 /**
  * @brief Sets the grouped rows of a <table> component.

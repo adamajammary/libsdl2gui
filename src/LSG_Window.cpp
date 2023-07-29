@@ -175,7 +175,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _windows
-std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection)
+std::vector<std::wstring> LSG_Window::openFiles(const wchar_t* filter, bool allowMultipleSelection)
 {
 	const int MAX_FILE_PATH = 2048;
 
@@ -188,10 +188,15 @@ std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection)
 	browseDialog.lpstrFile    = selectedPath;
 	browseDialog.lpstrFile[0] = '\0';
 	browseDialog.nMaxFile     = sizeof(selectedPath);
-	browseDialog.Flags        = (OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_NODEREFERENCELINKS);
+	browseDialog.Flags        = (OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
+	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
+	browseDialog.nFilterIndex = 1;
 
 	if (allowMultipleSelection)
 		browseDialog.Flags |= OFN_ALLOWMULTISELECT;
+
+	if (filter && (wcslen(filter) > 0))
+		browseDialog.lpstrFilter = filter;
 
 	if (!GetOpenFileNameW(&browseDialog))
 		return {};
@@ -215,39 +220,29 @@ std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection)
 		if (filePath.empty())
 			break;
 
-		filePaths.push_back(std::format(L"{}\\{}", directory, filePath));
+		if (directory.ends_with('\\'))
+			filePaths.push_back(std::format(L"{}{}", directory, filePath));
+		else
+			filePaths.push_back(std::format(L"{}\\{}", directory, filePath));
+
 		filePath.clear();
 	}
 
 	return filePaths;
 }
 
-std::wstring LSG_Window::OpenFile()
+std::wstring LSG_Window::OpenFile(const wchar_t* filter)
 {
-	auto files = LSG_Window::openFiles();
+	auto files = LSG_Window::openFiles(filter);
 
 	return (!files.empty() ? files[0] : L"");
 }
 
-std::vector<std::wstring> LSG_Window::OpenFiles()
+std::vector<std::wstring> LSG_Window::OpenFiles(const wchar_t* filter)
 {
-	return LSG_Window::openFiles(true);
-}
-#else
-std::string LSG_Window::OpenFile()
-{
-	auto files = LSG_Window::openFiles();
-
-	return (!files.empty() ? files[0] : "");
+	return LSG_Window::openFiles(filter, true);
 }
 
-std::vector<std::string> LSG_Window::OpenFiles()
-{
-	return LSG_Window::openFiles(false, true);
-}
-#endif
-
-#if defined _windows
 std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
 {
 	IFileOpenDialog* browseDialog = nullptr;
@@ -258,7 +253,7 @@ std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
 	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
 	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileopendialog
 
-	auto options = (FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_PICKFOLDERS);
+	auto options = (FOS_DONTADDTORECENT | FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST | FOS_PICKFOLDERS);
 
 	if (allowMultipleSelection)
 		options |= FOS_ALLOWMULTISELECT;
@@ -313,6 +308,18 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 	return LSG_Window::openFolders(true);
 }
 #else
+std::string LSG_Window::OpenFile()
+{
+	auto files = LSG_Window::openFiles();
+
+	return (!files.empty() ? files[0] : "");
+}
+
+std::vector<std::string> LSG_Window::OpenFiles()
+{
+	return LSG_Window::openFiles(false, true);
+}
+
 std::string LSG_Window::OpenFolder()
 {
 	auto folders = LSG_Window::openFiles(true);
@@ -341,6 +348,101 @@ void LSG_Window::Render()
 
 	LSG_UI::Render(LSG_Window::renderer);
 }
+
+#if defined _linux
+std::string LSG_Window::SaveFile()
+{
+	if (strlen(std::getenv("DISPLAY")) == 0)
+		SDL_setenv("DISPLAY", ":0", 1);
+
+	if (!gtk_init_check(0, nullptr))
+		return "";
+
+	GtkWidget* dialog = gtk_file_chooser_dialog_new(
+		"Save File",
+		nullptr,
+		GTK_FILE_CHOOSER_ACTION_SAVE,
+		GTK_STOCK_CANCEL,
+		GTK_RESPONSE_CANCEL,
+		GTK_STOCK_SAVE_AS,
+		GTK_RESPONSE_ACCEPT,
+		nullptr
+	);
+
+	std::string filePath = "";
+
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		gchar* selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+		filePath = std::string(selectedPath);
+
+		if (filePath.substr(0, 7) == "file://")
+			filePath = filePath.substr(7);
+
+		g_free(selectedPath);
+	}
+
+	gtk_widget_destroy(GTK_WIDGET(dialog));
+
+	while (gtk_events_pending())
+		gtk_main_iteration();
+
+	return filePath;
+}
+#elif defined _macosx
+std::string LSG_Window::SaveFile()
+{
+	NSSavePanel* panel = [NSSavePanel savePanel];
+
+	if (!panel)
+		return "";
+
+	if ([panel runModal] != NSOKButton)
+		return "";
+
+	CFURLRef selectedURL = (CFURLRef)[[panel URL]];
+
+	if (!selectedURL)
+		return "";
+
+	char selectedPath[MAX_PATH] = {};
+
+	if (!CFURLGetFileSystemRepresentation(selectedURL, TRUE, (UInt8*)selectedPath, MAX_PATH))
+		return "";
+
+	auto filePath = std::string(selectedPath);
+
+	if (filePath.substr(0, 7) == "file://")
+		filePath = filePath.substr(7);
+
+	return filePath;
+}
+#elif defined _windows
+std::wstring LSG_Window::SaveFile(const wchar_t* filter)
+{
+	OPENFILENAMEW browseDialog           = {};
+	wchar_t       selectedPath[MAX_PATH] = {};
+
+	// https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
+
+	browseDialog.lStructSize  = sizeof(browseDialog);
+	browseDialog.lpstrFile    = selectedPath;
+	browseDialog.lpstrFile[0] = '\0';
+	browseDialog.nMaxFile     = sizeof(selectedPath);
+	browseDialog.Flags        = (OFN_CREATEPROMPT | OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
+	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
+	browseDialog.nFilterIndex = 1;
+
+	if (filter && (wcslen(filter) > 0))
+		browseDialog.lpstrFilter = filter;
+
+	if (!GetSaveFileNameW(&browseDialog))
+		return L"";
+	
+	return std::wstring(selectedPath);
+}
+#endif
 
 void LSG_Window::SetMaximized(bool maximized)
 {

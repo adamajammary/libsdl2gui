@@ -142,6 +142,11 @@ std::string LSG_Component::GetID()
 	return this->id;
 }
 
+int LSG_Component::GetLayer()
+{
+	return this->layer;
+}
+
 LSG_Component* LSG_Component::GetParent()
 {
 	return this->parent;
@@ -325,6 +330,23 @@ bool LSG_Component::IsTextLabel()
 bool LSG_Component::IsVertical()
 {
 	return (this->orientation == LSG_VERTICAL);
+}
+
+void LSG_Component::RemoveChild(LSG_Component* child)
+{
+	if (!child)
+		return;
+
+	for (auto iter = this->children.begin(); iter != this->children.end(); iter++)
+	{
+		if ((*iter)->id != child->id)
+			continue;
+
+		this->children.erase(iter);
+		delete child;
+
+		break;
+	}
 }
 
 void LSG_Component::Render(SDL_Renderer* renderer)

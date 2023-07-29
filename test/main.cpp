@@ -5,7 +5,7 @@
 void test_setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile)
 {
     LSG_SetColorTheme(colorThemeFile);
-    LSG_SetSubMenuItemSelected(menuItemId, true);
+    LSG_SetMenuItemSelected(menuItemId, true);
 }
 
 void test_showAbout()
@@ -114,7 +114,7 @@ int SDL_main(int argc, char* argv[])
         //SDL_Renderer* renderer = LSG_Start("Test SDL2 GUI", 800, 600); // Load an empty window with no UI components
         SDL_Renderer* renderer = LSG_Start("ui/main.xml");               // Load a window and UI components from an XML file
 
-        LSG_SetSubMenuItemSelected("MenuIdColorThemeDark", true);
+        LSG_SetMenuItemSelected("MenuIdColorThemeDark", true);
 
         std::vector<SDL_Event> events;
 

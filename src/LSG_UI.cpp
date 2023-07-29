@@ -563,6 +563,24 @@ void LSG_UI::Present(SDL_Renderer* renderer)
 	SDL_RenderPresent(renderer);
 }
 
+void LSG_UI::RemoveMenuItem(LSG_MenuItem* menuItem)
+{
+	if (!menuItem)
+		return;
+
+	LSG_XML::RemoveNode(menuItem->GetXmlNode());
+
+	auto id     = menuItem->GetID();
+	auto layer  = menuItem->GetLayer();
+	auto parent = menuItem->GetParent();
+
+	if (parent)
+		parent->RemoveChild(menuItem);
+
+	LSG_UI::components.erase(id);
+	LSG_UI::componentsByLayer.erase(layer);
+}
+
 void LSG_UI::Render(SDL_Renderer* renderer)
 {
 	if (LSG_UI::root)

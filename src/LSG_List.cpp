@@ -192,34 +192,38 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 
 void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea)
 {
-	const int BORDER = 1;
+	if (rowHeight < 1)
+		return;
 
-	auto firstRow = this->getFirstRow();
-	auto offsetY  = (firstRow > 0 ? rowHeight : 0);
-	auto topY     = (backgroundArea.y + offsetY);
-	auto bottomY  = (backgroundArea.y + backgroundArea.h);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
 
-	if (this->showScrollX)
-		bottomY -= LSG_SCROLL_WIDTH;
+	auto header = (this->getFirstRow() * rowHeight);
+
+	if (!this->showScrollY)
+	{
+		auto rows = ((backgroundArea.h - header - (this->showScrollX ? LSG_SCROLL_WIDTH : 0)) / rowHeight);
+		auto y    = (backgroundArea.y + header + rowHeight - 1);
+		auto x2   = (backgroundArea.x + backgroundArea.w);
+
+		for (int i = 0; i < rows; i++) {
+			SDL_RenderDrawLine(renderer, backgroundArea.x, y, x2, y);
+			y += rowHeight;
+		}
+
+		return;
+	}
+
+	auto topY    = (backgroundArea.y + header);
+	auto bottomY = (backgroundArea.y + backgroundArea.h - (this->showScrollX ? LSG_SCROLL_WIDTH : 0));
 
 	for (const auto& row : this->rows)
 	{
-		SDL_Rect borderBottom = SDL_Rect(row.background);
+		auto y  = (row.background.y + row.background.h - 1 - this->scrollOffsetY);
+		auto x2 = (row.background.x + row.background.w - (this->showScrollY ? LSG_SCROLL_WIDTH : 0));
 
-		borderBottom.y += (row.background.h - BORDER - this->scrollOffsetY);
-		borderBottom.h  = BORDER;
-
-		if (this->showScrollY)
-			borderBottom.w -= LSG_SCROLL_WIDTH;
-
-		bool isVisible = ((borderBottom.y >= topY) && (borderBottom.y <= bottomY));
-
-		if (!isVisible)
-			continue;
-
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
-		SDL_RenderFillRect(renderer, &borderBottom);
+		if ((y >= topY) && (y <= bottomY))
+			SDL_RenderDrawLine(renderer, row.background.x, y, x2, y);
 	}
 }
 
@@ -353,27 +357,30 @@ void LSG_List::SetItem(int row, const std::string& item)
 	this->SetItems(items);
 }
 
-void LSG_List::SetItems(LSG_Strings& items)
+void LSG_List::SetItems(const LSG_Strings& items)
 {
+	this->row           = -1;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
+
+	this->rows.clear();
+	this->text = "";
+
+	this->destroyTextures();
+
 	if (items.empty())
 		return;
 
-	if (!this->sortOrder.empty())
-		this->sort(items);
+	auto listItems = (!this->sortOrder.empty() ? this->sort(items) : items);
 
-	this->rows.clear();
-	this->scrollOffsetX = 0;
-	this->scrollOffsetY = 0;
-	this->text = "";
-
-	for (int i = 0; i < (int)items.size(); i++)
+	for (int i = 0; i < (int)listItems.size(); i++)
 	{
-		if (items[i].empty())
+		if (listItems[i].empty())
 			continue;
 
-		this->text.append(items[i]).append("\n");
+		this->text.append(listItems[i]).append("\n");
 
-		this->rows.push_back({ .index = i, .text = items[i] });
+		this->rows.push_back({ .index = i, .text = listItems[i] });
 	}
 
 	if (this->rows.empty() || this->text.empty())
@@ -415,13 +422,12 @@ void LSG_List::SetItems()
 				items.push_back(item);
 		}
 
-		if (!this->sortOrder.empty())
-			this->sort(items);
+		auto listItems = (!this->sortOrder.empty() ? this->sort(items) : items);
 
-		for (int i = 0; i < (int)items.size(); i++)
+		for (int i = 0; i < (int)listItems.size(); i++)
 		{
-			this->text.append(items[i]).append("\n");
-			this->rows.push_back({ .index = i, .text = items[i]});
+			this->text.append(listItems[i]).append("\n");
+			this->rows.push_back({ .index = i, .text = listItems[i]});
 		}
 	}
 
@@ -447,7 +453,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 	this->SetItems(items);
 }
 
-void LSG_List::sort(std::vector<std::string>& items)
+LSG_Strings LSG_List::sort(const LSG_Strings& items)
 {
 	auto compare = [](const std::string& s1, const std::string& s2)
 	{
@@ -460,8 +466,12 @@ void LSG_List::sort(std::vector<std::string>& items)
 		);
 	};
 
+	LSG_Strings listItems = items;
+
 	if (this->sortOrder == LSG_DESCENDING)
-		std::sort(items.rbegin(), items.rend(), compare);
+		std::sort(listItems.rbegin(), listItems.rend(), compare);
 	else
-		std::sort(items.begin(), items.end(), compare);
+		std::sort(listItems.begin(), listItems.end(), compare);
+
+	return listItems;
 }

@@ -1,6 +1,5 @@
 #include "LSG_XML.h"
 
-
 LibXml::xmlNode* LSG_XML::AddChildNode(LibXml::xmlNode* xmlNode, LibXml::xmlDoc* xmlDoc, const std::string& xmlName, const std::string& value)
 {
 	if (!xmlNode || xmlName.empty() || value.empty())
@@ -22,7 +21,6 @@ LibXml::xmlNode* LSG_XML::AddChildNode(LibXml::xmlNode* xmlNode, LibXml::xmlDoc*
 
 	return xmlChildNode;
 }
-
 
 std::string LSG_XML::GetAttribute(LibXml::xmlNode* xmlNode, const std::string& attribute)
 {
@@ -123,6 +121,15 @@ std::string LSG_XML::GetValue(LibXml::xmlNode* node, LibXml::xmlDoc* xmlDoc)
 LibXml::xmlDoc* LSG_XML::Open(const std::string& xmlFile)
 {
 	return LibXml::xmlParseFile(xmlFile.c_str());
+}
+
+void LSG_XML::RemoveNode(LibXml::xmlNode* xmlNode)
+{
+	if (!xmlNode)
+		return;
+
+	LibXml::xmlUnlinkNode(xmlNode);
+	LibXml::xmlFreeNode(xmlNode);
 }
 
 void LSG_XML::SetAttribute(LibXml::xmlNode* xmlNode, const std::string& attribute, const std::string& value)
