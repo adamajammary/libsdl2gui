@@ -117,6 +117,19 @@ SDL_Point LSG_GetPosition(const std::string& id)
 	return position;
 }
 
+int LSG_GetSelectedRow(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	return static_cast<LSG_List*>(component)->GetSelectedRow();
+}
+
 SDL_Size LSG_GetSize(const std::string& id)
 {
 	if (!isRunning)
@@ -458,6 +471,19 @@ std::string LSG_SaveFile()
 	return LSG_Window::OpenFile();
 }
 #endif
+
+void LSG_SelectRow(const std::string& id, int row)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	static_cast<LSG_List*>(component)->Select(row);
+}
 
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)
 {

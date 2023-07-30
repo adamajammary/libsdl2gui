@@ -34,9 +34,11 @@ public:
 	void         Activate();
 	std::string  GetItem(int row);
 	LSG_Strings  GetItems();
+	int          GetSelectedRow();
 	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
 	void         RemoveItem(int row);
 	virtual void Render(SDL_Renderer* renderer) override;
+	bool         Select(int row);
 	void         SelectFirstRow();
 	void         SelectLastRow();
 	void         SelectRow(int offset);
@@ -51,7 +53,6 @@ protected:
 	int          getRowHeight();
 	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea);
 	void         renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea);
-	bool         select(int row);
 	virtual void sendEvent(LSG_EventType type) override;
 	void         setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);
 	void         setRowHeights(LSG_ListRows& rows, int rowHeight, const SDL_Rect& backgroundArea);

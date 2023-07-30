@@ -73,7 +73,9 @@ void test_handleEvents(const std::vector<SDL_Event>& events)
 {
     for (const auto& event : events)
     {
-        if (event.type >= SDL_USEREVENT)
+        if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
+            LSG_Quit();
+        else if (event.type >= SDL_USEREVENT)
             test_handleUserEvent(event.user);
         else if (event.type == SDL_KEYUP)
             test_handleKeyEvent(event.key);

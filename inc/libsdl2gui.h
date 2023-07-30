@@ -141,6 +141,14 @@ DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 DLLEXPORT SDL_Point DLL LSG_GetPosition(const std::string& id);
 
 /**
+ * @returns the selected 0-based row index of a <list> or <table> component
+ * @param id <table> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT int DLL LSG_GetSelectedRow(const std::string& id);
+
+/**
  * @returns the component size
  * @param id Component ID
  * @throws invalid_argument
@@ -323,6 +331,15 @@ DLLEXPORT std::string DLL LSG_SaveFile(const wchar_t* filter = nullptr); // http
 #else
 DLLEXPORT std::string DLL LSG_SaveFile();
 #endif
+
+/**
+ * @brief Selects the row in a <list> or <table> component.
+ * @param id  <list> or <table> component ID
+ * @param row 0-based row index
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SelectRow(const std::string& id, int row);
 
 /**
  * @brief Sets the horizontal alignment of child components in containers like <panel> and <button>, or alignment of textured components like <image> and <text> relative to available space in their background component.

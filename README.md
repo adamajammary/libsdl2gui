@@ -84,7 +84,9 @@ You can call [LSG_IsRunning](#lsg_isrunning) to make sure the library was initia
 void myapp_handleEvents(const std::vector<SDL_Event>& events)
 {
   for (const SDL_Event& event : events) {
-    if (event.type >= SDL_USEREVENT)
+    if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
+      LSG_Quit();
+    else if (event.type >= SDL_USEREVENT)
       myapp_handleUserEvent(event.user);
     else if (event.type == SDL_KEYUP)
       myapp_handleKeyEvent(event.key);
@@ -673,6 +675,23 @@ Exceptions
 - invalid_argument
 - exception
 
+### LSG_GetSelectedRow
+
+```cpp
+int LSG_GetSelectedRow(const std::string& id);
+```
+
+Returns the selected 0-based row index of a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
 ### LSG_GetSize
 
 ```cpp
@@ -1043,6 +1062,30 @@ Returns the selected file path or an empty string if cancelled.
 
 ```cpp
 std::string LSG_SaveFile();
+```
+
+### LSG_SelectRow
+
+```cpp
+void LSG_SelectRow(const std::string& id, int row);
+```
+
+Selects the row in a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SelectRow("List", 2);
 ```
 
 ### LSG_SetAlignmentHorizontal

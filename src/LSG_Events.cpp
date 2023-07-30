@@ -202,9 +202,6 @@ void LSG_Events::handleMouseUp()
 void LSG_Events::handleWindowEvent(const SDL_WindowEvent& event)
 {
 	switch (event.event) {
-	case SDL_WINDOWEVENT_CLOSE:
-        LSG_Quit();
-		break;
 	case SDL_WINDOWEVENT_SIZE_CHANGED:
 		LSG_UI::Layout();
 		break;

@@ -207,7 +207,7 @@ bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 
 	auto scrolledRow = ((positionY + this->scrollOffsetY) / rowHeight);
 
-	bool selected = this->select(scrolledRow);
+	bool selected = this->Select(scrolledRow);
 
 	if (selected && isDoubleClick)
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
@@ -654,7 +654,7 @@ void LSG_Table::setRows()
 		this->textures.push_back(this->getTexture(textColumn));
 
 	if (this->row < firstRow)
-		this->select(firstRow);
+		this->Select(firstRow);
 }
 
 void LSG_Table::SetRows()

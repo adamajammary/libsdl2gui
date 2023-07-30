@@ -85,6 +85,11 @@ int LSG_List::getRowHeight()
 	return rowHeight;
 }
 
+int LSG_List::GetSelectedRow()
+{
+	return this->row;
+}
+
 bool LSG_List::MouseClick(const SDL_MouseButtonEvent& event)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->rows.empty())
@@ -96,7 +101,7 @@ bool LSG_List::MouseClick(const SDL_MouseButtonEvent& event)
 	if (rowHeight < 1)
 		return false;
 
-	bool selected = this->select(positionY / rowHeight);
+	bool selected = this->Select(positionY / rowHeight);
 
 	if (selected && LSG_Events::IsDoubleClick(event))
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
@@ -227,7 +232,7 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_
 	}
 }
 
-bool LSG_List::select(int row)
+bool LSG_List::Select(int row)
 {
 	if (!this->enabled || (this->rows.empty() && this->groups.empty()))
 		return false;
@@ -255,7 +260,7 @@ void LSG_List::SelectFirstRow()
 
 	auto firstRow = this->getFirstRow();
 
-	this->select(firstRow);
+	this->Select(firstRow);
 	this->ScrollHome();
 }
 
@@ -266,7 +271,7 @@ void LSG_List::SelectLastRow()
 
 	auto lastRow = this->getLastRow();
 
-	this->select(lastRow);
+	this->Select(lastRow);
 	this->ScrollEnd();
 }
 
@@ -279,7 +284,7 @@ void LSG_List::SelectRow(int offset)
 	auto lastRow     = this->getLastRow();
 	auto selectedRow = max(firstRow, min(lastRow, (this->row + offset)));
 
-	this->select(selectedRow);
+	this->Select(selectedRow);
 
 	if (!this->showScrollY)
 		return;
@@ -391,7 +396,7 @@ void LSG_List::SetItems(const LSG_Strings& items)
 	auto firstRow = this->getFirstRow();
 
 	if (this->row < firstRow)
-		this->select(firstRow);
+		this->Select(firstRow);
 }
 
 void LSG_List::SetItems()
@@ -437,7 +442,7 @@ void LSG_List::SetItems()
 	this->SetText();
 
 	if (this->row < 0)
-		this->select(this->getFirstRow());
+		this->Select(this->getFirstRow());
 }
 
 void LSG_List::Sort(LSG_SortOrder sortOrder)
