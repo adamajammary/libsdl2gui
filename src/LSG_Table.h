@@ -18,6 +18,7 @@ public:
 	void          AddRow(const LSG_Strings& columns);
 	LSG_Strings   GetRow(int row);
 	LSG_TableRows GetRows();
+	int           GetSortColumn();
 	virtual bool  MouseClick(const SDL_MouseButtonEvent& event) override;
 	void          RemoveHeader();
 	void          RemoveGroup(const std::string& group);

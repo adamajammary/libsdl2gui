@@ -32,6 +32,8 @@ void LSG_UI::AddSubMenuItem(LSG_MenuSub* subMenu, const std::string& item, const
 
 	auto component = new LSG_MenuItem(nodeID, layer, LSG_UI::xmlDocument, xmlNode, nodeName, subMenu);
 
+	component->visible = false;
+
 	LSG_UI::components[nodeID]       = component;
 	LSG_UI::componentsByLayer[layer] = component;
 }
@@ -121,6 +123,27 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 	}
 }
 
+bool LSG_UI::IsMenuOpen(LSG_Component* component)
+{
+	if (!component)
+		return false;
+
+	if (component->visible && (component->IsSubMenu() || component->IsMenuItem()))
+		return true;
+
+	bool isOpen = false;
+
+	for (auto child : component->GetChildren())
+	{
+		if (LSG_UI::IsMenuOpen(child)) {
+			isOpen = true;
+			break;
+		}
+	}
+
+	return isOpen;
+}
+
 /**
  * @throws invalid_argument
  */
@@ -134,6 +157,8 @@ void LSG_UI::Layout()
 	auto windowSize = LSG_Window::GetSize();
 
 	LSG_UI::root->background = { 0, 0, windowSize.width, windowSize.height };
+
+	LSG_UI::CloseSubMenu();
 
 	LSG_UI::setImages(LSG_UI::root);
 	LSG_UI::setListItems(LSG_UI::root);
@@ -214,6 +239,7 @@ void LSG_UI::LayoutRoot()
 
 	LSG_UI::root->background = { 0, 0, windowSize.width, windowSize.height };
 
+	LSG_UI::CloseSubMenu();
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
 }

@@ -30,22 +30,23 @@ protected:
 	std::string  sortOrder;
 
 public:
-	void         AddItem(const std::string& item);
-	void         Activate();
-	std::string  GetItem(int row);
-	LSG_Strings  GetItems();
-	int          GetSelectedRow();
-	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
-	void         RemoveItem(int row);
-	virtual void Render(SDL_Renderer* renderer) override;
-	bool         Select(int row);
-	void         SelectFirstRow();
-	void         SelectLastRow();
-	void         SelectRow(int offset);
-	void         SetItem(int row, const std::string& item);
-	void         SetItems(const LSG_Strings& items);
-	void         SetItems();
-	void         Sort(LSG_SortOrder sortOrder);
+	void          AddItem(const std::string& item);
+	void          Activate();
+	std::string   GetItem(int row);
+	LSG_Strings   GetItems();
+	int           GetSelectedRow();
+	LSG_SortOrder GetSortOrder();
+	virtual bool  MouseClick(const SDL_MouseButtonEvent& event) override;
+	void          RemoveItem(int row);
+	virtual void  Render(SDL_Renderer* renderer) override;
+	bool          Select(int row);
+	void          SelectFirstRow();
+	void          SelectLastRow();
+	void          SelectRow(int offset);
+	void          SetItem(int row, const std::string& item);
+	void          SetItems(const LSG_Strings& items);
+	void          SetItems();
+	void          Sort(LSG_SortOrder sortOrder);
 
 protected:
 	int          getFirstRow();

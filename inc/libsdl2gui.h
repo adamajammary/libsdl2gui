@@ -141,8 +141,24 @@ DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 DLLEXPORT SDL_Point DLL LSG_GetPosition(const std::string& id);
 
 /**
+ * @returns the horizontal scroll offset/position of a <list>, <table> or <text> component
+ * @param id <list>, <table> or <text> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT int DLL LSG_GetScrollHorizontal(const std::string& id);
+
+/**
+ * @returns the vertical scroll offset/position of a <list>, <table> or <text> component
+ * @param id <list>, <table> or <text> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT int DLL LSG_GetScrollVertical(const std::string& id);
+
+/**
  * @returns the selected 0-based row index of a <list> or <table> component
- * @param id <table> component ID
+ * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws exception
  */
@@ -163,6 +179,22 @@ DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
  * @throws exception
  */
 DLLEXPORT double DLL LSG_GetSliderValue(const std::string& id);
+
+/**
+ * @returns the sort column index of the <table> component
+ * @param id <table> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT int DLL LSG_GetSortColumn(const std::string& id);
+
+/**
+ * @returns the sort order of the <list> or <table> component
+ * @param id <list> or <table> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT LSG_SortOrder DLL LSG_GetSortOrder(const std::string& id);
 
 /**
  * @returns the row columns from the <table> component
@@ -214,15 +246,31 @@ DLLEXPORT SDL_Size DLL LSG_GetWindowSize();
 DLLEXPORT std::string DLL LSG_GetWindowTitle();
 
 /**
- * @returns true if the window is maximized
+ * @returns true if the <menu> component is open
+ * @param id <menu> component ID
+ * @throws invalid_argument
  * @throws exception
  */
-DLLEXPORT bool DLL LSG_IsWindowMaximized();
+DLLEXPORT bool DLL LSG_IsMenuOpen(const std::string& id);
 
 /**
  * @returns true if the library has been initialized and window created
  */
 DLLEXPORT bool DLL LSG_IsRunning();
+
+/**
+ * @returns true if the component is visible
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT bool DLL LSG_IsVisible(const std::string& id);
+
+/**
+ * @returns true if the window is maximized
+ * @throws exception
+ */
+DLLEXPORT bool DLL LSG_IsWindowMaximized();
 
 /**
  * @brief Displays an Open File dialog where you can select a single file.
@@ -331,6 +379,24 @@ DLLEXPORT std::string DLL LSG_SaveFile(const wchar_t* filter = nullptr); // http
 #else
 DLLEXPORT std::string DLL LSG_SaveFile();
 #endif
+
+/**
+ * @brief Scrolls the <list>, <table> or <text> component horizontally by the specified offset/position.
+ * @param id     <list>, <table> or <text> component ID
+ * @param scroll Horizontal scroll offset/position
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_ScrollHorizontal(const std::string& id, int scroll);
+
+/**
+ * @brief Scrolls the <list>, <table> or <text> component vertically by the specified offset/position.
+ * @param id     <list>, <table> or <text> component ID
+ * @param scroll Vertical scroll offset/position
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_ScrollVertical(const std::string& id, int scroll);
 
 /**
  * @brief Selects the row in a <list> or <table> component.

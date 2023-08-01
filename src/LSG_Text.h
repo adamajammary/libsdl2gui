@@ -17,6 +17,8 @@ protected:
 	bool        wrap;
 
 public:
+	int  GetScrollX();
+	int  GetScrollY();
 	void SetText(const std::string& text);
 	void SetText();
 

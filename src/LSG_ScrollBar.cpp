@@ -222,14 +222,12 @@ void LSG_ScrollBar::renderScrollBarVertical(SDL_Renderer* renderer, const SDL_Re
 
 void LSG_ScrollBar::ScrollHome()
 {
-	if (this->showScrollY)
-		this->scrollOffsetY = 0;
+	this->scrollOffsetY = 0;
 }
 
 void LSG_ScrollBar::ScrollEnd()
 {
-	if (this->showScrollY)
-		this->scrollOffsetY = LSG_MAX_TEXTURE_SIZE;
+	this->scrollOffsetY = LSG_MAX_TEXTURE_SIZE;
 }
 
 bool LSG_ScrollBar::ScrollMouseClick(const SDL_Point& mousePosition)
@@ -341,9 +339,6 @@ void LSG_ScrollBar::ScrollMouseUp()
 
 void LSG_ScrollBar::ScrollHorizontal(int offset)
 {
-	if (!this->showScrollX)
-		return;
-
 	this->scrollOffsetX += offset;
 
 	if (this->scrollOffsetX < 0)
@@ -352,9 +347,6 @@ void LSG_ScrollBar::ScrollHorizontal(int offset)
 
 void LSG_ScrollBar::ScrollVertical(int offset)
 {
-	if (!this->showScrollY)
-		return;
-
 	this->scrollOffsetY += offset;
 
 	if (this->scrollOffsetY < 0)

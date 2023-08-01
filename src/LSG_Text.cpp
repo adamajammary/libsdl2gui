@@ -81,6 +81,16 @@ TTF_Font* LSG_Text::getFontMonoSpace(int fontSize)
 	return font;
 }
 
+int LSG_Text::GetScrollX()
+{
+	return this->scrollOffsetX;
+}
+
+int LSG_Text::GetScrollY()
+{
+	return this->scrollOffsetY;
+}
+
 //std::string LSG_TextLabel::getText(const std::string& text)
 //{
 //	if (!text.empty())

@@ -90,6 +90,11 @@ int LSG_List::GetSelectedRow()
 	return this->row;
 }
 
+LSG_SortOrder LSG_List::GetSortOrder()
+{
+	 return (this->sortOrder == LSG_DESCENDING ? LSG_SORT_ORDER_DESCENDING : LSG_SORT_ORDER_ASCENDING);
+}
+
 bool LSG_List::MouseClick(const SDL_MouseButtonEvent& event)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->rows.empty())

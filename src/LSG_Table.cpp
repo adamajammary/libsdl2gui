@@ -163,6 +163,11 @@ int LSG_Table::getRowHeight(const SDL_Size& textureSize)
 	return (rowCount > 0 ? (textureSize.height / rowCount) : 0);
 }
 
+int LSG_Table::GetSortColumn()
+{
+	return this->sortColumn;
+}
+
 bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown())

@@ -675,6 +675,40 @@ Exceptions
 - invalid_argument
 - exception
 
+### LSG_GetScrollHorizontal
+
+```cpp
+int LSG_GetScrollHorizontal(const std::string& id);
+```
+
+Returns the horizontal scroll offset/position of a \<list\>, \<table\> or \<text\> component.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_GetScrollVertical
+
+```cpp
+int LSG_GetScrollVertical(const std::string& id);
+```
+
+Returns the vertical scroll offset/position of a \<list\>, \<table\> or \<text\> component.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
 ### LSG_GetSelectedRow
 
 ```cpp
@@ -685,7 +719,7 @@ Returns the selected 0-based row index of a \<list\> or \<table\> component.
 
 Parameters
 
-- **id** \<table\> component ID
+- **id** \<list\> or \<table\> component ID
 
 Exceptions
 
@@ -720,6 +754,40 @@ Returns the value of a \<slider\> component as a percent between 0 and 1.
 Parameters
 
 - **id** \<slider\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_GetSortColumn
+
+```cpp
+int LSG_GetSortColumn(const std::string& id);
+```
+
+Returns the sort column index of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_GetSortOrder
+
+```cpp
+LSG_SortOrder LSG_GetSortOrder(const std::string& id);
+```
+
+Returns the sort order of the \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
 
 Exceptions
 
@@ -826,6 +894,48 @@ Exceptions
 
 - exception
 
+### LSG_IsMenuOpen
+
+```cpp
+bool LSG_IsMenuOpen(const std::string& id);
+```
+
+Returns true if the \<menu\> component is open.
+
+Parameters
+
+- **id** \<menu\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_IsRunning
+
+```cpp
+bool LSG_IsRunning();
+```
+
+Returns true if the library has been initialized and window created.
+
+### LSG_IsVisible
+
+```cpp
+bool LSG_IsVisible(const std::string& id);
+```
+
+Returns true if the component is visible.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
 ### LSG_IsWindowMaximized
 
 ```cpp
@@ -837,14 +947,6 @@ Returns true if the window is maximized.
 Exceptions
 
 - exception
-
-### LSG_IsRunning
-
-```cpp
-bool LSG_IsRunning();
-```
-
-Returns true if the library has been initialized and window created.
 
 ### LSG_OpenFile
 
@@ -1063,6 +1165,42 @@ Returns the selected file path or an empty string if cancelled.
 ```cpp
 std::string LSG_SaveFile();
 ```
+
+### LSG_ScrollHorizontal
+
+```cpp
+void LSG_ScrollHorizontal(const std::string& id, int scroll);
+```
+
+Scrolls the \<list\>, \<table\> or \<text\> component horizontally by the specified offset/position.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+- **scroll** Horizontal scroll offset/position
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_ScrollVertical
+
+```cpp
+void LSG_ScrollVertical(const std::string& id, int scroll);
+```
+
+Scrolls the \<list\>, \<table\> or \<text\> component vertically by the specified offset/position.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+- **scroll** Vertical scroll offset/position
+
+Exceptions
+
+- invalid_argument
+- exception
 
 ### LSG_SelectRow
 
