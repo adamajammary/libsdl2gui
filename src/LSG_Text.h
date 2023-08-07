@@ -22,6 +22,13 @@ public:
 	void SetText(const std::string& text);
 	void SetText();
 
+public:
+	static TTF_Font*          GetFontArial(int fontSize);
+	static TTF_Font*          GetFontMonoSpace(int fontSize);
+	static std::string        GetFullPath(const std::string& path);
+	static bool               GetStringCompare(const std::string& s1, const std::string& s2);
+	static LSG_StringsCompare GetStringsCompare(int sortColumn);
+
 protected:
 	SDL_Texture* getTexture(const std::string& text);
 	bool         hasChanged();
@@ -29,8 +36,6 @@ protected:
 
 private:
 	TTF_Font* getFont(uint16_t* text, int fontSize);
-	TTF_Font* getFontArial(int fontSize);
-	TTF_Font* getFontMonoSpace(int fontSize);
 
 };
 

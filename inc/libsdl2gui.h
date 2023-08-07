@@ -71,7 +71,7 @@ using LSG_TableRows = std::vector<LSG_Strings>;
 
 struct LSG_TableGroupRows
 {
-	std::string   header;
+	std::string   group;
 	LSG_TableRows rows;
 };
 

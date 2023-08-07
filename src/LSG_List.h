@@ -3,17 +3,15 @@
 #ifndef LSG_LIST_H
 #define LSG_LIST_H
 
-struct LSG_ListRow
+struct LSG_ListItemRow
 {
 	SDL_Rect    background = {};
-	LSG_Strings columns    = {};
-	int         index      = -1;
-	std::string text       = "";
+	std::string item       = "";
 };
 
-using LSG_ListRows = std::vector<LSG_ListRow>;
+using LSG_ListItemRows = std::vector<LSG_ListItemRow>;
 
-class LSG_List : public LSG_Text, public LSG_IEvent
+class LSG_List : public LSG_Pagination, public LSG_Text, public LSG_IEvent
 {
 public:
 	LSG_List(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -23,11 +21,9 @@ public:
 	bool showRowBorder;
 
 protected:
-	LSG_ListRows groups;
-	LSG_ListRow  header;
-	int          row;
-	LSG_ListRows rows;
-	std::string  sortOrder;
+	int              row;
+	LSG_ListItemRows rows;
+	std::string      sortOrder;
 
 public:
 	void          AddItem(const std::string& item);
@@ -49,15 +45,17 @@ public:
 	void          Sort(LSG_SortOrder sortOrder);
 
 protected:
-	int          getFirstRow();
-	int          getLastRow();
-	int          getRowHeight();
-	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea);
-	void         renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea);
+	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea, const SDL_Rect& rowBackground);
 	virtual void sendEvent(LSG_EventType type) override;
-	void         setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);
-	void         setRowHeights(LSG_ListRows& rows, int rowHeight, const SDL_Rect& backgroundArea);
-	LSG_Strings  sort(const LSG_Strings& items);
+
+private:
+	int         getLastRow();
+	LSG_Strings getPageItems();
+	int         getRowHeight();
+	void        renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea);
+	void        setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);
+	void        sort();
+	void        updatePage(bool reset = true);
 
 };
 

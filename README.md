@@ -485,7 +485,7 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 ```cpp
 struct LSG_TableGroupRows
 {
-  std::string   header;
+  std::string   group;
   LSG_TableRows rows;
 };
 ```

@@ -78,8 +78,8 @@ Euismod lacinia at quis risus.
         <panel padding="10" border="1">
           <list id="List" sort="ascending">
             <list-item>Lorem ipsum dolor sit amet</list-item>
-            <list-item>consectetur adipiscing elit</list-item>
-            <list-item>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</list-item>
+            <list-item>Consectetur adipiscing elit</list-item>
+            <list-item>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</list-item>
             <list-item>Cursus sit amet dictum sit</list-item>
             <list-item>Turpis in eu mi bibendum neque egestas congue quisque</list-item>
             <list-item>Tellus in hac habitasse platea dictumst</list-item>
@@ -145,33 +145,29 @@ Euismod lacinia at quis risus.
               <table-column>DOLOR</table-column>
               <table-column>MAGNA</table-column>
             </table-header>
-            <table-group>
-              <table-column>Vestibulum</table-column>
-              <table-column></table-column>
+            <table-group group="Vestibulum">
+              <table-row>
+                <table-column>Risus</table-column>
+                <table-column>Sociis natoque penatibus</table-column>
+              </table-row>
+              <table-row>
+                <table-column>Blandit</table-column>
+                <table-column>Imperdiet nulla malesuada</table-column>
+              </table-row>
             </table-group>
-            <table-row>
-              <table-column>Risus</table-column>
-              <table-column>Sociis natoque penatibus</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Blandit</table-column>
-              <table-column>Imperdiet nulla malesuada</table-column>
-            </table-row>
+            <table-group group="Quis Hendrerit">
+              <table-row>
+                <table-column>Congue</table-column>
+                <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
+              </table-row>
+              <table-row>
+                <table-column>Adipiscing</table-column>
+                <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
+              </table-row>
+            </table-group>
             <table-row>
               <table-column>Cursus</table-column>
               <table-column>Pellentesque elit eget gravida</table-column>
-            </table-row>
-            <table-group>
-              <table-column>Quis Hendrerit</table-column>
-              <table-column></table-column>
-            </table-group>
-            <table-row>
-              <table-column>Congue</table-column>
-              <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Adipiscing</table-column>
-              <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
             </table-row>
             <table-row>
               <table-column>Consequat</table-column>

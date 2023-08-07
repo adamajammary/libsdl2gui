@@ -64,6 +64,7 @@ public:
 	bool             IsTable();
 	bool             IsTableGroup();
 	bool             IsTableHeader();
+	bool             IsTableRow();
 	bool             IsTextLabel();
 	bool             IsVertical();
 	void             RemoveChild(LSG_Component* child);
@@ -87,7 +88,6 @@ protected:
 	int          getFontSize();
 	int          getFontStyle();
 	SDL_Rect     getRenderDestinationAligned(const SDL_Rect& backgroundArea, const SDL_Size& size);
-	SDL_Size     getTextureSize(SDL_Texture* texture);
 	TexturSizes  getTextureSizes(int spacing = 0);
 	std::string  getXmlColor(const std::string& xmlAttribute, bool recursive = true);
 	bool         isButton();

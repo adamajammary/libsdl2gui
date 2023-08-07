@@ -35,8 +35,34 @@ LSG_Component::~LSG_Component()
 {
 	this->destroyTextures();
 
-	for (auto child : this->children) {
-		if (child)
+	for (auto child : this->children)
+	{
+		if (!child)
+			continue;
+
+		if (child->xmlNodeName == "button")
+			delete static_cast<LSG_Button*>(child);
+		else if (child->IsImage())
+			delete static_cast<LSG_Image*>(child);
+		else if (child->IsList())
+			delete static_cast<LSG_List*>(child);
+		else if (child->IsMenu())
+			delete static_cast<LSG_Menu*>(child);
+		else if (child->IsSubMenu())
+			delete static_cast<LSG_MenuSub*>(child);
+		else if (child->IsMenuItem())
+			delete static_cast<LSG_MenuItem*>(child);
+		else if (child->IsSlider())
+			delete static_cast<LSG_Slider*>(child);
+		else if (child->IsTable())
+			delete static_cast<LSG_Table*>(child);
+		else if (child->IsTableGroup())
+			delete static_cast<LSG_TableGroup*>(child);
+		else if (child->IsTableHeader())
+			delete static_cast<LSG_TableHeader*>(child);
+		else if (child->IsTextLabel())
+			delete static_cast<LSG_TextLabel*>(child);
+		else
 			delete child;
 	}
 
@@ -180,18 +206,7 @@ SDL_Rect LSG_Component::getRenderDestinationAligned(const SDL_Rect& backgroundAr
 
 SDL_Size LSG_Component::GetTextureSize()
 {
-	return this->getTextureSize(this->texture);
-}
-
-SDL_Size LSG_Component::getTextureSize(SDL_Texture* texture)
-{
-	if (!texture)
-		return {};
-
-	SDL_Size textureSize = {};
-	SDL_QueryTexture(texture, nullptr, nullptr, &textureSize.width, &textureSize.height);
-
-	return textureSize;
+	return LSG_Graphics::GetTextureSize(this->texture);
 }
 
 TexturSizes LSG_Component::getTextureSizes(int spacing)
@@ -320,6 +335,11 @@ bool LSG_Component::IsTableGroup()
 bool LSG_Component::IsTableHeader()
 {
 	return (this->xmlNodeName == "table-header");
+}
+
+bool LSG_Component::IsTableRow()
+{
+	return (this->xmlNodeName == "table-row");
 }
 
 bool LSG_Component::IsTextLabel()

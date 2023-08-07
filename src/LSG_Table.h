@@ -3,6 +3,22 @@
 #ifndef LSG_TABLE_H
 #define LSG_TABLE_H
 
+struct LSG_TableItemRow
+{
+	SDL_Rect    background = {};
+	LSG_Strings columns    = {};
+};
+
+using LSG_TableItemRows = std::vector<LSG_TableItemRow>;
+
+struct LSG_TableItemGroup
+{
+	std::string       group = "";
+	LSG_TableItemRows rows  = {};
+};
+
+using LSG_TableItemGroups = std::vector<LSG_TableItemGroup>;
+
 class LSG_Table : public LSG_List
 {
 public:
@@ -10,8 +26,11 @@ public:
 	~LSG_Table() {}
 
 private:
-	int         sortColumn;
-	LSG_Strings textColumns;
+	LSG_TableItemRow    header;
+	LSG_TableItemGroups groups;
+	LSG_TableItemRows   rows;
+	int                 sortColumn;
+	LSG_Strings         textColumns;
 
 public:
 	void          AddGroup(const std::string& group, const LSG_TableRows& rows);
@@ -24,6 +43,10 @@ public:
 	void          RemoveGroup(const std::string& group);
 	void          RemoveRow(int row);
 	virtual void  Render(SDL_Renderer* renderer) override;
+	bool          Select(int row);
+	void          SelectFirstRow();
+	void          SelectLastRow();
+	void          SelectRow(int offset);
 	void          SetGroups(const LSG_TableGroups& groups);
 	void          SetHeader(const LSG_Strings& header);
 	void          SetRow(int row, const LSG_Strings& columns);
@@ -32,16 +55,20 @@ public:
 	void          Sort(LSG_SortOrder sortOrder, int sortColumn);
 
 private:
-	int       getClickedHeaderColumn(const SDL_Point& mousePosition, const std::vector<SDL_Size>& columnSizes, int maxWidth);
-	int       getColumnCount();
-	int       getLastRowIndex();
-	SDL_Color getOffsetColor(const SDL_Color& color, int offset);
-	int       getRowHeight(const SDL_Size& textureSize);
-	void      renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderDestination, int rowHeight);
-	void      renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, const std::vector<SDL_Size>& columnSizes, const SDL_Rect& renderClip, const SDL_Rect& renderDestination);
-	void      renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea);
-	void      setRows();
-	void      sort();
+	int  getClickedHeaderColumn(const SDL_Point& mousePosition, const std::vector<SDL_Size>& columnSizes, int maxWidth);
+	int  getColumnCount();
+	int  getFirstRow();
+	int  getLastRow();
+	int  getRowHeight(const SDL_Size& textureSize);
+	void renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderDestination, int rowHeight);
+	void renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea);
+	void renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, const std::vector<SDL_Size>& columnSizes, const SDL_Rect& renderClip, const SDL_Rect& renderDestination);
+	void renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea);
+	void setPageItems();
+	void setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);
+	void setRowHeights(LSG_TableItemRows& rows, int rowHeight, const SDL_Rect& backgroundArea, int& i);
+	void sort();
+	void updatePage(bool reset = true);
 
 };
 

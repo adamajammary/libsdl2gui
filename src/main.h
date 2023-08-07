@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <functional>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -42,6 +43,7 @@ class LSG_Component;
 
 using LSG_Components       = std::vector<LSG_Component*>;
 using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
+using LSG_StringsCompare   = std::function<bool(const LSG_Strings& s1, const LSG_Strings& s2)>;
 using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
 using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
 
@@ -55,6 +57,7 @@ const std::string LSG_DESCENDING              = "descending";
 const int         LSG_DOUBLE_CLICK_TIME_LIMIT = 200;
 const std::string LSG_HORIZONTAL              = "horizontal";
 const int         LSG_LIST_UNIT_PAGE          = 5;
+const int         LSG_MAX_ROWS_PER_PAGE       = 50;
 const int         LSG_MAX_TEXTURE_SIZE        = 8192;
 const int         LSG_MENU_LAYER_OFFSET       = 1000000;
 const int         LSG_MENU_LABEL_SPACING      = 4;
@@ -65,6 +68,7 @@ const int         LSG_MENU_SUB_PADDING_X      = 20;
 const int         LSG_MENU_SUB_PADDING_X_2X   = 40;
 const int         LSG_MENU_SUB_PADDING_Y      = 10;
 const int         LSG_MENU_SUB_PADDING_Y_2X   = 20;
+const int         LSG_PAGINATION_FONT_SIZE    = 13;
 const SDL_Color   LSG_SCROLL_COLOR_THUMB      = { 128, 128, 128, 255 };
 const int         LSG_SCROLL_PADDING          = 5;
 const int         LSG_SCROLL_PADDING_2X       = 10;
@@ -73,7 +77,7 @@ const int         LSG_SCROLL_UNIT_PAGE        = 140;
 const int         LSG_SCROLL_UNIT_WHEEL       = 20;
 const int         LSG_SCROLL_WIDTH            = 20;
 const int         LSG_SCROLL_WIDTH_2X         = 40;
-const int         LSG_SCROLL_MIN_SIZE         = (LSG_SCROLL_WIDTH_2X + LSG_SCROLL_UNIT);
+const int         LSG_SCROLL_MIN_SIZE         = 120;
 const SDL_Color   LSG_SLIDER_BACK_COLOR       = { 192, 192, 192, 255 };
 const SDL_Color   LSG_SLIDER_PROGRESS_COLOR   = { 20, 130, 255, 255 };
 const SDL_Color   LSG_SLIDER_THUMB_COLOR      = { 128, 128, 128, 255 };
@@ -84,10 +88,11 @@ const uint32_t    LSG_UINT32_HALF             = (UINT32_MAX / 2);
 const std::string LSG_VERTICAL                = "vertical";
 const int         LSG_WINDOW_MIN_SIZE         = 400;
 
-bool        SDL_ColorEquals(const SDL_Color& a, const SDL_Color& b);
-std::string LSG_GetFullPath(const std::string& path);
+char* LSG_GetBasePath();
 
 #include "LSG_IEvent.h"
+#include "LSG_Graphics.h"
+#include "LSG_Pagination.h"
 #include "LSG_ScrollBar.h"
 #include "LSG_Component.h"
 #include "LSG_Text.h"

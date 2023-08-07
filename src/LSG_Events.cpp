@@ -30,11 +30,8 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 			case SDLK_PAGEDOWN: textLabel->ScrollVertical(LSG_SCROLL_UNIT_PAGE); break;
 			default: break;
 		}
-
-		return;
 	}
-
-	if (component->IsList() || component->IsTable())
+	else if (component->IsList())
 	{
 		auto list = static_cast<LSG_List*>(component);
 
@@ -50,8 +47,23 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 			case SDLK_RETURN: case SDLK_KP_ENTER: list->Activate(); break;
 			default: break;
 		}
+	}
+	else if (component->IsTable())
+	{
+		auto table = static_cast<LSG_Table*>(component);
 
-		return;
+		switch (event.keysym.sym) {
+			case SDLK_LEFT:     table->ScrollHorizontal(-LSG_SCROLL_UNIT); break;
+			case SDLK_RIGHT:    table->ScrollHorizontal(LSG_SCROLL_UNIT); break;
+			case SDLK_HOME:     table->SelectFirstRow(); break;
+			case SDLK_END:      table->SelectLastRow(); break;
+			case SDLK_UP:       table->SelectRow(-1); break;
+			case SDLK_DOWN:     table->SelectRow(1); break;
+			case SDLK_PAGEUP:   table->SelectRow(-LSG_LIST_UNIT_PAGE); break;
+			case SDLK_PAGEDOWN: table->SelectRow(LSG_LIST_UNIT_PAGE); break;
+			case SDLK_RETURN: case SDLK_KP_ENTER: table->Activate(); break;
+			default: break;
+		}
 	}
 }
 

@@ -5,23 +5,14 @@ const char ERROR_NOT_STARTED[] = "libsdl2gui has not been started, call LSG_Star
 char* basePath  = nullptr;
 bool  isRunning = false;
 
+char* LSG_GetBasePath()
+{
+	return basePath;
+}
+
 std::string getErrorNoID(const std::string& component, const std::string& id)
 {
 	return std::format("Failed to find a {} component with ID '{}'.", component, id);
-}
-
-bool SDL_ColorEquals(const SDL_Color& a, const SDL_Color& b)
-{
-	return ((a.r == b.r) && (a.g == b.g) && (a.b == b.b) && (a.a == b.a));
-}
-
-std::string LSG_GetFullPath(const std::string& path)
-{
-	#if defined _windows
-		return (path.size() > 1 && path[1] != ':' ? std::format("{}{}", basePath, path) : path);
-	#else
-		return (!path.empty() && path[0] != '/' ? std::format("{}{}", basePath, path) : path);
-	#endif
 }
 
 void LSG_AddListItem(const std::string& id, const std::string& item)
@@ -586,7 +577,10 @@ void LSG_SelectRow(const std::string& id, int row)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
 
-	static_cast<LSG_List*>(component)->Select(row);
+	if (component->IsList())
+		static_cast<LSG_List*>(component)->Select(row);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->Select(row);
 }
 
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)

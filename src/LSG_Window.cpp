@@ -482,7 +482,7 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 	if (imageFile.empty())
 		return nullptr;
 
-	auto filePath = LSG_GetFullPath(imageFile);
+	auto filePath = LSG_Text::GetFullPath(imageFile);
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
 
 	if (!texture)

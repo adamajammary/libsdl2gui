@@ -18,7 +18,7 @@ TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 	TTF_Font* font = nullptr;
 
 	if (this->IsMenu() || this->IsSubMenu() || this->IsMenuItem())
-		font = this->getFontMonoSpace(fontSize);
+		font = LSG_Text::GetFontMonoSpace(fontSize);
 
 	if (font)
 	{
@@ -35,7 +35,7 @@ TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 	}
 
 	if (!font)
-		font = this->getFontArial(fontSize);
+		font = LSG_Text::GetFontArial(fontSize);
 
 	if (font)
 		TTF_SetFontStyle(font, this->fontStyle);
@@ -43,7 +43,7 @@ TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 	return font;
 }
 
-TTF_Font* LSG_Text::getFontArial(int fontSize)
+TTF_Font* LSG_Text::GetFontArial(int fontSize)
 {
 	TTF_Font* font = nullptr;
 
@@ -62,7 +62,7 @@ TTF_Font* LSG_Text::getFontArial(int fontSize)
 	return font;
 }
 
-TTF_Font* LSG_Text::getFontMonoSpace(int fontSize)
+TTF_Font* LSG_Text::GetFontMonoSpace(int fontSize)
 {
 	TTF_Font* font = nullptr;
 
@@ -81,6 +81,15 @@ TTF_Font* LSG_Text::getFontMonoSpace(int fontSize)
 	return font;
 }
 
+std::string LSG_Text::GetFullPath(const std::string& path)
+{
+	#if defined _windows
+		return (path.size() > 1 && path[1] != ':' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
+	#else
+		return (!path.empty() && path[0] != '/' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
+	#endif
+}
+
 int LSG_Text::GetScrollX()
 {
 	return this->scrollOffsetX;
@@ -89,6 +98,30 @@ int LSG_Text::GetScrollX()
 int LSG_Text::GetScrollY()
 {
 	return this->scrollOffsetY;
+}
+
+bool LSG_Text::GetStringCompare(const std::string& s1, const std::string& s2)
+{
+	return std::lexicographical_compare(
+		s1.begin(), s1.end(),
+		s2.begin(), s2.end(),
+		[](const char& c1, const char& c2) {
+			return std::tolower(c1) < std::tolower(c2);
+		}
+	);
+};
+
+LSG_StringsCompare LSG_Text::GetStringsCompare(int sortColumn)
+{
+	auto compare = [sortColumn](const LSG_Strings& s1, const LSG_Strings& s2)
+	{
+		if ((sortColumn < 0) || (int)(sortColumn >= s1.size()) || (int)(sortColumn >= s2.size()))
+			return false;
+
+		return LSG_Text::GetStringCompare(s1[sortColumn], s2[sortColumn]);
+	};
+
+	return compare;
 }
 
 //std::string LSG_TextLabel::getText(const std::string& text)
@@ -152,7 +185,7 @@ bool LSG_Text::hasChanged()
 {
 	auto fontSize = this->getFontSize();
 
-	return (!SDL_ColorEquals(this->textColor, this->lastTextColor) || (fontSize != this->lastFontSize));
+	return (!LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor) || (fontSize != this->lastFontSize));
 }
 
 void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundArea)
@@ -172,8 +205,8 @@ void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundA
 		if (showScrollX)
 			background.h -= LSG_SCROLL_WIDTH;
 
-		this->showScrollY = (size.height > (background.h + LSG_SCROLL_WIDTH));
-		this->showScrollX = (size.width  > (background.w + LSG_SCROLL_WIDTH));
+		this->showScrollY = (size.height > background.h);
+		this->showScrollX = (size.width  > background.w);
 
 		if (this->showScrollY && !showScrollY)
 			background.w -= LSG_SCROLL_WIDTH;
@@ -193,6 +226,8 @@ void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundA
 			this->scrollOffsetX = maxScrollOffsetX;
 
 		clip.x += this->scrollOffsetX;
+	} else {
+		this->scrollOffsetX = 0;
 	}
 
 	if (this->showScrollY)
@@ -203,6 +238,8 @@ void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundA
 			this->scrollOffsetY = maxScrollOffsetY;
 
 		clip.y += this->scrollOffsetY;
+	} else {
+		this->scrollOffsetY = 0;
 	}
 
 	SDL_RenderCopy(renderer, this->texture, &clip, &dest);
