@@ -67,7 +67,9 @@ std::string LSG_Pagination::getLabel()
 	auto rows  = this->getRowCount();
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
 	auto end   = min(rows, (start + LSG_MAX_ROWS_PER_PAGE));
-	auto label = std::format("{} - {} / {}", (start + 1), end, rows);
+	auto page  = (this->page + 1);
+	auto last  = (this->getMaxPage() + 1);
+	auto label = std::format("{} - {} / {} ( {} / {} )", (start + 1), end, rows, page, last);
 
 	return label;
 }
