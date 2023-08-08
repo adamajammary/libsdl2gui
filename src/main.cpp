@@ -849,7 +849,10 @@ void LSG_SetPage(const std::string& id, int page)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
 
-	static_cast<LSG_List*>(component)->SetPage(page);
+	if (component->IsList())
+		static_cast<LSG_List*>(component)->SetPage(page);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->SetPage(page);
 }
 
 void LSG_SetSize(const std::string& id, const SDL_Size& size)
