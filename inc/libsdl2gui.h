@@ -116,6 +116,12 @@ DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const std::string& g
 DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 
 /**
+ * @returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
+ * @throws exception
+ */
+DLLEXPORT std::string DLL LSG_GetColorTheme();
+
+/**
  * @returns the item row from the <list> component
  * @param id  <list> component ID
  * @param row 0-based row index
@@ -131,6 +137,14 @@ DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
  * @throws exception
  */
 DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
+
+/**
+ * @returns the current 0-based page index of the <list> or <table> component
+ * @param id  <list> or <table> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT int DLL LSG_GetPage(const std::string& id);
 
 /**
  * @returns the component position
@@ -559,6 +573,15 @@ DLLEXPORT void DLL LSG_SetOrientation(const std::string& id, LSG_Orientation ori
  * @throws exception
  */
 DLLEXPORT void DLL LSG_SetPadding(const std::string& id, int padding);
+
+/**
+ * @brief Navigates to and sets the page of a <list> or <table> component.
+ * @param id   <list> or <table> component ID
+ * @param page 0-based page index
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SetPage(const std::string& id, int page);
 
 /**
  * @brief Sets the size of a component.

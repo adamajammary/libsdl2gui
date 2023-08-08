@@ -26,6 +26,7 @@ public:
     static SDL_Color      GetBackgroundColor();
     static LSG_Button*    GetButton(const SDL_Point& mousePosition);
     static std::string    GetColorFromTheme(const std::string& componentID, const std::string& xmlAttribute);
+    static std::string    GetColorTheme();
     static LSG_Component* GetComponent(const std::string& id);
     static LSG_Component* GetComponent(const SDL_Point& mousePosition);
     static void           HighlightComponents(const SDL_Point& mousePosition);

@@ -366,6 +366,12 @@ void LSG_List::SetItems()
 	}
 }
 
+void LSG_List::SetPage(int page)
+{
+	if (this->navigate(page))
+		this->updatePage();
+}
+
 void LSG_List::setRowHeights(int rowHeight, const SDL_Rect& backgroundArea)
 {
 	if ((rowHeight < 1) || SDL_RectEmpty(&backgroundArea) || this->rows.empty() || (this->rows[0].background.h > 0))
@@ -381,6 +387,9 @@ void LSG_List::setRowHeights(int rowHeight, const SDL_Rect& backgroundArea)
 
 void LSG_List::Sort(LSG_SortOrder sortOrder)
 {
+	if (sortOrder == this->GetSortOrder())
+		return;
+
 	this->sortOrder = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
 
 	this->sort();

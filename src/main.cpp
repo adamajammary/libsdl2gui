@@ -67,6 +67,14 @@ void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 	static_cast<LSG_Table*>(component)->AddRow(columns);
 }
 
+std::string LSG_GetColorTheme()
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	return LSG_UI::GetColorTheme();
+}
+
 std::string LSG_GetListItem(const std::string& id, int row)
 {
 	if (!isRunning)
@@ -91,6 +99,19 @@ LSG_Strings LSG_GetListItems(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<list>", id).c_str());
 
 	return static_cast<LSG_List*>(component)->GetItems();
+}
+
+int LSG_GetPage(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	return static_cast<LSG_List*>(component)->GetPage();
 }
 
 SDL_Point LSG_GetPosition(const std::string& id)
@@ -816,6 +837,19 @@ void LSG_SetPadding(const std::string& id, int padding)
 	component->padding = padding;
 
 	LSG_UI::LayoutParent(component);
+}
+
+void LSG_SetPage(const std::string& id, int page)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	static_cast<LSG_List*>(component)->SetPage(page);
 }
 
 void LSG_SetSize(const std::string& id, const SDL_Size& size)

@@ -560,6 +560,12 @@ void LSG_Table::SetHeader(const LSG_Strings& header)
 	this->updatePage();
 }
 
+void LSG_Table::SetPage(int page)
+{
+	if (this->navigate(page))
+		this->updatePage();
+}
+
 void LSG_Table::setPageItems()
 {
 	this->header = { .columns = this->pageHeader };
@@ -769,6 +775,9 @@ void LSG_Table::SetRows()
 
 void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 {
+	if ((sortOrder == this->GetSortOrder()) && (sortColumn == this->sortColumn))
+		return;
+
 	this->sortColumn = sortColumn;
 	this->sortOrder  = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
 

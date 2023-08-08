@@ -84,20 +84,9 @@ int LSG_Pagination::getMaxPage()
 	return lastPage;
 }
 
-int LSG_Pagination::getRowCount()
+int LSG_Pagination::GetPage()
 {
-	if (!this->pageItems.empty())
-		return (int)this->pageItems.size();
-
-
-	int rows = 0;
-
-	for (const auto& group : this->pageGroups)
-		rows += (int)(1 + group.rows.size());
-
-	rows += (int)this->pageRows.size();
-
-	return rows;
+	return this->page;
 }
 
 SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const SDL_Color& color, bool bold)
@@ -123,6 +112,21 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	TTF_CloseFont(font);
 
 	return texture;
+}
+
+int LSG_Pagination::getRowCount()
+{
+	if (!this->pageItems.empty())
+		return (int)this->pageItems.size();
+
+	int rows = 0;
+
+	for (const auto& group : this->pageGroups)
+		rows += (int)(1 + group.rows.size());
+
+	rows += (int)this->pageRows.size();
+
+	return rows;
 }
 
 void LSG_Pagination::initPagination(const SDL_Rect& backgroundArea, const SDL_Color& backgroundColor)

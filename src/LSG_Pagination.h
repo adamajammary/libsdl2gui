@@ -28,10 +28,14 @@ private:
 	SDL_Texture* textureArrowPrev;
 	SDL_Texture* textureLabel;
 
+public:
+	int GetPage();
+
 protected:
 	void initPagination(const SDL_Rect& backgroundArea, const SDL_Color& backgroundColor);
 	bool isPageArrowClicked(const SDL_Point& mousePosition);
 	bool isPaginationClicked(const SDL_Point& mousePosition);
+	bool navigate(int page);
 	void renderPagination(SDL_Renderer* renderer, const SDL_Rect& backgroundArea);
 	bool showPagination();
 
@@ -42,7 +46,6 @@ private:
 	int          getMaxPage();
 	SDL_Texture* getPaginationTexture(const std::string& text, const SDL_Color& color, bool bold = false);
 	int          getRowCount();
-	bool         navigate(int page);
 	void         updatePagination(const SDL_Rect& backgroundArea);
 
 };

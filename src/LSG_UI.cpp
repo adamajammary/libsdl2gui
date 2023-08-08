@@ -83,6 +83,11 @@ std::string LSG_UI::GetColorFromTheme(const std::string& componentID, const std:
 	return color;
 }
 
+std::string LSG_UI::GetColorTheme()
+{
+	return LSG_UI::colorThemeFile;
+}
+
 LSG_Component* LSG_UI::GetComponent(const std::string& id)
 {
 	if (LSG_UI::components.contains(id))

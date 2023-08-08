@@ -42,6 +42,7 @@ public:
 	void          SetItem(int row, const std::string& item);
 	void          SetItems(const LSG_Strings& items);
 	void          SetItems();
+	void          SetPage(int page);
 	void          Sort(LSG_SortOrder sortOrder);
 
 protected:

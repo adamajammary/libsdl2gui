@@ -49,6 +49,7 @@ public:
 	void          SelectRow(int offset);
 	void          SetGroups(const LSG_TableGroups& groups);
 	void          SetHeader(const LSG_Strings& header);
+	void          SetPage(int page);
 	void          SetRow(int row, const LSG_Strings& columns);
 	void          SetRows(const LSG_TableRows& rows);
 	void          SetRows();

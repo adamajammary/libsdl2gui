@@ -623,6 +623,18 @@ LSG_Strings row = { "New Row", "My new table row" };
 LSG_AddTableRow("Table", row);
 ```
 
+### LSG_GetColorTheme
+
+```cpp
+std::string LSG_GetColorTheme();
+```
+
+Returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
+
+Exceptions
+
+- exception
+
 ### LSG_GetListItem
 
 ```cpp
@@ -652,6 +664,23 @@ Returns all items from the \<list\> component.
 Parameters
 
 - **id** \<list\> component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_GetPage
+
+```cpp
+int LSG_GetPage(const std::string& id);
+```
+
+Returns the current 0-based page index of the \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
 
 Exceptions
 
@@ -1636,6 +1665,30 @@ Exceptions
 
 ```cpp
 LSG_SetPadding("Root", 10);
+```
+
+### LSG_SetPage
+
+```cpp
+void LSG_SetPage(const std::string& id, int page);
+```
+
+Navigates to and sets the page of a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **page** 0-based page index
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SetPage("List", 0);
 ```
 
 ### LSG_SetSize
