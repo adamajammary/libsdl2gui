@@ -103,7 +103,7 @@ LSG_Strings LSG_Table::GetRow(int row)
 	if (!this->header.columns.empty() && (row == 0))
 		return this->header.columns;
 
-	int i = -1;
+	int i = (this->getFirstRow() - 1);
 
 	for (const auto& group : this->groups)
 	{
