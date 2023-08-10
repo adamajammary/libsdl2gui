@@ -68,13 +68,13 @@ std::string LSG_Pagination::getLabel()
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
 	auto end   = min(rows, (start + LSG_MAX_ROWS_PER_PAGE));
 	auto page  = (this->page + 1);
-	auto last  = (this->getMaxPage() + 1);
+	auto last  = (this->GetLastPage() + 1);
 	auto label = std::format("{} - {} / {} ( {} / {} )", (start + 1), end, rows, page, last);
 
 	return label;
 }
 
-int LSG_Pagination::getMaxPage()
+int LSG_Pagination::GetLastPage()
 {
 	auto rows      = this->getRowCount();
 	auto lastPage  = (rows / LSG_MAX_ROWS_PER_PAGE);
@@ -137,7 +137,7 @@ void LSG_Pagination::initPagination(const SDL_Rect& backgroundArea, const SDL_Co
 
 	auto color     = LSG_Graphics::GetThumbColor(backgroundColor);
 	auto colorPrev = (this->page == 0 ? LSG_SCROLL_COLOR_THUMB : color);
-	auto colorNext = (this->page == this->getMaxPage() ? LSG_SCROLL_COLOR_THUMB : color);
+	auto colorNext = (this->page == this->GetLastPage() ? LSG_SCROLL_COLOR_THUMB : color);
 
 	this->destroyPageTextures();
 
@@ -155,9 +155,9 @@ bool LSG_Pagination::isPageArrowClicked(const SDL_Point& mousePosition)
 	else if (SDL_PointInRect(&mousePosition, &this->arrowPrev))
 		return this->navigate(max(0, this->page - 1));
 	else if (SDL_PointInRect(&mousePosition, &this->arrowNext))
-		return this->navigate(min(this->getMaxPage(), this->page + 1));
+		return this->navigate(min(this->GetLastPage(), this->page + 1));
 	else if (SDL_PointInRect(&mousePosition, &this->arrowEnd))
-		return this->navigate(this->getMaxPage());
+		return this->navigate(this->GetLastPage());
 
 	return false;
 }

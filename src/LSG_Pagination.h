@@ -29,6 +29,7 @@ private:
 	SDL_Texture* textureLabel;
 
 public:
+	int GetLastPage();
 	int GetPage();
 
 protected:
@@ -43,7 +44,6 @@ private:
 	void         destroyPageTextures();
 	SDL_Rect     getDestinationCenterAligned(const SDL_Rect& backgroundArea, const SDL_Size& size);
 	std::string  getLabel();
-	int          getMaxPage();
 	SDL_Texture* getPaginationTexture(const std::string& text, const SDL_Color& color, bool bold = false);
 	int          getRowCount();
 	void         updatePagination(const SDL_Rect& backgroundArea);

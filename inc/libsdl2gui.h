@@ -141,11 +141,19 @@ DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 
 /**
  * @returns the current 0-based page index of the <list> or <table> component
- * @param id  <list> or <table> component ID
+ * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws exception
  */
 DLLEXPORT int DLL LSG_GetPage(const std::string& id);
+
+/**
+ * @returns the last 0-based page index of the <list> or <table> component
+ * @param id <list> or <table> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT int DLL LSG_GetLastPage(const std::string& id);
 
 /**
  * @returns the component position

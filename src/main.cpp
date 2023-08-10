@@ -114,6 +114,19 @@ int LSG_GetPage(const std::string& id)
 	return static_cast<LSG_List*>(component)->GetPage();
 }
 
+int LSG_GetLastPage(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	return static_cast<LSG_List*>(component)->GetLastPage();
+}
+
 SDL_Point LSG_GetPosition(const std::string& id)
 {
 	if (!isRunning)
