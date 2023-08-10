@@ -630,6 +630,22 @@ void LSG_SelectRow(const std::string& id, int row)
 		static_cast<LSG_Table*>(component)->Select(row);
 }
 
+void LSG_SelectRowByOffset(const std::string& id, int offset)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id).c_str());
+
+	if (component->IsList())
+		static_cast<LSG_List*>(component)->SelectRow(offset);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->SelectRow(offset);
+}
+
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)
 {
 	if (!isRunning)

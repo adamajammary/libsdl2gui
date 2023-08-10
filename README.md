@@ -1278,6 +1278,30 @@ Example
 LSG_SelectRow("List", 2);
 ```
 
+### LSG_SelectRowByOffset
+
+```cpp
+void LSG_SelectRowByOffset(const std::string& id, int offset);
+```
+
+Selects a row relative to the currently selected row in a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **offset** 0-based offset from current row index
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SelectRowByOffset("List", -2);
+```
+
 ### LSG_SetAlignmentHorizontal
 
 ```cpp

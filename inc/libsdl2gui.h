@@ -439,6 +439,15 @@ DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
 DLLEXPORT void DLL LSG_SelectRow(const std::string& id, int row);
 
 /**
+ * @brief Selects a row relative to the currently selected row in a <list> or <table> component.
+ * @param id     <list> or <table> component ID
+ * @param offset 0-based offset from current row index
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SelectRowByOffset(const std::string& id, int offset);
+
+/**
  * @brief Sets the horizontal alignment of child components in containers like <panel> and <button>, or alignment of textured components like <image> and <text> relative to available space in their background component.
  * @param id        Component ID
  * @param alignment Horizontal alignment
