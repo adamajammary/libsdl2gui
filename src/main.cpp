@@ -588,6 +588,19 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 	return static_cast<LSG_Text*>(component)->ScrollVertical(scroll);
 }
 
+void LSG_ScrollToBottom(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable() && !component->IsTextLabel()))
+		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id).c_str());
+
+	return static_cast<LSG_Text*>(component)->ScrollEnd();
+}
+
 void LSG_SelectRow(const std::string& id, int row)
 {
 	if (!isRunning)

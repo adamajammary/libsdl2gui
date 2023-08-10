@@ -480,6 +480,12 @@ enum LSG_SortOrder {
 const int LSG_DEFAULT_FONT_SIZE = 14;
 ```
 
+### LSG_MAX_ROWS_PER_PAGE
+
+```cpp
+const int LSG_MAX_ROWS_PER_PAGE = 50;
+```
+
 ### LSG_TableGroupRows
 
 ```cpp
@@ -1225,6 +1231,23 @@ Parameters
 
 - **id** \<list\>, \<table\> or \<text\> component ID
 - **scroll** Vertical scroll offset/position
+
+Exceptions
+
+- invalid_argument
+- exception
+
+### LSG_ScrollToBottom
+
+```cpp
+void LSG_ScrollToBottom(const std::string& id);
+```
+
+Scrolls to the bottom of the \<list\>, \<table\> or \<text\> component.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
 
 Exceptions
 

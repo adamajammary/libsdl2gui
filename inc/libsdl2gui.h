@@ -59,6 +59,7 @@ enum LSG_SortOrder
 };
 
 const int LSG_DEFAULT_FONT_SIZE = 14;
+const int LSG_MAX_ROWS_PER_PAGE = 50;
 
 struct SDL_Size
 {
@@ -411,6 +412,14 @@ DLLEXPORT void DLL LSG_ScrollHorizontal(const std::string& id, int scroll);
  * @throws exception
  */
 DLLEXPORT void DLL LSG_ScrollVertical(const std::string& id, int scroll);
+
+/**
+ * @brief Scrolls to the bottom of the <list>, <table> or <text> component.
+ * @param id <list>, <table> or <text> component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
 
 /**
  * @brief Selects the row in a <list> or <table> component.

@@ -57,7 +57,6 @@ const std::string LSG_DESCENDING              = "descending";
 const int         LSG_DOUBLE_CLICK_TIME_LIMIT = 200;
 const std::string LSG_HORIZONTAL              = "horizontal";
 const int         LSG_LIST_UNIT_PAGE          = 5;
-const int         LSG_MAX_ROWS_PER_PAGE       = 50;
 const int         LSG_MAX_TEXTURE_SIZE        = 8192;
 const int         LSG_MENU_LAYER_OFFSET       = 1000000;
 const int         LSG_MENU_LABEL_SPACING      = 4;
