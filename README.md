@@ -483,7 +483,7 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 ### LSG_MAX_ROWS_PER_PAGE
 
 ```cpp
-const int LSG_MAX_ROWS_PER_PAGE = 50;
+const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
 ### LSG_TableGroupRows
