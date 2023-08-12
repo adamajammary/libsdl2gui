@@ -146,6 +146,21 @@ LSG_TableRows LSG_Table::GetRows()
 	return rows;
 }
 
+int LSG_Table::getRowHeight()
+{
+	int rowHeight = (!this->rows.empty() ? this->rows[0].background.h : 0);
+
+	if ((rowHeight < 1) && !this->groups.empty() && !this->groups[0].rows.empty())
+		rowHeight = this->groups[0].rows[0].background.h;
+
+	if (rowHeight > 0)
+		return rowHeight;
+
+	auto textureSize = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
+
+	return this->getRowHeight(textureSize.totalSize);
+}
+
 int LSG_Table::getRowHeight(const SDL_Size& textureSize)
 {
 	auto lastRow = this->getLastRow();
@@ -176,7 +191,7 @@ bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 	auto background  = this->getFillArea(this->background, this->border);
 	auto positionY   = (mousePosition.y - background.y);
 	auto textureSize = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
-	auto rowHeight   = this->getRowHeight(textureSize.totalSize);
+	auto rowHeight   = this->getRowHeight();
 
 	if (rowHeight < 1)
 		return false;
@@ -288,18 +303,19 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 		return;
 
 	auto tableBackground = this->getFillArea(this->background, this->border);
-	auto textureSize     = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
-	auto rowHeight       = this->getRowHeight(textureSize.totalSize);
 	bool showPagination  = this->showPagination();
 
 	if (showPagination)
 		tableBackground.h -= LSG_SCROLL_WIDTH;
 
-	this->setRowHeights(rowHeight, tableBackground);
-	this->renderTextures(renderer, tableBackground);
+	auto rowHeight = this->getRowHeight();
+
+	this->setRowHeights(tableBackground, rowHeight);
+
+	this->renderTextures(renderer, tableBackground, rowHeight);
 
 	if (this->showRowBorder)
-		this->renderRowBorder(renderer, rowHeight, tableBackground);
+		this->renderRowBorder(renderer, tableBackground, rowHeight);
 
 	if (showPagination)
 		this->renderPagination(renderer, tableBackground);
@@ -321,7 +337,7 @@ void LSG_Table::renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderD
 	SDL_RenderFillRect(renderer, &headerFillDest);
 }
 
-void LSG_Table::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea)
+void LSG_Table::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroundArea, int rowHeight)
 {
 	if (rowHeight < 1)
 		return;
@@ -383,7 +399,7 @@ void LSG_Table::renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, c
 	}
 }
 
-void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea)
+void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea, int rowHeight)
 {
 	auto textureSize = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
 	auto size        = textureSize.totalSize;
@@ -438,10 +454,8 @@ void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea)
 		this->scrollOffsetY = 0;
 	}
 
-	auto rowClip   = SDL_Rect(clip);
-	auto rowDest   = SDL_Rect(dest);
-	auto rowHeight = this->getRowHeight(textureSize.totalSize);
-
+	auto rowClip  = SDL_Rect(clip);
+	auto rowDest  = SDL_Rect(dest);
 	auto firstRow = this->getFirstRow();
 
 	if (firstRow > 0) {
@@ -525,11 +539,8 @@ void LSG_Table::SelectRow(int offset)
 
 	this->Select(selectedRow);
 
-	if (!this->showScrollY)
-		return;
-
 	auto list           = this->getFillArea(this->background, this->border);
-	auto rowHeight      = (!this->rows.empty() ? this->rows[0].background.h : this->groups[0].rows[0].background.h);
+	auto rowHeight      = this->getRowHeight();
 	auto rowY           = (list.y + (this->row * rowHeight));
 	auto firstRowHeight = (firstRow > 0 ? rowHeight : 0);
 	auto pagination     = (this->showPagination() ? LSG_SCROLL_WIDTH : 0);
@@ -619,7 +630,7 @@ void LSG_Table::setPageItems()
 	}
 }
 
-void LSG_Table::setRowHeights(int rowHeight, const SDL_Rect& backgroundArea)
+void LSG_Table::setRowHeights(const SDL_Rect& backgroundArea, int rowHeight)
 {
 	if ((rowHeight < 1) || SDL_RectEmpty(&backgroundArea))
 		return;
@@ -628,19 +639,19 @@ void LSG_Table::setRowHeights(int rowHeight, const SDL_Rect& backgroundArea)
 
 	if ((this->getFirstRow() > 0) && (this->header.background.h < 1)) {
 		LSG_TableItemRows headers = { this->header };
-		this->setRowHeights(headers, rowHeight, backgroundArea, i);
+		this->setRowHeights(headers, backgroundArea, rowHeight, i);
 	}
 
 	if (!this->groups.empty() && !this->groups[0].rows.empty() && (this->groups[0].rows[0].background.h < 1)) {
 		for (auto& group : this->groups)
-			this->setRowHeights(group.rows, rowHeight, backgroundArea, ++i);
+			this->setRowHeights(group.rows, backgroundArea, rowHeight, ++i);
 	}
 
 	if (!this->rows.empty() && (this->rows[0].background.h < 1))
-		this->setRowHeights(this->rows, rowHeight, backgroundArea, i);
+		this->setRowHeights(this->rows, backgroundArea, rowHeight, i);
 }
 
-void LSG_Table::setRowHeights(LSG_TableItemRows& rows, int rowHeight, const SDL_Rect& backgroundArea, int& i)
+void LSG_Table::setRowHeights(LSG_TableItemRows& rows, const SDL_Rect& backgroundArea, int rowHeight, int& i)
 {
 	for (auto& row : rows)
 	{

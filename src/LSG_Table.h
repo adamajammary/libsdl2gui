@@ -60,14 +60,15 @@ private:
 	int  getColumnCount();
 	int  getFirstRow();
 	int  getLastRow();
+	int  getRowHeight();
 	int  getRowHeight(const SDL_Size& textureSize);
 	void renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderDestination, int rowHeight);
-	void renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea);
+	void renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroundArea, int rowHeight);
 	void renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, const std::vector<SDL_Size>& columnSizes, const SDL_Rect& renderClip, const SDL_Rect& renderDestination);
-	void renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea);
+	void renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea, int rowHeight);
 	void setPageItems();
-	void setRowHeights(int rowHeight, const SDL_Rect& backgroundArea);
-	void setRowHeights(LSG_TableItemRows& rows, int rowHeight, const SDL_Rect& backgroundArea, int& i);
+	void setRowHeights(const SDL_Rect& backgroundArea, int rowHeight);
+	void setRowHeights(LSG_TableItemRows& rows, const SDL_Rect& backgroundArea, int rowHeight, int& i);
 	void sort();
 	void updatePage(bool reset = true);
 
