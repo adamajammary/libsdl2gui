@@ -361,7 +361,7 @@ std::string LSG_OpenFile(const wchar_t* filter)
 
 	return filePath;
 }
-#else
+#elif defined _linux || defined _macosx
 std::string LSG_OpenFile()
 {
 	if (!isRunning)
@@ -392,7 +392,7 @@ std::vector<std::string> LSG_OpenFiles(const wchar_t* filter)
 
 	return filePaths;
 }
-#else
+#elif defined _linux || defined _macosx
 std::vector<std::string> LSG_OpenFiles()
 {
 	if (!isRunning)
@@ -402,6 +402,7 @@ std::vector<std::string> LSG_OpenFiles()
 }
 #endif
 
+#if defined _windows || defined _linux || defined _macosx
 std::string LSG_OpenFolder()
 {
 	if (!isRunning)
@@ -419,7 +420,9 @@ std::string LSG_OpenFolder()
 		return LSG_Window::OpenFolder();
 	#endif
 }
+#endif
 
+#if defined _windows || defined _linux || defined _macosx
 std::vector<std::string> LSG_OpenFolders()
 {
 	if (!isRunning)
@@ -440,10 +443,11 @@ std::vector<std::string> LSG_OpenFolders()
 		}
 
 		return folderPaths;
-	#else
+    #else
 		return LSG_Window::OpenFolders();
 	#endif
 }
+#endif
 
 void LSG_Present()
 {
@@ -565,7 +569,7 @@ std::string LSG_SaveFile(const wchar_t* filter)
 
 	return filePath;
 }
-#else
+#elif defined _linux || defined _macosx
 std::string LSG_SaveFile()
 {
 	if (!isRunning)

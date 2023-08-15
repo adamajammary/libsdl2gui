@@ -39,6 +39,14 @@ namespace LibXml {
 	#define strdup _strdup
 #endif
 
+#ifndef max
+	#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+	#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
 class LSG_Component;
 
 using LSG_Components       = std::vector<LSG_Component*>;

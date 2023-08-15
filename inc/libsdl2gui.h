@@ -302,7 +302,7 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
  */
 #if defined _windows
 DLLEXPORT std::string DLL LSG_OpenFile(const wchar_t* filter = nullptr); // https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members
-#else
+#elif defined _linux || defined _macosx
 DLLEXPORT std::string DLL LSG_OpenFile();
 #endif
 
@@ -313,7 +313,7 @@ DLLEXPORT std::string DLL LSG_OpenFile();
  */
 #if defined _windows
 DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles(const wchar_t* filter = nullptr);
-#else
+#elif defined _linux || defined _macosx
 DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles();
 #endif
 
@@ -322,14 +322,18 @@ DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles();
  * @returns the selected folder path or an empty string if cancelled
  * @throws exception
  */
+#if defined _windows || defined _linux || defined _macosx
 DLLEXPORT std::string DLL LSG_OpenFolder();
+#endif
 
 /**
  * @brief Displays an Open Folder dialog where you can select multiple folders.
  * @returns the selected folder paths or an empty list if cancelled
  * @throws exception
  */
+#if defined _windows || defined _linux || defined _macosx
 DLLEXPORT std::vector<std::string> DLL LSG_OpenFolders();
+#endif
 
 /**
  * @brief Presents the render buffer to the screen/window.
@@ -399,7 +403,7 @@ DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
  */
 #if defined _windows
 DLLEXPORT std::string DLL LSG_SaveFile(const wchar_t* filter = nullptr); // https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members
-#else
+#elif defined _linux || defined _macosx
 DLLEXPORT std::string DLL LSG_SaveFile();
 #endif
 

@@ -15,6 +15,28 @@ Library | Version | License
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [libXML2](https://github.com/GNOME/libxml2) | [2.11.4](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.4.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
+## Platform-dependant Include Headers
+
+Platform | Header | Preprocessor
+-------- | ------ | ------------
+Linux | gtk/gtk.h | _linux
+MacoOS | AppKit/AppKit.h | _macosx
+Windows | shobjidl_core.h | _windows
+
+## CMAKE OS Preprocessor
+
+The *OS* variable in *CMakeLists.txt* decides which platform to build for.
+
+```cmake
+if (APPLE)
+    set(OS "_macosx")
+elseif (UNIX)
+    set(OS "_linux")
+elseif (WIN32)
+    set(OS "_windows")
+endif()
+```
+
 ## How to build
 
 1. Build the third-party libraries and place the them in a common directory
@@ -985,6 +1007,8 @@ Exceptions
 
 ### LSG_OpenFile
 
+> Only supported on Windows, Linux and MacOS.
+
 Displays an Open File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
@@ -998,6 +1022,8 @@ Exceptions
 - exception
 
 ### LSG_OpenFiles
+
+> Only supported on Windows, Linux and MacOS.
 
 Displays an Open File dialog where you can select multiple files.
 
@@ -1013,6 +1039,8 @@ Exceptions
 
 ### LSG_OpenFolder
 
+> Only supported on Windows, Linux and MacOS.
+
 Displays an Open Folder dialog where you can select a single folder.
 
 Returns the selected folder path or an empty string if cancelled.
@@ -1026,6 +1054,8 @@ Exceptions
 - exception
 
 ### LSG_OpenFolders
+
+> Only supported on Windows, Linux and MacOS.
 
 Displays an Open Folder dialog where you can select multiple folders.
 
@@ -1192,6 +1222,8 @@ Exceptions
 - exception
 
 ### LSG_SaveFile
+
+> Only supported on Windows, Linux and MacOS.
 
 Displays a Save File dialog where you can select a single file.
 

@@ -307,7 +307,7 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 {
 	return LSG_Window::openFolders(true);
 }
-#else
+#elif defined _linux || defined _macosx
 std::string LSG_Window::OpenFile()
 {
 	auto files = LSG_Window::openFiles();

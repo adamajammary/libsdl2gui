@@ -16,7 +16,7 @@ private:
     #if defined _windows
         static std::vector<std::wstring> openFiles(const wchar_t* filter, bool allowMultipleSelection = false);
         static std::vector<std::wstring> openFolders(bool allowMultipleSelection = false);
-    #else
+    #elif defined _linux || defined _macosx
         static std::vector<std::string> openFiles(bool openFolder = false, bool allowMultipleSelection = false);
     #endif
 
@@ -45,7 +45,7 @@ public:
         static std::wstring              OpenFolder();
         static std::vector<std::wstring> OpenFolders();
         static std::wstring              SaveFile(const wchar_t* filter = nullptr);
-    #else
+    #elif defined _linux || defined _macosx
         static std::string              OpenFile();
         static std::vector<std::string> OpenFiles();
         static std::string              OpenFolder();
