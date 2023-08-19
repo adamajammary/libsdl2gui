@@ -726,11 +726,15 @@ void LSG_UI::SetSubMenuVisible(LSG_Component* component, bool visible)
 	if (!component)
 		return;
 
-	if (!visible && component->IsMenu())
-		static_cast<LSG_Menu*>(component)->Close();
-	else if (!visible && component->IsSubMenu())
-		static_cast<LSG_MenuSub*>(component)->Close();
-	else if (component->IsSubMenu() || component->IsMenuItem())
+	if (!visible)
+	{
+		if (component->IsMenu())
+			static_cast<LSG_Menu*>(component)->Close();
+		else if (component->IsSubMenu())
+			static_cast<LSG_MenuSub*>(component)->Close();
+	}
+
+	if (component->IsSubMenu() || component->IsMenuItem())
 		component->visible = visible;
 
 	for (auto child : component->GetChildren())

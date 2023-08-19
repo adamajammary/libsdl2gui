@@ -35,9 +35,12 @@ void LSG_MenuItem::Render(SDL_Renderer* renderer)
 
 		auto parentChildren = this->parent->GetChildren();
 
-		for (auto child : parentChildren) {
-			LSG_UI::SetSubMenuVisible(child, false);
-			child->visible = true;
+		for (auto child : parentChildren)
+		{
+			if (child->visible && child->IsSubMenu() && (child->GetID() != this->id)) {
+				LSG_UI::SetSubMenuVisible(child, false);
+				child->visible = true;
+			}
 		}
 	}
 

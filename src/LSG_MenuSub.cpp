@@ -94,8 +94,10 @@ bool LSG_MenuSub::MouseClick(const SDL_MouseButtonEvent& event)
 bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 {
 	auto currentSelectedSubMenu = this->selectedSubMenu;
+	auto parentChildren         = this->parent->GetChildren();
 
-	auto parentChildren = this->parent->GetChildren();
+	if ((index < 0) || (index >= (int)parentChildren.size()) || (index == currentSelectedSubMenu))
+		return true;
 
 	for (auto child : parentChildren) {
 		LSG_UI::SetSubMenuVisible(child, false);
@@ -103,9 +105,6 @@ bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 	}
 
 	if (this->children.empty())
-		return true;
-
-	if ((index < 0) || (index >= (int)parentChildren.size()) || (index == currentSelectedSubMenu))
 		return true;
 
 	this->selectedSubMenu = index;
@@ -153,10 +152,7 @@ void LSG_MenuSub::Render(SDL_Renderer* renderer)
 		SDL_Point mousePosition = {};
 		SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
 
-		auto index = this->getSelectedSubMenu(mousePosition, this->parent);
-
-		if ((index >= 0) && (index != this->selectedSubMenu))
-			this->open(mousePosition, index);
+		this->open(mousePosition, this->getSelectedSubMenu(mousePosition, this->parent));
 	}
 
 	if (!this->visible || !this->texture)
