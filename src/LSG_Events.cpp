@@ -65,6 +65,8 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 			default: break;
 		}
 	}
+
+	LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID());
 }
 
 void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
@@ -92,6 +94,9 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 
 	if (enableMouseDown)
 	{
+		if (component->IsScrollable())
+			LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
+
 		LSG_Events::isMouseDown   = true;
 		LSG_Events::lastClickTime = SDL_GetTicks();
 		LSG_Events::lastComponent = component;
@@ -171,10 +176,12 @@ void LSG_Events::handleMouseMoveEvent(const SDL_MouseMotionEvent& event)
 	SDL_Point lastPosition  = { LSG_Events::lastEvent.button.x, LSG_Events::lastEvent.button.y };
 	auto      lastComponent = LSG_Events::lastComponent;
 
-	if (lastComponent->IsSlider())
+	if (lastComponent->IsSlider()) {
 		static_cast<LSG_Slider*>(lastComponent)->MouseMove(mousePosition);
-	else if (lastComponent->IsScrollable())
+	} else if (lastComponent->IsScrollable()) {
 		static_cast<LSG_Text*>(lastComponent)->ScrollMouseMove(mousePosition, lastPosition);
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, lastComponent->GetID());
+	}
 }
 
 void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
@@ -194,6 +201,8 @@ void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 		static_cast<LSG_Slider*>(component)->MouseScroll(scroll);
 	else if (component->IsScrollable())
 		static_cast<LSG_Text*>(component)->ScrollVertical(scroll);
+
+	LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
 }
 
 void LSG_Events::handleMouseUp()
