@@ -20,9 +20,7 @@ void LSG_Button::Render(SDL_Renderer* renderer)
 	if (this->visible)
 		LSG_Component::Render(renderer);
 
-	if (!this->enabled)
-		this->renderDisabledOverlay(renderer);
-	else if (this->highlighted)
+	if (this->highlighted)
 		this->renderHighlight(renderer);
 }
 

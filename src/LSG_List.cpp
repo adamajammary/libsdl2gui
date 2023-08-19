@@ -158,9 +158,6 @@ void LSG_List::Render(SDL_Renderer* renderer)
 
 	if (showPagination)
 		this->renderPagination(renderer, listBackground);
-
-	if (!this->enabled)
-		this->renderDisabledOverlay(renderer);
 }
 
 void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea, const SDL_Rect& rowBackground)

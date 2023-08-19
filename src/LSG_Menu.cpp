@@ -149,9 +149,7 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 	if (this->selectedMenu >= 0)
 		this->renderHighlightSelection(renderer, destinations, this->selectedMenu);
 
-	if (!this->enabled)
-		this->renderDisabledOverlay(renderer);
-	else if (this->highlighted)
+	if (this->highlighted)
 		this->renderHighlightSelection(renderer, destinations, index);
 
 	if ((this->selectedMenu >= 0) && (index >= 0) && (index != this->selectedMenu))

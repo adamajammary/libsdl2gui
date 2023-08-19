@@ -685,6 +685,17 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile)
 	}
 }
 
+void LSG_UI::SetEnabled(LSG_Component* component, bool enabled)
+{
+	if (!component)
+		return;
+
+	component->enabled = enabled;
+
+	for (auto child : component->GetChildren())
+		LSG_UI::SetEnabled(child, enabled);
+}
+
 void LSG_UI::setImages(LSG_Component* component)
 {
 	if (!component)

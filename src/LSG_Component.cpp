@@ -381,6 +381,9 @@ void LSG_Component::Render(SDL_Renderer* renderer)
 		if (!child->IsMenu())
 			child->Render(renderer);
 	}
+
+	if (!this->enabled)
+		this->renderDisabledOverlay(renderer);
 }
 
 void LSG_Component::renderBorder(SDL_Renderer* renderer)

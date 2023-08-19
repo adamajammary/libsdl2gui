@@ -319,9 +319,6 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 
 	if (showPagination)
 		this->renderPagination(renderer, tableBackground);
-
-	if (!this->enabled)
-		this->renderDisabledOverlay(renderer);
 }
 
 void LSG_Table::renderFillHeader(SDL_Renderer* renderer, const SDL_Rect& renderDestination, int rowHeight)

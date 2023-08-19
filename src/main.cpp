@@ -739,7 +739,7 @@ void LSG_SetEnabled(const std::string& id, bool enabled)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id).c_str());
 
-	component->enabled = enabled;
+	LSG_UI::SetEnabled(component, enabled);
 }
 
 void LSG_SetFontSize(const std::string& id, int size)

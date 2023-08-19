@@ -40,6 +40,7 @@ public:
     static void           RemoveMenuItem(LSG_MenuItem* menuItem);
     static void           Render(SDL_Renderer* renderer);
     static void           SetColorTheme(const std::string& colorThemeFile);
+    static void           SetEnabled(LSG_Component* component, bool enabled = true);
     static void           SetSubMenuVisible(LSG_Component* component, bool visible = true);
     static void           SetText(LSG_Component* component);
     static SDL_Color      ToSdlColor(const std::string& color);
