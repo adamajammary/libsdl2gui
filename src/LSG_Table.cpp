@@ -556,6 +556,7 @@ void LSG_Table::SelectRow(int offset)
 
 void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 {
+	this->page       = 0;
 	this->pageGroups = groups;
 
 	if (!this->sortOrder.empty())
@@ -706,6 +707,7 @@ void LSG_Table::SetRow(int row, const LSG_Strings& columns)
 
 void LSG_Table::SetRows(const LSG_TableRows& rows)
 {
+	this->page     = 0;
 	this->pageRows = rows;
 
 	if (!this->sortOrder.empty())

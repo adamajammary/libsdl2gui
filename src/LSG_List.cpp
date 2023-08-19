@@ -327,6 +327,7 @@ void LSG_List::SetItem(int row, const std::string& item)
 
 void LSG_List::SetItems(const LSG_Strings& items)
 {
+	this->page      = 0;
 	this->pageItems = items;
 
 	if (!this->sortOrder.empty())
