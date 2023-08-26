@@ -119,7 +119,7 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 
 		component->highlighted = false;
 
-		if (!isHighlightedMenu && component->visible && SDL_PointInRect(&mousePosition, &component->background))
+		if (!isHighlightedMenu && component->visible && component->enabled && SDL_PointInRect(&mousePosition, &component->background))
 			component->highlighted = true;
 
 		if (component->highlighted && (component->IsSubMenu() || component->IsMenuItem()))
