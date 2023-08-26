@@ -23,6 +23,7 @@ private:
 public:
     static void          Close();
     static SDL_Size      GetMinimumSize();
+    static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();
     static SDL_Size      GetSize();
     static std::string   GetTitle();

@@ -3,7 +3,7 @@
 #ifndef LSG_MENU_SUB_H
 #define LSG_MENU_SUB_H
 
-class LSG_MenuSub : public LSG_Text, public LSG_IEvent
+class LSG_MenuSub : public LSG_Menu
 {
 public:
 	LSG_MenuSub(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -22,12 +22,10 @@ public:
 	void         SetItems();
 
 private:
-	int          getRowHeight(LSG_Component* component);
-	int          getSelectedSubMenu(const SDL_Point& mousePosition, LSG_Component* component);
+	int          getSelectedIndex();
 	bool         open(const SDL_Point& mousePosition, int index);
-	virtual void renderDisabledOverlay(SDL_Renderer* renderer) override;
-	void         renderHighlight(SDL_Renderer* renderer);
-	void         renderHighlightSelection(SDL_Renderer* renderer, int index, LSG_Component* component);
+	void         renderDisabledOverlay(SDL_Renderer* renderer, const SDL_Rect& background);
+	void         renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Color& backgroundColor);
 	virtual void sendEvent(LSG_EventType type) override;
 
 };

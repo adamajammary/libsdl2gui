@@ -26,6 +26,14 @@ SDL_Size LSG_Window::GetMinimumSize()
 	return size;
 }
 
+SDL_Point LSG_Window::GetMousePosition()
+{
+	SDL_Point mousePosition = {};
+	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+
+	return mousePosition;
+}
+
 SDL_Point LSG_Window::GetPosition()
 {
 	SDL_Point position = {};

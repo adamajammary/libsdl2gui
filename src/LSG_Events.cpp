@@ -7,10 +7,7 @@ bool           LSG_Events::isMouseDown   = false;
 
 void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 {
-	SDL_Point mousePosition = {};
-	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
-
-	auto component = LSG_UI::GetComponent(mousePosition);
+	auto component = LSG_UI::GetComponent(LSG_Window::GetMousePosition());
 
 	if (!component || !component->enabled)
 		return;

@@ -1,7 +1,7 @@
 #include "LSG_MenuSub.h"
 
 LSG_MenuSub::LSG_MenuSub(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
-	: LSG_Text(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
+	: LSG_Menu(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
 {
 	this->enableScroll    = false;
 	this->items           = {};
@@ -42,36 +42,16 @@ LSG_Strings LSG_MenuSub::GetItems()
 	return this->items;
 }
 
-int LSG_MenuSub::getRowHeight(LSG_Component* component)
+int LSG_MenuSub::getSelectedIndex()
 {
-	if (!component)
-		return 0;
-
-	auto textureSize = component->GetTextureSize();
-	auto rowCount    = (int)component->GetChildren().size();
-	auto rowHeight   = (textureSize.height / rowCount);
-
-	return rowHeight;
-}
-
-int LSG_MenuSub::getSelectedSubMenu(const SDL_Point& mousePosition, LSG_Component* component)
-{
-	if (!component)
+	if (!this->parent)
 		return -1;
 
-	auto subMenuRowCount  = (int)component->GetChildren().size();
-	auto subMenuRowHeight = this->getRowHeight(component);
-	auto subMenuRow       = SDL_Rect(component->background);
+	auto children = this->parent->GetChildren();
 
-	subMenuRow.y += LSG_MENU_SUB_PADDING_Y;
-	subMenuRow.h  = subMenuRowHeight;
-
-	for (int i = 0; i < subMenuRowCount; i++)
-	{
-		if (SDL_PointInRect(&mousePosition, &subMenuRow))
+	for (int i = 0; i < (int)children.size(); i++) {
+		if (children[i]->GetID() == this->id)
 			return i;
-
-		subMenuRow.y += subMenuRowHeight;
 	}
 
 	return -1;
@@ -86,7 +66,7 @@ bool LSG_MenuSub::MouseClick(const SDL_MouseButtonEvent& event)
 		return true;
 
 	auto mousePosition = SDL_Point(event.x, event.y);
-	auto index         = this->getSelectedSubMenu(mousePosition, this->parent);
+	auto index         = this->getSelectedIndex();
 
 	return this->open(mousePosition, index);
 }
@@ -96,15 +76,12 @@ bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 	auto currentSelectedSubMenu = this->selectedSubMenu;
 	auto parentChildren         = this->parent->GetChildren();
 
-	if ((index < 0) || (index >= (int)parentChildren.size()) || (index == currentSelectedSubMenu))
-		return true;
-
 	for (auto child : parentChildren) {
 		LSG_UI::SetSubMenuVisible(child, false);
 		child->visible = true;
 	}
 
-	if (this->children.empty())
+	if ((index < 0) || (index >= (int)parentChildren.size()) || (index == currentSelectedSubMenu) || this->children.empty())
 		return true;
 
 	this->selectedSubMenu = index;
@@ -127,7 +104,7 @@ bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 
 	for (auto child : this->children)
 	{
-		child->background    = SDL_Rect(subMenuArea);
+		child->background    = subMenuArea;
 		child->background.y += offsetY;
 		child->background.h  = rowHeight;
 
@@ -141,21 +118,18 @@ bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 
 void LSG_MenuSub::Render(SDL_Renderer* renderer)
 {
+	if (!this->visible)
+		return;
+
+	if (this->selectedSubMenu >= 0)
+		this->renderHighlight(renderer, this->background, this->backgroundColor);
+	
 	if (!this->enabled)
-	{
-		this->renderDisabledOverlay(renderer);
-	}
+		this->renderDisabledOverlay(renderer, this->background);
 	else if (this->highlighted)
-	{
-		this->renderHighlight(renderer);
+		this->renderHighlight(renderer, this->background, this->backgroundColor);
 
-		SDL_Point mousePosition = {};
-		SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
-
-		this->open(mousePosition, this->getSelectedSubMenu(mousePosition, this->parent));
-	}
-
-	if (!this->visible || !this->texture)
+	if (!this->texture)
 		return;
 
 	auto backgroundArea = SDL_Rect(this->background);
@@ -178,13 +152,24 @@ void LSG_MenuSub::Render(SDL_Renderer* renderer)
 	this->renderTexture(renderer, destination);
 	this->renderBorder(renderer, this->border, this->borderColor, backgroundArea);
 
-	if (this->selectedSubMenu >= 0)
-		this->renderHighlightSelection(renderer, this->selectedSubMenu, this->parent);
+	for (auto child : this->children)
+	{
+		if (!child->visible || !child->IsMenuItem())
+			continue;
+
+		if (static_cast<LSG_MenuItem*>(child)->IsSelected())
+			this->renderHighlight(renderer, child->background, child->backgroundColor);
+
+		if (!child->enabled)
+			this->renderDisabledOverlay(renderer, child->background);
+		else if (child->highlighted)
+			this->renderHighlight(renderer, child->background, child->backgroundColor);
+	}
 }
 
-void LSG_MenuSub::renderDisabledOverlay(SDL_Renderer* renderer)
+void LSG_MenuSub::renderDisabledOverlay(SDL_Renderer* renderer, const SDL_Rect& background)
 {
-	auto backgroundArea = SDL_Rect(this->background);
+	SDL_Rect backgroundArea = background;
 
 	backgroundArea.x -= LSG_MENU_SPACING_HALF;
 
@@ -194,41 +179,16 @@ void LSG_MenuSub::renderDisabledOverlay(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &backgroundArea);
 }
 
-void LSG_MenuSub::renderHighlight(SDL_Renderer* renderer)
+void LSG_MenuSub::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Color& backgroundColor)
 {
-	auto backgroundArea = SDL_Rect(this->background);
+	SDL_Rect backgroundArea = background;
 
 	backgroundArea.x -= LSG_MENU_SPACING_HALF;
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
+	SDL_SetRenderDrawColor(renderer, 255 - backgroundColor.r, 255 - backgroundColor.g, 255 - backgroundColor.b, 64);
 
 	SDL_RenderFillRect(renderer, &backgroundArea);
-}
-
-void LSG_MenuSub::renderHighlightSelection(SDL_Renderer* renderer, int index, LSG_Component* component)
-{
-	if (!component)
-		return;
-
-	auto subMenuRowCount = (int)component->GetChildren().size();
-
-	if ((index < 0) || (index >= subMenuRowCount))
-		return;
-
-	auto subMenuRowHeight = this->getRowHeight(component);
-	auto subMenuRow       = SDL_Rect(component->background);
-
-	subMenuRow.y += LSG_MENU_SUB_PADDING_Y;
-	subMenuRow.x -= LSG_MENU_SPACING_HALF;
-
-	subMenuRow.y += (index * subMenuRowHeight);
-	subMenuRow.h  = subMenuRowHeight;
-
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
-
-	SDL_RenderFillRect(renderer, &subMenuRow);
 }
 
 void LSG_MenuSub::sendEvent(LSG_EventType type)

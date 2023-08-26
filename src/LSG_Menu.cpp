@@ -141,22 +141,17 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 		}
 	}
 
-	SDL_Point mousePosition = {};
-	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
-
-	auto index = this->getSelectedMenu(mousePosition, destinations);
+	auto mousePosition = LSG_Window::GetMousePosition();
+	auto index         = this->getSelectedMenu(mousePosition, destinations);
 
 	if (this->selectedMenu >= 0)
-		this->renderHighlightSelection(renderer, destinations, this->selectedMenu);
+		this->renderHighlight(renderer, destinations, this->selectedMenu);
 
-	if (this->highlighted)
-		this->renderHighlightSelection(renderer, destinations, index);
-
-	if ((this->selectedMenu >= 0) && (index >= 0) && (index != this->selectedMenu))
-		this->open(mousePosition, destinations, index);
+	if (this->enabled && this->highlighted)
+		this->renderHighlight(renderer, destinations, index);
 }
 
-void LSG_Menu::renderHighlightSelection(SDL_Renderer* renderer, const std::vector<SDL_Rect>& menuAreas, int index)
+void LSG_Menu::renderHighlight(SDL_Renderer* renderer, const std::vector<SDL_Rect>& menuAreas, int index)
 {
 	if ((index < 0) || (index >= (int)this->children.size()) || !this->children[index]->enabled)
 		return;

@@ -46,6 +46,7 @@ public:
     static SDL_Color      ToSdlColor(const std::string& color);
 
 private:
+    static int  getDistanceFromMenu(LibXml::xmlNode* xmlNode);
     static void layoutFixed(LSG_Component* component);
     static void layoutRelative(LSG_Component* component);
     static void layoutPositionAlign(LSG_Component* component, const LSG_Components& children);

@@ -109,6 +109,31 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition)
 	return nullptr;
 }
 
+int LSG_UI::getDistanceFromMenu(LibXml::xmlNode* xmlNode)
+{
+	if (!xmlNode || !xmlNode->parent)
+		return -1;
+
+	auto nodeName = std::string(reinterpret_cast<const char*>(xmlNode->name));
+
+	if (nodeName == "menu")
+		return 0;
+
+	int  distance   = 0;
+	auto xmlParent  = xmlNode->parent;
+	auto parentName = std::string("");
+
+	do {
+		distance++;
+		xmlParent = xmlParent->parent;
+
+		if (xmlParent)
+			parentName = std::string(reinterpret_cast<const char*>(xmlParent->name));
+	} while (xmlParent && (parentName == "menu") || (parentName == "menu-sub"));
+
+	return distance;
+}
+
 void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 {
 	bool isHighlightedMenu = false;
@@ -495,7 +520,7 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 		}
 		else if (nodeName.starts_with("menu"))
 		{
-			layer += LSG_MENU_LAYER_OFFSET;
+			layer += (LSG_MENU_LAYER_OFFSET + (LSG_UI::getDistanceFromMenu(xmlNode) * LSG_MENU_LAYER_OFFSET));
 
 			if (nodeName == "menu")
 				component = new LSG_Menu(nodeID, layer, xmlDoc, xmlNode, nodeName, parent);

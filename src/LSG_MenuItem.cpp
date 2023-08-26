@@ -1,9 +1,14 @@
 #include "LSG_MenuItem.h"
 
 LSG_MenuItem::LSG_MenuItem(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
-	: LSG_Component(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
+	: LSG_Menu(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
 {
 	this->selected = false;
+}
+
+bool LSG_MenuItem::IsSelected()
+{
+	return this->selected;
 }
 
 bool LSG_MenuItem::MouseClick(const SDL_MouseButtonEvent& event)
@@ -25,54 +30,6 @@ bool LSG_MenuItem::MouseClick(const SDL_MouseButtonEvent& event)
 
 void LSG_MenuItem::Render(SDL_Renderer* renderer)
 {
-	if (!this->enabled)
-	{
-		this->renderDisabledOverlay(renderer);
-	}
-	else if (this->highlighted)
-	{
-		this->renderHighlight(renderer);
-
-		auto parentChildren = this->parent->GetChildren();
-
-		for (auto child : parentChildren)
-		{
-			if (child->visible && child->IsSubMenu() && (child->GetID() != this->id)) {
-				LSG_UI::SetSubMenuVisible(child, false);
-				child->visible = true;
-			}
-		}
-	}
-
-	if (!this->visible)
-		return;
-
-	if (this->selected)
-		this->renderHighlight(renderer);
-}
-
-void LSG_MenuItem::renderDisabledOverlay(SDL_Renderer* renderer)
-{
-	auto backgroundArea = SDL_Rect(this->background);
-
-	backgroundArea.x -= LSG_MENU_SPACING_HALF;
-
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 64);
-
-	SDL_RenderFillRect(renderer, &backgroundArea);
-}
-
-void LSG_MenuItem::renderHighlight(SDL_Renderer* renderer)
-{
-	auto backgroundArea = SDL_Rect(this->background);
-
-	backgroundArea.x -= LSG_MENU_SPACING_HALF;
-
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
-
-	SDL_RenderFillRect(renderer, &backgroundArea);
 }
 
 void LSG_MenuItem::sendEvent(LSG_EventType type)
