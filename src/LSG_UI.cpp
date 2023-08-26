@@ -111,20 +111,19 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition)
 
 void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 {
-	bool isHighlightedTopLayer = false;
+	bool isHighlightedMenu = false;
 
 	for (auto i = LSG_UI::componentsByLayer.rbegin(); i != LSG_UI::componentsByLayer.rend(); i++)
 	{
 		auto component = (*i).second;
-		auto parent    = component->GetParent();
-		bool isEnabled = (component->enabled && parent && parent->enabled);
 
-		if (!isHighlightedTopLayer && component->visible && isEnabled && SDL_PointInRect(&mousePosition, &component->background)) {
-			isHighlightedTopLayer  = true;
+		component->highlighted = false;
+
+		if (!isHighlightedMenu && component->visible && SDL_PointInRect(&mousePosition, &component->background))
 			component->highlighted = true;
-		} else {
-			component->highlighted = false;
-		}
+
+		if (component->highlighted && (component->IsSubMenu() || component->IsMenuItem()))
+			isHighlightedMenu = true;
 	}
 }
 
