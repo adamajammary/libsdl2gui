@@ -653,6 +653,23 @@ LSG_Strings row = { "New Row", "My new table row" };
 LSG_AddTableRow("Table", row);
 ```
 
+### LSG_GetBackgroundColor
+
+```cpp
+SDL_Color LSG_GetBackgroundColor(const std::string& id);
+```
+
+Returns the background color of the component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- exception
+
 ### LSG_GetColorTheme
 
 ```cpp

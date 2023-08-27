@@ -67,6 +67,19 @@ void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 	static_cast<LSG_Table*>(component)->AddRow(columns);
 }
 
+SDL_Color LSG_GetBackgroundColor(const std::string& id)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id).c_str());
+
+	return component->backgroundColor;
+}
+
 std::string LSG_GetColorTheme()
 {
 	if (!isRunning)

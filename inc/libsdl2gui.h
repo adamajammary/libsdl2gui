@@ -119,6 +119,14 @@ DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const std::string& g
 DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 
 /**
+ * @returns the background color of the component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
+
+/**
  * @returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
  * @throws exception
  */
