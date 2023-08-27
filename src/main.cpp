@@ -734,6 +734,19 @@ void LSG_SetBorderColor(const std::string& id, const SDL_Color& color)
 	component->borderColor = color;
 }
 
+void LSG_SetButtonSelected(const std::string& id, bool selected)
+{
+	if (!isRunning)
+		throw std::exception(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsButton())
+		throw std::invalid_argument(getErrorNoID("<button>", id).c_str());
+
+	static_cast<LSG_Button*>(component)->SetSelected(selected);
+}
+
 void LSG_SetColorTheme(const std::string& colorThemeFile)
 {
 	if (!isRunning)

@@ -507,6 +507,15 @@ DLLEXPORT void DLL LSG_SetBorder(const std::string& id, int border);
 DLLEXPORT void DLL LSG_SetBorderColor(const std::string& id, const SDL_Color& color);
 
 /**
+ * @brief Highlights the <button> as selected.
+ * @param id       <button> component ID
+ * @param selected true to select or false to unselect
+ * @throws invalid_argument
+ * @throws exception
+ */
+DLLEXPORT void DLL LSG_SetButtonSelected(const std::string& id, bool selected = true);
+
+/**
  * @brief Tries to load and apply the color theme file.
  * @param colorThemeFile Color theme file. ex: "ui/dark.colortheme"
  * @throws exception

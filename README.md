@@ -1473,6 +1473,30 @@ Example
 LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
 ```
 
+### LSG_SetButtonSelected
+
+```cpp
+void LSG_SetButtonSelected(const std::string& id, bool selected = true);
+```
+
+Highlights the \<button\> as selected.
+
+Parameters
+
+- **id** \<button\> component ID
+- **selected** true to select or false to unselect
+
+Exceptions
+
+- invalid_argument
+- exception
+
+Example
+
+```cpp
+LSG_SetButtonSelected("ButtonIdColorThemeDark", true);
+```
+
 ### LSG_SetColorTheme
 
 ```cpp

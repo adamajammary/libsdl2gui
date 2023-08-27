@@ -3,6 +3,7 @@
 LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
 {
+	this->selected = false;
 }
 
 bool LSG_Button::MouseClick(const SDL_MouseButtonEvent& event)
@@ -17,10 +18,15 @@ bool LSG_Button::MouseClick(const SDL_MouseButtonEvent& event)
 
 void LSG_Button::Render(SDL_Renderer* renderer)
 {
-	if (this->visible)
-		LSG_Component::Render(renderer);
+	if (!this->visible)
+		return;
 
-	if (this->highlighted)
+	LSG_Component::Render(renderer);
+
+	if (this->selected)
+		this->renderHighlight(renderer);
+
+	if (this->enabled && this->highlighted)
 		this->renderHighlight(renderer);
 }
 
@@ -36,4 +42,19 @@ void LSG_Button::sendEvent(LSG_EventType type)
 	clickEvent.user.data1 = (void*)strdup(this->GetID().c_str());
 
 	SDL_PushEvent(&clickEvent);
+}
+
+void LSG_Button::SetSelected(bool selected)
+{
+	if (!this->parent || (this->selected == selected))
+		return;
+
+	auto parentChildren = this->parent->GetChildren();
+
+	for (auto child : parentChildren) {
+		if (child->IsButton())
+			static_cast<LSG_Button*>(child)->selected = false;
+	}
+
+	this->selected = selected;
 }

@@ -287,6 +287,11 @@ bool LSG_Component::isButton()
 	return false;
 }
 
+bool LSG_Component::IsButton()
+{
+	return (this->xmlNodeName == "button");
+}
+
 bool LSG_Component::IsImage()
 {
 	return (this->xmlNodeName == "image");

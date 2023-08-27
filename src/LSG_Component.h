@@ -54,6 +54,7 @@ public:
 	LibXml::xmlNode* GetXmlNode();
 	std::string      GetXmlValue();
 	bool             HasCustomAlign();
+	bool             IsButton();
 	bool             IsImage();
 	bool             IsList();
 	bool             IsMenu();

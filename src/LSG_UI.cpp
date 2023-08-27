@@ -123,9 +123,12 @@ int LSG_UI::getDistanceFromMenu(LibXml::xmlNode* xmlNode)
 	auto xmlParent  = xmlNode->parent;
 	auto parentName = std::string("");
 
-	do {
+	do
+	{
 		distance++;
-		xmlParent = xmlParent->parent;
+
+		if (xmlParent)
+			xmlParent = xmlParent->parent;
 
 		if (xmlParent)
 			parentName = std::string(reinterpret_cast<const char*>(xmlParent->name));
