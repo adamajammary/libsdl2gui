@@ -11,11 +11,11 @@
 #include <unordered_map>
 
 #if defined _linux
-	#include <gtk/gtk.h>
+	#include <gtk/gtk.h>       // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
 #elif defined _macosx
-	#include <AppKit/AppKit.h>
+	#include <AppKit/AppKit.h> // NSOpenPanel
 #elif defined _windows
-	#include <shobjidl_core.h>
+	#include <shobjidl_core.h> // GetOpenFileNameW(x), IFileOpenDialog
 #endif
 
 #ifndef LIB_SDL2_TTF_H
