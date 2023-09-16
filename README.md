@@ -10,41 +10,103 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.28.1](https://www.libsdl.org/release/SDL2-2.28.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://www.libsdl.org/) | [2.28.2](https://www.libsdl.org/release/SDL2-2.28.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.6.3](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.6.3.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.11.4](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.4.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[libXML2](https://github.com/GNOME/libxml2) | [2.11.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
-Platform | Header | Preprocessor
--------- | ------ | ------------
-Linux | gtk/gtk.h | _linux
-MacoOS | AppKit/AppKit.h | _macosx
-Windows | shobjidl_core.h | _windows
+Platform | Header | Package
+-------- | ------ | -------
+Linux | gtk/gtk.h | libgtk-3-dev
+macOS | AppKit/AppKit.h | AppKit Framework
+Windows | shobjidl_core.h | Win32 API
 
-## CMAKE OS Preprocessor
+## Compilers and C++20
 
-The *OS* variable in *CMakeLists.txt* decides which platform to build for.
+libsdlgui uses modern [C++20](https://en.cppreference.com/w/cpp/compiler_support#cpp20) features and requires the following minimum compiler versions.
 
-```cmake
-if (APPLE)
-    set(OS "_macosx")
-elseif (UNIX)
-    set(OS "_linux")
-elseif (WIN32)
-    set(OS "_windows")
-endif()
-```
+Compiler | Version
+-------- | -------
+CLANG | 14
+GCC | 13
+MSVC | 2019
 
 ## How to build
 
 1. Build the third-party libraries and place the them in a common directory
 1. Make sure you have [cmake](https://cmake.org/download/) installed
 1. Open a command prompt or terminal
-1. Create a *build* directory `mkdir build` and enter it `cd build`
-1. Run cmake and point to the directory from step 1 `cmake .. -D EXT_LIB_DIR="/path/to/libs"`
-1. The *build* directory will now contain a *makefile* or a *Visual Studio* solution
+1. Create a **build** directory and enter it
+1. Run `cmake` to create a **Makefile**, **Xcode** project or **Visual Studio** solution based on your target platform.
+1. After building, the **dist** directory will contain all the output resources in the **inc**, **bin** and **lib** directories.
+
+```bash
+mkdir build
+cd build
+```
+
+### Android
+
+Make sure you have [Android NDK](https://developer.android.com/ndk/downloads) installed.
+
+```bash
+cmake .. -G "Unix Makefiles" \
+-D CMAKE_SYSTEM_NAME="Android" \
+-D CMAKE_TOOLCHAIN_FILE="/path/to/ANDROID_NDK/build/cmake/android.toolchain.cmake" \
+-D ANDROID_NDK="/path/to/ANDROID_NDK" \
+-D ANDROID_ABI="arm64-v8a" \
+-D ANDROID_PLATFORM="android-26" \
+-D EXT_LIB_DIR="/path/to/libs"
+
+make
+```
+
+### iOS
+
+You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
+
+```bash
+/Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
+-D CMAKE_SYSTEM_NAME="iOS" \
+-D CMAKE_OSX_ARCHITECTURES="arm64" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="13.0" \
+-D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
+-D EXT_LIB_DIR="/path/to/libs"
+
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="13.0" CODE_SIGNING_ALLOWED=NO -configuration "Release" -arch "arm64" -project sdl2gui.xcodeproj
+```
+
+### macOS
+
+You can get the macOS SDK path with the following command: `xcrun --sdk macosx --show-sdk-path`
+
+```bash
+/Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
+-D CMAKE_OSX_ARCHITECTURES="x86_64" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="12.6" \
+-D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
+-D EXT_LIB_DIR="/path/to/libs"
+
+xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -configuration "Release" -arch "x86_64" -project sdl2gui.xcodeproj
+```
+
+### Linux
+
+```bash
+cmake .. -G "Unix Makefiles" -D EXT_LIB_DIR="/path/to/libs"
+
+make
+```
+
+### Windows
+
+```bash
+cmake .. -G "Visual Studio 17 2022" -D EXT_LIB_DIR="/path/to/libs"
+
+devenv.com sdl2gui.sln -build "Release|x64"
+```
 
 ## Test project
 
@@ -563,7 +625,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -588,7 +650,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -614,7 +676,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -643,7 +705,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -668,7 +730,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetColorTheme
 
@@ -680,7 +742,7 @@ Returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" i
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetListItem
 
@@ -698,7 +760,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetListItems
 
@@ -715,7 +777,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetPage
 
@@ -732,7 +794,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetPosition
 
@@ -749,7 +811,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetScrollHorizontal
 
@@ -766,7 +828,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetScrollVertical
 
@@ -783,7 +845,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetSelectedRow
 
@@ -800,7 +862,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetSize
 
@@ -817,7 +879,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetSliderValue
 
@@ -834,7 +896,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetSortColumn
 
@@ -851,7 +913,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetSortOrder
 
@@ -868,7 +930,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetTableRow
 
@@ -886,7 +948,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetTableRows
 
@@ -903,7 +965,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetText
 
@@ -920,7 +982,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetWindowMinimumSize
 
@@ -932,7 +994,7 @@ Returns the minimum window size.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetWindowPosition
 
@@ -944,7 +1006,7 @@ Returns the window position.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetWindowSize
 
@@ -956,7 +1018,7 @@ Returns the window size.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetWindowTitle
 
@@ -968,7 +1030,7 @@ Returns the window title.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_IsMenuOpen
 
@@ -985,7 +1047,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_IsRunning
 
@@ -1010,7 +1072,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_IsWindowMaximized
 
@@ -1022,7 +1084,7 @@ Returns true if the window is maximized.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_OpenFile
 
@@ -1038,7 +1100,7 @@ std::string LSG_OpenFile();
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_OpenFiles
 
@@ -1054,7 +1116,7 @@ std::vector<std::string> LSG_OpenFiles();
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_OpenFolder
 
@@ -1070,7 +1132,7 @@ std::string LSG_OpenFolder();
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_OpenFolders
 
@@ -1086,7 +1148,7 @@ std::vector<std::string> LSG_OpenFolders();
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_Present
 
@@ -1098,7 +1160,7 @@ Presents the render buffer to the screen/window.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_Quit
 
@@ -1124,7 +1186,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1147,7 +1209,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1170,7 +1232,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1194,7 +1256,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1218,7 +1280,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1238,7 +1300,7 @@ Returns a list of SDL2 events available during this run.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_SaveFile
 
@@ -1268,7 +1330,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_ScrollVertical
 
@@ -1286,7 +1348,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_ScrollToBottom
 
@@ -1303,7 +1365,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_SelectRow
 
@@ -1321,7 +1383,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1345,7 +1407,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1369,7 +1431,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1393,7 +1455,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1417,7 +1479,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1441,7 +1503,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1465,7 +1527,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1489,7 +1551,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1511,7 +1573,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_SetEnabled
 
@@ -1529,7 +1591,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1556,7 +1618,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1580,7 +1642,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1605,7 +1667,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1630,7 +1692,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1654,7 +1716,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1693,7 +1755,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1717,7 +1779,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_SetMenuItemValue
 
@@ -1735,7 +1797,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1759,7 +1821,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1783,7 +1845,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ```cpp
 LSG_SetPadding("Root", 10);
@@ -1805,7 +1867,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1829,7 +1891,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1853,7 +1915,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1877,7 +1939,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1901,7 +1963,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1942,7 +2004,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1972,7 +2034,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1998,7 +2060,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -2031,7 +2093,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -2055,7 +2117,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -2079,7 +2141,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -2103,7 +2165,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -2125,7 +2187,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -2151,7 +2213,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -2174,7 +2236,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -2197,7 +2259,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -2219,7 +2281,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -2255,7 +2317,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_SortList
 
@@ -2273,7 +2335,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -2298,7 +2360,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ```cpp
 LSG_SortTable("Table", LSG_SORT_ORDER_ASCENDING, 0);
@@ -2321,7 +2383,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -2347,7 +2409,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 

@@ -16,7 +16,7 @@ bool LSG_MenuItem::MouseClick(const SDL_MouseButtonEvent& event)
 	if (!this->enabled || !this->visible || !this->parent)
 		return false;
 
-	auto mousePosition = SDL_Point(event.x, event.y);
+	SDL_Point mousePosition = { event.x, event.y };
 
 	if (!SDL_PointInRect(&mousePosition, &this->background))
 		return true;

@@ -65,8 +65,8 @@ bool LSG_MenuSub::MouseClick(const SDL_MouseButtonEvent& event)
 	if (!this->parent->IsSubMenu())
 		return true;
 
-	auto mousePosition = SDL_Point(event.x, event.y);
-	auto index         = this->getSelectedIndex();
+	SDL_Point mousePosition = { event.x, event.y };
+	auto      index         = this->getSelectedIndex();
 
 	return this->open(mousePosition, index);
 }
@@ -96,8 +96,8 @@ bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 
 	auto windowSize = LSG_Window::GetSize();
 
-	subMenuArea.x = min(windowSize.width  - subMenuArea.w, subMenuArea.x);
-	subMenuArea.y = min(windowSize.height - subMenuArea.h, subMenuArea.y);
+	subMenuArea.x = std::min(windowSize.width  - subMenuArea.w, subMenuArea.x);
+	subMenuArea.y = std::min(windowSize.height - subMenuArea.h, subMenuArea.y);
 
 	int  offsetY   = LSG_MENU_SUB_PADDING_Y;
 	auto rowHeight = (textureSize.height / (int)this->children.size());
@@ -215,10 +215,10 @@ void LSG_MenuSub::SetItems()
 		auto accelPos = (tabPos + 2);
 
 		if (tabPos != std::string::npos) {
-			maxLength1 = max(maxLength1, ((int)tabPos + LSG_MENU_LABEL_SPACING));
-			maxLength2 = max(maxLength2, (int)(item.size() - accelPos));
+			maxLength1 = std::max(maxLength1, ((int)tabPos + LSG_MENU_LABEL_SPACING));
+			maxLength2 = std::max(maxLength2, (int)(item.size() - accelPos));
 		} else {
-			maxLength1 = max(maxLength1, ((int)item.size() + LSG_MENU_LABEL_SPACING));
+			maxLength1 = std::max(maxLength1, ((int)item.size() + LSG_MENU_LABEL_SPACING));
 		}
 
 		if (isSubMenu)
@@ -227,45 +227,41 @@ void LSG_MenuSub::SetItems()
 		this->items.push_back(item);
 	}
 
-	char buffer[1024];
-
 	for (const auto& item : this->items)
 	{
 		auto tabPos   = item.find("\\t");
 		auto accelPos = (tabPos + 2);
 		auto subPos   = item.rfind(">");
 
+		std::string itemText;
+
 		if ((tabPos != std::string::npos) && (subPos != std::string::npos))
 		{
-			auto format = std::format("%-{}s%{}s%3s\n", maxLength1, maxLength2);
+			auto format = LSG_Text::Format("%%-%ds%%%ds%%3s\n", maxLength1, maxLength2);
 			auto label  = item.substr(0, tabPos);
 			auto accel  = item.substr(accelPos, (item.size() - accelPos - 1));
 
-			std::sprintf(buffer, format.c_str(), label.c_str(), accel.c_str(), ">");
-
-			this->text.append(buffer);
+			itemText = LSG_Text::Format(format.c_str(), label.c_str(), accel.c_str(), ">");
 		}
 		else if (tabPos != std::string::npos)
 		{
-			auto format = std::format("%-{}s%{}s\n", maxLength1, maxLength2);
+			auto format = LSG_Text::Format("%%-%ds%%%ds\n", maxLength1, maxLength2);
 			auto label  = item.substr(0, tabPos);
 			auto accel  = item.substr(accelPos);
 
-			std::sprintf(buffer, format.c_str(), label.c_str(), accel.c_str());
-
-			this->text.append(buffer);
+			itemText = LSG_Text::Format(format.c_str(), label.c_str(), accel.c_str());
 		}
 		else if (subPos != std::string::npos)
 		{
-			auto format = std::format("%-{}s%{}s%3s\n", maxLength1, maxLength2);
+			auto format = LSG_Text::Format("%%-%ds%%%ds%%3s\n", maxLength1, maxLength2);
 			auto label  = item.substr(0, subPos);
 
-			std::sprintf(buffer, format.c_str(), label.c_str(), "", ">");
-
-			this->text.append(buffer);
+			itemText = LSG_Text::Format(format.c_str(), label.c_str(), "", ">");
 		} else {
-			this->text.append(item + "\n");
+			itemText = LSG_Text::Format("%s\n", item.c_str());
 		}
+
+		this->text.append(itemText);
 	}
 
 	if (!this->items.empty() && !this->text.empty())

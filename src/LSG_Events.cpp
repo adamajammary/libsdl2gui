@@ -216,11 +216,9 @@ void LSG_Events::handleMouseUp()
 void LSG_Events::handleWindowEvent(const SDL_WindowEvent& event)
 {
 	switch (event.event) {
-	case SDL_WINDOWEVENT_SIZE_CHANGED:
-		LSG_UI::Layout();
-		break;
-	default:
-		break;
+		case SDL_WINDOWEVENT_CLOSE:        LSG_Quit(); break;
+		case SDL_WINDOWEVENT_SIZE_CHANGED: LSG_UI::Layout(); break;
+		default: break;
 	}
 }
 
@@ -236,6 +234,7 @@ std::vector<SDL_Event> LSG_Events::Handle()
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type) {
+			case SDL_QUIT:            LSG_Quit(); break;
 			case SDL_KEYDOWN:         LSG_Events::handleKeyDownEvent(event.key); break;
 			case SDL_MOUSEBUTTONDOWN: LSG_Events::handleMouseDownEvent(event); break;
 			case SDL_MOUSEBUTTONUP:   LSG_Events::handleMouseUp(); break;

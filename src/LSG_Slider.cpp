@@ -55,7 +55,7 @@ bool LSG_Slider::MouseClick(const SDL_MouseButtonEvent& event)
 	if (!this->enabled || LSG_Events::IsMouseDown())
 		return false;
 
-	auto mousePosition = SDL_Point(event.x, event.y);
+	SDL_Point mousePosition = { event.x, event.y };
 
 	this->isSlideActive = false;
 
@@ -90,7 +90,7 @@ void LSG_Slider::Render(SDL_Renderer* renderer)
 
 	auto backgroundArea = SDL_Rect(this->background);
 	bool isVertical     = (this->orientation == LSG_VERTICAL);
-	auto thumbWidth     = max(LSG_SLIDER_THUMB_WIDTH, this->thumbWidth);
+	auto thumbWidth     = std::max(LSG_SLIDER_THUMB_WIDTH, this->thumbWidth);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (isVertical) {
@@ -159,7 +159,7 @@ void LSG_Slider::sendEvent(LSG_EventType type)
 	if (!this->enabled)
 		return;
 
-	this->value = max(0.0, min(1.0, this->value));
+	this->value = std::max(0.0, std::min(1.0, this->value));
 
 	SDL_Event sliderEvent = {};
 
@@ -208,5 +208,5 @@ void LSG_Slider::setValue(int offset)
 
 void LSG_Slider::SetValue(double value)
 {
-	this->value = max(0.0, min(1.0, value));
+	this->value = std::max(0.0, std::min(1.0, value));
 }

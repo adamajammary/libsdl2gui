@@ -54,9 +54,9 @@ bool LSG_Menu::MouseClick(const SDL_MouseButtonEvent& event)
 	if (!this->visible)
 		return false;
 
-	auto mousePosition = SDL_Point(event.x, event.y);
-	auto destinations  = this->getTextureDestinations();
-	auto index         = this->getSelectedMenu(mousePosition, destinations);
+	SDL_Point mousePosition = { event.x, event.y };
+	auto      destinations  = this->getTextureDestinations();
+	auto      index         = this->getSelectedMenu(mousePosition, destinations);
 
 	return this->open(mousePosition, destinations, index);
 }

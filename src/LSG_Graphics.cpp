@@ -6,11 +6,13 @@ SDL_Color LSG_Graphics::GetFillColor(const SDL_Color& backgroundColor)
 	const int DEFAULT = (255 - OFFSET);
 	const int MAX     = (DEFAULT - OFFSET);
 
-	auto r = (backgroundColor.r < MAX ? (backgroundColor.r + OFFSET) : DEFAULT);
-	auto g = (backgroundColor.g < MAX ? (backgroundColor.g + OFFSET) : DEFAULT);
-	auto b = (backgroundColor.b < MAX ? (backgroundColor.b + OFFSET) : DEFAULT);
+	auto r = (uint8_t)(backgroundColor.r < MAX ? (backgroundColor.r + OFFSET) : DEFAULT);
+	auto g = (uint8_t)(backgroundColor.g < MAX ? (backgroundColor.g + OFFSET) : DEFAULT);
+	auto b = (uint8_t)(backgroundColor.b < MAX ? (backgroundColor.b + OFFSET) : DEFAULT);
 
-	return SDL_Color(r, g, b, 255);
+	SDL_Color fillColor = { r, g, b, 255 };
+
+	return fillColor;
 }
 
 std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation)
@@ -62,11 +64,13 @@ SDL_Color LSG_Graphics::GetOffsetColor(const SDL_Color& color, int offset)
 	const int DEFAULT = (255 - offset);
 	const int MAX     = (DEFAULT - offset);
 
-	auto r = (color.r < MAX ? (color.r + offset) : DEFAULT);
-	auto g = (color.g < MAX ? (color.g + offset) : DEFAULT);
-	auto b = (color.b < MAX ? (color.b + offset) : DEFAULT);
+	auto r = (uint8_t)(color.r < MAX ? (color.r + offset) : DEFAULT);
+	auto g = (uint8_t)(color.g < MAX ? (color.g + offset) : DEFAULT);
+	auto b = (uint8_t)(color.b < MAX ? (color.b + offset) : DEFAULT);
 
-	return SDL_Color(r, g, b, 255);
+	SDL_Color offsetColor = { r, g, b, 255 };
+
+	return offsetColor;
 }
 
 SDL_Size LSG_Graphics::GetTextureSize(SDL_Texture* texture)
@@ -82,11 +86,13 @@ SDL_Size LSG_Graphics::GetTextureSize(SDL_Texture* texture)
 
 SDL_Color LSG_Graphics::GetThumbColor(const SDL_Color& backgroundColor)
 {
-	auto r = max(50, min(200, (255 - backgroundColor.r)));
-	auto g = max(50, min(200, (255 - backgroundColor.g)));
-	auto b = max(50, min(200, (255 - backgroundColor.b)));
+	auto r = (uint8_t)std::max(50, std::min(200, (255 - backgroundColor.r)));
+	auto g = (uint8_t)std::max(50, std::min(200, (255 - backgroundColor.g)));
+	auto b = (uint8_t)std::max(50, std::min(200, (255 - backgroundColor.b)));
 
-	return SDL_Color(r, g, b, 255);
+	SDL_Color thumbColor = { r, g, b, 255 };
+
+	return thumbColor;
 }
 
 bool LSG_Graphics::IsColorEquals(const SDL_Color& a, const SDL_Color& b)

@@ -62,7 +62,7 @@ void test_handleUserEvent(const SDL_UserEvent& event)
         test_handleRowEvent(id, *static_cast<int*>(event.data2));
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
-        LSG_SetText("SliderValue", std::format("{:.2f}", *static_cast<double*>(event.data2)));
+        LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
         break;
     default:
         break;
@@ -73,7 +73,7 @@ void test_handleEvents(const std::vector<SDL_Event>& events)
 {
     for (const auto& event : events)
     {
-        if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
+        if ((event.type == SDL_QUIT) || ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE)))
             LSG_Quit();
         else if (event.type >= SDL_USEREVENT)
             test_handleUserEvent(event.user);

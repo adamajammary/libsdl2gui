@@ -52,7 +52,7 @@ int LSG_Table::getClickedHeaderColumn(const SDL_Point& mousePosition, const std:
 	{
 		auto textureWidth = (columnSizes[i].width + LSG_TABLE_COLUMN_SPACING);
 
-		column.w = max(0, min((textureWidth - max(0, remainingOffsetX)), remainingX));
+		column.w = std::max(0, std::min((textureWidth - std::max(0, remainingOffsetX)), remainingX));
 		column.h = columnSizes[i].height;
 
 		if (SDL_PointInRect(&mousePosition, &column))
@@ -204,9 +204,9 @@ bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 		if (isDoubleClick)
 			return false;
 
-		auto positionX  = (mousePosition.x - background.x);
-		auto position   = SDL_Point(positionX, positionY);
-		auto sortColumn = this->getClickedHeaderColumn(position, textureSize.sizes, background.w);
+		auto      positionX  = (mousePosition.x - background.x);
+		SDL_Point position   = { positionX, positionY };
+		auto      sortColumn = this->getClickedHeaderColumn(position, textureSize.sizes, background.w);
 
 		if (sortColumn < 0)
 			return false;
@@ -380,8 +380,8 @@ void LSG_Table::renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, c
 
 	for (size_t i = 0; i < this->textures.size(); i++)
 	{
-		clip.x = max(0, remainingOffsetX);
-		clip.w = max(0, min((columnSizes[i].width - clip.x), remainingX));
+		clip.x = std::max(0, remainingOffsetX);
+		clip.w = std::max(0, std::min((columnSizes[i].width - clip.x), remainingX));
 
 		destination.w = clip.w;
 		destination.h = clip.h;
@@ -424,7 +424,7 @@ void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea,
 			background.h -= LSG_SCROLL_WIDTH;
 	}
 
-	SDL_Rect clip = { 0, 0, min(size.width, background.w), min(size.height, background.h) };
+	SDL_Rect clip = { 0, 0, std::min(size.width, background.w), std::min(size.height, background.h) };
 	auto     dest = this->getRenderDestinationAligned(background, size);
 
 	if (this->showScrollX)
@@ -532,7 +532,7 @@ void LSG_Table::SelectRow(int offset)
 		return;
 
 	auto firstRow    = this->getFirstRow();
-	auto selectedRow = max(firstRow, min(this->getLastRow(), (this->row + offset)));
+	auto selectedRow = std::max(firstRow, std::min(this->getLastRow(), (this->row + offset)));
 
 	this->Select(selectedRow);
 
@@ -797,7 +797,7 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 
 void LSG_Table::sort()
 {
-	auto sortColumn     = max(0, this->sortColumn);
+	auto sortColumn     = std::max(0, this->sortColumn);
 	auto stringsCompare = LSG_Text::GetStringsCompare(sortColumn);
 
 	if (this->sortOrder == LSG_DESCENDING)
@@ -848,18 +848,18 @@ void LSG_Table::updatePage(bool reset)
 	for (int i = 0; i < (int)this->header.columns.size(); i++)
 	{
 		if ((i == sortColumn) && (this->sortOrder == LSG_ASCENDING))
-			this->textColumns[i] = std::format("{}{}\n", LSG_ARROW_UP, this->header.columns[i]);
+			this->textColumns[i] = LSG_Text::Format("%s%s\n", LSG_ARROW_UP, this->header.columns[i].c_str());
 		else if ((i == sortColumn) && (this->sortOrder == LSG_DESCENDING))
-			this->textColumns[i] = std::format("{}{}\n", LSG_ARROW_DOWN, this->header.columns[i]);
+			this->textColumns[i] = LSG_Text::Format("%s%s\n", LSG_ARROW_DOWN, this->header.columns[i].c_str());
 		else
-			this->textColumns[i] = std::format("{}\n", this->header.columns[i]);
+			this->textColumns[i] = LSG_Text::Format("%s\n", this->header.columns[i].c_str());
 	}
 
 	for (const auto& group : this->groups)
 	{
 		if (!group.group.empty())
 		{
-			this->textColumns[0].append(std::format("{}\n", group.group));
+			this->textColumns[0].append(LSG_Text::Format("%s\n", group.group.c_str()));
 
 			for (int i = 1; i < columnCount; i++)
 				this->textColumns[i].append("\n");
@@ -867,16 +867,16 @@ void LSG_Table::updatePage(bool reset)
 
 		for (const auto& row : group.rows)
 		{
-			this->textColumns[0].append(std::format("   {}\n", row.columns[0]));
+			this->textColumns[0].append(LSG_Text::Format("   %s\n", row.columns[0].c_str()));
 
 			for (int i = 1; i < (int)row.columns.size(); i++)
-				this->textColumns[i].append(std::format("{}\n", row.columns[i]));
+				this->textColumns[i].append(LSG_Text::Format("%s\n", row.columns[i].c_str()));
 		}
 	}
 
 	for (const auto& row : this->rows) {
 		for (int j = 0; j < (int)row.columns.size(); j++)
-			this->textColumns[j].append(std::format("{}\n", row.columns[j]));
+			this->textColumns[j].append(LSG_Text::Format("%s\n", row.columns[j].c_str()));
 	}
 
 	if (this->textColumns.empty())

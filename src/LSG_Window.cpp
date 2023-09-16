@@ -61,7 +61,7 @@ bool LSG_Window::IsMaximized()
 }
 
 /**
- * @throws exception
+ * @throws runtime_error
  */
 SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 {
@@ -70,7 +70,7 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 	LSG_Window::window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, FLAGS);
 
     if (!LSG_Window::window)
-        throw std::exception(std::format("Failed to create a window: {}", SDL_GetError()).c_str());
+        throw std::runtime_error(LSG_Text::Format("Failed to create a window: %s", SDL_GetError()));
 
 	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_WINDOW_MIN_SIZE, LSG_WINDOW_MIN_SIZE);
 
@@ -80,7 +80,7 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_SOFTWARE);
 
     if (!LSG_Window::renderer)
-        throw std::exception(std::format("Failed to create a renderer: {}", SDL_GetError()).c_str());
+        throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
 
 	return LSG_Window::renderer;
 }
@@ -115,7 +115,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 
 		for (paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog)); paths != nullptr; paths = paths->next)
 		{
-			gchar* selectedPath = paths->data;
+			auto selectedPath = (gchar*)paths->data;
 
 			if (!selectedPath)
 				continue;
@@ -157,18 +157,20 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	if ([panel runModal] != NSOKButton)
 		return {};
 
+	const int MAX_FILE_PATH = 260;
+
 	std::vector<std::string> filePaths;
 
 	for (id url in [panel URLs])
 	{
-		CFURLRef selectedURL = (CFURLRef)[url];
+		CFURLRef selectedURL = (CFURLRef)url;
 
 		if (!selectedURL)
 			continue;
 
-		char selectedPath[MAX_PATH] = {};
+		char selectedPath[MAX_FILE_PATH] = {};
 
-		if (!CFURLGetFileSystemRepresentation(selectedURL, TRUE, (UInt8*)selectedPath, MAX_PATH))
+		if (!CFURLGetFileSystemRepresentation(selectedURL, TRUE, (UInt8*)selectedPath, MAX_FILE_PATH))
 			continue;
 
 		auto filePath = std::string(selectedPath);
@@ -229,16 +231,18 @@ std::vector<std::wstring> LSG_Window::openFiles(const wchar_t* filter, bool allo
 			break;
 
 		if (directory.ends_with('\\'))
-			filePaths.push_back(std::format(L"{}{}", directory, filePath));
+			filePaths.push_back(LSG_Text::FormatW(L"%s%s", directory.c_str(), filePath.c_str()));
 		else
-			filePaths.push_back(std::format(L"{}\\{}", directory, filePath));
+			filePaths.push_back(LSG_Text::FormatW(L"%s\\%s", directory.c_str(), filePath.c_str()));
 
 		filePath.clear();
 	}
 
 	return filePaths;
 }
+#endif
 
+#if defined _windows
 std::wstring LSG_Window::OpenFile(const wchar_t* filter)
 {
 	auto files = LSG_Window::openFiles(filter);
@@ -409,14 +413,15 @@ std::string LSG_Window::SaveFile()
 	if ([panel runModal] != NSOKButton)
 		return "";
 
-	CFURLRef selectedURL = (CFURLRef)[[panel URL]];
+	CFURLRef selectedURL = (CFURLRef)[panel URL];
 
 	if (!selectedURL)
 		return "";
 
-	char selectedPath[MAX_PATH] = {};
+	const int MAX_FILE_PATH = 260;
+	char      selectedPath[MAX_FILE_PATH] = {};
 
-	if (!CFURLGetFileSystemRepresentation(selectedURL, TRUE, (UInt8*)selectedPath, MAX_PATH))
+	if (!CFURLGetFileSystemRepresentation(selectedURL, TRUE, (UInt8*)selectedPath, MAX_FILE_PATH))
 		return "";
 
 	auto filePath = std::string(selectedPath);
@@ -494,7 +499,7 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
 
 	if (!texture)
-		throw std::exception(std::format("Failed to load image file: {}", filePath).c_str());
+		throw std::runtime_error(LSG_Text::Format("Failed to load image file: %s", filePath.c_str()));
 
 	return texture;
 }

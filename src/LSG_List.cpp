@@ -56,7 +56,7 @@ LSG_Strings LSG_List::getPageItems()
 		return this->pageItems;
 
 	auto offset = (size_t)(this->page * LSG_MAX_ROWS_PER_PAGE);
-	auto max    = min((int)this->pageItems.size(), (offset + LSG_MAX_ROWS_PER_PAGE));
+	auto max    = std::min(this->pageItems.size(), (offset + LSG_MAX_ROWS_PER_PAGE));
 	auto start  = (this->pageItems.begin() + offset);
 	auto end    = (this->pageItems.begin() + max);
 
@@ -272,7 +272,7 @@ void LSG_List::SelectRow(int offset)
 		return;
 
 	auto lastRow     = this->getLastRow();
-	auto selectedRow = max(0, min(lastRow, (this->row + offset)));
+	auto selectedRow = std::max(0, std::min(lastRow, (this->row + offset)));
 
 	this->Select(selectedRow);
 

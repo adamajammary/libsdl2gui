@@ -183,8 +183,8 @@ SDL_Rect LSG_Component::getRenderDestinationAligned(const SDL_Rect& backgroundAr
 	SDL_Rect destination = {
 		backgroundArea.x,
 		backgroundArea.y,
-		min(size.width,  backgroundArea.w),
-		min(size.height, backgroundArea.h)
+		std::min(size.width,  backgroundArea.w),
+		std::min(size.height, backgroundArea.h)
 	};
 
 	auto attributes = this->GetXmlAttributes();
@@ -521,9 +521,9 @@ void LSG_Component::setMinSizeSlider()
 		return;
 
 	if (this->orientation == LSG_VERTICAL)
-		this->background.w = max(LSG_SLIDER_MIN_HEIGHT, this->background.w);
+		this->background.w = std::max(LSG_SLIDER_MIN_HEIGHT, this->background.w);
 	else
-		this->background.h = max(LSG_SLIDER_MIN_HEIGHT, this->background.h);
+		this->background.h = std::max(LSG_SLIDER_MIN_HEIGHT, this->background.h);
 }
 
 void LSG_Component::SetOrientation(LSG_Orientation orientation)

@@ -43,40 +43,52 @@ TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 	return font;
 }
 
+/**
+ * @throws invalid_argument
+ */
 TTF_Font* LSG_Text::GetFontArial(int fontSize)
 {
-	TTF_Font* font = nullptr;
-
 	#if defined _android
-		font = TTF_OpenFont("/system/fonts/DroidSans.ttf", fontSize);
+		const auto FONT_PATH = "/system/fonts/DroidSans.ttf";
 	#elif defined _ios
-		font = TTF_OpenFont("/System/Library/Fonts/Cache/arialuni.ttf", fontSize);
+		const auto FONT_PATH = "/System/Library/Fonts/Cache/arialuni.ttf";
 	#elif defined _linux
-		font = TTF_OpenFont("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", fontSize);
+		const auto FONT_PATH = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
 	#elif defined  _macosx
-		font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", fontSize);
+		const auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
-		font = TTF_OpenFont("C:/Windows/Fonts/ARIALUNI.TTF", fontSize);
+		const auto FONT_PATH = "C:\\Windows\\Fonts\\ARIALUNI.TTF";
 	#endif
+
+	auto font = TTF_OpenFont(FONT_PATH, fontSize);
+
+	if (!font)
+		throw std::invalid_argument(LSG_Text::Format("Failed to open default font: %s", FONT_PATH));
 
 	return font;
 }
 
+/**
+ * @throws invalid_argument
+ */
 TTF_Font* LSG_Text::GetFontMonoSpace(int fontSize)
 {
-	TTF_Font* font = nullptr;
-
 	#if defined _android
-		font = TTF_OpenFont("/system/fonts/DroidSansMono.ttf", fontSize);
+		const auto FONT_PATH = "/system/fonts/DroidSansMono.ttf";
 	#elif defined _ios
-		font = TTF_OpenFont("/System/Library/Fonts/Cache/CourierNewBold.ttf", fontSize);
+		const auto FONT_PATH = "/System/Library/Fonts/Cache/CourierNewBold.ttf";
 	#elif defined _linux
-		font = TTF_OpenFont("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf", fontSize);
+		const auto FONT_PATH = "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf";
 	#elif defined  _macosx
-		font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Courier New Bold.ttf", fontSize);
+		const auto FONT_PATH = "/System/Library/Fonts/Supplemental/Courier New Bold.ttf";
 	#elif defined _windows
-		font = TTF_OpenFont("C:/Windows/Fonts/courbd.ttf", fontSize);
+		const auto FONT_PATH = "C:\\Windows\\Fonts\\courbd.ttf";
 	#endif
+
+	auto font = TTF_OpenFont(FONT_PATH, fontSize);
+
+	if (!font)
+		throw std::invalid_argument(LSG_Text::Format("Failed to open mono font: %s", FONT_PATH));
 
 	return font;
 }
@@ -84,9 +96,9 @@ TTF_Font* LSG_Text::GetFontMonoSpace(int fontSize)
 std::string LSG_Text::GetFullPath(const std::string& path)
 {
 	#if defined _windows
-		return (path.size() > 1 && path[1] != ':' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
+		return (path.size() > 1 && path[1] != ':' ? LSG_Text::Format("%s%s", LSG_GetBasePath(), path.c_str()) : path);
 	#else
-		return (!path.empty() && path[0] != '/' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
+		return (!path.empty() && path[0] != '/' ? LSG_Text::Format("%s%s", LSG_GetBasePath(), path.c_str()) : path);
 	#endif
 }
 
@@ -145,10 +157,14 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text)
 	if (text.empty())
 		return nullptr;
 
-	auto textUTF16 = SDL_iconv_utf8_ucs2(text.c_str());
+	#if defined _linux
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
+	#else
+		auto textUTF16 = SDL_iconv_utf8_ucs2(text.c_str());
+	#endif
 
 	if (!textUTF16)
-		return nullptr;
+		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", text.c_str()));
 
 	auto fontSize = this->getFontSize();
 	auto font     = LSG_Text::getFont(textUTF16, fontSize);
@@ -215,7 +231,7 @@ void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundA
 			background.h -= LSG_SCROLL_WIDTH;
 	}
 
-	SDL_Rect clip = { 0, 0, min(size.width, background.w), min(size.height, background.h) };
+	SDL_Rect clip = { 0, 0, std::min(size.width, background.w), std::min(size.height, background.h) };
 	auto     dest = this->getRenderDestinationAligned(background, size);
 
 	if (this->showScrollX)

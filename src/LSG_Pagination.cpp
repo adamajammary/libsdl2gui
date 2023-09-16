@@ -66,10 +66,10 @@ std::string LSG_Pagination::getLabel()
 {
 	auto rows  = this->getRowCount();
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
-	auto end   = min(rows, (start + LSG_MAX_ROWS_PER_PAGE));
+	auto end   = std::min(rows, (start + LSG_MAX_ROWS_PER_PAGE));
 	auto page  = (this->page + 1);
 	auto last  = (this->GetLastPage() + 1);
-	auto label = std::format("{} - {} / {} ( {} / {} )", (start + 1), end, rows, page, last);
+	auto label = LSG_Text::Format("%d - %d / %d ( %d / %d )", (start + 1), end, rows, page, last);
 
 	return label;
 }
@@ -153,9 +153,9 @@ bool LSG_Pagination::isPageArrowClicked(const SDL_Point& mousePosition)
 	if (SDL_PointInRect(&mousePosition, &this->arrowHome))
 		return this->navigate(0);
 	else if (SDL_PointInRect(&mousePosition, &this->arrowPrev))
-		return this->navigate(max(0, this->page - 1));
+		return this->navigate(std::max(0, this->page - 1));
 	else if (SDL_PointInRect(&mousePosition, &this->arrowNext))
-		return this->navigate(min(this->GetLastPage(), this->page + 1));
+		return this->navigate(std::min(this->GetLastPage(), this->page + 1));
 	else if (SDL_PointInRect(&mousePosition, &this->arrowEnd))
 		return this->navigate(this->GetLastPage());
 
@@ -210,8 +210,8 @@ void LSG_Pagination::renderPagination(SDL_Renderer* renderer, const SDL_Rect& ba
 	labelDestination.x += LSG_SCROLL_WIDTH;
 	labelDestination.w -= LSG_SCROLL_WIDTH_2X;
 
-	SDL_Rect clip = { 0, 0, min(labelTextureSize.width, labelDestination.w), min(labelTextureSize.height, labelDestination.h) };
-	auto     dest = this->getDestinationCenterAligned(labelDestination, SDL_Size(clip.w, clip.h));
+	SDL_Rect clip = { 0, 0, std::min(labelTextureSize.width, labelDestination.w), std::min(labelTextureSize.height, labelDestination.h) };
+	auto     dest = this->getDestinationCenterAligned(labelDestination, { clip.w, clip.h });
 
 	SDL_RenderCopy(renderer, this->textureLabel, &clip, &dest);
 }

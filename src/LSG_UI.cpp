@@ -16,10 +16,10 @@ void LSG_UI::AddSubMenuItem(LSG_MenuSub* subMenu, const std::string& item, const
 
 	auto layer    = LSG_UI::id++;
 	auto nodeName = "menu-item";
-	auto nodeID   = (!itemId.empty() ? itemId : std::format("{}_{}", nodeName, layer));
+	auto nodeID   = (!itemId.empty() ? itemId : LSG_Text::Format("%s_%d", nodeName, layer));
 
 	if (LSG_UI::components.contains(nodeID))
-		throw std::invalid_argument(std::format("Duplicate XML ID '{}' already exists.", nodeID).c_str());
+		throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", nodeID.c_str()));
 
 	layer += LSG_MENU_LAYER_OFFSET;
 
@@ -77,7 +77,7 @@ LSG_Button* LSG_UI::GetButton(const SDL_Point& mousePosition)
 
 std::string LSG_UI::GetColorFromTheme(const std::string& componentID, const std::string& colorAttribute)
 {
-	auto key   = std::format("{}.{}", componentID, colorAttribute);
+	auto key   = LSG_Text::Format("%s.%s", componentID.c_str(), colorAttribute.c_str());
 	auto color = (LSG_UI::colorTheme.contains(key) ? LSG_UI::colorTheme[key] : "");
 
 	return color;
@@ -132,7 +132,7 @@ int LSG_UI::getDistanceFromMenu(LibXml::xmlNode* xmlNode)
 
 		if (xmlParent)
 			parentName = std::string(reinterpret_cast<const char*>(xmlParent->name));
-	} while (xmlParent && (parentName == "menu") || (parentName == "menu-sub"));
+	} while (xmlParent && ((parentName == "menu") || (parentName == "menu-sub")));
 
 	return distance;
 }
@@ -496,10 +496,10 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 		auto id       = LSG_XML::GetAttribute(xmlNode, "id");
 		auto layer    = LSG_UI::id++;
 		auto nodeName = std::string(reinterpret_cast<const char*>(xmlNode->name));
-		auto nodeID   = (!id.empty() ? id : std::format("{}_{}", nodeName, layer));
+		auto nodeID   = (!id.empty() ? id : LSG_Text::Format("%s_%d", nodeName.c_str(), layer));
 
 		if (components.contains(nodeID))
-			throw std::invalid_argument(std::format("Duplicate XML ID '{}' already exists.", nodeID).c_str());
+			throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", nodeID.c_str()));
 
 		LSG_Component* component = nullptr;
 
@@ -593,21 +593,21 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 }
 
 /**
- * @throws exception
+ * @throws runtime_error
  */
 LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 {
 	auto filePath = LSG_Text::GetFullPath(xmlFile);
 
-	LSG_UI::xmlDocument = LSG_XML::Open(filePath.c_str());
+	LSG_UI::xmlDocument = LSG_XML::Open(filePath);
 
 	if (!LSG_UI::xmlDocument)
-		throw std::exception(std::format("Failed to load XML file: {}", filePath).c_str());
+		throw std::runtime_error(LSG_Text::Format("Failed to load XML file: %s", filePath.c_str()));
 
 	LSG_UI::windowNode = LSG_XML::GetNode("/window", LSG_UI::xmlDocument);
 
 	if (!LSG_UI::windowNode)
-		throw std::exception(std::format("Failed to find path '/window' in XML file: {}", filePath).c_str());
+		throw std::runtime_error(LSG_Text::Format("Failed to find path '/window' in XML file: %s", filePath.c_str()));
 
 	auto windowAttribs = LSG_XML::GetAttributes(LSG_UI::windowNode);
 
@@ -681,7 +681,7 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile)
 		auto file     = std::ifstream(filePath);
 
 		if (!file.is_open())
-			throw std::exception(std::format("Failed to open Color Theme file: {}", filePath).c_str());
+			throw std::runtime_error(LSG_Text::Format("Failed to open Color Theme file: %s", filePath.c_str()));
 
 		std::string line;
 
@@ -833,12 +833,12 @@ SDL_Color LSG_UI::ToSdlColor(const std::string &color)
 	// HEX: "#00FF0080" / "#00FF00"
 	if ((color[0] == '#') && (color.size() >= 7))
 	{
-		sdlColor.r = (uint8_t)std::strtoul(std::format("0x{}", color.substr(1, 2)).c_str(), nullptr, 16);
-		sdlColor.g = (uint8_t)std::strtoul(std::format("0x{}", color.substr(3, 2)).c_str(), nullptr, 16);
-		sdlColor.b = (uint8_t)std::strtoul(std::format("0x{}", color.substr(5, 2)).c_str(), nullptr, 16);
+		sdlColor.r = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(1, 2).c_str()).c_str(), nullptr, 16);
+		sdlColor.g = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(3, 2).c_str()).c_str(), nullptr, 16);
+		sdlColor.b = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(5, 2).c_str()).c_str(), nullptr, 16);
 
 		if (color.size() == 9)
-			sdlColor.a = (uint8_t)std::strtoul(std::format("0x{}", color.substr(7, 2)).c_str(), nullptr, 16);
+			sdlColor.a = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(7, 2).c_str()).c_str(), nullptr, 16);
 	}
 	else if (color.substr(0, 4) == "rgb(")
 	{

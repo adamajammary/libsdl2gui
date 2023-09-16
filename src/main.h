@@ -1,7 +1,9 @@
 #ifndef LSG_MAIN_H
 #define LSG_MAIN_H
 
-#include <algorithm>
+#include <algorithm> // min/max(x)
+#include <cstdio>    // snprintf(x)
+#include <cstring>   // strtok(x)
 #include <fstream>
 #include <functional>
 #include <map>
@@ -39,14 +41,6 @@ namespace LibXml {
 	#define strdup _strdup
 #endif
 
-#ifndef max
-	#define max(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-	#define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
 class LSG_Component;
 
 using LSG_Components       = std::vector<LSG_Component*>;
@@ -57,6 +51,8 @@ using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
 
 const char        LSG_ARROW_UP[4]             = { (char)0xE2, (char)0x86, (char)0x91, 0 };
 const char        LSG_ARROW_DOWN[4]           = { (char)0xE2, (char)0x86, (char)0x93, 0 };
+const char        LSG_CHECKMARK[4]            = { (char)0xe2, (char)0x9c, (char)0x93, 0 };
+const char        LSG_CHECKMARK_HEAVY[4]      = { (char)0xe2, (char)0x9c, (char)0x94, 0 };
 const std::string LSG_ASCENDING               = "ascending";
 const SDL_Color   LSG_DEFAULT_BACK_COLOR      = { 245, 245, 245, 255 };
 const SDL_Color   LSG_DEFAULT_BORDER_COLOR    = { 0, 0, 0, 255 };
