@@ -22,68 +22,6 @@ LSG_ScrollBar::LSG_ScrollBar()
 	this->showScrollY              = false;
 }
 
-SDL_Color LSG_ScrollBar::getFillColor(const SDL_Color& backgroundColor)
-{
-	auto r = (backgroundColor.r < 215 ? (backgroundColor.r + 20) : 235);
-	auto g = (backgroundColor.g < 215 ? (backgroundColor.g + 20) : 235);
-	auto b = (backgroundColor.b < 215 ? (backgroundColor.b + 20) : 235);
-
-	return SDL_Color(r, g, b, 255);
-}
-
-std::vector<SDL_Vertex> LSG_ScrollBar::getGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation)
-{
-	auto left   = (float)(background.x + paddingX);
-	auto center = (float)(background.x + (background.w / 2));
-	auto right  = (float)(background.x + background.w - paddingX);
-	auto top    = (float)(background.y + paddingY);
-	auto middle = (float)(background.y + (background.h / 2));
-	auto bottom = (float)(background.y + background.h - paddingY);
-
-	// LSG_TRIANGLE_ORIENTATION_TOP
-	auto x1 = left;
-	auto y1 = bottom;
-	auto x2 = center;
-	auto y2 = top;
-	auto x3 = right;
-	auto y3 = bottom;
-
-	switch (orientation) {
-	case LSG_TRIANGLE_ORIENTATION_LEFT:
-		y1 = middle;
-		x2 = right;
-		break;
-	case LSG_TRIANGLE_ORIENTATION_RIGHT:
-		x2 = right;
-		y2 = middle;
-		x3 = left;
-		y3 = top;
-		break;
-	case LSG_TRIANGLE_ORIENTATION_DOWN:
-		y1 = top;
-		y2 = bottom;
-		y3 = top;
-		break;
-	default:
-		break;
-	}
-
-	SDL_Vertex vertex1 = { { x1, y1 }, { color.r, color.g, color.b, color.a }, {} };
-	SDL_Vertex vertex2 = { { x2, y2 }, { color.r, color.g, color.b, color.a }, {} };
-	SDL_Vertex vertex3 = { { x3, y3 }, { color.r, color.g, color.b, color.a }, {} };
-
-	return { vertex1, vertex2, vertex3 };
-}
-
-SDL_Color LSG_ScrollBar::getThumbColor(const SDL_Color& backgroundColor)
-{
-	auto r = max(50, min(200, (255 - backgroundColor.r)));
-	auto g = max(50, min(200, (255 - backgroundColor.g)));
-	auto b = max(50, min(200, (255 - backgroundColor.b)));
-
-	return SDL_Color(r, g, b, 255);
-}
-
 void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_Rect& background, int maxWidth, const SDL_Color& backgroundColor, bool highlighted)
 {
 	this->scrollBarX = background;
@@ -94,26 +32,26 @@ void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_
 	if (this->showScrollY)
 		this->scrollBarX.w -= LSG_SCROLL_WIDTH;
 
-	auto fillColor = this->getFillColor(backgroundColor);
+	auto fillColor = LSG_Graphics::GetFillColor(backgroundColor);
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 255);
 
 	SDL_RenderFillRect(renderer, &this->scrollBarX);
 
-	auto thumbColor = (highlighted ? this->getThumbColor(backgroundColor) : LSG_SCROLL_COLOR_THUMB);
+	auto thumbColor = (highlighted ? LSG_Graphics::GetThumbColor(backgroundColor) : LSG_SCROLL_COLOR_THUMB);
 
 	this->scrollArrowLeft   = SDL_Rect(this->scrollBarX);
 	this->scrollArrowLeft.w = LSG_SCROLL_WIDTH;
 
-	auto triangleLeft = this->getGeometryTriangle(this->scrollArrowLeft, (LSG_SCROLL_PADDING + 2), LSG_SCROLL_PADDING, thumbColor, LSG_TRIANGLE_ORIENTATION_LEFT);
+	auto triangleLeft = LSG_Graphics::GetGeometryTriangle(this->scrollArrowLeft, (LSG_SCROLL_PADDING + 2), LSG_SCROLL_PADDING, thumbColor, LSG_TRIANGLE_ORIENTATION_LEFT);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleLeft.data(), 3, nullptr, 0);
 
 	this->scrollArrowRight    = SDL_Rect(this->scrollArrowLeft);
 	this->scrollArrowRight.x += (this->scrollBarX.w - LSG_SCROLL_WIDTH);
 
-	auto triangleRight = this->getGeometryTriangle(this->scrollArrowRight, (LSG_SCROLL_PADDING + 2), LSG_SCROLL_PADDING, thumbColor, LSG_TRIANGLE_ORIENTATION_RIGHT);
+	auto triangleRight = LSG_Graphics::GetGeometryTriangle(this->scrollArrowRight, (LSG_SCROLL_PADDING + 2), LSG_SCROLL_PADDING, thumbColor, LSG_TRIANGLE_ORIENTATION_RIGHT);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleRight.data(), 3, nullptr, 0);
 
@@ -134,18 +72,6 @@ void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_
 	this->scrollThumbX.w  = (int)std::ceil((double)((double)this->scrollThumbX.w + (double)LSG_SCROLL_WIDTH_2X) * this->clipFactorX);
 	this->scrollThumbX.x += (int)((double)this->scrollOffsetX * this->clipFactorX);
 
-	if (this->scrollThumbX.w < this->scrollThumbX.h)
-	{
-		auto diffWidth = (this->scrollThumbX.h - this->scrollThumbX.w);
-		auto minPosX   = (this->scrollBarX.x + LSG_SCROLL_WIDTH);
-
-		this->scrollThumbX.x -= diffWidth;
-		this->scrollThumbX.w += diffWidth;
-
-		if (this->scrollThumbX.x < minPosX)
-			this->scrollThumbX.x = minPosX;
-	}
-
 	SDL_SetRenderDrawColor(renderer, thumbColor.r, thumbColor.g, thumbColor.b, thumbColor.a);
 	SDL_RenderFillRect(renderer, &this->scrollThumbX);
 }
@@ -160,26 +86,26 @@ void LSG_ScrollBar::renderScrollBarVertical(SDL_Renderer* renderer, const SDL_Re
 	if (this->showScrollX)
 		this->scrollBarY.h -= LSG_SCROLL_WIDTH;
 
-	auto fillColor = this->getFillColor(backgroundColor);
+	auto fillColor = LSG_Graphics::GetFillColor(backgroundColor);
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 255);
 
 	SDL_RenderFillRect(renderer, &this->scrollBarY);
 
-	auto thumbColor = (highlighted ? this->getThumbColor(backgroundColor) : LSG_SCROLL_COLOR_THUMB);
+	auto thumbColor = (highlighted ? LSG_Graphics::GetThumbColor(backgroundColor) : LSG_SCROLL_COLOR_THUMB);
 
 	this->scrollArrowUp   = SDL_Rect(this->scrollBarY);
 	this->scrollArrowUp.h = LSG_SCROLL_WIDTH;
 
-	auto triangleUp = this->getGeometryTriangle(this->scrollArrowUp, LSG_SCROLL_PADDING, (LSG_SCROLL_PADDING + 2), thumbColor);
+	auto triangleUp = LSG_Graphics::GetGeometryTriangle(this->scrollArrowUp, LSG_SCROLL_PADDING, (LSG_SCROLL_PADDING + 2), thumbColor);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleUp.data(), 3, nullptr, 0);
 
 	this->scrollArrowDown    = SDL_Rect(this->scrollArrowUp);
 	this->scrollArrowDown.y += (this->scrollBarY.h - LSG_SCROLL_WIDTH);
 
-	auto triangleDown = this->getGeometryTriangle(this->scrollArrowDown, LSG_SCROLL_PADDING, (LSG_SCROLL_PADDING + 2), thumbColor, LSG_TRIANGLE_ORIENTATION_DOWN);
+	auto triangleDown = LSG_Graphics::GetGeometryTriangle(this->scrollArrowDown, LSG_SCROLL_PADDING, (LSG_SCROLL_PADDING + 2), thumbColor, LSG_TRIANGLE_ORIENTATION_DOWN);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleDown.data(), 3, nullptr, 0);
 
@@ -200,32 +126,18 @@ void LSG_ScrollBar::renderScrollBarVertical(SDL_Renderer* renderer, const SDL_Re
 	this->scrollThumbY.h  = (int)std::ceil((double)((double)this->scrollThumbY.h + (double)LSG_SCROLL_WIDTH_2X) * this->clipFactorY);
 	this->scrollThumbY.y += (int)((double)this->scrollOffsetY * this->clipFactorY);
 
-	if (this->scrollThumbY.h < this->scrollThumbY.w)
-	{
-		auto diffHeight = (this->scrollThumbY.h - this->scrollThumbY.w);
-		auto minPosY    = (this->scrollBarY.y + LSG_SCROLL_WIDTH);
-
-		this->scrollThumbY.y -= diffHeight;
-		this->scrollThumbY.h += diffHeight;
-
-		if (this->scrollThumbY.y < minPosY)
-			this->scrollThumbY.y = minPosY;
-	}
-
 	SDL_SetRenderDrawColor(renderer, thumbColor.r, thumbColor.g, thumbColor.b, thumbColor.a);
 	SDL_RenderFillRect(renderer, &this->scrollThumbY);
 }
 
 void LSG_ScrollBar::ScrollHome()
 {
-	if (this->showScrollY)
-		this->scrollOffsetY = 0;
+	this->scrollOffsetY = 0;
 }
 
 void LSG_ScrollBar::ScrollEnd()
 {
-	if (this->showScrollY)
-		this->scrollOffsetY = LSG_MAX_TEXTURE_SIZE;
+	this->scrollOffsetY = LSG_MAX_TEXTURE_SIZE;
 }
 
 bool LSG_ScrollBar::ScrollMouseClick(const SDL_Point& mousePosition)
@@ -337,9 +249,6 @@ void LSG_ScrollBar::ScrollMouseUp()
 
 void LSG_ScrollBar::ScrollHorizontal(int offset)
 {
-	if (!this->showScrollX)
-		return;
-
 	this->scrollOffsetX += offset;
 
 	if (this->scrollOffsetX < 0)
@@ -348,9 +257,6 @@ void LSG_ScrollBar::ScrollHorizontal(int offset)
 
 void LSG_ScrollBar::ScrollVertical(int offset)
 {
-	if (!this->showScrollY)
-		return;
-
 	this->scrollOffsetY += offset;
 
 	if (this->scrollOffsetY < 0)

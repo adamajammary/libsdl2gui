@@ -22,12 +22,14 @@ private:
 	double      value;
 
 public:
+	double       GetValue();
 	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
 	void         MouseMove(const SDL_Point& mousePosition);
 	void         MouseScroll(int offset);
 	void         MouseUp();
 	virtual void Render(SDL_Renderer* renderer) override;
 	virtual void SetColors() override;
+	void         SetValue(double value);
 
 private:
 	virtual void sendEvent(LSG_EventType type) override;

@@ -26,21 +26,27 @@ public:
     static SDL_Color      GetBackgroundColor();
     static LSG_Button*    GetButton(const SDL_Point& mousePosition);
     static std::string    GetColorFromTheme(const std::string& componentID, const std::string& xmlAttribute);
+    static std::string    GetColorTheme();
     static LSG_Component* GetComponent(const std::string& id);
     static LSG_Component* GetComponent(const SDL_Point& mousePosition);
     static void           HighlightComponents(const SDL_Point& mousePosition);
+    static bool           IsMenuOpen(LSG_Component* component);
     static void           Layout();
     static void           LayoutParent(LSG_Component* component);
     static void           LayoutRoot();
     static void           Load(const std::string& colorThemeFile);
     static LSG_UMapStrStr OpenWindow(const std::string& xmlFile);
+    static void           Present(SDL_Renderer* renderer);
+    static void           RemoveMenuItem(LSG_MenuItem* menuItem);
     static void           Render(SDL_Renderer* renderer);
     static void           SetColorTheme(const std::string& colorThemeFile);
+    static void           SetEnabled(LSG_Component* component, bool enabled = true);
     static void           SetSubMenuVisible(LSG_Component* component, bool visible = true);
     static void           SetText(LSG_Component* component);
     static SDL_Color      ToSdlColor(const std::string& color);
 
 private:
+    static int  getDistanceFromMenu(LibXml::xmlNode* xmlNode);
     static void layoutFixed(LSG_Component* component);
     static void layoutRelative(LSG_Component* component);
     static void layoutPositionAlign(LSG_Component* component, const LSG_Components& children);

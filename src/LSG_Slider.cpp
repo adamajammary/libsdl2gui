@@ -45,12 +45,17 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc,
 		this->thumbBorderColor = LSG_UI::ToSdlColor(thumbBorderColor);
 }
 
+double LSG_Slider::GetValue()
+{
+	return this->value;
+}
+
 bool LSG_Slider::MouseClick(const SDL_MouseButtonEvent& event)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown())
 		return false;
 
-	auto mousePosition = SDL_Point(event.x, event.y);
+	SDL_Point mousePosition = { event.x, event.y };
 
 	this->isSlideActive = false;
 
@@ -85,7 +90,7 @@ void LSG_Slider::Render(SDL_Renderer* renderer)
 
 	auto backgroundArea = SDL_Rect(this->background);
 	bool isVertical     = (this->orientation == LSG_VERTICAL);
-	auto thumbWidth     = max(LSG_SLIDER_THUMB_WIDTH, this->thumbWidth);
+	auto thumbWidth     = std::max(LSG_SLIDER_THUMB_WIDTH, this->thumbWidth);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (isVertical) {
@@ -154,12 +159,12 @@ void LSG_Slider::sendEvent(LSG_EventType type)
 	if (!this->enabled)
 		return;
 
-	this->value = max(0.0, min(1.0, this->value));
+	this->value = std::max(0.0, std::min(1.0, this->value));
 
 	SDL_Event sliderEvent = {};
 
 	sliderEvent.type       = SDL_RegisterEvents(1);
-	sliderEvent.user.code  = (int32_t)type;
+	sliderEvent.user.code  = (int)type;
 	sliderEvent.user.data1 = (void*)strdup(this->GetID().c_str());
 	sliderEvent.user.data2 = (void*)&this->value;
 
@@ -199,4 +204,9 @@ void LSG_Slider::setValue(int offset)
 		this->value = (double)((double)((int)((double)this->background.w * this->value) - offset) / (double)this->background.w);
 
 	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
+}
+
+void LSG_Slider::SetValue(double value)
+{
+	this->value = std::max(0.0, std::min(1.0, value));
 }

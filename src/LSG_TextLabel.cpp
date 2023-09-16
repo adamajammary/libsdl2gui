@@ -5,6 +5,11 @@ LSG_TextLabel::LSG_TextLabel(const std::string& id, int layer, LibXml::xmlDoc* x
 {
 }
 
+std::string LSG_TextLabel::GetText()
+{
+	return this->text;
+}
+
 void LSG_TextLabel::Render(SDL_Renderer* renderer)
 {
 	if (!this->visible)

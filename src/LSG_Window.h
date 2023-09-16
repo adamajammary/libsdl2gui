@@ -13,9 +13,17 @@ private:
     static SDL_Renderer* renderer;
     static SDL_Window*   window;
 
+    #if defined _windows
+        static std::vector<std::wstring> openFiles(const wchar_t* filter, bool allowMultipleSelection = false);
+        static std::vector<std::wstring> openFolders(bool allowMultipleSelection = false);
+    #elif defined _linux || defined _macosx
+        static std::vector<std::string> openFiles(bool openFolder = false, bool allowMultipleSelection = false);
+    #endif
+
 public:
     static void          Close();
     static SDL_Size      GetMinimumSize();
+    static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();
     static SDL_Size      GetSize();
     static std::string   GetTitle();
@@ -33,11 +41,17 @@ public:
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
 
     #if defined _windows
-        static std::wstring OpenFile();
-        static std::wstring OpenFolder();
-    #else
-        static std::string OpenFile(bool openFolder = false);
-        static std::string OpenFolder();
+        static std::wstring              OpenFile(const wchar_t*  filter = nullptr);
+        static std::vector<std::wstring> OpenFiles(const wchar_t* filter = nullptr);
+        static std::wstring              OpenFolder();
+        static std::vector<std::wstring> OpenFolders();
+        static std::wstring              SaveFile(const wchar_t* filter = nullptr);
+    #elif defined _linux || defined _macosx
+        static std::string              OpenFile();
+        static std::vector<std::string> OpenFiles();
+        static std::string              OpenFolder();
+        static std::vector<std::string> OpenFolders();
+        static std::string              SaveFile();
     #endif
 
 };

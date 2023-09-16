@@ -3,14 +3,6 @@
 #ifndef LSG_SCROLL_BAR_H
 #define LSG_SCROLL_BAR_H
 
-enum LSG_TriangleOrientation
-{
-	LSG_TRIANGLE_ORIENTATION_LEFT,
-	LSG_TRIANGLE_ORIENTATION_RIGHT,
-	LSG_TRIANGLE_ORIENTATION_UP,
-	LSG_TRIANGLE_ORIENTATION_DOWN
-};
-
 class LSG_ScrollBar
 {
 public:
@@ -52,11 +44,6 @@ protected:
 	void renderScrollBarVertical(SDL_Renderer* renderer,   const SDL_Rect& background, int maxHeight, const SDL_Color& backgroundColor, bool highlighted);
 	void scrollSlideHorizontal(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
 	void scrollSlideVertical(const SDL_Point& mousePosition,   const SDL_Point& lastEventPosition);
-
-private:
-	SDL_Color               getFillColor(const SDL_Color& backgroundColor);
-	std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation = LSG_TRIANGLE_ORIENTATION_UP);
-	SDL_Color               getThumbColor(const SDL_Color& backgroundColor);
 
 };
 

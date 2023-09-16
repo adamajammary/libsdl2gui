@@ -10,6 +10,7 @@ public:
 	~LSG_TextLabel() {}
 
 public:
+	std::string  GetText();
 	virtual void Render(SDL_Renderer* renderer) override;
 
 };

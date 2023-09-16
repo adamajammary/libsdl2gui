@@ -16,10 +16,10 @@ void LSG_UI::AddSubMenuItem(LSG_MenuSub* subMenu, const std::string& item, const
 
 	auto layer    = LSG_UI::id++;
 	auto nodeName = "menu-item";
-	auto nodeID   = (!itemId.empty() ? itemId : std::format("{}_{}", nodeName, layer));
+	auto nodeID   = (!itemId.empty() ? itemId : LSG_Text::Format("%s_%d", nodeName, layer));
 
 	if (LSG_UI::components.contains(nodeID))
-		throw std::invalid_argument(std::format("Duplicate XML ID '{}' already exists.", nodeID).c_str());
+		throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", nodeID.c_str()));
 
 	layer += LSG_MENU_LAYER_OFFSET;
 
@@ -31,6 +31,8 @@ void LSG_UI::AddSubMenuItem(LSG_MenuSub* subMenu, const std::string& item, const
 	LSG_XML::SetAttribute(xmlNode, "id", nodeID);
 
 	auto component = new LSG_MenuItem(nodeID, layer, LSG_UI::xmlDocument, xmlNode, nodeName, subMenu);
+
+	component->visible = false;
 
 	LSG_UI::components[nodeID]       = component;
 	LSG_UI::componentsByLayer[layer] = component;
@@ -75,10 +77,15 @@ LSG_Button* LSG_UI::GetButton(const SDL_Point& mousePosition)
 
 std::string LSG_UI::GetColorFromTheme(const std::string& componentID, const std::string& colorAttribute)
 {
-	auto key   = std::format("{}.{}", componentID, colorAttribute);
+	auto key   = LSG_Text::Format("%s.%s", componentID.c_str(), colorAttribute.c_str());
 	auto color = (LSG_UI::colorTheme.contains(key) ? LSG_UI::colorTheme[key] : "");
 
 	return color;
+}
+
+std::string LSG_UI::GetColorTheme()
+{
+	return LSG_UI::colorThemeFile;
 }
 
 LSG_Component* LSG_UI::GetComponent(const std::string& id)
@@ -102,23 +109,71 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition)
 	return nullptr;
 }
 
+int LSG_UI::getDistanceFromMenu(LibXml::xmlNode* xmlNode)
+{
+	if (!xmlNode || !xmlNode->parent)
+		return -1;
+
+	auto nodeName = std::string(reinterpret_cast<const char*>(xmlNode->name));
+
+	if (nodeName == "menu")
+		return 0;
+
+	int  distance   = 0;
+	auto xmlParent  = xmlNode->parent;
+	auto parentName = std::string("");
+
+	do
+	{
+		distance++;
+
+		if (xmlParent)
+			xmlParent = xmlParent->parent;
+
+		if (xmlParent)
+			parentName = std::string(reinterpret_cast<const char*>(xmlParent->name));
+	} while (xmlParent && ((parentName == "menu") || (parentName == "menu-sub")));
+
+	return distance;
+}
+
 void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 {
-	bool isHighlightedTopLayer = false;
+	bool isHighlightedMenu = false;
 
 	for (auto i = LSG_UI::componentsByLayer.rbegin(); i != LSG_UI::componentsByLayer.rend(); i++)
 	{
 		auto component = (*i).second;
-		auto parent    = component->GetParent();
-		bool isEnabled = (component->enabled && parent && parent->enabled);
 
-		if (!isHighlightedTopLayer && component->visible && isEnabled && SDL_PointInRect(&mousePosition, &component->background)) {
-			isHighlightedTopLayer  = true;
+		component->highlighted = false;
+
+		if (!isHighlightedMenu && component->visible && component->enabled && SDL_PointInRect(&mousePosition, &component->background))
 			component->highlighted = true;
-		} else {
-			component->highlighted = false;
+
+		if (component->highlighted && (component->IsSubMenu() || component->IsMenuItem()))
+			isHighlightedMenu = true;
+	}
+}
+
+bool LSG_UI::IsMenuOpen(LSG_Component* component)
+{
+	if (!component)
+		return false;
+
+	if (component->visible && (component->IsSubMenu() || component->IsMenuItem()))
+		return true;
+
+	bool isOpen = false;
+
+	for (auto child : component->GetChildren())
+	{
+		if (LSG_UI::IsMenuOpen(child)) {
+			isOpen = true;
+			break;
 		}
 	}
+
+	return isOpen;
 }
 
 /**
@@ -134,6 +189,8 @@ void LSG_UI::Layout()
 	auto windowSize = LSG_Window::GetSize();
 
 	LSG_UI::root->background = { 0, 0, windowSize.width, windowSize.height };
+
+	LSG_UI::CloseSubMenu();
 
 	LSG_UI::setImages(LSG_UI::root);
 	LSG_UI::setListItems(LSG_UI::root);
@@ -214,6 +271,7 @@ void LSG_UI::LayoutRoot()
 
 	LSG_UI::root->background = { 0, 0, windowSize.width, windowSize.height };
 
+	LSG_UI::CloseSubMenu();
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
 }
@@ -438,10 +496,10 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 		auto id       = LSG_XML::GetAttribute(xmlNode, "id");
 		auto layer    = LSG_UI::id++;
 		auto nodeName = std::string(reinterpret_cast<const char*>(xmlNode->name));
-		auto nodeID   = (!id.empty() ? id : std::format("{}_{}", nodeName, layer));
+		auto nodeID   = (!id.empty() ? id : LSG_Text::Format("%s_%d", nodeName.c_str(), layer));
 
 		if (components.contains(nodeID))
-			throw std::invalid_argument(std::format("Duplicate XML ID '{}' already exists.", nodeID).c_str());
+			throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", nodeID.c_str()));
 
 		LSG_Component* component = nullptr;
 
@@ -465,7 +523,7 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 		}
 		else if (nodeName.starts_with("menu"))
 		{
-			layer += LSG_MENU_LAYER_OFFSET;
+			layer += (LSG_MENU_LAYER_OFFSET + (LSG_UI::getDistanceFromMenu(xmlNode) * LSG_MENU_LAYER_OFFSET));
 
 			if (nodeName == "menu")
 				component = new LSG_Menu(nodeID, layer, xmlDoc, xmlNode, nodeName, parent);
@@ -535,37 +593,56 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 }
 
 /**
- * @throws exception
+ * @throws runtime_error
  */
 LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 {
-	#if defined _windows && defined _DEBUG
-		auto filePath       = (xmlFile.size() > 1 && xmlFile[1] != ':' ? std::format("Debug/{}", xmlFile) : xmlFile);
-		LSG_UI::xmlDocument = LSG_XML::Open(filePath.c_str());
-	#else
-		LSG_UI::xmlDocument = LSG_XML::Open(xmlFile.c_str());
-	#endif
+	auto filePath = LSG_Text::GetFullPath(xmlFile);
+
+	LSG_UI::xmlDocument = LSG_XML::Open(filePath);
 
 	if (!LSG_UI::xmlDocument)
-		throw std::exception(std::format("Failed to load XML file: {}", xmlFile).c_str());
+		throw std::runtime_error(LSG_Text::Format("Failed to load XML file: %s", filePath.c_str()));
 
 	LSG_UI::windowNode = LSG_XML::GetNode("/window", LSG_UI::xmlDocument);
 
 	if (!LSG_UI::windowNode)
-		throw std::exception(std::format("Failed to find path '/window' in XML file: {}", xmlFile).c_str());
+		throw std::runtime_error(LSG_Text::Format("Failed to find path '/window' in XML file: %s", filePath.c_str()));
 
 	auto windowAttribs = LSG_XML::GetAttributes(LSG_UI::windowNode);
 
 	return windowAttribs;
 }
 
+void LSG_UI::Present(SDL_Renderer* renderer)
+{
+	LSG_UI::renderMenu(renderer, LSG_UI::root);
+
+	SDL_RenderPresent(renderer);
+}
+
+void LSG_UI::RemoveMenuItem(LSG_MenuItem* menuItem)
+{
+	if (!menuItem)
+		return;
+
+	LSG_XML::RemoveNode(menuItem->GetXmlNode());
+
+	auto id     = menuItem->GetID();
+	auto layer  = menuItem->GetLayer();
+	auto parent = menuItem->GetParent();
+
+	if (parent)
+		parent->RemoveChild(menuItem);
+
+	LSG_UI::components.erase(id);
+	LSG_UI::componentsByLayer.erase(layer);
+}
+
 void LSG_UI::Render(SDL_Renderer* renderer)
 {
-	if (!LSG_UI::root)
-		return;
-	
-	LSG_UI::root->Render(renderer);
-	LSG_UI::renderMenu(renderer, LSG_UI::root);
+	if (LSG_UI::root)
+		LSG_UI::root->Render(renderer);
 }
 
 void LSG_UI::renderMenu(SDL_Renderer* renderer, LSG_Component* component)
@@ -600,15 +677,11 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile)
 
 	if (!colorThemeFile.empty())
 	{
-		#if defined _windows && defined _DEBUG
-			auto filePath = (colorThemeFile.size() > 1 && colorThemeFile[1] != ':' ? std::format("Debug/{}", colorThemeFile) : colorThemeFile);
-			auto file     = std::ifstream(filePath);
-		#else
-			auto file = std::ifstream(colorThemeFile);
-		#endif
+		auto filePath = LSG_Text::GetFullPath(colorThemeFile);
+		auto file     = std::ifstream(filePath);
 
-		if (!file.is_open() || !file.good())
-			throw std::exception(std::format("Failed to open Color Theme file: {}", colorThemeFile).c_str());
+		if (!file.is_open())
+			throw std::runtime_error(LSG_Text::Format("Failed to open Color Theme file: %s", filePath.c_str()));
 
 		std::string line;
 
@@ -637,6 +710,17 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile)
 		LSG_UI::setTableRows(LSG_UI::root);
 		LSG_UI::setTextLabels(LSG_UI::root);
 	}
+}
+
+void LSG_UI::SetEnabled(LSG_Component* component, bool enabled)
+{
+	if (!component)
+		return;
+
+	component->enabled = enabled;
+
+	for (auto child : component->GetChildren())
+		LSG_UI::SetEnabled(child, enabled);
 }
 
 void LSG_UI::setImages(LSG_Component* component)
@@ -680,11 +764,15 @@ void LSG_UI::SetSubMenuVisible(LSG_Component* component, bool visible)
 	if (!component)
 		return;
 
-	if (!visible && component->IsMenu())
-		static_cast<LSG_Menu*>(component)->Close();
-	else if (!visible && component->IsSubMenu())
-		static_cast<LSG_MenuSub*>(component)->Close();
-	else if (component->IsSubMenu() || component->IsMenuItem())
+	if (!visible)
+	{
+		if (component->IsMenu())
+			static_cast<LSG_Menu*>(component)->Close();
+		else if (component->IsSubMenu())
+			static_cast<LSG_MenuSub*>(component)->Close();
+	}
+
+	if (component->IsSubMenu() || component->IsMenuItem())
 		component->visible = visible;
 
 	for (auto child : component->GetChildren())
@@ -745,12 +833,12 @@ SDL_Color LSG_UI::ToSdlColor(const std::string &color)
 	// HEX: "#00FF0080" / "#00FF00"
 	if ((color[0] == '#') && (color.size() >= 7))
 	{
-		sdlColor.r = (uint8_t)std::strtoul(std::format("0x{}", color.substr(1, 2)).c_str(), nullptr, 16);
-		sdlColor.g = (uint8_t)std::strtoul(std::format("0x{}", color.substr(3, 2)).c_str(), nullptr, 16);
-		sdlColor.b = (uint8_t)std::strtoul(std::format("0x{}", color.substr(5, 2)).c_str(), nullptr, 16);
+		sdlColor.r = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(1, 2).c_str()).c_str(), nullptr, 16);
+		sdlColor.g = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(3, 2).c_str()).c_str(), nullptr, 16);
+		sdlColor.b = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(5, 2).c_str()).c_str(), nullptr, 16);
 
 		if (color.size() == 9)
-			sdlColor.a = (uint8_t)std::strtoul(std::format("0x{}", color.substr(7, 2)).c_str(), nullptr, 16);
+			sdlColor.a = (uint8_t)std::strtoul(LSG_Text::Format("0x%s", color.substr(7, 2).c_str()).c_str(), nullptr, 16);
 	}
 	else if (color.substr(0, 4) == "rgb(")
 	{

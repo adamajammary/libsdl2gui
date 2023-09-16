@@ -10,19 +10,103 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.28.1](https://www.libsdl.org/release/SDL2-2.28.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://www.libsdl.org/) | [2.28.2](https://www.libsdl.org/release/SDL2-2.28.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.6.3](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.6.3.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.11.4](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.4.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[libXML2](https://github.com/GNOME/libxml2) | [2.11.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+
+## Platform-dependent Include Headers
+
+Platform | Header | Package
+-------- | ------ | -------
+Linux | gtk/gtk.h | libgtk-3-dev
+macOS | AppKit/AppKit.h | AppKit Framework
+Windows | shobjidl_core.h | Win32 API
+
+## Compilers and C++20
+
+libsdlgui uses modern [C++20](https://en.cppreference.com/w/cpp/compiler_support#cpp20) features and requires the following minimum compiler versions.
+
+Compiler | Version
+-------- | -------
+CLANG | 14
+GCC | 13
+MSVC | 2019
 
 ## How to build
 
 1. Build the third-party libraries and place the them in a common directory
 1. Make sure you have [cmake](https://cmake.org/download/) installed
 1. Open a command prompt or terminal
-1. Create a *build* directory `mkdir build` and enter it `cd build`
-1. Run cmake and point to the directory from step 1 `cmake .. -D EXT_LIB_DIR="/path/to/libs"`
-1. The *build* directory will now contain a *makefile* or a *Visual Studio* solution
+1. Create a **build** directory and enter it
+1. Run `cmake` to create a **Makefile**, **Xcode** project or **Visual Studio** solution based on your target platform.
+1. After building, the **dist** directory will contain all the output resources in the **inc**, **bin** and **lib** directories.
+
+```bash
+mkdir build
+cd build
+```
+
+### Android
+
+Make sure you have [Android NDK](https://developer.android.com/ndk/downloads) installed.
+
+```bash
+cmake .. -G "Unix Makefiles" \
+-D CMAKE_SYSTEM_NAME="Android" \
+-D CMAKE_TOOLCHAIN_FILE="/path/to/ANDROID_NDK/build/cmake/android.toolchain.cmake" \
+-D ANDROID_NDK="/path/to/ANDROID_NDK" \
+-D ANDROID_ABI="arm64-v8a" \
+-D ANDROID_PLATFORM="android-26" \
+-D EXT_LIB_DIR="/path/to/libs"
+
+make
+```
+
+### iOS
+
+You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
+
+```bash
+/Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
+-D CMAKE_SYSTEM_NAME="iOS" \
+-D CMAKE_OSX_ARCHITECTURES="arm64" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="13.0" \
+-D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
+-D EXT_LIB_DIR="/path/to/libs"
+
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="13.0" CODE_SIGNING_ALLOWED=NO -configuration "Release" -arch "arm64" -project sdl2gui.xcodeproj
+```
+
+### macOS
+
+You can get the macOS SDK path with the following command: `xcrun --sdk macosx --show-sdk-path`
+
+```bash
+/Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
+-D CMAKE_OSX_ARCHITECTURES="x86_64" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="12.6" \
+-D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
+-D EXT_LIB_DIR="/path/to/libs"
+
+xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -configuration "Release" -arch "x86_64" -project sdl2gui.xcodeproj
+```
+
+### Linux
+
+```bash
+cmake .. -G "Unix Makefiles" -D EXT_LIB_DIR="/path/to/libs"
+
+make
+```
+
+### Windows
+
+```bash
+cmake .. -G "Visual Studio 17 2022" -D EXT_LIB_DIR="/path/to/libs"
+
+devenv.com sdl2gui.sln -build "Release|x64"
+```
 
 ## Test project
 
@@ -32,10 +116,8 @@ You must call [LSG_Start](#lsg_start-xml) before using other *LSG_\** methods, s
 try {
   SDL_Renderer* renderer = LSG_Start("ui/main.xml");
 
-  std::vector<SDL_Event> events;
-
   while (LSG_IsRunning()) {
-    events = LSG_Run();
+    std::vector<SDL_Event> events = LSG_Run();
 
     myapp_handleEvents(events);
     myapp_render(renderer);
@@ -86,7 +168,9 @@ You can call [LSG_IsRunning](#lsg_isrunning) to make sure the library was initia
 void myapp_handleEvents(const std::vector<SDL_Event>& events)
 {
   for (const SDL_Event& event : events) {
-    if (event.type >= SDL_USEREVENT)
+    if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
+      LSG_Quit();
+    else if (event.type >= SDL_USEREVENT)
       myapp_handleUserEvent(event.user);
     else if (event.type == SDL_KEYUP)
       myapp_handleKeyEvent(event.key);
@@ -181,6 +265,8 @@ text-color="color"
 ### \<panel\>
 
 [alignment](#alignment) | [color](#color) | [orientation](#orientation) | [size](#size)
+
+Triggers [LSG_EVENT_COMPONENT_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_DOUBLE_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_RIGHT_CLICKED](#handle-events) events.
 
 ```ini
 id="string"
@@ -305,6 +391,7 @@ height="size"
 background-color="color"
 border="int"
 border-color="color"
+row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -327,6 +414,7 @@ height="size"
 background-color="color"
 border="int"
 border-color="color"
+row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -422,6 +510,11 @@ Slider.thumb-border-color=#000000
 ```cpp
 enum LSG_EventType {
   LSG_EVENT_BUTTON_CLICKED,
+  LSG_EVENT_COMPONENT_CLICKED,
+  LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
+  LSG_EVENT_COMPONENT_RIGHT_CLICKED,
+  LSG_EVENT_COMPONENT_KEY_ENTERED,
+  LSG_EVENT_COMPONENT_SCROLLED,
   LSG_EVENT_MENU_ITEM_SELECTED,
   LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
   LSG_EVENT_ROW_SELECTED,
@@ -467,6 +560,28 @@ enum LSG_SortOrder {
 };
 ```
 
+### LSG_DEFAULT_FONT_SIZE
+
+```cpp
+const int LSG_DEFAULT_FONT_SIZE = 14;
+```
+
+### LSG_MAX_ROWS_PER_PAGE
+
+```cpp
+const int LSG_MAX_ROWS_PER_PAGE = 100;
+```
+
+### LSG_TableGroupRows
+
+```cpp
+struct LSG_TableGroupRows
+{
+  std::string   group;
+  LSG_TableRows rows;
+};
+```
+
 ### SDL_Size
 
 ```cpp
@@ -476,28 +591,22 @@ struct SDL_Size {
 };
 ```
 
-### LSG_ListItems
+### LSG_Strings
 
 ```cpp
-typedef std::vector<std::string> LSG_ListItems;
-```
-
-### LSG_TableColumns
-
-```cpp
-typedef std::vector<std::string> LSG_TableColumns;
-```
-
-### LSG_TableRows
-
-```cpp
-typedef std::vector<LSG_TableColumns> LSG_TableRows;
+using LSG_Strings = std::vector<std::string>;
 ```
 
 ### LSG_TableGroups
 
 ```cpp
-typedef std::unordered_map<std::string, LSG_TableRows> LSG_TableGroups;
+using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
+```
+
+### LSG_TableRows
+
+```cpp
+using LSG_TableRows = std::vector<LSG_Strings>;
 ```
 
 ### LSG_AddListItem
@@ -516,7 +625,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -541,7 +650,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -567,7 +676,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -583,7 +692,7 @@ LSG_AddTableGroup("TableWithGroups", "New Group", rows);
 ### LSG_AddTableRow
 
 ```cpp
-void LSG_AddTableRow(const std::string& id, const LSG_TableColumns& columns);
+void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 ```
 
 Adds a new row to the \<table\> component.
@@ -596,15 +705,44 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
-LSG_TableColumns row = { "New Row", "My new table row" };
+LSG_Strings row = { "New Row", "My new table row" };
 
 LSG_AddTableRow("Table", row);
 ```
+
+### LSG_GetBackgroundColor
+
+```cpp
+SDL_Color LSG_GetBackgroundColor(const std::string& id);
+```
+
+Returns the background color of the component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetColorTheme
+
+```cpp
+std::string LSG_GetColorTheme();
+```
+
+Returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
+
+Exceptions
+
+- runtime_error
 
 ### LSG_GetListItem
 
@@ -622,12 +760,12 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetListItems
 
 ```cpp
-LSG_TableColumns LSG_GetListItems(const std::string& id);
+LSG_Strings LSG_GetListItems(const std::string& id);
 ```
 
 Returns all items from the \<list\> component.
@@ -639,12 +777,165 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
+
+### LSG_GetPage
+
+```cpp
+int LSG_GetPage(const std::string& id);
+```
+
+Returns the current 0-based page index of the \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPosition
+
+```cpp
+SDL_Point LSG_GetPosition(const std::string& id);
+```
+
+Returns the component position.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetScrollHorizontal
+
+```cpp
+int LSG_GetScrollHorizontal(const std::string& id);
+```
+
+Returns the horizontal scroll offset/position of a \<list\>, \<table\> or \<text\> component.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetScrollVertical
+
+```cpp
+int LSG_GetScrollVertical(const std::string& id);
+```
+
+Returns the vertical scroll offset/position of a \<list\>, \<table\> or \<text\> component.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSelectedRow
+
+```cpp
+int LSG_GetSelectedRow(const std::string& id);
+```
+
+Returns the selected 0-based row index of a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSize
+
+```cpp
+SDL_Size LSG_GetSize(const std::string& id);
+```
+
+Returns the component size.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSliderValue
+
+```cpp
+double LSG_GetSliderValue(const std::string& id);
+```
+
+Returns the value of a \<slider\> component as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<slider\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSortColumn
+
+```cpp
+int LSG_GetSortColumn(const std::string& id);
+```
+
+Returns the sort column index of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSortOrder
+
+```cpp
+LSG_SortOrder LSG_GetSortOrder(const std::string& id);
+```
+
+Returns the sort order of the \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_GetTableRow
 
 ```cpp
-LSG_TableColumns LSG_GetTableRow(const std::string& id, int row);
+LSG_Strings LSG_GetTableRow(const std::string& id, int row);
 ```
 
 Returns the row columns from the \<table\> component.
@@ -657,7 +948,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ### LSG_GetTableRows
 
@@ -674,7 +965,24 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
+
+### LSG_GetText
+
+```cpp
+std::string LSG_GetText(const std::string& id);
+```
+
+Returns the text value of a \<text\> component.
+
+Parameters
+
+- **id** \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_GetWindowMinimumSize
 
@@ -686,7 +994,7 @@ Returns the minimum window size.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetWindowPosition
 
@@ -698,7 +1006,7 @@ Returns the window position.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetWindowSize
 
@@ -710,7 +1018,7 @@ Returns the window size.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_GetWindowTitle
 
@@ -722,7 +1030,49 @@ Returns the window title.
 
 Exceptions
 
-- exception
+- runtime_error
+
+### LSG_IsMenuOpen
+
+```cpp
+bool LSG_IsMenuOpen(const std::string& id);
+```
+
+Returns true if the \<menu\> component is open.
+
+Parameters
+
+- **id** \<menu\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_IsRunning
+
+```cpp
+bool LSG_IsRunning();
+```
+
+Returns true if the library has been initialized and window created.
+
+### LSG_IsVisible
+
+```cpp
+bool LSG_IsVisible(const std::string& id);
+```
+
+Returns true if the component is visible.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_IsWindowMaximized
 
@@ -734,19 +1084,13 @@ Returns true if the window is maximized.
 
 Exceptions
 
-- exception
-
-### LSG_IsRunning
-
-```cpp
-bool LSG_IsRunning();
-```
-
-Returns true if the library has been initialized and window created.
+- runtime_error
 
 ### LSG_OpenFile
 
-Displays an Open File dialog.
+> Only supported on Windows, Linux and MacOS.
+
+Displays an Open File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
 
@@ -756,11 +1100,29 @@ std::string LSG_OpenFile();
 
 Exceptions
 
-- exception
+- runtime_error
+
+### LSG_OpenFiles
+
+> Only supported on Windows, Linux and MacOS.
+
+Displays an Open File dialog where you can select multiple files.
+
+Returns the selected file paths or an empty list if cancelled.
+
+```cpp
+std::vector<std::string> LSG_OpenFiles();
+```
+
+Exceptions
+
+- runtime_error
 
 ### LSG_OpenFolder
 
-Displays an Open Folder dialog.
+> Only supported on Windows, Linux and MacOS.
+
+Displays an Open Folder dialog where you can select a single folder.
 
 Returns the selected folder path or an empty string if cancelled.
 
@@ -770,7 +1132,23 @@ std::string LSG_OpenFolder();
 
 Exceptions
 
-- exception
+- runtime_error
+
+### LSG_OpenFolders
+
+> Only supported on Windows, Linux and MacOS.
+
+Displays an Open Folder dialog where you can select multiple folders.
+
+Returns the selected folder paths or an empty list if cancelled.
+
+```cpp
+std::vector<std::string> LSG_OpenFolders();
+```
+
+Exceptions
+
+- runtime_error
 
 ### LSG_Present
 
@@ -782,7 +1160,7 @@ Presents the render buffer to the screen/window.
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_Quit
 
@@ -808,12 +1186,35 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
 LSG_RemoveListItem("List", 12);
+```
+
+### LSG_RemoveMenuItem
+
+```cpp
+void LSG_RemoveMenuItem(const std::string& id);
+```
+
+Removes the \<menu-item\> component.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemoveMenuItem("MenuIdColorThemeDark");
 ```
 
 ### LSG_RemoveTableHeader
@@ -831,7 +1232,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -855,7 +1256,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -879,7 +1280,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -899,7 +1300,120 @@ Returns a list of SDL2 events available during this run.
 
 Exceptions
 
-- exception
+- runtime_error
+
+### LSG_SaveFile
+
+> Only supported on Windows, Linux and MacOS.
+
+Displays a Save File dialog where you can select a single file.
+
+Returns the selected file path or an empty string if cancelled.
+
+```cpp
+std::string LSG_SaveFile();
+```
+
+### LSG_ScrollHorizontal
+
+```cpp
+void LSG_ScrollHorizontal(const std::string& id, int scroll);
+```
+
+Scrolls the \<list\>, \<table\> or \<text\> component horizontally by the specified offset/position.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+- **scroll** Horizontal scroll offset/position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollVertical
+
+```cpp
+void LSG_ScrollVertical(const std::string& id, int scroll);
+```
+
+Scrolls the \<list\>, \<table\> or \<text\> component vertically by the specified offset/position.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+- **scroll** Vertical scroll offset/position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToBottom
+
+```cpp
+void LSG_ScrollToBottom(const std::string& id);
+```
+
+Scrolls to the bottom of the \<list\>, \<table\> or \<text\> component.
+
+Parameters
+
+- **id** \<list\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_SelectRow
+
+```cpp
+void LSG_SelectRow(const std::string& id, int row);
+```
+
+Selects the row in a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectRow("List", 2);
+```
+
+### LSG_SelectRowByOffset
+
+```cpp
+void LSG_SelectRowByOffset(const std::string& id, int offset);
+```
+
+Selects a row relative to the currently selected row in a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **offset** 0-based offset from current row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectRowByOffset("List", -2);
+```
 
 ### LSG_SetAlignmentHorizontal
 
@@ -917,7 +1431,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -941,7 +1455,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -965,7 +1479,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -989,7 +1503,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1013,12 +1527,36 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
 LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetButtonSelected
+
+```cpp
+void LSG_SetButtonSelected(const std::string& id, bool selected = true);
+```
+
+Highlights the \<button\> as selected.
+
+Parameters
+
+- **id** \<button\> component ID
+- **selected** true to select or false to unselect
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetButtonSelected("ButtonIdColorThemeDark", true);
 ```
 
 ### LSG_SetColorTheme
@@ -1035,7 +1573,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 ### LSG_SetEnabled
 
@@ -1053,7 +1591,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1070,17 +1608,17 @@ LSG_SetEnabled("ButtonIdColorThemeLight");
 void LSG_SetFontSize(const std::string& id, int size);
 ```
 
-Sets the font size of a \<text\> component.
+Sets the font size of a component.
 
 Parameters
 
-- **id** \<text\> component ID
+- **id** Component ID
 - **size** Font size
 
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1104,7 +1642,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1129,7 +1667,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1154,7 +1692,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1165,7 +1703,7 @@ LSG_SetListItem("List", 12, "My updated list item.");
 ### LSG_SetListItems
 
 ```cpp
-void LSG_SetListItems(const std::string& id, LSG_ListItems& items);
+void LSG_SetListItems(const std::string& id, const LSG_Strings& items);
 ```
 
 Sets the items of a \<list\> component.
@@ -1178,12 +1716,12 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
-LSG_ListItems listItems = {
+LSG_Strings listItems = {
   "Lorem ipsum dolor sit amet",
   "consectetur adipiscing elit",
   "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
@@ -1217,12 +1755,54 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
 LSG_SetMargin("Root", 5);
+```
+
+### LSG_SetMenuItemSelected
+
+```cpp
+void LSG_SetMenuItemSelected(const std::string& id, bool selected = true);
+```
+
+Highlights the \<menu-item\> as selected.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+- **selected** true to select or false to unselect
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_SetMenuItemValue
+
+```cpp
+void LSG_SetMenuItemValue(const std::string& id, const std::string& value);
+```
+
+Sets the text value of a \<menu-item\> component.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+- **value** Text value
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetMenuItemValue("MenuIdQuit", "Quit\\tCtrl+Q");
 ```
 
 ### LSG_SetOrientation
@@ -1241,7 +1821,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1265,10 +1845,34 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ```cpp
 LSG_SetPadding("Root", 10);
+```
+
+### LSG_SetPage
+
+```cpp
+void LSG_SetPage(const std::string& id, int page);
+```
+
+Navigates to and sets the page of a \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **page** 0-based page index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetPage("List", 0);
 ```
 
 ### LSG_SetSize
@@ -1287,12 +1891,36 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
 LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
+```
+
+### LSG_SetSliderValue
+
+```cpp
+void LSG_SetSliderValue(const std::string& id, double percent);
+```
+
+Sets the value of a \<slider\> component as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<slider\> component ID
+- **percent** [0.0-1.0]
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetSliderValue("Slider", 0.5);
 ```
 
 ### LSG_SetSpacing
@@ -1311,31 +1939,13 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
 LSG_SetSpacing("Root", 20);
 ```
-
-### LSG_SetSubMenuItemSelected
-
-```cpp
-void LSG_SetSubMenuItemSelected(const std::string& id, bool selected = true);
-```
-
-Highlights the \<menu-item\> as selected.
-
-Parameters
-
-- **id** \<menu-item\> component ID
-- **selected** true to select or false to unselect
-
-Exceptions
-
-- invalid_argument
-- exception
 
 ### LSG_SetTableGroups
 
@@ -1353,7 +1963,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1381,7 +1991,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroups);
 ### LSG_SetTableHeader
 
 ```cpp
-void LSG_SetTableHeader(const std::string& id, const LSG_TableColumns& header);
+void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 ```
 
 Sets the header columns of a \<table\> component.
@@ -1394,12 +2004,12 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
-LSG_TableColumns tableHeader = {
+LSG_Strings tableHeader = {
   "DOLOR",
   "MAGNA"
 };
@@ -1410,7 +2020,7 @@ LSG_SetTableHeader("Table", tableHeader);
 ### LSG_SetTableRow
 
 ```cpp
-void LSG_SetTableRow(const std::string& id, int row, const LSG_TableColumns& columns);
+void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
 Updates and overwrites the row columns in a \<table\> component.
@@ -1424,12 +2034,12 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
-LSG_TableColumns row = { "Updated Row", "My updated table row" };
+LSG_Strings row = { "Updated Row", "My updated table row" };
 
 LSG_SetTableRow("Table", 6, row);
 ```
@@ -1450,7 +2060,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1483,7 +2093,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1507,12 +2117,36 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
 ```cpp
 LSG_SetTextColor("TextIdColorTheme", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetVisible
+
+```cpp
+void LSG_SetVisible(const std::string& id, bool visible = true);
+```
+
+Shows or hides the component.
+
+Parameters
+
+- **id** Component ID
+- **visible** true to show or false to hide
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetVisible("MenuIdMenu", false);
 ```
 
 ### LSG_SetWidth
@@ -1531,7 +2165,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1553,7 +2187,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -1579,7 +2213,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -1602,7 +2236,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -1625,7 +2259,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -1647,7 +2281,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -1667,6 +2301,24 @@ Parameters
 
 - **message** Error message
 
+### LSG_ShowRowBorder
+
+```cpp
+void LSG_ShowRowBorder(const std::string& id, bool show = true);
+```
+
+Shows or hides the border/rule between rows.
+
+Parameters
+
+- **id** \<list\> or  \<table\> component ID
+- **show** true to show or false to hide
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_SortList
 
 ```cpp
@@ -1683,7 +2335,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 Example
 
@@ -1708,7 +2360,7 @@ Parameters
 Exceptions
 
 - invalid_argument
-- exception
+- runtime_error
 
 ```cpp
 LSG_SortTable("Table", LSG_SORT_ORDER_ASCENDING, 0);
@@ -1731,7 +2383,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 
@@ -1757,7 +2409,7 @@ Parameters
 
 Exceptions
 
-- exception
+- runtime_error
 
 Example
 

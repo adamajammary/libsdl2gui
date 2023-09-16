@@ -23,7 +23,6 @@ public:
 	int       border;
 	SDL_Color borderColor;
 	bool      enabled;
-	int       fontSize;
 	bool      highlighted;
 	int       margin;
 	int       padding;
@@ -47,6 +46,7 @@ public:
 	LSG_Button*      GetButton();
 	LSG_Components   GetChildren();
 	std::string      GetID();
+	int              GetLayer();
 	LSG_Component*   GetParent();
 	SDL_Size         GetTextureSize();
 	std::string      GetXmlAttribute(const std::string& attribute);
@@ -54,6 +54,7 @@ public:
 	LibXml::xmlNode* GetXmlNode();
 	std::string      GetXmlValue();
 	bool             HasCustomAlign();
+	bool             IsButton();
 	bool             IsImage();
 	bool             IsList();
 	bool             IsMenu();
@@ -64,12 +65,15 @@ public:
 	bool             IsTable();
 	bool             IsTableGroup();
 	bool             IsTableHeader();
+	bool             IsTableRow();
 	bool             IsTextLabel();
 	bool             IsVertical();
+	void             RemoveChild(LSG_Component* child);
 	virtual void     Render(SDL_Renderer* renderer);
 	void             SetAlignmentHorizontal(LSG_HAlign alignment);
 	void             SetAlignmentVertical(LSG_VAlign   alignment);
 	virtual void     SetColors();
+	void             SetFontSize(int size);
 	void             SetHeight(int height);
 	void             SetOrientation(LSG_Orientation orientation);
 	void             SetPositionAlign(int x, int y);
@@ -85,7 +89,6 @@ protected:
 	int          getFontSize();
 	int          getFontStyle();
 	SDL_Rect     getRenderDestinationAligned(const SDL_Rect& backgroundArea, const SDL_Size& size);
-	SDL_Size     getTextureSize(SDL_Texture* texture);
 	TexturSizes  getTextureSizes(int spacing = 0);
 	std::string  getXmlColor(const std::string& xmlAttribute, bool recursive = true);
 	bool         isButton();

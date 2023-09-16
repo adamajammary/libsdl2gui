@@ -9,9 +9,13 @@ public:
 	LSG_Button(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Button() {}
 
+private:
+	bool selected;
+
 public:
 	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
 	virtual void Render(SDL_Renderer* renderer) override;
+	void         SetSelected(bool selected = true);
 
 private:
 	virtual void sendEvent(LSG_EventType type) override;
