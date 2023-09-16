@@ -183,13 +183,9 @@ void LSG_Events::handleMouseMoveEvent(const SDL_MouseMotionEvent& event)
 
 void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 {
-	int scroll = -(event.y * LSG_SCROLL_UNIT_WHEEL);
-
-	if (event.direction == SDL_MOUSEWHEEL_FLIPPED)
-		scroll *= -1;
-
-	auto mousePosition = SDL_Point(event.mouseX, event.mouseY);
-	auto component     = LSG_UI::GetComponent(mousePosition);
+	int       scroll        = -(event.y * LSG_SCROLL_UNIT_WHEEL);
+	SDL_Point mousePosition = { event.mouseX, event.mouseY };
+	auto      component     = LSG_UI::GetComponent(mousePosition);
 
 	if (!component || !component->enabled)
 		return;
