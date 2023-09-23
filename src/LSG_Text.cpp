@@ -3,7 +3,7 @@
 LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlDoc, xmlNode, xmlNodeName, parent), LSG_ScrollBar()
 {
-	this->enableScroll  = true;
+	this->enableScroll  = (LSG_XML::GetAttribute(this->xmlNode, "enable-scroll") != "false");
 	this->lastFontSize  = 0;
 	this->lastTextColor = {};
 	this->text          = "";

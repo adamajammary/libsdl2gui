@@ -348,6 +348,7 @@ italic="boolean"
 strike-through="boolean"
 underline="boolean"
 wrap="boolean"
+enable-scroll="boolean" # default="true"
 ```
 
 ### \<slider\>
