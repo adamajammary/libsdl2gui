@@ -528,7 +528,7 @@ void LSG_Table::SelectLastRow()
 
 void LSG_Table::SelectRow(int offset)
 {
-	if (!this->enabled || (this->rows.empty() && this->groups.empty() && this->groups[0].rows.empty()))
+	if (!this->enabled || (this->rows.empty() && this->groups.empty()))
 		return;
 
 	auto firstRow    = this->getFirstRow();
