@@ -35,12 +35,12 @@ MSVC | 2019
 
 ## How to build
 
-1. Build the third-party libraries and place the them in a common directory
-1. Make sure you have [cmake](https://cmake.org/download/) installed
-1. Open a command prompt or terminal
-1. Create a **build** directory and enter it
+1. Build the third-party libraries and place the them in a common directory.
+1. Make sure you have [cmake](https://cmake.org/download/) installed.
+1. Open a command prompt or terminal.
+1. Create a **build** directory and enter it.
 1. Run `cmake` to create a **Makefile**, **Xcode** project or **Visual Studio** solution based on your target platform.
-1. After building, the **dist** directory will contain all the output resources in the **inc**, **bin** and **lib** directories.
+1. After building, the **dist** directory will contain all the output resources in the **include**, **lib** and directories.
 
 ```bash
 mkdir build
