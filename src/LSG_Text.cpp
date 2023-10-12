@@ -51,19 +51,20 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 	#if defined _android
 		const auto FONT_PATH = "/system/fonts/DroidSans.ttf";
 	#elif defined _ios
-		const auto FONT_PATH = "/System/Library/Fonts/Cache/arialuni.ttf";
+		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
+		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
-		const auto FONT_PATH = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
+		auto FONT_PATH = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
 	#elif defined  _macosx
-		const auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
+		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
-		const auto FONT_PATH = "C:\\Windows\\Fonts\\ARIALUNI.TTF";
+		auto FONT_PATH = "C:\\Windows\\Fonts\\ARIALUNI.TTF";
 	#endif
 
 	auto font = TTF_OpenFont(FONT_PATH, fontSize);
 
 	if (!font)
-		throw std::invalid_argument(LSG_Text::Format("Failed to open default font: %s", FONT_PATH));
+		throw std::invalid_argument(LSG_Text::Format("Failed to open default font '%s': %s", FONT_PATH, TTF_GetError()));
 
 	return font;
 }
@@ -74,21 +75,22 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 TTF_Font* LSG_Text::GetFontMonoSpace(int fontSize)
 {
 	#if defined _android
-		const auto FONT_PATH = "/system/fonts/DroidSansMono.ttf";
+		auto FONT_PATH = "/system/fonts/DroidSansMono.ttf";
 	#elif defined _ios
-		const auto FONT_PATH = "/System/Library/Fonts/Cache/CourierNewBold.ttf";
+		auto fullPath  = LSG_Text::GetFullPath("ui/Courier New Bold.ttf");
+		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
-		const auto FONT_PATH = "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf";
+		auto FONT_PATH = "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf";
 	#elif defined  _macosx
-		const auto FONT_PATH = "/System/Library/Fonts/Supplemental/Courier New Bold.ttf";
+		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Courier New Bold.ttf";
 	#elif defined _windows
-		const auto FONT_PATH = "C:\\Windows\\Fonts\\courbd.ttf";
+		auto FONT_PATH = "C:\\Windows\\Fonts\\courbd.ttf";
 	#endif
 
 	auto font = TTF_OpenFont(FONT_PATH, fontSize);
 
 	if (!font)
-		throw std::invalid_argument(LSG_Text::Format("Failed to open mono font: %s", FONT_PATH));
+		throw std::invalid_argument(LSG_Text::Format("Failed to open mono font '%s': %s", FONT_PATH, TTF_GetError()));
 
 	return font;
 }

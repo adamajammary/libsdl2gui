@@ -10,7 +10,7 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.28.2](https://www.libsdl.org/release/SDL2-2.28.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://www.libsdl.org/) | [2.28.4](https://www.libsdl.org/release/SDL2-2.28.4.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.6.3](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.6.3.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [libXML2](https://github.com/GNOME/libxml2) | [2.11.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
@@ -19,6 +19,9 @@ Library | Version | License
 
 Platform | Header | Package
 -------- | ------ | -------
+Android | android/asset_manager_jni.h | Android NDK
+Android | sys/stat.h | Android NDK
+iOS | UIKit/UIKit.h | UIKit Framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
 Windows | shobjidl_core.h | Win32 API
@@ -40,7 +43,7 @@ MSVC | 2019
 1. Open a command prompt or terminal.
 1. Create a **build** directory and enter it.
 1. Run `cmake` to create a **Makefile**, **Xcode** project or **Visual Studio** solution based on your target platform.
-1. After building, the **dist** directory will contain all the output resources in the **include**, **lib** and directories.
+1. After building, the **dist** directory will contain all the output resources in the **include**, **lib** and **bin** directories.
 
 ```bash
 mkdir build
@@ -49,7 +52,14 @@ cd build
 
 ### Android
 
-Make sure you have [Android NDK](https://developer.android.com/ndk/downloads) installed.
+Make sure you have [Android SDK](https://developer.android.com/studio) and [Android NDK](https://developer.android.com/ndk/downloads) installed.
+
+Make sure the correct Android SDK path is set as either
+
+- an environment variable `ANDROID_HOME=/path/to/ANDROID_SDK` or
+- a local property `sdk.dir=/path/to/ANDROID_SDK` in the **android/local.properties** file
+
+See [Android SDK Command-Line Tools](https://developer.android.com/tools) for more details.
 
 ```bash
 cmake .. -G "Unix Makefiles" \
@@ -63,6 +73,28 @@ cmake .. -G "Unix Makefiles" \
 make
 ```
 
+#### ADB (Android Debug Bridge)
+
+See [ADB (Android Debug Bridge)](https://developer.android.com/tools/adb) for more details.
+
+##### Install APK to device
+
+```bash
+/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdl2gui-debug.apk
+```
+
+##### Re-install (update) APK to device
+
+```bash
+/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdl2gui-debug.apk
+```
+
+##### Uninstall (remove) APK from device
+
+```bash
+/path/to/ANDROID_SDK/platform-tools/adb uninstall com.libsdl2gui.test
+```
+
 ### iOS
 
 You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
@@ -73,10 +105,28 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 -D CMAKE_OSX_ARCHITECTURES="arm64" \
 -D CMAKE_OSX_DEPLOYMENT_TARGET="13.0" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
+-D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
 -D EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="13.0" CODE_SIGNING_ALLOWED=NO -configuration "Release" -arch "arm64" -project sdl2gui.xcodeproj
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="13.0" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS"
 ```
+
+#### Xcode - Devices and Simulators
+
+See [Xcode - Running your app in Simulator or on a device](https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device) for more details.
+
+#### Install APP on device or simulator
+
+1. Connect the device to your Mac (optional if installing on a simulator).
+1. Open **Xcode**.
+1. Select `Window > Devices and Simulators` from the main menu.
+1. Select the device or simulator from the list on the left.
+1. Click the `+` icon under **Installed Apps**.
+1. Locate and select `dist/bin/testsdl2gui.app`.
+
+The app should now be installed on the device or simulator with the name **testsdl2gui**.
+
+> If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
 
 ### macOS
 
@@ -89,7 +139,7 @@ You can get the macOS SDK path with the following command: `xcrun --sdk macosx -
 -D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
 -D EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -configuration "Release" -arch "x86_64" -project sdl2gui.xcodeproj
+xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -project sdl2gui.xcodeproj -configuration Release
 ```
 
 ### Linux
@@ -109,6 +159,8 @@ devenv.com sdl2gui.sln -build "Release|x64"
 ```
 
 ## Test project
+
+![Screenshot of Test project in Windows](screenshots/test-windows.jpg)
 
 You must call [LSG_Start](#lsg_start-xml) before using other *LSG_\** methods, see the *test* project for examples.
 
@@ -1048,6 +1100,18 @@ Parameters
 Exceptions
 
 - invalid_argument
+- runtime_error
+
+### LSG_IsPreferredDarkMode
+
+```cpp
+bool LSG_IsPreferredDarkMode();
+```
+
+Returns true if the platform prefers dark mode.
+
+Exceptions
+
 - runtime_error
 
 ### LSG_IsRunning

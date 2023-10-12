@@ -116,7 +116,10 @@ int SDL_main(int argc, char* argv[])
         //SDL_Renderer* renderer = LSG_Start("Test SDL2 GUI", 800, 600); // Load an empty window with no UI components
         SDL_Renderer* renderer = LSG_Start("ui/main.xml");               // Load a window and UI components from an XML file
 
-        LSG_SetMenuItemSelected("MenuIdColorThemeDark", true);
+        if (!LSG_IsPreferredDarkMode())
+            test_setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+        else
+            test_setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
 
         std::vector<SDL_Event> events;
 

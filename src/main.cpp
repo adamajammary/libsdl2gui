@@ -5,7 +5,7 @@ const char ERROR_NOT_STARTED[] = "libsdl2gui has not been started, call LSG_Star
 char* basePath  = nullptr;
 bool  isRunning = false;
 
-char* LSG_GetBasePath()
+const char* LSG_GetBasePath()
 {
 	return basePath;
 }
@@ -14,6 +14,107 @@ std::string getErrorNoID(const std::string& component, const std::string& id)
 {
 	return LSG_Text::Format("Failed to find a %s component with ID '%s'.", component.c_str(), id.c_str());
 }
+
+#if defined _android
+/**
+ * @throws runtime_error
+ */
+AAssetManager* getJNIAssetManager()
+{
+	auto jniEnvironment = (JNIEnv*)SDL_AndroidGetJNIEnv();
+
+	if (!jniEnvironment)
+		throw std::runtime_error("Failed to get a valid Android JNI Environment.");
+
+	auto jniObjectActivity = (jobject)SDL_AndroidGetActivity();
+
+	if (!jniObjectActivity)
+		throw std::runtime_error("Failed to get a valid Android JNI Activity.");
+
+	auto jniClassActivity  = jniEnvironment->FindClass("android/app/Activity");
+	auto jniClassResources = jniEnvironment->FindClass("android/content/res/Resources");
+
+	auto jniMethodGetAssets    = jniEnvironment->GetMethodID(jniClassResources, "getAssets",    "()Landroid/content/res/AssetManager;");
+	auto jniMethodGetResources = jniEnvironment->GetMethodID(jniClassActivity,  "getResources", "()Landroid/content/res/Resources;");
+
+	auto jniObjectResources    = jniEnvironment->CallObjectMethod(jniObjectActivity,  jniMethodGetResources);
+	auto jniObjectAssetManager = jniEnvironment->CallObjectMethod(jniObjectResources, jniMethodGetAssets);
+
+	auto jniAssetManager = AAssetManager_fromJava(jniEnvironment, jniObjectAssetManager);
+
+	jniEnvironment->DeleteLocalRef(jniObjectAssetManager);
+	jniEnvironment->DeleteLocalRef(jniObjectResources);
+	jniEnvironment->DeleteLocalRef(jniObjectActivity);
+	jniEnvironment->DeleteLocalRef(jniClassResources);
+	jniEnvironment->DeleteLocalRef(jniClassActivity);
+
+	return jniAssetManager;
+}
+
+/**
+ * @throws runtime_error
+ */
+void initBasePath()
+{
+	if (basePath)
+		return;
+
+	basePath = SDL_GetPrefPath(nullptr, nullptr);
+
+	if (!basePath)
+		throw std::runtime_error("Failed to get an app-specific location where files can be written.");
+
+	auto jniAssetManager = getJNIAssetManager();
+
+	if (!jniAssetManager)
+		throw std::runtime_error("Failed to get a valid Android JNI Asset Manager.");
+
+	auto dirs = { "img", "ui" };
+
+	for (auto dir : dirs)
+	{
+		auto dirPath = LSG_Text::Format("%s%s", basePath, dir);
+		auto result  = mkdir(dirPath.c_str(), (S_IRWXU | S_IRWXG));
+
+		if ((result != 0) && (errno != EEXIST))
+			throw std::runtime_error(LSG_Text::Format("Failed to create asset directory '%s': %s", dirPath.c_str(), std::strerror(errno)));
+
+		auto        assetDir  = AAssetManager_openDir(jniAssetManager, dir);
+		const char* assetFile = nullptr;
+
+		while ((assetFile = AAssetDir_getNextFileName(assetDir)))
+		{
+			auto sourcePath  = LSG_Text::Format("%s/%s", dir, assetFile);
+			auto sourceAsset = AAssetManager_open(jniAssetManager, sourcePath.c_str(), AASSET_MODE_STREAMING);
+
+			if (!sourceAsset)
+				throw std::runtime_error(LSG_Text::Format("Failed to open asset: %s", sourcePath.c_str()));
+
+			auto destinationPath = LSG_Text::Format("%s%s", basePath, sourcePath.c_str());
+			auto destinationFile = SDL_RWFromFile(destinationPath.c_str(), "w");
+
+			if (!destinationFile)
+				throw std::runtime_error(LSG_Text::Format("Failed to write file '%s': %s", destinationPath.c_str(), SDL_GetError()));
+
+			char destinationBuffer[BUFSIZ] = {};
+			int  fileReadSize = 0;
+
+			while ((fileReadSize = AAsset_read(sourceAsset, destinationBuffer, BUFSIZ)) > 0)
+				SDL_RWwrite(destinationFile, destinationBuffer, fileReadSize, 1);
+
+			SDL_RWclose(destinationFile);
+			AAsset_close(sourceAsset);
+		}
+
+		AAssetDir_close(assetDir);
+	}
+}
+#else
+void initBasePath()
+{
+	basePath = SDL_GetBasePath();
+}
+#endif
 
 void LSG_AddListItem(const std::string& id, const std::string& item)
 {
@@ -332,6 +433,14 @@ bool LSG_IsMenuOpen(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<menu>", id));
 
 	return LSG_UI::IsMenuOpen(component);
+}
+
+bool LSG_IsPreferredDarkMode()
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	return LSG_UI::IsDarkMode();
 }
 
 bool LSG_IsRunning()
@@ -1170,7 +1279,7 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
 	if (!basePath)
-		basePath = SDL_GetBasePath();
+		initBasePath();
 
 	auto windowAttribs = LSG_UI::OpenWindow(xmlFile);
 
@@ -1234,7 +1343,7 @@ SDL_Renderer* LSG_Start(const std::string& title, int width, int height)
 		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_ttf: %s", TTF_GetError()));
 
 	if (!basePath)
-		basePath = SDL_GetBasePath();
+		initBasePath();
 
 	auto renderer = LSG_Window::Open(title, width, height);
 

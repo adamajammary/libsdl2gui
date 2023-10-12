@@ -30,6 +30,7 @@ public:
     static LSG_Component* GetComponent(const std::string& id);
     static LSG_Component* GetComponent(const SDL_Point& mousePosition);
     static void           HighlightComponents(const SDL_Point& mousePosition);
+    static bool           IsDarkMode();
     static bool           IsMenuOpen(LSG_Component* component);
     static void           Layout();
     static void           LayoutParent(LSG_Component* component);

@@ -296,6 +296,12 @@ DLLEXPORT std::string DLL LSG_GetWindowTitle();
 DLLEXPORT bool DLL LSG_IsMenuOpen(const std::string& id);
 
 /**
+ * @returns true if the platform prefers dark mode
+ * @throws runtime_error
+ */
+DLLEXPORT bool DLL LSG_IsPreferredDarkMode();
+
+/**
  * @returns true if the library has been initialized and window created
  */
 DLLEXPORT bool DLL LSG_IsRunning();

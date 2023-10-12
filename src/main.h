@@ -10,10 +10,16 @@
 #include <set>
 #include <unordered_map>
 
-#if defined _linux
-	#include <gtk/gtk.h>       // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
+#if defined _android
+	#include <android/asset_manager_jni.h> // AAsset*, JNI*, j*
+	#include <sys/stat.h>                  // mkdir(x)
+#elif defined _ios
+	#include <UIKit/UIKit.h> // UIScreen, UIUserInterfaceStyle*
+#elif defined _linux
+	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
 #elif defined _macosx
-	#include <AppKit/AppKit.h> // NSOpenPanel
+	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
+	#include <Foundation/Foundation.h> // NSString, NSUserDefaults
 #elif defined _windows
 	#include <shobjidl_core.h> // GetOpenFileNameW(x), IFileOpenDialog
 #endif
@@ -91,7 +97,7 @@ const uint32_t    LSG_UINT32_HALF             = (UINT32_MAX / 2);
 const std::string LSG_VERTICAL                = "vertical";
 const int         LSG_WINDOW_MIN_SIZE         = 400;
 
-char* LSG_GetBasePath();
+const char* LSG_GetBasePath();
 
 #include "LSG_IEvent.h"
 #include "LSG_Graphics.h"

@@ -177,6 +177,69 @@ bool LSG_UI::IsMenuOpen(LSG_Component* component)
 }
 
 /**
+ * @throws runtime_error
+ */
+bool LSG_UI::IsDarkMode()
+{
+#if defined _android
+	auto jniEnvironment = (JNIEnv*)SDL_AndroidGetJNIEnv();
+
+	if (!jniEnvironment)
+		throw std::runtime_error("Failed to get a valid Android JNI Environment.");
+
+	auto jniActivity = jniEnvironment->FindClass("com/libsdl2gui/lib/Sdl2GuiActivity");
+
+	if (!jniActivity)
+		throw std::runtime_error("Failed to find Sdl2GuiActivity.");
+
+	auto jniIsDarkMode = jniEnvironment->GetStaticMethodID(jniActivity, "IsDarkMode", "()Z");
+	bool isDarkMode    = (jniIsDarkMode ? jniEnvironment->CallStaticBooleanMethod(jniActivity, jniIsDarkMode) : false);
+
+	jniEnvironment->DeleteLocalRef(jniActivity);
+
+	return isDarkMode;
+#elif defined _ios
+	UIUserInterfaceStyle style = [[[UIScreen mainScreen] traitCollection] userInterfaceStyle];
+
+	return (style == UIUserInterfaceStyleDark);
+#elif defined _linux
+	GSettings* settings = g_settings_new("org.gnome.desktop.interface");
+
+	if (!settings)
+		return false;
+
+	gchar* colorScheme = g_settings_get_string(settings, "color-scheme");
+	gchar* gtkTheme    = g_settings_get_string(settings, "gtk-theme");
+	auto   scheme      = std::string(colorScheme ? colorScheme : "");
+	auto   theme       = std::string(gtkTheme    ? gtkTheme    : "");
+
+	if (colorScheme)
+		g_free(colorScheme);
+
+	if (gtkTheme)
+		g_free(gtkTheme);
+
+	return ((scheme.find("dark") != std::string::npos) || (theme.find("dark") != std::string::npos));
+#elif defined _macosx
+	NSString* name  = [[NSApp effectiveAppearance] bestMatchFromAppearancesWithNames: @[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
+	NSString* style = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
+
+	return ((name == NSAppearanceNameDarkAqua) || (style == @"Dark");
+#elif defined _windows
+	int appsUseLightTheme    = -1;
+	int systemUsesLightTheme = -1;
+
+	DWORD size = sizeof(int);
+	auto  path = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+
+	RegGetValueA(HKEY_CURRENT_USER, path, "AppsUseLightTheme",    RRF_RT_REG_DWORD, nullptr, &appsUseLightTheme,    &size);
+	RegGetValueA(HKEY_CURRENT_USER, path, "SystemUsesLightTheme", RRF_RT_REG_DWORD, nullptr, &systemUsesLightTheme, &size);
+
+	return ((appsUseLightTheme == 0) || (systemUsesLightTheme == 0));
+#endif
+}
+
+/**
  * @throws invalid_argument
  */
 void LSG_UI::Layout()

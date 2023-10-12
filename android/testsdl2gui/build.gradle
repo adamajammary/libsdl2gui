@@ -1,0 +1,18 @@
+apply plugin: "com.android.application"
+
+android {
+  namespace "com.libsdl2gui.test"
+
+  defaultConfig {
+    compileSdk 33
+    minSdkVersion 26
+    targetSdkVersion 33
+    versionCode 1
+    versionName "1.0.0"
+    applicationId "com.libsdl2gui.test"
+  }
+
+  sourceSets.main {
+    jniLibs.srcDir "libs"
+  }
+}
