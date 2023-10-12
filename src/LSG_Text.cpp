@@ -49,7 +49,7 @@ TTF_Font* LSG_Text::getFont(uint16_t* text, int fontSize)
 TTF_Font* LSG_Text::GetFontArial(int fontSize)
 {
 	#if defined _android
-		const auto FONT_PATH = "/system/fonts/DroidSans.ttf";
+		auto FONT_PATH = "/system/fonts/NotoSansCJK-Regular.ttc";
 	#elif defined _ios
 		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
 		auto FONT_PATH = fullPath.c_str();
