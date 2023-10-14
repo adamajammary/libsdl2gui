@@ -19,8 +19,8 @@ set(INCS      "include" ${INC_DIR} "${INC_DIR}/libxml2")
 set(TEST_INCS "include" ${INC_DIR})
 
 if (WIN32)
-    set(LIBS      "SDL2.lib SDL2_image.lib SDL2_ttf.lib libxml2.lib")
-    set(TEST_LIBS "SDL2.lib")
+    set(LIBS      SDL2.lib SDL2_image.lib SDL2_ttf.lib libxml2.lib)
+    set(TEST_LIBS SDL2.lib)
 else()
     set(LIB_PREP "lib")
 
@@ -32,6 +32,7 @@ if (ANDROID)
     set(OS "_android")
 
     set(DLL_EXT "so")
+    set(OUT_DIR "android/testsdl2gui")
 
     set(OS_LIBS "-landroid")
 elseif (IOS)
@@ -42,6 +43,7 @@ elseif (IOS)
 
     set(CFG_DIR "$<CONFIG>-iphoneos/")
     set(DLL_EXT "a")
+    set(OUT_DIR "${CFG_DIR}testsdl2gui.app")
 
     set(FONT_PATH  "/System/Library/Fonts/Supplemental")
     set(FONT_ARIAL "${FONT_PATH}/Arial Unicode.ttf")
@@ -59,19 +61,23 @@ elseif (APPLE)
 
     set(CFG_DIR "$<CONFIG>/")
     set(DLL_EXT "dylib")
+    set(OUT_DIR "$<CONFIG>")
 
     set(OS_LIBS "-framework AppKit -framework Foundation")
 elseif (LINUX)
     set(OS "_linux")
 
     set(DLL_EXT "so")
+    set(OUT_DIR ".")
 
     set(OS_INCS "/usr/include/gtk-3.0" "/usr/include/pango-1.0" "/usr/include/glib-2.0" "/usr/lib/x86_64-linux-gnu/glib-2.0/include" "/usr/include/harfbuzz" "/usr/include/freetype2" "/usr/include/libpng16" "/usr/include/libmount" "/usr/include/blkid" "/usr/include/fribidi" "/usr/include/cairo" "/usr/include/pixman-1" "/usr/include/gdk-pixbuf-2.0" "/usr/include/x86_64-linux-gnu" "/usr/include/gio-unix-2.0" "/usr/include/atk-1.0" "/usr/include/at-spi2-atk/2.0" "/usr/include/at-spi-2.0" "/usr/include/dbus-1.0" "/usr/lib/x86_64-linux-gnu/dbus-1.0/include")
     set(OS_LIBS "-lgtk-3 -lgdk-3 -lz -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0")
 elseif (WIN32)
     set(OS "_windows")
 
+    set(CFG_DIR "$(Configuration)/")
     set(DLL_EXT "dll")
+    set(OUT_DIR "$(Configuration)")
     set(RC      "windows/libsdl2gui.rc")
 
     set_property(DIRECTORY ${SRC_DIR} PROPERTY VS_STARTUP_PROJECT testsdl2gui)
@@ -114,22 +120,14 @@ if (WIN32)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/include\" mkdir \"${DIST_DIR}/include\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"     mkdir \"${DIST_DIR}/lib\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f $(Configuration)/sdl2gui.dll ${DIST_DIR}/bin/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f $(Configuration)/sdl2gui.dll ${DIST_DIR}/lib/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f $(Configuration)/sdl2gui.lib ${DIST_DIR}/lib/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.lib ${DIST_DIR}/lib/)
 else()
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/bin\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/include\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/lib\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/bin/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/lib/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}${LIB_PREP}sdl2gui.${DLL_EXT} ${DIST_DIR}/lib/)
 endif()
-
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/${LIB_PREP}SDL2.${DLL_EXT}       ${DIST_DIR}/bin/)
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/${LIB_PREP}SDL2_image.${DLL_EXT} ${DIST_DIR}/bin/)
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/${LIB_PREP}SDL2_ttf.${DLL_EXT}   ${DIST_DIR}/bin/)
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libxml2.${DLL_EXT}               ${DIST_DIR}/bin/)
 
 add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/include/*.h ${DIST_DIR}/include/)
 
@@ -178,34 +176,57 @@ endif()
 if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/android .)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img android/testsdl2gui/src/main/assets/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  android/testsdl2gui/src/main/assets/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/src/main/assets/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/src/main/assets/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so    android/testsdl2gui/libs/arm64-v8a/libmain.so)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${DIST_DIR}/bin/*.so android/testsdl2gui/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so           ${OUT_DIR}/libs/arm64-v8a/libmain.so)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2.so       ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2_image.so ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2_ttf.so   ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libxml2.so       ${OUT_DIR}/libs/arm64-v8a/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew --stop)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew assembleDebug WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/android)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f android/testsdl2gui/build/outputs/apk/debug/testsdl2gui-debug.apk ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${OUT_DIR}/build/outputs/apk/debug/testsdl2gui-debug.apk ${DIST_DIR}/bin/)
 elseif (IOS)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${ICON}        ${CFG_DIR}testsdl2gui.app/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${CFG_DIR}testsdl2gui.app/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${CFG_DIR}testsdl2gui.app/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_ARIAL}  ${CFG_DIR}testsdl2gui.app/ui/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_MONO}   ${CFG_DIR}testsdl2gui.app/ui/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${ICON}        ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_ARIAL}  ${OUT_DIR}/ui/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_MONO}   ${OUT_DIR}/ui/)
 
-    add_custom_target(testsdl2gui_app ALL cp -rf ${CFG_DIR}testsdl2gui.app ${DIST_DIR}/bin/ DEPENDS testsdl2gui)
+    add_custom_target(testsdl2gui_app ALL cp -rf ${OUT_DIR} ${DIST_DIR}/bin/ DEPENDS testsdl2gui)
 elseif (WIN32)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${DIST_DIR}/bin/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${DIST_DIR}/bin/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f $(Configuration)/testsdl2gui.exe ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui.exe ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll     ${DIST_DIR}/bin/)
+
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/SDL2.dll       ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/SDL2_image.dll ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/SDL2_ttf.dll   ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libxml2.dll    ${DIST_DIR}/bin/)
+
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img   ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/ui    ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${DIST_DIR}/bin/*.dll ${OUT_DIR}/)
 else()
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${DIST_DIR}/bin/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${DIST_DIR}/bin/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui           ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/bin/)
+
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2.${DLL_EXT}       ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2_image.${DLL_EXT} ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2_ttf.${DLL_EXT}   ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libxml2.${DLL_EXT}       ${DIST_DIR}/bin/)
+
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img          ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/ui           ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${DIST_DIR}/bin/*.${DLL_EXT} ${OUT_DIR}/)
 endif()
 
 # install
