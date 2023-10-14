@@ -209,12 +209,12 @@ SDL_Size LSG_Component::GetTextureSize()
 	return LSG_Graphics::GetTextureSize(this->texture);
 }
 
-TexturSizes LSG_Component::getTextureSizes(int spacing)
+LSG_TexturSizes LSG_Component::getTextureSizes(int spacing)
 {
 	if (this->textures.empty())
 		return {};
 
-	TexturSizes size = {};
+	LSG_TexturSizes size = {};
 
 	for (auto texture : this->textures)
 	{

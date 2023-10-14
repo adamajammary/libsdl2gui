@@ -3,22 +3,6 @@
 #ifndef LSG_TABLE_H
 #define LSG_TABLE_H
 
-struct LSG_TableItemRow
-{
-	SDL_Rect    background = {};
-	LSG_Strings columns    = {};
-};
-
-using LSG_TableItemRows = std::vector<LSG_TableItemRow>;
-
-struct LSG_TableItemGroup
-{
-	std::string       group = "";
-	LSG_TableItemRows rows  = {};
-};
-
-using LSG_TableItemGroups = std::vector<LSG_TableItemGroup>;
-
 class LSG_Table : public LSG_List
 {
 public:

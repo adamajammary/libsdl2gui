@@ -19,41 +19,6 @@ std::string getErrorNoID(const std::string& component, const std::string& id)
 /**
  * @throws runtime_error
  */
-AAssetManager* getJNIAssetManager()
-{
-	auto jniEnvironment = (JNIEnv*)SDL_AndroidGetJNIEnv();
-
-	if (!jniEnvironment)
-		throw std::runtime_error("Failed to get a valid Android JNI Environment.");
-
-	auto jniObjectActivity = (jobject)SDL_AndroidGetActivity();
-
-	if (!jniObjectActivity)
-		throw std::runtime_error("Failed to get a valid Android JNI Activity.");
-
-	auto jniClassActivity  = jniEnvironment->FindClass("android/app/Activity");
-	auto jniClassResources = jniEnvironment->FindClass("android/content/res/Resources");
-
-	auto jniMethodGetAssets    = jniEnvironment->GetMethodID(jniClassResources, "getAssets",    "()Landroid/content/res/AssetManager;");
-	auto jniMethodGetResources = jniEnvironment->GetMethodID(jniClassActivity,  "getResources", "()Landroid/content/res/Resources;");
-
-	auto jniObjectResources    = jniEnvironment->CallObjectMethod(jniObjectActivity,  jniMethodGetResources);
-	auto jniObjectAssetManager = jniEnvironment->CallObjectMethod(jniObjectResources, jniMethodGetAssets);
-
-	auto jniAssetManager = AAssetManager_fromJava(jniEnvironment, jniObjectAssetManager);
-
-	jniEnvironment->DeleteLocalRef(jniObjectAssetManager);
-	jniEnvironment->DeleteLocalRef(jniObjectResources);
-	jniEnvironment->DeleteLocalRef(jniObjectActivity);
-	jniEnvironment->DeleteLocalRef(jniClassResources);
-	jniEnvironment->DeleteLocalRef(jniClassActivity);
-
-	return jniAssetManager;
-}
-
-/**
- * @throws runtime_error
- */
 void initBasePath()
 {
 	if (basePath)
@@ -64,12 +29,8 @@ void initBasePath()
 	if (!basePath)
 		throw std::runtime_error("Failed to get an app-specific location where files can be written.");
 
-	auto jniAssetManager = getJNIAssetManager();
-
-	if (!jniAssetManager)
-		throw std::runtime_error("Failed to get a valid Android JNI Asset Manager.");
-
-	auto dirs = { "img", "ui" };
+	auto jniAssetManager = LSG_AndroidJNI::GetAssetManager();
+	auto dirs            = { "img", "ui" };
 
 	for (auto dir : dirs)
 	{

@@ -3,8 +3,6 @@
 #ifndef LSG_XML_H
 #define LSG_XML_H
 
-using LSG_XmlNodes = std::vector<LibXml::xmlNode*>;
-
 class LSG_XML
 {
 private:

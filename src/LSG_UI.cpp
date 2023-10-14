@@ -182,18 +182,13 @@ bool LSG_UI::IsMenuOpen(LSG_Component* component)
 bool LSG_UI::IsDarkMode()
 {
 #if defined _android
-	auto jniEnvironment = (JNIEnv*)SDL_AndroidGetJNIEnv();
+	bool isDarkMode     = false;
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ACTIVITY_CLASS_PATH);
+	auto jniIsDarkMode  = jniEnvironment->GetStaticMethodID(jniActivity, "IsDarkMode", "()Z");
 
-	if (!jniEnvironment)
-		throw std::runtime_error("Failed to get a valid Android JNI Environment.");
-
-	auto jniActivity = jniEnvironment->FindClass("com/libsdl2gui/lib/Sdl2GuiActivity");
-
-	if (!jniActivity)
-		throw std::runtime_error("Failed to find Sdl2GuiActivity.");
-
-	auto jniIsDarkMode = jniEnvironment->GetStaticMethodID(jniActivity, "IsDarkMode", "()Z");
-	bool isDarkMode    = (jniIsDarkMode ? jniEnvironment->CallStaticBooleanMethod(jniActivity, jniIsDarkMode) : false);
+	if (jniIsDarkMode)
+		isDarkMode = jniEnvironment->CallStaticBooleanMethod(jniActivity, jniIsDarkMode);
 
 	jniEnvironment->DeleteLocalRef(jniActivity);
 

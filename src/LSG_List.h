@@ -3,14 +3,6 @@
 #ifndef LSG_LIST_H
 #define LSG_LIST_H
 
-struct LSG_ListItemRow
-{
-	SDL_Rect    background = {};
-	std::string item       = "";
-};
-
-using LSG_ListItemRows = std::vector<LSG_ListItemRow>;
-
 class LSG_List : public LSG_Pagination, public LSG_Text, public LSG_IEvent
 {
 public:

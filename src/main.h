@@ -54,6 +54,45 @@ using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
 using LSG_StringsCompare   = std::function<bool(const LSG_Strings& s1, const LSG_Strings& s2)>;
 using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
 using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
+using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
+
+struct LSG_ListItemRow
+{
+	SDL_Rect    background = {};
+	std::string item       = "";
+};
+
+using LSG_ListItemRows = std::vector<LSG_ListItemRow>;
+
+struct LSG_TableItemRow
+{
+	SDL_Rect    background = {};
+	LSG_Strings columns    = {};
+};
+
+using LSG_TableItemRows = std::vector<LSG_TableItemRow>;
+
+struct LSG_TableItemGroup
+{
+	std::string       group = "";
+	LSG_TableItemRows rows  = {};
+};
+
+using LSG_TableItemGroups = std::vector<LSG_TableItemGroup>;
+
+struct LSG_TexturSizes
+{
+	std::vector<SDL_Size> sizes     = {};
+	SDL_Size              totalSize = {};
+};
+
+enum LSG_TriangleOrientation
+{
+	LSG_TRIANGLE_ORIENTATION_LEFT,
+	LSG_TRIANGLE_ORIENTATION_RIGHT,
+	LSG_TRIANGLE_ORIENTATION_UP,
+	LSG_TRIANGLE_ORIENTATION_DOWN
+};
 
 const struct LSG_Const
 {
@@ -143,6 +182,10 @@ const struct LSG_ConstUnicodeCharacter
 };
 
 const char* LSG_GetBasePath();
+
+#if defined _android
+	#include "LSG_AndroidJNI.h"
+#endif
 
 #include "LSG_IEvent.h"
 #include "LSG_Graphics.h"

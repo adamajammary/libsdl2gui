@@ -3,12 +3,6 @@
 #ifndef LSG_COMPONENT_H
 #define LSG_COMPONENT_H
 
-struct TexturSizes
-{
-	std::vector<SDL_Size> sizes     = {};
-	SDL_Size              totalSize = {};
-};
-
 class LSG_Button;
 
 class LSG_Component
@@ -84,19 +78,19 @@ public:
 	void             SetWidth(int width);
 
 protected:
-	void         destroyTextures();
-	SDL_Rect     getFillArea(const SDL_Rect& area, int border);
-	int          getFontSize();
-	int          getFontStyle();
-	SDL_Rect     getRenderDestinationAligned(const SDL_Rect& backgroundArea, const SDL_Size& size);
-	TexturSizes  getTextureSizes(int spacing = 0);
-	std::string  getXmlColor(const std::string& xmlAttribute, bool recursive = true);
-	bool         isButton();
-	void         renderBorder(SDL_Renderer* renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background);
-	virtual void renderDisabledOverlay(SDL_Renderer* renderer);
-	void         renderFill(SDL_Renderer* renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background);
-	void         renderHighlight(SDL_Renderer* renderer);
-	void         setMinSizeSlider();
+	void            destroyTextures();
+	SDL_Rect        getFillArea(const SDL_Rect& area, int border);
+	int             getFontSize();
+	int             getFontStyle();
+	SDL_Rect        getRenderDestinationAligned(const SDL_Rect& backgroundArea, const SDL_Size& size);
+	LSG_TexturSizes getTextureSizes(int spacing = 0);
+	std::string     getXmlColor(const std::string& xmlAttribute, bool recursive = true);
+	bool            isButton();
+	void            renderBorder(SDL_Renderer* renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background);
+	virtual void    renderDisabledOverlay(SDL_Renderer* renderer);
+	void            renderFill(SDL_Renderer* renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background);
+	void            renderHighlight(SDL_Renderer* renderer);
+	void            setMinSizeSlider();
 
 private:
 	void renderBorder(SDL_Renderer* renderer);
