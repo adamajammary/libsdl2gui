@@ -11,7 +11,7 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc,
 	this->thumbBorder      = 0;
 	this->thumbBorderColor = {};
 	this->thumbColor       = {};
-	this->thumbWidth       = LSG_SLIDER_THUMB_WIDTH;
+	this->thumbWidth       = LSG_ConstSlider::ThumbWidth;
 	this->value            = 0.0;
 
 	auto attributes = this->GetXmlAttributes();
@@ -89,20 +89,20 @@ void LSG_Slider::Render(SDL_Renderer* renderer)
 		return;
 
 	auto backgroundArea = SDL_Rect(this->background);
-	bool isVertical     = (this->orientation == LSG_VERTICAL);
-	auto thumbWidth     = std::max(LSG_SLIDER_THUMB_WIDTH, this->thumbWidth);
+	bool isVertical     = this->IsVertical();
+	auto thumbWidth     = std::max(LSG_ConstSlider::ThumbWidth, this->thumbWidth);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (isVertical) {
 		backgroundArea.y += thumbWidthHalf;
 		backgroundArea.h -= thumbWidth;
-		backgroundArea.x += (LSG_SLIDER_THUMB_WIDTH / 2);
-		backgroundArea.w -= LSG_SLIDER_THUMB_WIDTH;
+		backgroundArea.x += (LSG_ConstSlider::ThumbWidth / 2);
+		backgroundArea.w -= LSG_ConstSlider::ThumbWidth;
 	} else {
 		backgroundArea.x += thumbWidthHalf;
 		backgroundArea.w -= thumbWidth;
-		backgroundArea.y += (LSG_SLIDER_THUMB_WIDTH / 2);
-		backgroundArea.h -= LSG_SLIDER_THUMB_WIDTH;
+		backgroundArea.y += (LSG_ConstSlider::ThumbWidth / 2);
+		backgroundArea.h -= LSG_ConstSlider::ThumbWidth;
 	}
 
 	auto fillArea = this->getFillArea(backgroundArea, this->border);
@@ -180,15 +180,15 @@ void LSG_Slider::SetColors()
 	auto thumbColor       = this->getXmlColor("thumb-color");
 	auto thumbBorderColor = this->getXmlColor("thumb-border-color");
 
-	this->backgroundColor  = (!backgroundColor.empty()  ? LSG_UI::ToSdlColor(backgroundColor)  : LSG_SLIDER_BACK_COLOR);
-	this->progressColor    = (!progressColor.empty()    ? LSG_UI::ToSdlColor(progressColor)    : LSG_SLIDER_PROGRESS_COLOR);
-	this->thumbColor       = (!thumbColor.empty()       ? LSG_UI::ToSdlColor(thumbColor)       : LSG_SLIDER_THUMB_COLOR);
-	this->thumbBorderColor = (!thumbBorderColor.empty() ? LSG_UI::ToSdlColor(thumbBorderColor) : LSG_DEFAULT_BORDER_COLOR);
+	this->backgroundColor  = (!backgroundColor.empty()  ? LSG_UI::ToSdlColor(backgroundColor)  : LSG_ConstDefaultColor::SliderBackground);
+	this->progressColor    = (!progressColor.empty()    ? LSG_UI::ToSdlColor(progressColor)    : LSG_ConstDefaultColor::SliderProgress);
+	this->thumbColor       = (!thumbColor.empty()       ? LSG_UI::ToSdlColor(thumbColor)       : LSG_ConstDefaultColor::SliderThumb);
+	this->thumbBorderColor = (!thumbBorderColor.empty() ? LSG_UI::ToSdlColor(thumbBorderColor) : LSG_ConstDefaultColor::Border);
 }
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)
 {
-	if (this->orientation == LSG_VERTICAL)
+	if (this->IsVertical())
 		this->value = (double)((double)(this->background.y + this->background.h - mousePosition.y) / (double)this->background.h);
 	else
 		this->value = (double)((double)(mousePosition.x - this->background.x) / (double)this->background.w);
@@ -198,7 +198,7 @@ void LSG_Slider::setValue(const SDL_Point& mousePosition)
 
 void LSG_Slider::setValue(int offset)
 {
-	if (this->orientation == LSG_VERTICAL)
+	if (this->IsVertical())
 		this->value = (double)((double)((int)((double)this->background.h * this->value) - offset) / (double)this->background.h);
 	else
 		this->value = (double)((double)((int)((double)this->background.w * this->value) - offset) / (double)this->background.w);

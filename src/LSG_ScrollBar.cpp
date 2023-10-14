@@ -26,11 +26,11 @@ void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_
 {
 	this->scrollBarX = background;
 
-	this->scrollBarX.y += (background.h - LSG_SCROLL_WIDTH);
-	this->scrollBarX.h  = LSG_SCROLL_WIDTH;
+	this->scrollBarX.y += (background.h - LSG_ConstScrollBar::Width);
+	this->scrollBarX.h  = LSG_ConstScrollBar::Width;
 	
 	if (this->showScrollY)
-		this->scrollBarX.w -= LSG_SCROLL_WIDTH;
+		this->scrollBarX.w -= LSG_ConstScrollBar::Width;
 
 	auto fillColor = LSG_Graphics::GetFillColor(backgroundColor);
 
@@ -39,37 +39,37 @@ void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_
 
 	SDL_RenderFillRect(renderer, &this->scrollBarX);
 
-	auto thumbColor = (highlighted ? LSG_Graphics::GetThumbColor(backgroundColor) : LSG_SCROLL_COLOR_THUMB);
+	auto thumbColor = (highlighted ? LSG_Graphics::GetThumbColor(backgroundColor) : LSG_ConstDefaultColor::ScrollThumb);
 
 	this->scrollArrowLeft   = SDL_Rect(this->scrollBarX);
-	this->scrollArrowLeft.w = LSG_SCROLL_WIDTH;
+	this->scrollArrowLeft.w = LSG_ConstScrollBar::Width;
 
-	auto triangleLeft = LSG_Graphics::GetGeometryTriangle(this->scrollArrowLeft, (LSG_SCROLL_PADDING + 2), LSG_SCROLL_PADDING, thumbColor, LSG_TRIANGLE_ORIENTATION_LEFT);
+	auto triangleLeft = LSG_Graphics::GetGeometryTriangleHorizontal(this->scrollArrowLeft, thumbColor, LSG_TRIANGLE_ORIENTATION_LEFT);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleLeft.data(), 3, nullptr, 0);
 
 	this->scrollArrowRight    = SDL_Rect(this->scrollArrowLeft);
-	this->scrollArrowRight.x += (this->scrollBarX.w - LSG_SCROLL_WIDTH);
+	this->scrollArrowRight.x += (this->scrollBarX.w - LSG_ConstScrollBar::Width);
 
-	auto triangleRight = LSG_Graphics::GetGeometryTriangle(this->scrollArrowRight, (LSG_SCROLL_PADDING + 2), LSG_SCROLL_PADDING, thumbColor, LSG_TRIANGLE_ORIENTATION_RIGHT);
+	auto triangleRight = LSG_Graphics::GetGeometryTriangleHorizontal(this->scrollArrowRight, thumbColor, LSG_TRIANGLE_ORIENTATION_RIGHT);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleRight.data(), 3, nullptr, 0);
 
-	if (this->scrollBarX.w < LSG_SCROLL_MIN_SIZE) {
+	if (this->scrollBarX.w < LSG_ConstScrollBar::MinSize) {
 		this->scrollThumbX = {};
 		return;
 	}
 
 	this->scrollThumbX = SDL_Rect(this->scrollBarX);
 
-	this->scrollThumbX.x += LSG_SCROLL_WIDTH;
-	this->scrollThumbX.w -= LSG_SCROLL_WIDTH_2X;
-	this->scrollThumbX.y += LSG_SCROLL_PADDING;
-	this->scrollThumbX.h -= LSG_SCROLL_PADDING_2X;
+	this->scrollThumbX.x += LSG_ConstScrollBar::Width;
+	this->scrollThumbX.w -= LSG_ConstScrollBar::Width2x;
+	this->scrollThumbX.y += LSG_ConstScrollBar::Padding;
+	this->scrollThumbX.h -= LSG_ConstScrollBar::Padding2x;
 
 	this->clipFactorX = (double)((double)this->scrollThumbX.w / (double)maxWidth);
 
-	this->scrollThumbX.w  = (int)std::ceil((double)((double)this->scrollThumbX.w + (double)LSG_SCROLL_WIDTH_2X) * this->clipFactorX);
+	this->scrollThumbX.w  = (int)std::ceil((double)((double)this->scrollThumbX.w + (double)LSG_ConstScrollBar::Width2x) * this->clipFactorX);
 	this->scrollThumbX.x += (int)((double)this->scrollOffsetX * this->clipFactorX);
 
 	SDL_SetRenderDrawColor(renderer, thumbColor.r, thumbColor.g, thumbColor.b, thumbColor.a);
@@ -80,11 +80,11 @@ void LSG_ScrollBar::renderScrollBarVertical(SDL_Renderer* renderer, const SDL_Re
 {
 	this->scrollBarY = background;
 
-	this->scrollBarY.x += (background.w - LSG_SCROLL_WIDTH);
-	this->scrollBarY.w  = LSG_SCROLL_WIDTH;
+	this->scrollBarY.x += (background.w - LSG_ConstScrollBar::Width);
+	this->scrollBarY.w  = LSG_ConstScrollBar::Width;
 
 	if (this->showScrollX)
-		this->scrollBarY.h -= LSG_SCROLL_WIDTH;
+		this->scrollBarY.h -= LSG_ConstScrollBar::Width;
 
 	auto fillColor = LSG_Graphics::GetFillColor(backgroundColor);
 
@@ -93,37 +93,37 @@ void LSG_ScrollBar::renderScrollBarVertical(SDL_Renderer* renderer, const SDL_Re
 
 	SDL_RenderFillRect(renderer, &this->scrollBarY);
 
-	auto thumbColor = (highlighted ? LSG_Graphics::GetThumbColor(backgroundColor) : LSG_SCROLL_COLOR_THUMB);
+	auto thumbColor = (highlighted ? LSG_Graphics::GetThumbColor(backgroundColor) : LSG_ConstDefaultColor::ScrollThumb);
 
 	this->scrollArrowUp   = SDL_Rect(this->scrollBarY);
-	this->scrollArrowUp.h = LSG_SCROLL_WIDTH;
+	this->scrollArrowUp.h = LSG_ConstScrollBar::Width;
 
-	auto triangleUp = LSG_Graphics::GetGeometryTriangle(this->scrollArrowUp, LSG_SCROLL_PADDING, (LSG_SCROLL_PADDING + 2), thumbColor);
+	auto triangleUp = LSG_Graphics::GetGeometryTriangleVertical(this->scrollArrowUp, thumbColor, LSG_TRIANGLE_ORIENTATION_UP);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleUp.data(), 3, nullptr, 0);
 
 	this->scrollArrowDown    = SDL_Rect(this->scrollArrowUp);
-	this->scrollArrowDown.y += (this->scrollBarY.h - LSG_SCROLL_WIDTH);
+	this->scrollArrowDown.y += (this->scrollBarY.h - LSG_ConstScrollBar::Width);
 
-	auto triangleDown = LSG_Graphics::GetGeometryTriangle(this->scrollArrowDown, LSG_SCROLL_PADDING, (LSG_SCROLL_PADDING + 2), thumbColor, LSG_TRIANGLE_ORIENTATION_DOWN);
+	auto triangleDown = LSG_Graphics::GetGeometryTriangleVertical(this->scrollArrowDown, thumbColor, LSG_TRIANGLE_ORIENTATION_DOWN);
 
 	SDL_RenderGeometry(renderer, nullptr, triangleDown.data(), 3, nullptr, 0);
 
-	if (this->scrollBarY.h < LSG_SCROLL_MIN_SIZE) {
+	if (this->scrollBarY.h < LSG_ConstScrollBar::MinSize) {
 		this->scrollThumbY = {};
 		return;
 	}
 
 	this->scrollThumbY = SDL_Rect(this->scrollBarY);
 
-	this->scrollThumbY.x += LSG_SCROLL_PADDING;
-	this->scrollThumbY.w -= LSG_SCROLL_PADDING_2X;
-	this->scrollThumbY.y += LSG_SCROLL_WIDTH;
-	this->scrollThumbY.h -= LSG_SCROLL_WIDTH_2X;
+	this->scrollThumbY.x += LSG_ConstScrollBar::Padding;
+	this->scrollThumbY.w -= LSG_ConstScrollBar::Padding2x;
+	this->scrollThumbY.y += LSG_ConstScrollBar::Width;
+	this->scrollThumbY.h -= LSG_ConstScrollBar::Width2x;
 
 	this->clipFactorY = (double)((double)this->scrollThumbY.h / (double)maxHeight);
 
-	this->scrollThumbY.h  = (int)std::ceil((double)((double)this->scrollThumbY.h + (double)LSG_SCROLL_WIDTH_2X) * this->clipFactorY);
+	this->scrollThumbY.h  = (int)std::ceil((double)((double)this->scrollThumbY.h + (double)LSG_ConstScrollBar::Width2x) * this->clipFactorY);
 	this->scrollThumbY.y += (int)((double)this->scrollOffsetY * this->clipFactorY);
 
 	SDL_SetRenderDrawColor(renderer, thumbColor.r, thumbColor.g, thumbColor.b, thumbColor.a);
@@ -137,7 +137,7 @@ void LSG_ScrollBar::ScrollHome()
 
 void LSG_ScrollBar::ScrollEnd()
 {
-	this->scrollOffsetY = LSG_MAX_TEXTURE_SIZE;
+	this->scrollOffsetY = LSG_Const::TextureMaxSize;
 }
 
 bool LSG_ScrollBar::ScrollMouseClick(const SDL_Point& mousePosition)
@@ -151,17 +151,17 @@ bool LSG_ScrollBar::ScrollMouseClick(const SDL_Point& mousePosition)
 		this->isSlideActiveY           = false;
 
 		if (SDL_PointInRect(&mousePosition, &this->scrollArrowUp))
-			this->ScrollVertical(-LSG_SCROLL_UNIT);
+			this->ScrollVertical(-LSG_ConstScrollBar::Unit);
 		else if (SDL_PointInRect(&mousePosition, &this->scrollArrowDown))
-			this->ScrollVertical(LSG_SCROLL_UNIT);
+			this->ScrollVertical(LSG_ConstScrollBar::Unit);
 
 		if (SDL_RectEmpty(&this->scrollThumbY))
 			return true;
 
 		if (mousePosition.y < this->scrollThumbY.y)
-			this->ScrollVertical(-LSG_SCROLL_UNIT_PAGE);
+			this->ScrollVertical(-LSG_ConstScrollBar::UnitPage);
 		else if (mousePosition.y > (this->scrollThumbY.y + this->scrollThumbY.h))
-			this->ScrollVertical(LSG_SCROLL_UNIT_PAGE);
+			this->ScrollVertical(LSG_ConstScrollBar::UnitPage);
 		else
 			this->isSlideActiveY = true;
 
@@ -173,17 +173,17 @@ bool LSG_ScrollBar::ScrollMouseClick(const SDL_Point& mousePosition)
 		this->isSlideActiveX           = false;
 
 		if (SDL_PointInRect(&mousePosition, &this->scrollArrowLeft))
-			this->ScrollHorizontal(-LSG_SCROLL_UNIT);
+			this->ScrollHorizontal(-LSG_ConstScrollBar::Unit);
 		else if (SDL_PointInRect(&mousePosition, &this->scrollArrowRight))
-			this->ScrollHorizontal(LSG_SCROLL_UNIT);
+			this->ScrollHorizontal(LSG_ConstScrollBar::Unit);
 
 		if (SDL_RectEmpty(&this->scrollThumbX))
 			return true;
 
 		if (mousePosition.x < this->scrollThumbX.x)
-			this->ScrollHorizontal(-LSG_SCROLL_UNIT_PAGE);
+			this->ScrollHorizontal(-LSG_ConstScrollBar::UnitPage);
 		else if (mousePosition.x > (this->scrollThumbX.x + this->scrollThumbX.w))
-			this->ScrollHorizontal(LSG_SCROLL_UNIT_PAGE);
+			this->ScrollHorizontal(LSG_ConstScrollBar::UnitPage);
 		else
 			this->isSlideActiveX = true;
 
@@ -201,32 +201,32 @@ void LSG_ScrollBar::ScrollMouseDown(const SDL_Point& mousePosition)
 	if (!this->isSlideActiveY && this->showScrollY && SDL_PointInRect(&mousePosition, &this->scrollBarY))
 	{
 		if (SDL_PointInRect(&mousePosition, &this->scrollArrowUp))
-			this->ScrollVertical(-LSG_SCROLL_UNIT);
+			this->ScrollVertical(-LSG_ConstScrollBar::Unit);
 		else if (SDL_PointInRect(&mousePosition, &this->scrollArrowDown))
-			this->ScrollVertical(LSG_SCROLL_UNIT);
+			this->ScrollVertical(LSG_ConstScrollBar::Unit);
 
 		if (SDL_RectEmpty(&this->scrollThumbY))
 			return;
 
 		if (mousePosition.y < this->scrollThumbY.y)
-			this->ScrollVertical(-LSG_SCROLL_UNIT_PAGE);
+			this->ScrollVertical(-LSG_ConstScrollBar::UnitPage);
 		else if (mousePosition.y > (this->scrollThumbY.y + this->scrollThumbY.h))
-			this->ScrollVertical(LSG_SCROLL_UNIT_PAGE);
+			this->ScrollVertical(LSG_ConstScrollBar::UnitPage);
 	}
 	else if (!this->isSlideActiveX && this->showScrollX && SDL_PointInRect(&mousePosition, &this->scrollBarX))
 	{
 		if (SDL_PointInRect(&mousePosition, &this->scrollArrowLeft))
-			this->ScrollHorizontal(-LSG_SCROLL_UNIT);
+			this->ScrollHorizontal(-LSG_ConstScrollBar::Unit);
 		else if (SDL_PointInRect(&mousePosition, &this->scrollArrowRight))
-			this->ScrollHorizontal(LSG_SCROLL_UNIT);
+			this->ScrollHorizontal(LSG_ConstScrollBar::Unit);
 
 		if (SDL_RectEmpty(&this->scrollThumbX))
 			return;
 
 		if (mousePosition.x < this->scrollThumbX.x)
-			this->ScrollHorizontal(-LSG_SCROLL_UNIT_PAGE);
+			this->ScrollHorizontal(-LSG_ConstScrollBar::UnitPage);
 		else if (mousePosition.x > (this->scrollThumbX.x + this->scrollThumbX.w))
-			this->ScrollHorizontal(LSG_SCROLL_UNIT_PAGE);
+			this->ScrollHorizontal(LSG_ConstScrollBar::UnitPage);
 	}
 }
 

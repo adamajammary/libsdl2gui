@@ -21,7 +21,7 @@ void LSG_UI::AddSubMenuItem(LSG_MenuSub* subMenu, const std::string& item, const
 	if (LSG_UI::components.contains(nodeID))
 		throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", nodeID.c_str()));
 
-	layer += LSG_MENU_LAYER_OFFSET;
+	layer += LSG_ConstMenu::LayerOffset;
 
 	auto xmlNode = LSG_XML::AddChildNode(subMenu->GetXmlNode(), LSG_UI::xmlDocument, nodeName, item);
 
@@ -65,7 +65,7 @@ void LSG_UI::CloseSubMenu()
 
 SDL_Color LSG_UI::GetBackgroundColor()
 {
-	return (LSG_UI::root ? LSG_UI::root->backgroundColor : LSG_DEFAULT_BACK_COLOR);
+	return (LSG_UI::root ? LSG_UI::root->backgroundColor : LSG_ConstDefaultColor::Background);
 }
 
 LSG_Button* LSG_UI::GetButton(const SDL_Point& mousePosition)
@@ -394,7 +394,7 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 					child->background.h = textureHeight;
 
 					if (textureWidth > sizeX)
-						child->background.h += LSG_SCROLL_WIDTH;
+						child->background.h += LSG_ConstScrollBar::Width;
 
 					sizeY -= child->background.h;
 				} else {
@@ -420,7 +420,7 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 					child->background.w = textureWidth;
 
 					if (textureHeight > sizeY)
-						child->background.w += LSG_SCROLL_WIDTH;
+						child->background.w += LSG_ConstScrollBar::Width;
 
 					sizeX -= child->background.w;
 				} else {
@@ -586,7 +586,7 @@ void LSG_UI::loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent, Li
 		}
 		else if (nodeName.starts_with("menu"))
 		{
-			layer += (LSG_MENU_LAYER_OFFSET + (LSG_UI::getDistanceFromMenu(xmlNode) * LSG_MENU_LAYER_OFFSET));
+			layer += (LSG_ConstMenu::LayerOffset + (LSG_UI::getDistanceFromMenu(xmlNode) * LSG_ConstMenu::LayerOffset));
 
 			if (nodeName == "menu")
 				component = new LSG_Menu(nodeID, layer, xmlDoc, xmlNode, nodeName, parent);

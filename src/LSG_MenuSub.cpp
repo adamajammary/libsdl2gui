@@ -5,7 +5,7 @@ LSG_MenuSub::LSG_MenuSub(const std::string& id, int layer, LibXml::xmlDoc* xmlDo
 {
 	this->enableScroll    = false;
 	this->items           = {};
-	this->orientation     = LSG_VERTICAL;
+	this->orientation     = LSG_ConstOrientation::Vertical;
 	this->selectedSubMenu = -1;
 	this->visible         = false;
 	this->wrap            = true;
@@ -92,14 +92,14 @@ bool LSG_MenuSub::open(const SDL_Point& mousePosition, int index)
 	auto subMenuArea = SDL_Rect(this->background);
 
 	subMenuArea.x += (this->background.w + 1);
-	subMenuArea.w  = (textureSize.width  + LSG_MENU_SUB_PADDING_X_2X);
+	subMenuArea.w  = (textureSize.width  + LSG_ConstMenu::SubPaddingX2x);
 
 	auto windowSize = LSG_Window::GetSize();
 
 	subMenuArea.x = std::min(windowSize.width  - subMenuArea.w, subMenuArea.x);
 	subMenuArea.y = std::min(windowSize.height - subMenuArea.h, subMenuArea.y);
 
-	int  offsetY   = LSG_MENU_SUB_PADDING_Y;
+	int  offsetY   = LSG_ConstMenu::SubPaddingY;
 	auto rowHeight = (textureSize.height / (int)this->children.size());
 
 	for (auto child : this->children)
@@ -138,15 +138,15 @@ void LSG_MenuSub::Render(SDL_Renderer* renderer)
 	{
 		backgroundArea.x = this->children[0]->background.x;
 		backgroundArea.w = this->children[0]->background.w;
-		backgroundArea.h = ((this->children[0]->background.h * (int)this->children.size()) + LSG_MENU_SUB_PADDING_Y_2X);
+		backgroundArea.h = ((this->children[0]->background.h * (int)this->children.size()) + LSG_ConstMenu::SubPaddingY2x);
 	}
 
-	backgroundArea.x -= LSG_MENU_SPACING_HALF;
+	backgroundArea.x -= LSG_ConstMenu::SpacingHalf;
 
 	auto destination = SDL_Rect(backgroundArea);
 
-	destination.x += LSG_MENU_SUB_PADDING_X;
-	destination.y += LSG_MENU_SUB_PADDING_Y;
+	destination.x += LSG_ConstMenu::SubPaddingX;
+	destination.y += LSG_ConstMenu::SubPaddingY;
 
 	this->renderFill(renderer, this->border, this->backgroundColor, backgroundArea);
 	this->renderTexture(renderer, destination);
@@ -171,7 +171,7 @@ void LSG_MenuSub::renderDisabledOverlay(SDL_Renderer* renderer, const SDL_Rect& 
 {
 	SDL_Rect backgroundArea = background;
 
-	backgroundArea.x -= LSG_MENU_SPACING_HALF;
+	backgroundArea.x -= LSG_ConstMenu::SpacingHalf;
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 64);
@@ -183,7 +183,7 @@ void LSG_MenuSub::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& backgr
 {
 	SDL_Rect backgroundArea = background;
 
-	backgroundArea.x -= LSG_MENU_SPACING_HALF;
+	backgroundArea.x -= LSG_ConstMenu::SpacingHalf;
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 255 - backgroundColor.r, 255 - backgroundColor.g, 255 - backgroundColor.b, 64);
@@ -215,10 +215,10 @@ void LSG_MenuSub::SetItems()
 		auto accelPos = (tabPos + 2);
 
 		if (tabPos != std::string::npos) {
-			maxLength1 = std::max(maxLength1, ((int)tabPos + LSG_MENU_LABEL_SPACING));
+			maxLength1 = std::max(maxLength1, ((int)tabPos + LSG_ConstMenu::LabelSpacing));
 			maxLength2 = std::max(maxLength2, (int)(item.size() - accelPos));
 		} else {
-			maxLength1 = std::max(maxLength1, ((int)item.size() + LSG_MENU_LABEL_SPACING));
+			maxLength1 = std::max(maxLength1, ((int)item.size() + LSG_ConstMenu::LabelSpacing));
 		}
 
 		if (isSubMenu)

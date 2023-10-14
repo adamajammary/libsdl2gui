@@ -214,23 +214,23 @@ void LSG_Text::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgroundA
 
 	if (this->enableScroll)
 	{
-		bool showScrollY = (size.height > (backgroundArea.h + LSG_SCROLL_WIDTH));
-		bool showScrollX = (size.width  > (backgroundArea.w + LSG_SCROLL_WIDTH));
+		bool showScrollY = (size.height > (backgroundArea.h + LSG_ConstScrollBar::Width));
+		bool showScrollX = (size.width  > (backgroundArea.w + LSG_ConstScrollBar::Width));
 
 		if (showScrollY)
-			background.w -= LSG_SCROLL_WIDTH;
+			background.w -= LSG_ConstScrollBar::Width;
 
 		if (showScrollX)
-			background.h -= LSG_SCROLL_WIDTH;
+			background.h -= LSG_ConstScrollBar::Width;
 
 		this->showScrollY = (size.height > background.h);
 		this->showScrollX = (size.width  > background.w);
 
 		if (this->showScrollY && !showScrollY)
-			background.w -= LSG_SCROLL_WIDTH;
+			background.w -= LSG_ConstScrollBar::Width;
 
 		if (this->showScrollX && !showScrollX)
-			background.h -= LSG_SCROLL_WIDTH;
+			background.h -= LSG_ConstScrollBar::Width;
 	}
 
 	SDL_Rect clip = { 0, 0, std::min(size.width, background.w), std::min(size.height, background.h) };

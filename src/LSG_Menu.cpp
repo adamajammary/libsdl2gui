@@ -29,13 +29,13 @@ std::vector<SDL_Rect> LSG_Menu::getTextureDestinations()
 	std::vector<SDL_Rect> destinations;
 
 	auto menuBackground = this->getFillArea(this->background, this->border);
-	auto textureSizes   = this->getTextureSizes(LSG_MENU_SPACING);
+	auto textureSizes   = this->getTextureSizes(LSG_ConstMenu::Spacing);
 
-	textureSizes.totalSize.width += LSG_MENU_SPACING_2X;
+	textureSizes.totalSize.width += LSG_ConstMenu::Spacing2x;
 
 	auto destination = this->getRenderDestinationAligned(menuBackground, textureSizes.totalSize);
 
-	destination.x += LSG_MENU_SPACING;
+	destination.x += LSG_ConstMenu::Spacing;
 
 	for (size_t i = 0; i < this->textures.size(); i++)
 	{
@@ -43,7 +43,7 @@ std::vector<SDL_Rect> LSG_Menu::getTextureDestinations()
 
 		destinations.push_back(SDL_Rect(destination));
 
-		destination.x += (destination.w + LSG_MENU_SPACING);
+		destination.x += (destination.w + LSG_ConstMenu::Spacing);
 	}
 
 	return destinations;
@@ -93,12 +93,12 @@ bool LSG_Menu::open(const SDL_Point& mousePosition, const std::vector<SDL_Rect>&
 
 	auto textureSize = subMenu->GetTextureSize();
 
-	menuArea.y += (menuArea.h + LSG_MENU_SPACING_HALF);
-	menuArea.w  = (textureSize.width  + LSG_MENU_SUB_PADDING_X_2X);
-	menuArea.h  = (textureSize.height + LSG_MENU_SUB_PADDING_Y_2X);
+	menuArea.y += (menuArea.h + LSG_ConstMenu::SpacingHalf);
+	menuArea.w  = (textureSize.width  + LSG_ConstMenu::SubPaddingX2x);
+	menuArea.h  = (textureSize.height + LSG_ConstMenu::SubPaddingY2x);
 
 	auto rowHeight = (textureSize.height / (int)subMenuItems.size());
-	int  offsetY   = LSG_MENU_SUB_PADDING_Y;
+	int  offsetY   = LSG_ConstMenu::SubPaddingY;
 
 	auto subMenuChildren = subMenu->GetChildren();
 
@@ -137,7 +137,7 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 	{
 		for (int i = 0; i < (int)this->children.size(); i++) {
 			this->children[i]->background    = SDL_Rect(destinations[i]);
-			this->children[i]->background.w += LSG_MENU_SPACING;
+			this->children[i]->background.w += LSG_ConstMenu::Spacing;
 		}
 	}
 
@@ -160,8 +160,8 @@ void LSG_Menu::renderHighlight(SDL_Renderer* renderer, const std::vector<SDL_Rec
 
 	destination.y  = this->background.y;
 	destination.h  = this->background.h;
-	destination.x -= LSG_MENU_SPACING_HALF;
-	destination.w += LSG_MENU_SPACING;
+	destination.x -= LSG_ConstMenu::SpacingHalf;
+	destination.w += LSG_ConstMenu::Spacing;
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);

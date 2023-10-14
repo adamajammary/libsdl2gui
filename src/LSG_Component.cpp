@@ -354,7 +354,7 @@ bool LSG_Component::IsTextLabel()
 
 bool LSG_Component::IsVertical()
 {
-	return (this->orientation == LSG_VERTICAL);
+	return (this->orientation == LSG_ConstOrientation::Vertical);
 }
 
 void LSG_Component::RemoveChild(LSG_Component* child)
@@ -497,9 +497,9 @@ void LSG_Component::SetColors()
 	auto borderColor     = this->getXmlColor("border-color");
 	auto textColor       = this->getXmlColor("text-color");
 
-	this->backgroundColor = (!backgroundColor.empty() ? LSG_UI::ToSdlColor(backgroundColor) : LSG_DEFAULT_BACK_COLOR);
-	this->borderColor     = (!borderColor.empty()     ? LSG_UI::ToSdlColor(borderColor)     : LSG_DEFAULT_BORDER_COLOR);
-	this->textColor       = (!textColor.empty()       ? LSG_UI::ToSdlColor(textColor)       : LSG_DEFAULT_TEXT_COLOR);
+	this->backgroundColor = (!backgroundColor.empty() ? LSG_UI::ToSdlColor(backgroundColor) : LSG_ConstDefaultColor::Background);
+	this->borderColor     = (!borderColor.empty()     ? LSG_UI::ToSdlColor(borderColor)     : LSG_ConstDefaultColor::Border);
+	this->textColor       = (!textColor.empty()       ? LSG_UI::ToSdlColor(textColor)       : LSG_ConstDefaultColor::Text);
 
 	for (auto child : this->children)
 		child->SetColors();
@@ -520,15 +520,15 @@ void LSG_Component::setMinSizeSlider()
 	if (this->xmlNodeName != "slider")
 		return;
 
-	if (this->orientation == LSG_VERTICAL)
-		this->background.w = std::max(LSG_SLIDER_MIN_HEIGHT, this->background.w);
+	if (this->IsVertical())
+		this->background.w = std::max(LSG_ConstSlider::MinHeight, this->background.w);
 	else
-		this->background.h = std::max(LSG_SLIDER_MIN_HEIGHT, this->background.h);
+		this->background.h = std::max(LSG_ConstSlider::MinHeight, this->background.h);
 }
 
 void LSG_Component::SetOrientation(LSG_Orientation orientation)
 {
-	this->orientation = (orientation == LSG_ORIENTATION_VERTICAL ? LSG_VERTICAL : LSG_HORIZONTAL);
+	this->orientation = LSG_ConstOrientation::ToString(orientation);
 }
 
 void LSG_Component::SetPositionAlign(int x, int y)

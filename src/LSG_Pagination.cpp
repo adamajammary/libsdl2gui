@@ -99,7 +99,7 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	SDL_Surface* surface = nullptr;
 	SDL_Texture* texture = nullptr;
 
-	auto font = LSG_Text::GetFontArial(LSG_PAGINATION_FONT_SIZE);
+	auto font = LSG_Text::GetFontArial(LSG_Const::PaginationFontSize);
 
 	if (bold && font)
 		TTF_SetFontStyle(font, TTF_STYLE_BOLD);
@@ -136,8 +136,8 @@ void LSG_Pagination::initPagination(const SDL_Rect& backgroundArea, const SDL_Co
 	this->updatePagination(backgroundArea);
 
 	auto color     = LSG_Graphics::GetThumbColor(backgroundColor);
-	auto colorPrev = (this->page == 0 ? LSG_SCROLL_COLOR_THUMB : color);
-	auto colorNext = (this->page == this->GetLastPage() ? LSG_SCROLL_COLOR_THUMB : color);
+	auto colorPrev = (this->page == 0 ? LSG_ConstDefaultColor::ScrollThumb : color);
+	auto colorNext = (this->page == this->GetLastPage() ? LSG_ConstDefaultColor::ScrollThumb : color);
 
 	this->destroyPageTextures();
 
@@ -207,8 +207,8 @@ void LSG_Pagination::renderPagination(SDL_Renderer* renderer, const SDL_Rect& ba
 	auto labelTextureSize = LSG_Graphics::GetTextureSize(this->textureLabel);
 	auto labelDestination = SDL_Rect(this->pagination);
 
-	labelDestination.x += LSG_SCROLL_WIDTH;
-	labelDestination.w -= LSG_SCROLL_WIDTH_2X;
+	labelDestination.x += LSG_ConstScrollBar::Width;
+	labelDestination.w -= LSG_ConstScrollBar::Width2x;
 
 	SDL_Rect clip = { 0, 0, std::min(labelTextureSize.width, labelDestination.w), std::min(labelTextureSize.height, labelDestination.h) };
 	auto     dest = this->getDestinationCenterAligned(labelDestination, { clip.w, clip.h });
@@ -225,17 +225,17 @@ void LSG_Pagination::updatePagination(const SDL_Rect& backgroundArea)
 {
 	this->pagination    = backgroundArea;
 	this->pagination.y += backgroundArea.h;
-	this->pagination.h  = LSG_SCROLL_WIDTH;
+	this->pagination.h  = LSG_ConstScrollBar::Width;
 
 	this->arrowHome   = SDL_Rect(this->pagination);
-	this->arrowHome.w = LSG_SCROLL_WIDTH;
+	this->arrowHome.w = LSG_ConstScrollBar::Width;
 
 	this->arrowPrev    = SDL_Rect(this->arrowHome);
-	this->arrowPrev.x += LSG_SCROLL_WIDTH;
+	this->arrowPrev.x += LSG_ConstScrollBar::Width;
 
 	this->arrowNext   = SDL_Rect(this->arrowPrev);
-	this->arrowNext.x = (this->pagination.x + this->pagination.w - LSG_SCROLL_WIDTH_2X);
+	this->arrowNext.x = (this->pagination.x + this->pagination.w - LSG_ConstScrollBar::Width2x);
 
 	this->arrowEnd    = SDL_Rect(this->arrowNext);
-	this->arrowEnd.x += LSG_SCROLL_WIDTH;
+	this->arrowEnd.x += LSG_ConstScrollBar::Width;
 }

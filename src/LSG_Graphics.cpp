@@ -15,7 +15,29 @@ SDL_Color LSG_Graphics::GetFillColor(const SDL_Color& backgroundColor)
 	return fillColor;
 }
 
-std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation)
+std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation)
+{
+	return LSG_Graphics::getGeometryTriangle(
+		background,
+		(LSG_ConstScrollBar::Padding + 2),
+		LSG_ConstScrollBar::Padding,
+		color,
+		orientation
+	);
+}
+
+std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangleVertical(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation)
+{
+	return LSG_Graphics::getGeometryTriangle(
+		background,
+		LSG_ConstScrollBar::Padding,
+		(LSG_ConstScrollBar::Padding + 2),
+		color,
+		orientation
+	);
+}
+
+std::vector<SDL_Vertex> LSG_Graphics::getGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation)
 {
 	auto left   = (float)(background.x + paddingX);
 	auto center = (float)(background.x + (background.w / 2));

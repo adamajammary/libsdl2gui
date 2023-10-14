@@ -4,7 +4,7 @@ LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, Lib
 	: LSG_Text(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
 {
 	this->rows        = {};
-	this->orientation = LSG_VERTICAL;
+	this->orientation = LSG_ConstOrientation::Vertical;
 	this->row         = -1;
 	this->wrap        = true;
 
@@ -81,7 +81,7 @@ int LSG_List::GetSelectedRow()
 
 LSG_SortOrder LSG_List::GetSortOrder()
 {
-	 return (this->sortOrder == LSG_DESCENDING ? LSG_SORT_ORDER_DESCENDING : LSG_SORT_ORDER_ASCENDING);
+	 return LSG_ConstSortOrder::ToEnum(this->sortOrder);
 }
 
 bool LSG_List::MouseClick(const SDL_MouseButtonEvent& event)
@@ -140,7 +140,7 @@ void LSG_List::Render(SDL_Renderer* renderer)
 	bool showPagination = this->showPagination();
 
 	if (showPagination)
-		listBackground.h -= LSG_SCROLL_WIDTH;
+		listBackground.h -= LSG_ConstScrollBar::Width;
 
 	this->setRowHeights(rowHeight, listBackground);
 	this->renderTexture(renderer, listBackground);
@@ -167,7 +167,7 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 	row.y = (backgroundArea.y + (this->row * rowBackground.h));
 
 	if (this->showScrollY)
-		row.w -= LSG_SCROLL_WIDTH;
+		row.w -= LSG_ConstScrollBar::Width;
 
 	row.y -= this->scrollOffsetY;
 
@@ -204,7 +204,7 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_
 
 	if (!this->showScrollY)
 	{
-		auto rows = ((backgroundArea.h - (this->showScrollX ? LSG_SCROLL_WIDTH : 0)) / rowHeight);
+		auto rows = ((backgroundArea.h - (this->showScrollX ? LSG_ConstScrollBar::Width : 0)) / rowHeight);
 		auto y    = (backgroundArea.y + rowHeight - 1);
 		auto x2   = (backgroundArea.x + backgroundArea.w);
 
@@ -216,12 +216,12 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_
 		return;
 	}
 
-	auto bottomY = (backgroundArea.y + backgroundArea.h - (this->showScrollX ? LSG_SCROLL_WIDTH : 0));
+	auto bottomY = (backgroundArea.y + backgroundArea.h - (this->showScrollX ? LSG_ConstScrollBar::Width : 0));
 
 	for (const auto& row : this->rows)
 	{
 		auto y  = (row.background.y + row.background.h - 1 - this->scrollOffsetY);
-		auto x2 = (row.background.x + row.background.w - (this->showScrollY ? LSG_SCROLL_WIDTH : 0));
+		auto x2 = (row.background.x + row.background.w - (this->showScrollY ? LSG_ConstScrollBar::Width : 0));
 
 		if ((y >= backgroundArea.y) && (y <= bottomY))
 			SDL_RenderDrawLine(renderer, row.background.x, y, x2, y);
@@ -282,8 +282,8 @@ void LSG_List::SelectRow(int offset)
 	auto list       = this->getFillArea(this->background, this->border);
 	auto row        = this->rows[0].background;
 	auto rowY       = (list.y + (this->row * row.h));
-	auto pagination = (this->showPagination() ? LSG_SCROLL_WIDTH : 0);
-	auto scrollX    = (this->showScrollX ? LSG_SCROLL_WIDTH : 0);
+	auto pagination = (this->showPagination() ? LSG_ConstScrollBar::Width : 0);
+	auto scrollX    = (this->showScrollX ? LSG_ConstScrollBar::Width : 0);
 	auto listTop    = (list.y + this->scrollOffsetY);
 	auto listBottom = (listTop + list.h - scrollX - pagination);
 
@@ -388,7 +388,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 	if (sortOrder == this->GetSortOrder())
 		return;
 
-	this->sortOrder = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
+	this->sortOrder = LSG_ConstSortOrder::ToString(sortOrder);
 
 	this->sort();
 	this->updatePage();
@@ -396,7 +396,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 
 void LSG_List::sort()
 {
-	if (this->sortOrder == LSG_DESCENDING)
+	if (this->sortOrder == LSG_ConstSortOrder::Descending)
 		std::sort(this->pageItems.rbegin(), this->pageItems.rend(), LSG_Text::GetStringCompare);
 	else
 		std::sort(this->pageItems.begin(), this->pageItems.end(), LSG_Text::GetStringCompare);
@@ -419,7 +419,7 @@ void LSG_List::updatePage(bool reset)
 	if (this->showPagination())
 	{
 		auto listBackground = this->getFillArea(this->background, this->border);
-		listBackground.h   -= LSG_SCROLL_WIDTH;
+		listBackground.h   -= LSG_ConstScrollBar::Width;
 
 		this->initPagination(listBackground, this->backgroundColor);
 	}

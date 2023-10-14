@@ -6,7 +6,7 @@ LSG_Table::LSG_Table(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, L
 	this->groups      = {};
 	this->header      = {};
 	this->rows        = {};
-	this->orientation = LSG_VERTICAL;
+	this->orientation = LSG_ConstOrientation::Vertical;
 	this->row         = -1;
 	this->sortColumn  = -1;
 	this->sortOrder   = "";
@@ -50,7 +50,7 @@ int LSG_Table::getClickedHeaderColumn(const SDL_Point& mousePosition, const std:
 
 	for (int i = 0; i < (int)this->textures.size(); i++)
 	{
-		auto textureWidth = (columnSizes[i].width + LSG_TABLE_COLUMN_SPACING);
+		auto textureWidth = (columnSizes[i].width + LSG_Const::TableColumnSpacing);
 
 		column.w = std::max(0, std::min((textureWidth - std::max(0, remainingOffsetX)), remainingX));
 		column.h = columnSizes[i].height;
@@ -156,7 +156,7 @@ int LSG_Table::getRowHeight()
 	if (rowHeight > 0)
 		return rowHeight;
 
-	auto textureSize = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
+	auto textureSize = this->getTextureSizes(LSG_Const::TableColumnSpacing);
 
 	return this->getRowHeight(textureSize.totalSize);
 }
@@ -190,7 +190,7 @@ bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 
 	auto background  = this->getFillArea(this->background, this->border);
 	auto positionY   = (mousePosition.y - background.y);
-	auto textureSize = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
+	auto textureSize = this->getTextureSizes(LSG_Const::TableColumnSpacing);
 	auto rowHeight   = this->getRowHeight();
 
 	if (rowHeight < 1)
@@ -211,7 +211,7 @@ bool LSG_Table::MouseClick(const SDL_MouseButtonEvent& event)
 		if (sortColumn < 0)
 			return false;
 
-		if ((this->sortOrder == LSG_ASCENDING) && (this->sortColumn == sortColumn))
+		if ((this->sortOrder == LSG_ConstSortOrder::Ascending) && (this->sortColumn == sortColumn))
 			this->Sort(LSG_SORT_ORDER_DESCENDING, sortColumn);
 		else
 			this->Sort(LSG_SORT_ORDER_ASCENDING, sortColumn);
@@ -306,7 +306,7 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 	bool showPagination  = this->showPagination();
 
 	if (showPagination)
-		tableBackground.h -= LSG_SCROLL_WIDTH;
+		tableBackground.h -= LSG_ConstScrollBar::Width;
 
 	auto rowHeight = this->getRowHeight();
 
@@ -346,7 +346,7 @@ void LSG_Table::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgrou
 
 	if (!this->showScrollY)
 	{
-		auto rows = ((backgroundArea.h - header - (this->showScrollX ? LSG_SCROLL_WIDTH : 0)) / rowHeight);
+		auto rows = ((backgroundArea.h - header - (this->showScrollX ? LSG_ConstScrollBar::Width : 0)) / rowHeight);
 		auto y    = (backgroundArea.y + header + rowHeight - 1);
 		auto x2   = (backgroundArea.x + backgroundArea.w);
 
@@ -359,12 +359,12 @@ void LSG_Table::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgrou
 	}
 
 	auto topY    = (backgroundArea.y + header);
-	auto bottomY = (backgroundArea.y + backgroundArea.h - (this->showScrollX ? LSG_SCROLL_WIDTH : 0));
+	auto bottomY = (backgroundArea.y + backgroundArea.h - (this->showScrollX ? LSG_ConstScrollBar::Width : 0));
 
 	for (const auto& row : this->rows)
 	{
 		auto y  = (row.background.y + row.background.h - 1 - this->scrollOffsetY);
-		auto x2 = (row.background.x + row.background.w - (this->showScrollY ? LSG_SCROLL_WIDTH : 0));
+		auto x2 = (row.background.x + row.background.w - (this->showScrollY ? LSG_ConstScrollBar::Width : 0));
 
 		if ((y >= topY) && (y <= bottomY))
 			SDL_RenderDrawLine(renderer, row.background.x, y, x2, y);
@@ -388,7 +388,7 @@ void LSG_Table::renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, c
 
 		SDL_RenderCopy(renderer, this->textures[i], &clip, &destination);
 
-		auto columnSpacing = (clip.w > 0 ? LSG_TABLE_COLUMN_SPACING : 0);
+		auto columnSpacing = (clip.w > 0 ? LSG_Const::TableColumnSpacing : 0);
 
 		destination.x    += (clip.w + columnSpacing);
 		remainingX       -= (clip.w + columnSpacing);
@@ -398,7 +398,7 @@ void LSG_Table::renderRowTextures(SDL_Renderer* renderer, int backgroundWidth, c
 
 void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea, int rowHeight)
 {
-	auto textureSize = this->getTextureSizes(LSG_TABLE_COLUMN_SPACING);
+	auto textureSize = this->getTextureSizes(LSG_Const::TableColumnSpacing);
 	auto size        = textureSize.totalSize;
 
 	SDL_Rect background = backgroundArea;
@@ -409,19 +409,19 @@ void LSG_Table::renderTextures(SDL_Renderer* renderer, SDL_Rect& backgroundArea,
 		bool showScrollX = (size.width  > backgroundArea.w);
 
 		if (showScrollY)
-			background.w -= LSG_SCROLL_WIDTH;
+			background.w -= LSG_ConstScrollBar::Width;
 
 		if (showScrollX)
-			background.h -= LSG_SCROLL_WIDTH;
+			background.h -= LSG_ConstScrollBar::Width;
 
 		this->showScrollY = (size.height > background.h);
 		this->showScrollX = (size.width > background.w);
 
 		if (this->showScrollY && !showScrollY)
-			background.w -= LSG_SCROLL_WIDTH;
+			background.w -= LSG_ConstScrollBar::Width;
 
 		if (this->showScrollX && !showScrollX)
-			background.h -= LSG_SCROLL_WIDTH;
+			background.h -= LSG_ConstScrollBar::Width;
 	}
 
 	SDL_Rect clip = { 0, 0, std::min(size.width, background.w), std::min(size.height, background.h) };
@@ -540,8 +540,8 @@ void LSG_Table::SelectRow(int offset)
 	auto rowHeight      = this->getRowHeight();
 	auto rowY           = (list.y + (this->row * rowHeight));
 	auto firstRowHeight = (firstRow > 0 ? rowHeight : 0);
-	auto pagination     = (this->showPagination() ? LSG_SCROLL_WIDTH : 0);
-	auto scrollX        = (this->showScrollX ? LSG_SCROLL_WIDTH : 0);
+	auto pagination     = (this->showPagination() ? LSG_ConstScrollBar::Width : 0);
+	auto scrollX        = (this->showScrollX ? LSG_ConstScrollBar::Width : 0);
 	auto listTop        = (list.y + firstRowHeight + this->scrollOffsetY);
 	auto listBottom     = (listTop + list.h - firstRowHeight - scrollX - pagination);
 
@@ -789,7 +789,7 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 		return;
 
 	this->sortColumn = sortColumn;
-	this->sortOrder  = (sortOrder == LSG_SORT_ORDER_DESCENDING ? LSG_DESCENDING : LSG_ASCENDING);
+	this->sortOrder  = LSG_ConstSortOrder::ToString(sortOrder);
 
 	this->sort();
 	this->updatePage();
@@ -800,7 +800,7 @@ void LSG_Table::sort()
 	auto sortColumn     = std::max(0, this->sortColumn);
 	auto stringsCompare = LSG_Text::GetStringsCompare(sortColumn);
 
-	if (this->sortOrder == LSG_DESCENDING)
+	if (this->sortOrder == LSG_ConstSortOrder::Descending)
 	{
 		for (auto& group : this->pageGroups)
 			std::sort(group.rows.rbegin(), group.rows.rend(), stringsCompare);
@@ -835,7 +835,7 @@ void LSG_Table::updatePage(bool reset)
 	if (this->showPagination())
 	{
 		auto tableBackground = this->getFillArea(this->background, this->border);
-		tableBackground.h   -= LSG_SCROLL_WIDTH;
+		tableBackground.h   -= LSG_ConstScrollBar::Width;
 
 		this->initPagination(tableBackground, this->backgroundColor);
 	}
@@ -847,10 +847,10 @@ void LSG_Table::updatePage(bool reset)
 
 	for (int i = 0; i < (int)this->header.columns.size(); i++)
 	{
-		if ((i == sortColumn) && (this->sortOrder == LSG_ASCENDING))
-			this->textColumns[i] = LSG_Text::Format("%s%s\n", LSG_ARROW_UP, this->header.columns[i].c_str());
-		else if ((i == sortColumn) && (this->sortOrder == LSG_DESCENDING))
-			this->textColumns[i] = LSG_Text::Format("%s%s\n", LSG_ARROW_DOWN, this->header.columns[i].c_str());
+		if ((i == sortColumn) && (this->sortOrder == LSG_ConstSortOrder::Ascending))
+			this->textColumns[i] = LSG_Text::Format("%s%s\n", LSG_ConstUnicodeCharacter::ArrowUp, this->header.columns[i].c_str());
+		else if ((i == sortColumn) && (this->sortOrder == LSG_ConstSortOrder::Descending))
+			this->textColumns[i] = LSG_Text::Format("%s%s\n", LSG_ConstUnicodeCharacter::ArrowDown, this->header.columns[i].c_str());
 		else
 			this->textColumns[i] = LSG_Text::Format("%s\n", this->header.columns[i].c_str());
 	}

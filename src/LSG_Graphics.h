@@ -19,11 +19,15 @@ private:
 
 public:
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
-	static std::vector<SDL_Vertex> GetGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation = LSG_TRIANGLE_ORIENTATION_UP);
+	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
+	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
 	static SDL_Size                GetTextureSize(SDL_Texture* texture);
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
+
+private:
+	static std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, float paddingX, float paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation);
 
 };
 

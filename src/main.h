@@ -55,47 +55,92 @@ using LSG_StringsCompare   = std::function<bool(const LSG_Strings& s1, const LSG
 using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
 using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
 
-const char        LSG_ARROW_UP[4]             = { (char)0xE2, (char)0x86, (char)0x91, 0 };
-const char        LSG_ARROW_DOWN[4]           = { (char)0xE2, (char)0x86, (char)0x93, 0 };
-const char        LSG_CHECKMARK[4]            = { (char)0xe2, (char)0x9c, (char)0x93, 0 };
-const char        LSG_CHECKMARK_HEAVY[4]      = { (char)0xe2, (char)0x9c, (char)0x94, 0 };
-const std::string LSG_ASCENDING               = "ascending";
-const SDL_Color   LSG_DEFAULT_BACK_COLOR      = { 245, 245, 245, 255 };
-const SDL_Color   LSG_DEFAULT_BORDER_COLOR    = { 0, 0, 0, 255 };
-const SDL_Color   LSG_DEFAULT_TEXT_COLOR      = { 0, 0, 0, 255 };
-const std::string LSG_DESCENDING              = "descending";
-const int         LSG_DOUBLE_CLICK_TIME_LIMIT = 200;
-const std::string LSG_HORIZONTAL              = "horizontal";
-const int         LSG_LIST_UNIT_PAGE          = 5;
-const int         LSG_MAX_TEXTURE_SIZE        = 8192;
-const int         LSG_MENU_LAYER_OFFSET       = 1000;
-const int         LSG_MENU_LABEL_SPACING      = 4;
-const int         LSG_MENU_SPACING_HALF       = 5;
-const int         LSG_MENU_SPACING            = 10;
-const int         LSG_MENU_SPACING_2X         = 20;
-const int         LSG_MENU_SUB_PADDING_X      = 20;
-const int         LSG_MENU_SUB_PADDING_X_2X   = 40;
-const int         LSG_MENU_SUB_PADDING_Y      = 10;
-const int         LSG_MENU_SUB_PADDING_Y_2X   = 20;
-const int         LSG_PAGINATION_FONT_SIZE    = 13;
-const SDL_Color   LSG_SCROLL_COLOR_THUMB      = { 128, 128, 128, 255 };
-const int         LSG_SCROLL_PADDING          = 5;
-const int         LSG_SCROLL_PADDING_2X       = 10;
-const int         LSG_SCROLL_UNIT             = 40;
-const int         LSG_SCROLL_UNIT_PAGE        = 140;
-const int         LSG_SCROLL_UNIT_WHEEL       = 20;
-const int         LSG_SCROLL_WIDTH            = 20;
-const int         LSG_SCROLL_WIDTH_2X         = 40;
-const int         LSG_SCROLL_MIN_SIZE         = 120;
-const SDL_Color   LSG_SLIDER_BACK_COLOR       = { 192, 192, 192, 255 };
-const SDL_Color   LSG_SLIDER_PROGRESS_COLOR   = { 20, 130, 255, 255 };
-const SDL_Color   LSG_SLIDER_THUMB_COLOR      = { 128, 128, 128, 255 };
-const int         LSG_SLIDER_MIN_HEIGHT       = 20;
-const int         LSG_SLIDER_THUMB_WIDTH      = 10;
-const int         LSG_TABLE_COLUMN_SPACING    = 10;
-const uint32_t    LSG_UINT32_HALF             = (UINT32_MAX / 2);
-const std::string LSG_VERTICAL                = "vertical";
-const int         LSG_WINDOW_MIN_SIZE         = 400;
+const struct LSG_Const
+{
+	static inline const int DoubleClickTimeLimit = 200;
+	static inline const int ListUnitPage         = 5;
+	static inline const int PaginationFontSize   = 13;
+	static inline const int TableColumnSpacing   = 10;
+	static inline const int TextureMaxSize       = 8192;
+	static inline const int WindowMinSize        = 400;
+};
+
+const struct LSG_ConstDefaultColor
+{
+	static inline const SDL_Color Background       = { 245, 245, 245, 255 };
+	static inline const SDL_Color Border           = { 0, 0, 0, 255 };
+	static inline const SDL_Color Text             = { 0, 0, 0, 255 };
+	static inline const SDL_Color ScrollThumb      = { 128, 128, 128, 255 };
+	static inline const SDL_Color SliderBackground = { 192, 192, 192, 255 };
+	static inline const SDL_Color SliderProgress   = { 20, 130, 255, 255 };
+	static inline const SDL_Color SliderThumb      = { 128, 128, 128, 255 };
+};
+
+const struct LSG_ConstMenu
+{
+	static inline const int LayerOffset   = 1000;
+	static inline const int LabelSpacing  = 4;
+	static inline const int SpacingHalf   = 5;
+	static inline const int Spacing       = 10;
+	static inline const int Spacing2x     = 20;
+	static inline const int SubPaddingX   = 20;
+	static inline const int SubPaddingX2x = 40;
+	static inline const int SubPaddingY   = 10;
+	static inline const int SubPaddingY2x = 20;
+};
+
+const struct LSG_ConstOrientation
+{
+	static inline const std::string Horizontal = "horizontal";
+	static inline const std::string Vertical   = "vertical";
+
+	static inline const std::string ToString(LSG_Orientation orientationEnum)
+	{
+		return (orientationEnum == LSG_ORIENTATION_VERTICAL ? Vertical : Horizontal);
+	}
+};
+
+const struct LSG_ConstScrollBar
+{
+	static inline const int MinSize   = 120;
+	static inline const int Padding   = 5;
+	static inline const int Padding2x = 10;
+	static inline const int Unit      = 40;
+	static inline const int UnitPage  = 140;
+	static inline const int UnitWheel = 20;
+	static inline const int Width     = 20;
+	static inline const int Width2x   = 40;
+};
+
+const struct LSG_ConstSlider
+{
+	static inline const int MinHeight  = 20;
+	static inline const int ThumbWidth = 10;
+};
+
+const struct LSG_ConstSortOrder
+{
+	static inline const std::string Ascending  = "ascending";
+	static inline const std::string Descending = "descending";
+
+	static inline const LSG_SortOrder ToEnum(const std::string& sortOrder)
+	{
+		return (sortOrder == Descending ? LSG_SORT_ORDER_DESCENDING : LSG_SORT_ORDER_ASCENDING);
+	}
+
+	static inline const std::string ToString(LSG_SortOrder sortOrderEnum)
+	{
+		return (sortOrderEnum == LSG_SORT_ORDER_DESCENDING ? Descending : Ascending);
+	}
+};
+
+const struct LSG_ConstUnicodeCharacter
+{
+	static inline const char ArrowUp[4]        = { (char)0xE2, (char)0x86, (char)0x91, 0 };
+	static inline const char ArrowDown[4]      = { (char)0xE2, (char)0x86, (char)0x93, 0 };
+	static inline const char Checkmark[4]      = { (char)0xe2, (char)0x9c, (char)0x93, 0 };
+	static inline const char CheckmarkHeavy[4] = { (char)0xe2, (char)0x9c, (char)0x94, 0 };
+};
 
 const char* LSG_GetBasePath();
 

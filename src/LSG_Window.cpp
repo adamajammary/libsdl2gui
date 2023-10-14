@@ -65,14 +65,17 @@ bool LSG_Window::IsMaximized()
  */
 SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 {
-	const uint32_t FLAGS = (SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
-
-	LSG_Window::window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, FLAGS);
+	LSG_Window::window = SDL_CreateWindow(
+		title.c_str(),
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		width, height,
+		(SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE)
+	);
 
     if (!LSG_Window::window)
         throw std::runtime_error(LSG_Text::Format("Failed to create a window: %s", SDL_GetError()));
 
-	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_WINDOW_MIN_SIZE, LSG_WINDOW_MIN_SIZE);
+	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Const::WindowMinSize, LSG_Const::WindowMinSize);
 
 	LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_ACCELERATED);
 

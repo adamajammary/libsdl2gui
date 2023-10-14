@@ -17,14 +17,14 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 		auto textLabel = static_cast<LSG_TextLabel*>(component);
 
 		switch (event.keysym.sym) {
-			case SDLK_LEFT:     textLabel->ScrollHorizontal(-LSG_SCROLL_UNIT); break;
-			case SDLK_RIGHT:    textLabel->ScrollHorizontal(LSG_SCROLL_UNIT); break;
+			case SDLK_LEFT:     textLabel->ScrollHorizontal(-LSG_ConstScrollBar::Unit); break;
+			case SDLK_RIGHT:    textLabel->ScrollHorizontal(LSG_ConstScrollBar::Unit); break;
 			case SDLK_HOME:     textLabel->ScrollHome(); break;
 			case SDLK_END:      textLabel->ScrollEnd(); break;
-			case SDLK_UP:       textLabel->ScrollVertical(-LSG_SCROLL_UNIT); break;
-			case SDLK_DOWN:     textLabel->ScrollVertical(LSG_SCROLL_UNIT); break;
-			case SDLK_PAGEUP:   textLabel->ScrollVertical(-LSG_SCROLL_UNIT_PAGE); break;
-			case SDLK_PAGEDOWN: textLabel->ScrollVertical(LSG_SCROLL_UNIT_PAGE); break;
+			case SDLK_UP:       textLabel->ScrollVertical(-LSG_ConstScrollBar::Unit); break;
+			case SDLK_DOWN:     textLabel->ScrollVertical(LSG_ConstScrollBar::Unit); break;
+			case SDLK_PAGEUP:   textLabel->ScrollVertical(-LSG_ConstScrollBar::UnitPage); break;
+			case SDLK_PAGEDOWN: textLabel->ScrollVertical(LSG_ConstScrollBar::UnitPage); break;
 			default: break;
 		}
 	}
@@ -33,14 +33,14 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 		auto list = static_cast<LSG_List*>(component);
 
 		switch (event.keysym.sym) {
-			case SDLK_LEFT:     list->ScrollHorizontal(-LSG_SCROLL_UNIT); break;
-			case SDLK_RIGHT:    list->ScrollHorizontal(LSG_SCROLL_UNIT); break;
+			case SDLK_LEFT:     list->ScrollHorizontal(-LSG_ConstScrollBar::Unit); break;
+			case SDLK_RIGHT:    list->ScrollHorizontal(LSG_ConstScrollBar::Unit); break;
 			case SDLK_HOME:     list->SelectFirstRow(); break;
 			case SDLK_END:      list->SelectLastRow(); break;
 			case SDLK_UP:       list->SelectRow(-1); break;
 			case SDLK_DOWN:     list->SelectRow(1); break;
-			case SDLK_PAGEUP:   list->SelectRow(-LSG_LIST_UNIT_PAGE); break;
-			case SDLK_PAGEDOWN: list->SelectRow(LSG_LIST_UNIT_PAGE); break;
+			case SDLK_PAGEUP:   list->SelectRow(-LSG_Const::ListUnitPage); break;
+			case SDLK_PAGEDOWN: list->SelectRow(LSG_Const::ListUnitPage); break;
 			case SDLK_RETURN: case SDLK_KP_ENTER: list->Activate(); break;
 			default: break;
 		}
@@ -50,14 +50,14 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 		auto table = static_cast<LSG_Table*>(component);
 
 		switch (event.keysym.sym) {
-			case SDLK_LEFT:     table->ScrollHorizontal(-LSG_SCROLL_UNIT); break;
-			case SDLK_RIGHT:    table->ScrollHorizontal(LSG_SCROLL_UNIT); break;
+			case SDLK_LEFT:     table->ScrollHorizontal(-LSG_ConstScrollBar::Unit); break;
+			case SDLK_RIGHT:    table->ScrollHorizontal(LSG_ConstScrollBar::Unit); break;
 			case SDLK_HOME:     table->SelectFirstRow(); break;
 			case SDLK_END:      table->SelectLastRow(); break;
 			case SDLK_UP:       table->SelectRow(-1); break;
 			case SDLK_DOWN:     table->SelectRow(1); break;
-			case SDLK_PAGEUP:   table->SelectRow(-LSG_LIST_UNIT_PAGE); break;
-			case SDLK_PAGEDOWN: table->SelectRow(LSG_LIST_UNIT_PAGE); break;
+			case SDLK_PAGEUP:   table->SelectRow(-LSG_Const::ListUnitPage); break;
+			case SDLK_PAGEDOWN: table->SelectRow(LSG_Const::ListUnitPage); break;
 			case SDLK_RETURN: case SDLK_KP_ENTER: table->Activate(); break;
 			default: break;
 		}
@@ -183,7 +183,7 @@ void LSG_Events::handleMouseMoveEvent(const SDL_MouseMotionEvent& event)
 
 void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 {
-	int       scroll        = -(event.y * LSG_SCROLL_UNIT_WHEEL);
+	int       scroll        = -(event.y * LSG_ConstScrollBar::UnitWheel);
 	SDL_Point mousePosition = { event.mouseX, event.mouseY };
 	auto      component     = LSG_UI::GetComponent(mousePosition);
 
@@ -259,7 +259,7 @@ bool LSG_Events::IsDoubleClick(const SDL_MouseButtonEvent& event)
 		return false;
 
 	auto timeSinceLastClick = (SDL_GetTicks() - LSG_Events::lastClickTime);
-	bool isDoubleClick      = ((timeSinceLastClick > 0) && (timeSinceLastClick < LSG_DOUBLE_CLICK_TIME_LIMIT));
+	bool isDoubleClick      = ((timeSinceLastClick > 0) && (timeSinceLastClick < LSG_Const::DoubleClickTimeLimit));
 
 	return isDoubleClick;
 }
