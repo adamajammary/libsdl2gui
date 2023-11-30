@@ -178,8 +178,12 @@ endif()
 if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/android .)
 
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mkdir -p \"${OUT_DIR}/src/main/assets\")
+
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/src/main/assets/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/src/main/assets/)
+
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mkdir -p \"${OUT_DIR}/libs/arm64-v8a\")
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/arm64-v8a/libmain.so)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/arm64-v8a/)
