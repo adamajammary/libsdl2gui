@@ -18,6 +18,11 @@ void LSG_Window::Close()
 	SDL_Quit();
 }
 
+int LSG_Window::GetDisplayIndex()
+{
+	return SDL_GetWindowDisplayIndex(LSG_Window::window);
+}
+
 SDL_Size LSG_Window::GetMinimumSize()
 {
 	SDL_Size size = {};
@@ -50,6 +55,21 @@ SDL_Size LSG_Window::GetSize()
 	return size;
 }
 
+SDL_FPoint LSG_Window::GetSizeScale()
+{
+	auto sizeInPixels = LSG_Window::GetSize();
+
+	SDL_Size size = {};
+	SDL_GetWindowSize(LSG_Window::window, &size.width, &size.height);
+
+	SDL_FPoint scale = {
+		((float)sizeInPixels.width  / (float)size.width),
+		((float)sizeInPixels.height / (float)size.height)
+	};
+
+	return scale;
+}
+
 std::string LSG_Window::GetTitle()
 {
 	return SDL_GetWindowTitle(LSG_Window::window);
@@ -72,21 +92,47 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		(SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE)
 	);
 
-    if (!LSG_Window::window)
-        throw std::runtime_error(LSG_Text::Format("Failed to create a window: %s", SDL_GetError()));
+	if (!LSG_Window::window)
+		throw std::runtime_error(LSG_Text::Format("Failed to create a window: %s", SDL_GetError()));
 
-	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Const::WindowMinSize, LSG_Const::WindowMinSize);
+	#if defined _linux || defined _macosx || defined _windows
+		auto iconFile    = LSG_Text::GetFullPath("img/icon.png");
+		auto iconSurface = IMG_Load(iconFile.c_str());
+
+		SDL_SetWindowIcon(LSG_Window::window, iconSurface);
+		SDL_FreeSurface(iconSurface);
+	#endif
+
+	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Window::MinSize, LSG_Window::MinSize);
 
 	LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_ACCELERATED);
 
-    if (!LSG_Window::renderer)
+	if (!LSG_Window::renderer)
 		LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_SOFTWARE);
 
-    if (!LSG_Window::renderer)
-        throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
+	if (!LSG_Window::renderer)
+		throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
 
 	return LSG_Window::renderer;
 }
+
+#if defined _windows && defined _DEBUG
+/**
+ * @throws runtime_error
+ */
+void LSG_Window::OpenTest()
+{
+	auto surface = SDL_CreateRGBSurfaceWithFormat(0, 800, 600, 24, SDL_PIXELFORMAT_RGB24);
+
+	if (!surface)
+		throw std::runtime_error(LSG_Text::Format("Failed to create a surface: %s", SDL_GetError()));
+
+	LSG_Window::renderer = SDL_CreateSoftwareRenderer(surface);
+
+	if (!LSG_Window::renderer)
+		throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
+}
+#endif
 
 #if defined _linux
 std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection)
@@ -355,10 +401,8 @@ void LSG_Window::Present()
 
 void LSG_Window::Render()
 {
-	auto backgroundColor = LSG_UI::GetBackgroundColor();
-
 	SDL_SetRenderTarget(LSG_Window::renderer, nullptr);
-	SDL_SetRenderDrawColor(LSG_Window::renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
+	SDL_SetRenderDrawColor(LSG_Window::renderer, 0, 0, 0, 0);
 	SDL_RenderClear(LSG_Window::renderer);
 
 	LSG_UI::Render(LSG_Window::renderer);
@@ -496,13 +540,13 @@ void LSG_Window::ShowMessage(const std::string& message, uint32_t flags)
 SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 {
 	if (imageFile.empty())
-		return nullptr;
+		throw std::invalid_argument("imageFile cannot be empty.");
 
 	auto filePath = LSG_Text::GetFullPath(imageFile);
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
-
+	
 	if (!texture)
-		throw std::runtime_error(LSG_Text::Format("Failed to load image file: %s", filePath.c_str()));
+		throw std::runtime_error(LSG_Text::Format("Failed to create texture from image '%s': %s", filePath.c_str(), SDL_GetError()));
 
 	return texture;
 }
@@ -510,8 +554,13 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 {
 	if (!surface)
-		return nullptr;
+		throw std::invalid_argument("surface cannot be null.");
 
-	return SDL_CreateTextureFromSurface(LSG_Window::renderer, surface);
+	auto texture = SDL_CreateTextureFromSurface(LSG_Window::renderer, surface);
+
+	if (!texture)
+		throw std::runtime_error(LSG_Text::Format("Failed to create texture from surface: %s", SDL_GetError()));
+
+	return texture;
 }
 

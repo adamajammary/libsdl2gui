@@ -10,7 +10,7 @@ public:
 	virtual ~LSG_IEvent() {}
 
 public:
-	virtual bool MouseClick(const SDL_MouseButtonEvent& event) = 0;
+	virtual bool OnMouseClick(const SDL_Point& mousePosition) = 0;
 
 protected:
 	virtual void sendEvent(LSG_EventType type) = 0;

@@ -6,7 +6,7 @@
 class LSG_ListItem : public LSG_Component
 {
 public:
-	LSG_ListItem(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
+	LSG_ListItem(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_ListItem() {}
 
 public:

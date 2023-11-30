@@ -1,15 +1,11 @@
 #include "LSG_List.h"
 
-LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
-	: LSG_Text(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
+LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
+	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->rows        = {};
 	this->orientation = LSG_ConstOrientation::Vertical;
 	this->row         = -1;
 	this->wrap        = true;
-
-	this->showRowBorder = (this->GetXmlAttribute("row-border") == "true");
-	this->sortOrder     = this->GetXmlAttribute("sort");
 }
 
 void LSG_List::Activate()
@@ -17,111 +13,121 @@ void LSG_List::Activate()
 	this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
-void LSG_List::AddItem(const std::string& item)
+/**
+ * @throws runtime_error
+ */
+LSG_Component* LSG_List::AddItem(const std::string& item, bool reset)
 {
 	if (item.empty())
-		return;
+		return nullptr;
 
-	this->pageItems.push_back(item);
+	auto itemNode = LSG_XML::AddChildNode(this->xmlNode, "list-item");
 
-	this->SetItems(this->pageItems);
-}
+	if (!itemNode) {
+		auto error = LibXml::xmlGetLastError();
+		throw std::runtime_error(LSG_Text::Format("Failed to add list item: %s", (error ? error->message : "")));
+	}
 
-std::string LSG_List::GetItem(int row)
-{
-	if (!this->rows.empty() && (row >= 0) && (row < (int)this->rows.size()))
-		return this->rows[row].item;
+	auto itemComponent = LSG_UI::AddXmlNode(itemNode, this);
 
-	return "";
-}
+	itemComponent->text = item;
 
-LSG_Strings LSG_List::GetItems()
-{
-	LSG_Strings items;
+	if (reset)
+		this->reset();
 
-	for (const auto& row : this->rows)
-		items.push_back(row.item);
-
-	return items;
-}
-
-int LSG_List::getLastRow()
-{
-	return (int)(this->rows.size() - 1);
-}
-
-LSG_Strings LSG_List::getPageItems()
-{
-	if (this->pageItems.size() <= LSG_MAX_ROWS_PER_PAGE)
-		return this->pageItems;
-
-	auto offset = (size_t)(this->page * LSG_MAX_ROWS_PER_PAGE);
-	auto max    = std::min(this->pageItems.size(), (offset + LSG_MAX_ROWS_PER_PAGE));
-	auto start  = (this->pageItems.begin() + offset);
-	auto end    = (this->pageItems.begin() + max);
-
-	return LSG_Strings(start, end);
+	return itemComponent;
 }
 
 int LSG_List::getRowHeight()
 {
-	if (this->rows.empty())
-		return 0;
+	auto header = (this->pageHeader ? 1 : 0);
+	auto rows   = (this->getLastRow() + header + 1);
 
-	auto textureSize = this->GetTextureSize();
-	auto rowHeight   = (textureSize.height / (int)this->rows.size());
+	if (rows > 0)
+		return (this->getTextureHeight() / rows);
 
-	return rowHeight;
+	return 0;
 }
 
-int LSG_List::GetSelectedRow()
+int LSG_List::GetSelectedRow() const
 {
 	return this->row;
 }
 
 LSG_SortOrder LSG_List::GetSortOrder()
 {
-	 return LSG_ConstSortOrder::ToEnum(this->sortOrder);
+	return LSG_ConstSortOrder::ToEnum(this->GetXmlAttribute("sort"));
 }
 
-bool LSG_List::MouseClick(const SDL_MouseButtonEvent& event)
+bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->rows.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown() || this->children.empty())
 		return false;
-
-	SDL_Point mousePosition = { event.x, event.y };
 
 	if (this->isPaginationClicked(mousePosition))
 	{
-		if (this->isPageArrowClicked(mousePosition))
-			this->updatePage();
+		if (this->isPageArrowClicked(mousePosition)) {
+			this->Update();
+			this->SelectFirstRow();
+		}
 
 		return true;
 	}
 
-	auto positionY = (mousePosition.y - this->background.y + this->scrollOffsetY);
-	auto rowHeight = this->getRowHeight();
+	auto background = this->getFillArea(this->background, this->border);
+	auto positionY  = (mousePosition.y - background.y + this->scrollOffsetY);
+	auto rowHeight  = this->getRowHeight();
 
 	if (rowHeight < 1)
 		return false;
 
-	bool selected = this->Select(positionY / rowHeight);
-
-	if (selected && LSG_Events::IsDoubleClick(event))
-		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
+	this->Select(positionY / rowHeight);
 
 	return true;
 }
 
-void LSG_List::RemoveItem(int row)
+void LSG_List::removeItem(int row, int lastRow)
 {
-	auto rowOffset = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
-
-	if ((rowOffset < 0) || (rowOffset >= (int)this->pageItems.size()))
+	if ((row < 0) || (row > lastRow))
 		return;
 
-	this->pageItems.erase(this->pageItems.begin() + (size_t)rowOffset);
-	this->SetItems(this->pageItems);
+	auto itemIter = (this->pageItems.begin() + (size_t)row);
+
+	if ((row >= (int)this->pageItems.size()) || (itemIter == this->pageItems.end()))
+		return;
+
+	LSG_UI::RemoveXmlNode(*itemIter);
+
+	this->pageItems.erase(itemIter);
+
+	this->Update();
+
+	lastRow = this->getLastRow();
+
+	if (lastRow < 0)
+	{
+		this->page          = 0;
+		this->scrollOffsetX = 0;
+		this->scrollOffsetY = 0;
+
+		this->Select(-1);
+	} else if (this->row > lastRow) {
+		this->SelectLastRow();
+	}
+}
+
+void LSG_List::RemoveItem(int row)
+{
+	auto lastRow = (int)(this->pageItems.size() - 1);
+
+	this->removeItem(row, lastRow);
+}
+
+void LSG_List::RemovePageItem(int row)
+{
+	auto rowIndex = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
+
+	this->removeItem(rowIndex, this->getLastRow());
 }
 
 void LSG_List::Render(SDL_Renderer* renderer)
@@ -131,111 +137,111 @@ void LSG_List::Render(SDL_Renderer* renderer)
 
 	LSG_Component::Render(renderer);
 
-	if (!this->texture || this->rows.empty())
+	if (!this->texture)
 		return;
 
-	auto listBackground = this->getFillArea(this->background, this->border);
-	auto rowHeight      = this->getRowHeight();
-	auto size           = this->GetTextureSize();
-	bool showPagination = this->showPagination();
+	auto background      = this->getFillArea(this->background, this->border);
+	auto rowHeight       = this->getRowHeight();
+	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
+	bool showPagination  = this->showPagination();
+	bool showRowBorder   = (this->GetXmlAttribute("row-border") == "true");
+	auto textureSize     = this->getTextureSize();
+
+	if (background.h < scrollBarSize2x)
+		return;
 
 	if (showPagination)
-		listBackground.h -= LSG_ConstScrollBar::Width;
+		background.h -= LSG_ScrollBar::GetSize();
 
-	this->setRowHeights(rowHeight, listBackground);
-	this->renderTexture(renderer, listBackground);
+	this->renderScrollableTexture(renderer, background, this->getAlignment(), this->texture, textureSize);
 
-	if (this->showRowBorder)
-		this->renderRowBorder(renderer, rowHeight, listBackground);
+	if (showRowBorder)
+		this->renderRowBorder(renderer, background, rowHeight);
 
-	this->renderHighlightSelection(renderer, listBackground, this->rows[0].background);
+	this->renderHighlightSelection(renderer, background, rowHeight);
 
 	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, listBackground, size.width, this->backgroundColor, this->highlighted);
+		this->renderScrollBarHorizontal(renderer, background, textureSize.width, this->backgroundColor, this->highlighted);
 
 	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer, listBackground, size.height, this->backgroundColor, this->highlighted);
+		this->renderScrollBarVertical(renderer, background, textureSize.height, this->backgroundColor, this->highlighted);
 
 	if (showPagination)
-		this->renderPagination(renderer, listBackground);
+		this->renderPagination(renderer, background, this->backgroundColor);
 }
 
-void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& backgroundArea, const SDL_Rect& rowBackground)
+void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)
 {
-	SDL_Rect row = rowBackground;
-
-	row.y = (backgroundArea.y + (this->row * rowBackground.h));
-
-	if (this->showScrollY)
-		row.w -= LSG_ConstScrollBar::Width;
-
-	row.y -= this->scrollOffsetY;
-
-	auto listBottomY = (backgroundArea.y + backgroundArea.h);
-	auto bottomY     = (row.y + row.h);
-	auto topDiffY    = (bottomY - backgroundArea.y);
-	auto bottomDiffY = (listBottomY - row.y);
-
-	if (topDiffY < row.h) {
-		row.y += (row.h - topDiffY);
-		row.h  = topDiffY;
-	} else if (bottomDiffY < row.h) {
-		row.h = bottomDiffY;
-	}
-
-	bool isVisible = ((bottomY >= backgroundArea.y) && (row.y <= listBottomY));
-	
-	if (!isVisible)
+	if (this->row < 0)
 		return;
 
+	auto header = (this->pageHeader ? rowHeight : 0);
+
+	auto scrollSize  = LSG_ScrollBar::GetSize();
+	auto scrollWidth = (this->showScrollY ? scrollSize : 0);
+
+	SDL_Rect row = background;
+
+	row.y += (header + (this->row * rowHeight) - this->scrollOffsetY);
+	row.w -= scrollWidth;
+	row.h  = rowHeight;
+
+	auto topOffset    = ((row.y + rowHeight) - background.y);
+	auto bottomOffset = ((background.y + background.h) - row.y);
+
+	if ((topOffset <= 0) || (bottomOffset <= 0))
+		return;
+
+	if (topOffset < rowHeight) {
+		row.y += (row.h - topOffset);
+		row.h  = topOffset;
+	} else if (bottomOffset < rowHeight) {
+		row.h = bottomOffset;
+	}
+
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
+	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 64);
 
 	SDL_RenderFillRect(renderer, &row);
 }
 
-void LSG_List::renderRowBorder(SDL_Renderer* renderer, int rowHeight, const SDL_Rect& backgroundArea)
+void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)
 {
 	if (rowHeight < 1)
 		return;
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 255 - this->backgroundColor.r, 255 - this->backgroundColor.g, 255 - this->backgroundColor.b, 64);
+	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 64);
 
-	if (!this->showScrollY)
-	{
-		auto rows = ((backgroundArea.h - (this->showScrollX ? LSG_ConstScrollBar::Width : 0)) / rowHeight);
-		auto y    = (backgroundArea.y + rowHeight - 1);
-		auto x2   = (backgroundArea.x + backgroundArea.w);
+	auto scrollOffsetY = (this->showScrollY ? (this->scrollOffsetY % rowHeight) : 0);
+	auto scrollSize    = LSG_ScrollBar::GetSize();
+	auto scrollWidth   = (this->showScrollY ? scrollSize : 0);
+	auto scrollHeight  = (this->showScrollX ? scrollSize : 0);
 
-		for (int i = 0; i < rows; i++) {
-			SDL_RenderDrawLine(renderer, backgroundArea.x, y, x2, y);
-			y += rowHeight;
-		}
+	auto header = (this->pageHeader ? rowHeight : 0);
+	auto rows   = (int)((float)(background.h - header - scrollHeight) / (float)rowHeight);
 
-		return;
+	auto y  = (background.y + header + rowHeight - scrollOffsetY);
+	auto x2 = (background.x + background.w - 1 - scrollWidth);
+
+	for (int i = 0; i < rows; i++) {
+		SDL_RenderDrawLine(renderer, background.x, y, x2, y);
+		y += rowHeight;
 	}
+}
 
-	auto bottomY = (backgroundArea.y + backgroundArea.h - (this->showScrollX ? LSG_ConstScrollBar::Width : 0));
-
-	for (const auto& row : this->rows)
-	{
-		auto y  = (row.background.y + row.background.h - 1 - this->scrollOffsetY);
-		auto x2 = (row.background.x + row.background.w - (this->showScrollY ? LSG_ConstScrollBar::Width : 0));
-
-		if ((y >= backgroundArea.y) && (y <= bottomY))
-			SDL_RenderDrawLine(renderer, row.background.x, y, x2, y);
-	}
+void LSG_List::reset()
+{
+	this->destroyTextures();
+	this->SetItems();
 }
 
 bool LSG_List::Select(int row)
 {
-	if (!this->enabled || this->rows.empty())
-		return false;
+	auto firstRow = (this->pageHeader ? 1 : 0);
+	auto lastRow  = (firstRow + this->getLastRow());
 
-	auto lastRow = this->getLastRow();
-
-	if ((row < 0) || (row > lastRow))
+	if (!this->enabled || (row > lastRow))
 		return false;
 
 	if (row == this->row)
@@ -243,54 +249,61 @@ bool LSG_List::Select(int row)
 
 	this->row = row;
 
-	this->sendEvent(LSG_EVENT_ROW_SELECTED);
+	this->sendEvent(row < 0 ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
 
 	return true;
 }
 
 void LSG_List::SelectFirstRow()
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
 		return;
 
-	this->Select(0);
-	this->ScrollHome();
+	auto firstRow = (this->pageHeader ? 1 : 0);
+
+	this->Select(firstRow);
+	this->OnScrollHome();
 }
 
 void LSG_List::SelectLastRow()
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
 		return;
 
-	this->Select(this->getLastRow());
-	this->ScrollEnd();
+	auto firstRow = (this->pageHeader ? 1 : 0);
+	auto lastRow  = (firstRow + this->getLastRow());
+
+	this->Select(lastRow);
+	this->OnScrollEnd();
 }
 
 void LSG_List::SelectRow(int offset)
 {
-	if (!this->enabled || this->rows.empty())
+	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
 		return;
 
-	auto lastRow     = this->getLastRow();
-	auto selectedRow = std::max(0, std::min(lastRow, (this->row + offset)));
+	auto firstRow = (this->pageHeader ? 1 : 0);
+	auto lastRow  = (firstRow + this->getLastRow());
+	auto nextRow  = (this->row + offset);
 
-	this->Select(selectedRow);
+	this->Select(std::max(firstRow, std::min(lastRow, nextRow)));
 
 	if (!this->showScrollY)
 		return;
 
-	auto list       = this->getFillArea(this->background, this->border);
-	auto row        = this->rows[0].background;
-	auto rowY       = (list.y + (this->row * row.h));
-	auto pagination = (this->showPagination() ? LSG_ConstScrollBar::Width : 0);
-	auto scrollX    = (this->showScrollX ? LSG_ConstScrollBar::Width : 0);
-	auto listTop    = (list.y + this->scrollOffsetY);
-	auto listBottom = (listTop + list.h - scrollX - pagination);
+	auto background    = this->getFillArea(this->background, this->border);
+	auto rowHeight     = this->getRowHeight();
+	auto rowY          = (background.y + (this->row * rowHeight));
+	auto scrollBarSize = LSG_ScrollBar::GetSize();
+	auto pagination    = (this->showPagination() ? scrollBarSize : 0);
+	auto scrollX       = (this->showScrollX ? scrollBarSize : 0);
+	auto topY          = (background.y + this->scrollOffsetY);
+	auto bottomY       = (topY + background.h - scrollX - pagination);
 
-	if ((rowY + row.h) >= listBottom)
-		this->ScrollVertical(std::abs(offset) * row.h);
-	else if (rowY < listTop)
-		this->ScrollVertical(std::abs(offset) * -row.h);
+	if ((rowY + rowHeight) >= bottomY)
+		this->OnScrollVertical(std::abs(offset) * rowHeight);
+	else if (rowY < topY)
+		this->OnScrollVertical(std::abs(offset) * (-rowHeight));
 }
 
 void LSG_List::sendEvent(LSG_EventType type)
@@ -302,7 +315,7 @@ void LSG_List::sendEvent(LSG_EventType type)
 
 	listEvent.type       = SDL_RegisterEvents(1);
 	listEvent.user.code  = (int)type;
-	listEvent.user.data1 = (void*)strdup(this->GetID().c_str());
+	listEvent.user.data1 = (void*)strdup(this->id.c_str());
 	listEvent.user.data2 = (void*)&this->row;
 
 	SDL_PushEvent(&listEvent);
@@ -310,77 +323,101 @@ void LSG_List::sendEvent(LSG_EventType type)
 
 void LSG_List::SetItem(int row, const std::string& item)
 {
-	if (item.empty())
+	auto lastRow = (int)(this->pageItems.size() - 1);
+
+	this->setItem(row, lastRow, item);
+}
+
+void LSG_List::setItem(int row, int lastRow, const std::string& item)
+{
+	if ((row < 0) || (row > lastRow) || (row >= (int)this->pageItems.size()))
 		return;
 
-	auto rowOffset = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
+	this->pageItems[row]->text = item;
 
-	if ((rowOffset < 0) || (rowOffset >= (int)this->pageItems.size()))
-		return;
-
-	this->pageItems[rowOffset] = item;
-	this->SetItems(this->pageItems);
+	this->destroyTextures();
+	this->setItems();
 }
 
 void LSG_List::SetItems(const LSG_Strings& items)
 {
-	this->page      = 0;
-	this->pageItems = items;
+	this->page          = 0;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
 
-	if (!this->sortOrder.empty())
-		this->sort();
+	this->Select(-1);
 
-	this->updatePage();
+	this->pageItems.clear();
+
+	this->destroyTextures();
+
+	LSG_UI::RemoveXmlChildNodes(this);
+
+	for (const auto& item : items)
+	{
+		auto itemComponent = this->AddItem(item, false);
+
+		this->pageItems.push_back(itemComponent);
+	}
+
+	this->setItems();
 }
 
 void LSG_List::SetItems()
 {
-	if (!this->rows.empty() && !this->text.empty() && this->texture && !this->hasChanged())
-	{
-		this->scrollOffsetX = 0;
-		this->scrollOffsetY = 0;
-
-		for (auto& row : this->rows)
-			row.background = {};
-
+	if (this->texture && !this->hasChanged())
 		return;
-	}
 
-	if (this->rows.empty() || this->text.empty())
-	{
-		LSG_Strings items;
+	this->pageItems.clear();
 
-		for (auto child : this->children)
-		{
-			auto item = child->GetXmlValue();
+	this->destroyTextures();
 
-			if (!item.empty())
-				items.push_back(item);
-		}
+	for (auto child : this->children)
+		this->pageItems.push_back(child);
 
-		this->SetItems(items);
-	} else {
-		this->updatePage(false);
-	}
+	this->setItems();
+}
+
+void LSG_List::Update()
+{
+	this->destroyTextures();
+	this->setItems(false);
+}
+
+void LSG_List::setItems(bool sort)
+{
+	if (this->showPagination())
+		this->initPagination(this->getFillArea(this->background, this->border), this->backgroundColor);
+
+	auto sortOrder = this->GetXmlAttribute("sort");
+
+	if (sort && !sortOrder.empty())
+		this->sort();
+
+	auto        items = this->GetPageItems();
+	std::string text  = "";
+
+	for (const auto& item : items)
+		text.append(LSG_Text::Format("%s\n", (!item.empty() ? item.c_str() : " ")));
+
+	if (!text.empty())
+		this->texture = this->getTexture(text);
 }
 
 void LSG_List::SetPage(int page)
 {
-	if (this->navigate(page))
-		this->updatePage();
-}
-
-void LSG_List::setRowHeights(int rowHeight, const SDL_Rect& backgroundArea)
-{
-	if ((rowHeight < 1) || SDL_RectEmpty(&backgroundArea) || this->rows.empty() || (this->rows[0].background.h > 0))
+	if (!this->navigate(page))
 		return;
 
-	for (int i = 0; i < (int)this->rows.size(); i++)
-	{
-		this->rows[i].background    = SDL_Rect(backgroundArea);
-		this->rows[i].background.y += (i * rowHeight);
-		this->rows[i].background.h  = rowHeight;
-	}
+	this->reset();
+	this->SelectFirstRow();
+}
+
+void LSG_List::SetPageItem(int row, const std::string& item)
+{
+	auto rowIndex = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
+
+	this->setItem(rowIndex, this->getLastRow(), item);
 }
 
 void LSG_List::Sort(LSG_SortOrder sortOrder)
@@ -388,60 +425,19 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 	if (sortOrder == this->GetSortOrder())
 		return;
 
-	this->sortOrder = LSG_ConstSortOrder::ToString(sortOrder);
+	LSG_XML::SetAttribute(this->xmlNode, "sort", LSG_ConstSortOrder::ToString(sortOrder));
 
-	this->sort();
-	this->updatePage();
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
+
+	this->Select(-1);
+	this->reset();
 }
 
 void LSG_List::sort()
 {
-	if (this->sortOrder == LSG_ConstSortOrder::Descending)
-		std::sort(this->pageItems.rbegin(), this->pageItems.rend(), LSG_Text::GetStringCompare);
+	if (this->GetXmlAttribute("sort") == LSG_ConstSortOrder::Descending)
+		std::sort(this->pageItems.rbegin(), this->pageItems.rend(), LSG_Text::GetXmlValueCompare);
 	else
-		std::sort(this->pageItems.begin(), this->pageItems.end(), LSG_Text::GetStringCompare);
-}
-
-void LSG_List::updatePage(bool reset)
-{
-	if (reset)
-	{
-		this->row           = -1;
-		this->scrollOffsetX = 0;
-		this->scrollOffsetY = 0;
-	}
-
-	this->rows.clear();
-	this->text = "";
-
-	this->destroyTextures();
-
-	if (this->showPagination())
-	{
-		auto listBackground = this->getFillArea(this->background, this->border);
-		listBackground.h   -= LSG_ConstScrollBar::Width;
-
-		this->initPagination(listBackground, this->backgroundColor);
-	}
-
-	auto pageItems = this->getPageItems();
-
-	for (const auto& item : pageItems)
-	{
-		if (item.empty())
-			continue;
-
-		this->text.append(item).append("\n");
-		this->rows.push_back({ .item = item });
-	}
-
-	if (this->rows.empty() || this->text.empty())
-		return;
-
-	this->SetText(this->text);
-
-	if (this->row > 0)
-		this->Select(this->row);
-	else
-		this->SelectFirstRow();
+		std::sort(this->pageItems.begin(), this->pageItems.end(), LSG_Text::GetXmlValueCompare);
 }

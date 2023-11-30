@@ -4,8 +4,6 @@
 #ifndef LSG_ANDROID_JNI_H
 #define LSG_ANDROID_JNI_H
 
-const std::string LSG_ACTIVITY_CLASS_PATH = "com/libsdl2gui/lib/Sdl2GuiActivity";
-
 class LSG_AndroidJNI
 {
 private:
@@ -14,7 +12,7 @@ private:
 
 public:
 	static AAssetManager* GetAssetManager();
-	static jclass         GetClass(const std::string& classPath);
+	static jclass         GetClass(const std::string& classPath, JNIEnv* jniEnvironment);
 	static JNIEnv*        GetEnvironment();
 
 };

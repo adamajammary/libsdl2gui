@@ -12,8 +12,8 @@ AAssetManager* LSG_AndroidJNI::GetAssetManager()
 	if (!jniObjectActivity)
 		throw std::runtime_error("Failed to get a valid Android JNI Activity.");
 
-	auto jniClassActivity  = LSG_AndroidJNI::GetClass("android/app/Activity");
-	auto jniClassResources = LSG_AndroidJNI::GetClass("android/content/res/Resources");
+	auto jniClassActivity  = LSG_AndroidJNI::GetClass("android/app/Activity",          jniEnvironment);
+	auto jniClassResources = LSG_AndroidJNI::GetClass("android/content/res/Resources", jniEnvironment);
 
 	auto jniMethodGetAssets    = jniEnvironment->GetMethodID(jniClassResources, "getAssets",    "()Landroid/content/res/AssetManager;");
 	auto jniMethodGetResources = jniEnvironment->GetMethodID(jniClassActivity,  "getResources", "()Landroid/content/res/Resources;");
@@ -38,7 +38,7 @@ AAssetManager* LSG_AndroidJNI::GetAssetManager()
 /**
  * @throws runtime_error
  */
-jclass LSG_AndroidJNI::GetClass(const std::string& classPath)
+jclass LSG_AndroidJNI::GetClass(const std::string& classPath, JNIEnv* jniEnvironment)
 {
 	auto jniClass = jniEnvironment->FindClass(classPath.c_str());
 

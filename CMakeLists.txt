@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
 
-project (testsdl2gui)
 project (sdl2gui)
 
 # libsdl2gui depends on the following third-party libraries:
@@ -45,14 +44,12 @@ elseif (IOS)
     set(DLL_EXT "a")
     set(OUT_DIR "${CFG_DIR}testsdl2gui.app")
 
-    set(FONT_PATH  "/System/Library/Fonts/Supplemental")
-    set(FONT_ARIAL "${FONT_PATH}/Arial Unicode.ttf")
-    set(FONT_MONO  "${FONT_PATH}/Courier New Bold.ttf")
-
-    set(ICON "${SRC_DIR}/android/testsdl2gui/src/main/res/mipmap-xxxhdpi/ic_launcher.png")
+    set(FONT_ARIAL "/System/Library/Fonts/Supplemental/Arial Unicode.ttf")
+    set(INFO_PLIST "${SRC_DIR}/ios/MacOSXBundleInfo.plist.in")
+    set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 
     set(OS_LIBS      "-framework UIKit")
-    set(OS_TEST_LIBS "iconv -framework AudioToolbox -framework AVFAudio -framework CoreBluetooth -framework CoreFoundation -framework CoreGraphics -framework CoreHaptics -framework CoreMotion -framework Foundation -framework GameController -framework ImageIO -framework Metal -framework MobileCoreServices -framework OpenGLES -framework QuartzCore -framework UIKit")
+    set(OS_TEST_LIBS "iconv -framework AudioToolbox -framework AVFoundation -framework CoreBluetooth -framework CoreFoundation -framework CoreGraphics -framework CoreHaptics -framework CoreMotion -framework CoreServices -framework Foundation -framework GameController -framework ImageIO -framework Metal -framework OpenGLES -framework QuartzCore -framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")
 
@@ -83,13 +80,9 @@ elseif (WIN32)
     set_property(DIRECTORY ${SRC_DIR} PROPERTY VS_STARTUP_PROJECT testsdl2gui)
 endif()
 
-file(GLOB INC_H       "${SRC_DIR}/include/*.h")
-file(GLOB IMG         "${SRC_DIR}/img/*")
-file(GLOB SOURCES_H   "${SRC_DIR}/src/*.h")
-file(GLOB SOURCES_CPP "${SRC_DIR}/src/*.cpp")
-file(GLOB TEST_H      "${SRC_DIR}/test/*.h")
-file(GLOB TEST_CPP    "${SRC_DIR}/test/*.cpp")
-file(GLOB UI          "${SRC_DIR}/ui/*")
+file(GLOB INC_H "${SRC_DIR}/include/*.h")
+file(GLOB IMG   "${SRC_DIR}/img/*")
+file(GLOB UI    "${SRC_DIR}/ui/*")
 
 source_group("Images"    FILES ${IMG})
 source_group("Resources" FILES ${RC})
@@ -97,8 +90,11 @@ source_group("UI"        FILES ${UI})
 
 # libsdl2gui
 
+file(GLOB SOURCES_H   "${SRC_DIR}/src/*.h")
+file(GLOB SOURCES_CPP "${SRC_DIR}/src/*.cpp")
+
 if (IOS)
-    add_library(sdl2gui STATIC ${SOURCES_CPP} ${SOURCES_H} ${INC_H} ${RC})
+    add_library(sdl2gui STATIC ${SOURCES_CPP} ${SOURCES_H} ${INC_H})
 else()
     add_library(sdl2gui SHARED ${SOURCES_CPP} ${SOURCES_H} ${INC_H} ${RC})
 endif()
@@ -109,13 +105,10 @@ target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
 target_link_libraries(sdl2gui      PRIVATE ${LIBS} ${OS_LIBS})
 
 if (OS STREQUAL "_macosx")
-    add_custom_command(TARGET sdl2gui PRE_LINK COMMAND install_name_tool -id @rpath/libSDL2.dylib       ${LIB_DIR}/libSDL2.dylib)
-    add_custom_command(TARGET sdl2gui PRE_LINK COMMAND install_name_tool -id @rpath/libSDL2_image.dylib ${LIB_DIR}/libSDL2_image.dylib)
-    add_custom_command(TARGET sdl2gui PRE_LINK COMMAND install_name_tool -id @rpath/libSDL2_ttf.dylib   ${LIB_DIR}/libSDL2_ttf.dylib)
-    add_custom_command(TARGET sdl2gui PRE_LINK COMMAND install_name_tool -id @rpath/libxml2.dylib       ${LIB_DIR}/libxml2.dylib)
-
-    add_custom_command(TARGET sdl2gui PRE_LINK COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2.dylib @rpath/libSDL2.dylib ${LIB_DIR}/libSDL2_image.dylib)
-    add_custom_command(TARGET sdl2gui PRE_LINK COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2.dylib @rpath/libSDL2.dylib ${LIB_DIR}/libSDL2_ttf.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2.dylib       @rpath/libSDL2.dylib       ${CFG_DIR}libsdl2gui.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2_image.dylib @rpath/libSDL2_image.dylib ${CFG_DIR}libsdl2gui.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2_ttf.dylib   @rpath/libSDL2_ttf.dylib   ${CFG_DIR}libsdl2gui.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change /usr/lib/libxml2.2.dylib                           @rpath/libxml2.dylib       ${CFG_DIR}libsdl2gui.dylib)
 endif()
 
 if (WIN32)
@@ -142,12 +135,14 @@ add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENS
 
 # testsdl2gui
 
+set(TEST_CPP "${SRC_DIR}/test/main.cpp")
+
 if (ANDROID)
-    add_library(testsdl2gui SHARED ${TEST_CPP} ${TEST_H} ${INC_H} ${IMG} ${UI})
+    add_library(testsdl2gui SHARED ${TEST_CPP} ${INC_H} ${IMG} ${UI})
 elseif (IOS)
-    add_executable(testsdl2gui MACOSX_BUNDLE ${TEST_CPP} ${TEST_H} ${INC_H} ${IMG} ${UI})
+    add_executable(testsdl2gui MACOSX_BUNDLE ${TEST_CPP} ${INC_H} ${RC} ${IMG} ${UI})
 else()
-    add_executable(testsdl2gui ${TEST_CPP} ${TEST_H} ${INC_H} ${IMG} ${UI})
+    add_executable(testsdl2gui ${TEST_CPP} ${INC_H} ${IMG} ${UI})
 endif()
 
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
@@ -156,22 +151,28 @@ target_link_directories(testsdl2gui    PRIVATE ${LIB_DIR})
 target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${TEST_LIBS} ${OS_TEST_LIBS})
 
 if (ANDROID)
-    set_target_properties(testsdl2gui PROPERTIES ADDITIONAL_CLEAN_FILES "android;${DIST_DIR}")
+    set_property(TARGET testsdl2gui PROPERTY ADDITIONAL_CLEAN_FILES "android;${DIST_DIR}")
 elseif (IOS)
+    set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdl2gui.test")
+    set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY    "1,2")
+
     set_target_properties(testsdl2gui PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST           "${INFO_PLIST}"
+        MACOSX_BUNDLE_BUNDLE_NAME          "Test SDL2 GUI"
+        MACOSX_BUNDLE_COPYRIGHT            "(c) 2021 Adam A. Jammary (Jammary Studio)"
         MACOSX_BUNDLE_GUI_IDENTIFIER       "com.libsdl2gui.test"
-        MACOSX_BUNDLE_BUNDLE_NAME          "testsdl2gui"
+        MACOSX_BUNDLE_ICON_FILE            "icon"
         MACOSX_BUNDLE_BUNDLE_VERSION       "1.0.0"
-        MACOSX_BUNDLE_ICON_FILE            "ic_launcher"
+        MACOSX_BUNDLE_LONG_VERSION_STRING  "1.0.0"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
     )
 
-    set_target_properties(testsdl2gui PROPERTIES ADDITIONAL_CLEAN_FILES "${DIST_DIR}")
+    set_property(TARGET testsdl2gui PROPERTY ADDITIONAL_CLEAN_FILES "${DIST_DIR}")
 elseif (WIN32)
-    set_target_properties(testsdl2gui PROPERTIES LINK_FLAGS_DEBUG   "-SUBSYSTEM:CONSOLE,5.02")
-    set_target_properties(testsdl2gui PROPERTIES LINK_FLAGS_RELEASE "-SUBSYSTEM:WINDOWS,5.02")
+    set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS_DEBUG   "-SUBSYSTEM:CONSOLE,5.02")
+    set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS_RELEASE "-SUBSYSTEM:WINDOWS,5.02")
 
-    set_target_properties(testsdl2gui PROPERTIES ADDITIONAL_CLEAN_FILES "${DIST_DIR}")
+    set_property(TARGET testsdl2gui PROPERTY ADDITIONAL_CLEAN_FILES "${DIST_DIR}")
 endif()
 
 if (ANDROID)
@@ -180,7 +181,9 @@ if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/src/main/assets/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/src/main/assets/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so           ${OUT_DIR}/libs/arm64-v8a/libmain.so)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/arm64-v8a/libmain.so)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/arm64-v8a/)
+
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2.so       ${OUT_DIR}/libs/arm64-v8a/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2_image.so ${OUT_DIR}/libs/arm64-v8a/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_DIR}/libSDL2_ttf.so   ${OUT_DIR}/libs/arm64-v8a/)
@@ -191,11 +194,10 @@ if (ANDROID)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${OUT_DIR}/build/outputs/apk/debug/testsdl2gui-debug.apk ${DIST_DIR}/bin/)
 elseif (IOS)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${ICON}        ${OUT_DIR}/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_ARIAL}  ${OUT_DIR}/ui/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_MONO}   ${OUT_DIR}/ui/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img       ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mv -f  ${OUT_DIR}/img/icon* ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui        ${OUT_DIR}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${FONT_ARIAL}        ${OUT_DIR}/ui/)
 
     add_custom_target(testsdl2gui_app ALL cp -rf ${OUT_DIR} ${DIST_DIR}/bin/ DEPENDS testsdl2gui)
 elseif (WIN32)
@@ -232,12 +234,22 @@ endif()
 
 # install
 
-if (WIN32)
-    install(DIRECTORY ${DIST_DIR}/bin/ DESTINATION ${CMAKE_INSTALL_PREFIX}/bin PATTERN testsdl2gui.exe)
-else()
-    install(DIRECTORY ${DIST_DIR}/bin/ DESTINATION ${CMAKE_INSTALL_PREFIX}/bin PATTERN testsdl2gui PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-endif()
-
+install(DIRECTORY ${DIST_DIR}/bin/     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(DIRECTORY ${DIST_DIR}/lib/     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(DIRECTORY ${DIST_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/libsdl2gui)
 install(DIRECTORY ${DIST_DIR}/         DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.txt")
+
+if (LINUX OR IOS OR APPLE)
+    install(DIRECTORY ${DIST_DIR}/bin/ DESTINATION ${CMAKE_INSTALL_PREFIX}/bin PATTERN testsdl2gui PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
+
+# unittest
+
+if (WIN32)
+    add_library(unittest SHARED "${SRC_DIR}/test/unittest.cpp")
+
+    target_compile_definitions(unittest PRIVATE ${OS})
+    target_include_directories(unittest PRIVATE ${TEST_INCS} ${OS_TEST_INCS})
+    target_link_directories(unittest    PRIVATE ${LIB_DIR})
+    target_link_libraries(unittest      PRIVATE sdl2gui ${TEST_LIBS} ${OS_TEST_LIBS})
+endif()

@@ -3,13 +3,26 @@
 package com.libsdl2gui.lib;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import org.libsdl.app.SDLActivity;
 
 public class Sdl2GuiActivity extends SDLActivity
 {
+	public static int GetDPI()
+	{
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		WindowManager  windowManager  = (WindowManager)mSingleton.getSystemService(Context.WINDOW_SERVICE);
+
+		windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+
+		return displayMetrics.densityDpi;
+	}
+
 	public static boolean IsAutoRotate()
 	{
 		ContentResolver contentResolver = mSingleton.getContentResolver();

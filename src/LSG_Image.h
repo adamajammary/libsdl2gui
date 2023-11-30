@@ -6,12 +6,14 @@
 class LSG_Image : public LSG_Component
 {
 public:
-	LSG_Image(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
+	LSG_Image(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Image() {}
 
 private:
-	std::string file;
-	bool        fill;
+	std::string          file;
+	bool                 fill;
+	LSG_ImageOrientation orientation;
+	SDL_Size             size;
 
 public:
 	virtual void Render(SDL_Renderer* renderer) override;
