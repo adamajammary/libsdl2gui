@@ -105,10 +105,9 @@ target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
 target_link_libraries(sdl2gui      PRIVATE ${LIBS} ${OS_LIBS})
 
 if (OS STREQUAL "_macosx")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2.dylib       @rpath/libSDL2.dylib       ${CFG_DIR}libsdl2gui.dylib)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2_image.dylib @rpath/libSDL2_image.dylib ${CFG_DIR}libsdl2gui.dylib)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @executable_path/../Frameworks/libSDL2_ttf.dylib   @rpath/libSDL2_ttf.dylib   ${CFG_DIR}libsdl2gui.dylib)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change /usr/lib/libxml2.2.dylib                           @rpath/libxml2.dylib       ${CFG_DIR}libsdl2gui.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @rpath/SDL2_image.dylib  @rpath/libSDL2_image.dylib ${CFG_DIR}libsdl2gui.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @rpath/SDL2_ttf.dylib    @rpath/libSDL2_ttf.dylib   ${CFG_DIR}libsdl2gui.dylib)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.dylib       ${CFG_DIR}libsdl2gui.dylib)
 endif()
 
 if (WIN32)
