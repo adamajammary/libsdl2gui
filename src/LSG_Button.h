@@ -6,14 +6,17 @@
 class LSG_Button : public LSG_Component, public LSG_IEvent
 {
 public:
-	LSG_Button(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
+	LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Button() {}
+
+public:
+	static const int LayerOffset = 100000000;
 
 private:
 	bool selected;
 
 public:
-	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
+	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetSelected(bool selected = true);
 

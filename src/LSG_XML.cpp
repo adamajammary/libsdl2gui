@@ -1,20 +1,12 @@
 #include "LSG_XML.h"
 
-LibXml::xmlNode* LSG_XML::AddChildNode(LibXml::xmlNode* xmlNode, LibXml::xmlDoc* xmlDoc, const std::string& xmlName, const std::string& value)
+LibXml::xmlNode* LSG_XML::AddChildNode(LibXml::xmlNode* xmlNode, const std::string& xmlName)
 {
-	if (!xmlNode || xmlName.empty() || value.empty())
+	if (!xmlNode || xmlName.empty())
 		return nullptr;
 
-	LibXml::xmlNode* xmlChildNode = nullptr;
-
 	auto xmlChildName = reinterpret_cast<const LibXml::xmlChar*>(xmlName.c_str());
-
-	if (!value.empty()) {
-		auto xmlContent = reinterpret_cast<const LibXml::xmlChar*>(value.c_str());
-		xmlChildNode    = LibXml::xmlNewDocNode(xmlDoc, nullptr, xmlChildName, xmlContent);
-	} else {
-		xmlChildNode = LibXml::xmlNewNode(nullptr, xmlChildName);
-	}
+	auto xmlChildNode = LibXml::xmlNewNode(nullptr, xmlChildName);
 
 	if (xmlChildNode)
 		LibXml::xmlAddChild(xmlNode, xmlChildNode);
@@ -66,7 +58,7 @@ LSG_XmlNodes LSG_XML::GetChildNodes(LibXml::xmlNode* xmlNode)
 	if (!xmlNode)
 		return {};
 
-	LSG_XmlNodes nodes;
+	LSG_XmlNodes nodes = {};
 
 	auto xmlChildNode = xmlNode->xmlChildrenNode;
 
@@ -78,8 +70,10 @@ LSG_XmlNodes LSG_XML::GetChildNodes(LibXml::xmlNode* xmlNode)
 	return nodes;
 }
 
-LibXml::xmlNode* LSG_XML::GetNode(const std::string& xpath, LibXml::xmlDoc* xmlDoc)
+LibXml::xmlNode* LSG_XML::GetNode(const std::string& xpath)
 {
+	auto xmlDoc = LSG_UI::GetXmlDocument();
+
 	if (xpath.empty() || !xmlDoc)
 		return nullptr;
 
@@ -105,8 +99,10 @@ LibXml::xmlNode* LSG_XML::GetNode(const std::string& xpath, LibXml::xmlDoc* xmlD
 	return result;
 }
 
-std::string LSG_XML::GetValue(LibXml::xmlNode* node, LibXml::xmlDoc* xmlDoc)
+std::string LSG_XML::GetValue(LibXml::xmlNode* node)
 {
+	auto xmlDoc = LSG_UI::GetXmlDocument();
+
 	if (!node || !xmlDoc)
 		return "";
 
@@ -121,6 +117,19 @@ std::string LSG_XML::GetValue(LibXml::xmlNode* node, LibXml::xmlDoc* xmlDoc)
 LibXml::xmlDoc* LSG_XML::Open(const std::string& xmlFile)
 {
 	return LibXml::xmlParseFile(xmlFile.c_str());
+}
+
+void LSG_XML::RemoveChildNodes(LibXml::xmlNode* xmlNode)
+{
+	if (!xmlNode)
+		return;
+
+	auto xmlChildNode = xmlNode->xmlChildrenNode;
+
+	while (xmlChildNode) {
+		LSG_XML::RemoveNode(xmlChildNode);
+		xmlChildNode = xmlChildNode->next;
+	}
 }
 
 void LSG_XML::RemoveNode(LibXml::xmlNode* xmlNode)
@@ -141,14 +150,4 @@ void LSG_XML::SetAttribute(LibXml::xmlNode* xmlNode, const std::string& attribut
 	auto xmlValue     = reinterpret_cast<const LibXml::xmlChar*>(value.c_str());
 
 	LibXml::xmlSetProp(xmlNode, xmlAttribute, xmlValue);
-}
-
-void LSG_XML::SetValue(LibXml::xmlNode* xmlNode, const std::string& value)
-{
-	if (!xmlNode)
-		return;
-
-	auto xmlValue = reinterpret_cast<const LibXml::xmlChar*>(value.c_str());
-
-	LibXml::xmlNodeSetContent(xmlNode, xmlValue);
 }

@@ -6,7 +6,7 @@
 class LSG_TableRow : public LSG_Component
 {
 public:
-	LSG_TableRow(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
+	LSG_TableRow(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_TableRow() {}
 
 public:

@@ -1,3 +1,8 @@
 Root.background-color=#202020
 Root.border-color=#FFFFFF
 Root.text-color=#FFFFFF
+
+PanelIdList.background-color=#151515
+PanelIdTable.background-color=#151515
+PanelIdTableWithGroups.background-color=#151515
+PanelIdTextWrap.background-color=#151515

@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <window title="Test SDL2 GUI" width="800" height="600" color-theme-file="ui/dark.colortheme">
-  <panel id="Root" orientation="vertical" spacing="5">
-    <menu id="MenuIdMenu" height="30" valign="middle">
-      <menu-sub label="File">
-        <menu-sub label="Color Theme">
-          <menu-item id="MenuIdColorThemeDark">Dark</menu-item>
-          <menu-item id="MenuIdColorThemeLight">Light</menu-item>
-        </menu-sub>
-
-        <menu-item id="MenuIdQuit">Quit\tCtrl+Q</menu-item>
-      </menu-sub>
-
-      <menu-sub label="Help">
-        <menu-item id="MenuIdAbout">About</menu-item>
-      </menu-sub>
-    </menu>
-
-    <panel height="80" orientation="vertical">
-      <panel halign="center" valign="middle">
-        <text font-size="20">Color Theme</text>
+  <panel id="Root" orientation="vertical" padding="10" spacing="10">
+    <panel height="32">
+      <panel>
+        <menu font-size="15">
+          <menu-sub label="Color Theme">
+            <menu-item id="MenuIdColorThemeDark">Dark</menu-item>
+            <menu-item id="MenuIdColorThemeLight">Light</menu-item>
+          </menu-sub>
+          
+          <menu-item id="MenuIdAbout">About</menu-item>
+        </menu>
       </panel>
 
-      <panel height="50" padding="5" spacing="5">
-        <button id="ButtonIdColorThemeDark" halign="center" spacing="5" background-color="#202020" text-color="#FFFFFF" border-color="#909090" border="2">
-          <image file="img/dark-24.png" valign="middle"></image>
+      <panel halign="right">
+        <text font-size="18">Test SDL2 GUI</text>
+      </panel>
+    </panel>
+
+    <line />
+
+    <panel height="82" orientation="vertical">
+      <text font-size="18" halign="center">Color Theme</text>
+
+      <panel height="52" spacing="10" font-size="18">
+        <button id="ButtonIdColorThemeDark" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
+          <image file="img/dark-512.png" width="32" height="32" halign="right"></image>
           <text valign="middle">Dark</text>
         </button>
 
-        <button id="ButtonIdColorThemeLight" halign="center" spacing="5" background-color="#F0F0F0" text-color="#000000" border-color="#909090" border="2">
-          <image file="img/light-24.png" valign="middle"></image>
+        <button id="ButtonIdColorThemeLight" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
+          <image file="img/light-512.png" width="32" height="32" halign="right"></image>
           <text valign="middle">Light</text>
         </button>
       </panel>
     </panel>
 
-    <panel orientation="vertical" padding="10" spacing="10">
-      <panel height="35" font-size="18">
-        <panel halign="left">
-          <text bold="true" valign="middle">Text with wrapping</text>
-        </panel>
+    <panel orientation="vertical">
+      <panel height="32" font-size="18" spacing="10">
+        <text bold="true">Text with wrapping</text>
 
-        <panel halign="right">
-          <text italic="true" valign="middle">List: </text>
-          <text id="ListRow" valign="middle"></text>
+        <panel spacing="5">
+          <text italic="true" width="40">List:</text>
+          <text id="ListRow" width="35"></text>
         </panel>
       </panel>
 
       <panel spacing="10">
-        <panel padding="10" border="1">
-          <text wrap="true">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        <panel id="PanelIdTextWrap" padding="10" border="1">
+          <text id="TextWrap" wrap="true">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
 Risus sed vulputate odio ut.
 Volutpat commodo sed egestas egestas fringilla.
@@ -71,11 +71,10 @@ Cursus vitae congue mauris rhoncus aenean vel.
 Libero enim sed faucibus turpis.
 Ullamcorper eget nulla facilisi etiam.
 Ac auctor augue mauris augue neque.
-Euismod lacinia at quis risus.
-          </text>
+Euismod lacinia at quis risus.</text>
         </panel>
 
-        <panel padding="10" border="1">
+        <panel id="PanelIdList" padding="10" border="1">
           <list id="List" sort="ascending">
             <list-item>Lorem ipsum dolor sit amet</list-item>
             <list-item>Consectetur adipiscing elit</list-item>
@@ -92,26 +91,29 @@ Euismod lacinia at quis risus.
           </list>
         </panel>
       </panel>
+    </panel>
 
-      <panel height="35" font-size="18">
-        <panel halign="left">
-          <text underline="true" valign="middle">Table: </text>
-          <text id="TableRow" valign="middle"></text>
+    <panel orientation="vertical">
+      <panel height="32" font-size="18" spacing="10">
+        <panel spacing="5">
+          <text underline="true" width="55">Table:</text>
+          <text id="TableRow" width="35"></text>
         </panel>
 
-        <panel halign="right">
-          <text strike-through="true" valign="middle">Table with groups: </text>
-          <text id="TableWithGroupsRow" valign="middle"></text>
+        <panel spacing="5">
+          <text strike-through="true" width="150">Table with groups:</text>
+          <text id="TableWithGroupsRow" width="35"></text>
         </panel>
       </panel>
 
       <panel spacing="10">
-        <panel padding="10" border="1">
+        <panel id="PanelIdTable" padding="10" border="1">
           <table id="Table" row-border="true" sort="ascending" sort-column="0">
             <table-header>
               <table-column>DOLOR</table-column>
               <table-column>MAGNA</table-column>
             </table-header>
+
             <table-row>
               <table-column>Adipiscing</table-column>
               <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
@@ -139,12 +141,13 @@ Euismod lacinia at quis risus.
           </table>
         </panel>
 
-        <panel padding="10" border="1">
+        <panel id="PanelIdTableWithGroups" padding="10" border="1">
           <table id="TableWithGroups" sort="ascending" sort-column="0">
             <table-header>
               <table-column>DOLOR</table-column>
               <table-column>MAGNA</table-column>
             </table-header>
+
             <table-group group="Vestibulum">
               <table-row>
                 <table-column>Risus</table-column>
@@ -155,6 +158,7 @@ Euismod lacinia at quis risus.
                 <table-column>Imperdiet nulla malesuada</table-column>
               </table-row>
             </table-group>
+
             <table-group group="Quis Hendrerit">
               <table-row>
                 <table-column>Congue</table-column>
@@ -165,6 +169,7 @@ Euismod lacinia at quis risus.
                 <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
               </table-row>
             </table-group>
+
             <table-row>
               <table-column>Cursus</table-column>
               <table-column>Pellentesque elit eget gravida</table-column>
@@ -178,19 +183,19 @@ Euismod lacinia at quis risus.
       </panel>
     </panel>
 
-    <panel height="70" orientation="vertical" spacing="10">
-      <panel font-size="18" halign="center">
-        <text>Slider: </text>
+    <panel height="52" orientation="vertical">
+      <panel height="32" font-size="18" spacing="5">
+        <text halign="right">Slider:</text>
         <text id="SliderValue">0.40</text>
       </panel>
 
       <slider
-        id="Slider"
         value="0.40"
         fill-progress="true"
         progress-color="rgb(20, 130, 255)"
         thumb-color="rgb(128, 128, 128)"
         thumb-border-color="#000000"
+        thumb-width="20"
         background-color="rgb(192, 192, 192)">
       </slider>
     </panel>

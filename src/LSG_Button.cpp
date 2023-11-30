@@ -1,12 +1,12 @@
 #include "LSG_Button.h"
 
-LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
-	: LSG_Component(id, layer, xmlDoc, xmlNode, xmlNodeName, parent)
+LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
+	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->selected = false;
 }
 
-bool LSG_Button::MouseClick(const SDL_MouseButtonEvent& event)
+bool LSG_Button::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled)
 		return false;
@@ -39,7 +39,7 @@ void LSG_Button::sendEvent(LSG_EventType type)
 
 	clickEvent.type       = SDL_RegisterEvents(1);
 	clickEvent.user.code  = (int)type;
-	clickEvent.user.data1 = (void*)strdup(this->GetID().c_str());
+	clickEvent.user.data1 = (void*)strdup(this->id.c_str());
 
 	SDL_PushEvent(&clickEvent);
 }

@@ -10,7 +10,7 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.28.2](https://www.libsdl.org/release/SDL2-2.28.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://www.libsdl.org/) | [2.28.5](https://www.libsdl.org/release/SDL2-2.28.5.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.6.3](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.6.3.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [libXML2](https://github.com/GNOME/libxml2) | [2.11.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
@@ -19,6 +19,9 @@ Library | Version | License
 
 Platform | Header | Package
 -------- | ------ | -------
+Android | android/asset_manager_jni.h | Android NDK
+Android | sys/stat.h | Android NDK
+iOS | UIKit/UIKit.h | UIKit Framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
 Windows | shobjidl_core.h | Win32 API
@@ -35,12 +38,12 @@ MSVC | 2019
 
 ## How to build
 
-1. Build the third-party libraries and place the them in a common directory
-1. Make sure you have [cmake](https://cmake.org/download/) installed
-1. Open a command prompt or terminal
-1. Create a **build** directory and enter it
+1. Build the third-party libraries and place the them in a common directory.
+1. Make sure you have [cmake](https://cmake.org/download/) installed.
+1. Open a command prompt or terminal.
+1. Create a **build** directory and enter it.
 1. Run `cmake` to create a **Makefile**, **Xcode** project or **Visual Studio** solution based on your target platform.
-1. After building, the **dist** directory will contain all the output resources in the **inc**, **bin** and **lib** directories.
+1. After building, the **dist** directory will contain all the output resources in the **include**, **lib** and **bin** directories.
 
 ```bash
 mkdir build
@@ -49,7 +52,14 @@ cd build
 
 ### Android
 
-Make sure you have [Android NDK](https://developer.android.com/ndk/downloads) installed.
+Make sure you have [Android SDK](https://developer.android.com/studio) and [Android NDK](https://developer.android.com/ndk/downloads) installed.
+
+Make sure the correct Android SDK path is set as either
+
+- an environment variable `ANDROID_HOME=/path/to/ANDROID_SDK` or
+- a local property `sdk.dir=/path/to/ANDROID_SDK` in the **android/local.properties** file
+
+> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL2 Android README](https://wiki.libsdl.org/SDL2/README/android) for more details.
 
 ```bash
 cmake .. -G "Unix Makefiles" \
@@ -63,20 +73,67 @@ cmake .. -G "Unix Makefiles" \
 make
 ```
 
+#### ADB (Android Debug Bridge)
+
+> See [ADB (Android Debug Bridge)](https://developer.android.com/tools/adb) for more details.
+
+##### Install APK to device
+
+```bash
+/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdl2gui-debug.apk
+```
+
+##### Re-install (update) APK to device
+
+```bash
+/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdl2gui-debug.apk
+```
+
+##### Uninstall (remove) APK from device
+
+```bash
+/path/to/ANDROID_SDK/platform-tools/adb uninstall com.libsdl2gui.test
+```
+
+![Screenshot of Test project on Android](screenshots/android_480p.png)
+
 ### iOS
 
 You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
+
+> See [SDL2 iOS README](https://wiki.libsdl.org/SDL2/README/ios) for more details.
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
 -D CMAKE_SYSTEM_NAME="iOS" \
 -D CMAKE_OSX_ARCHITECTURES="arm64" \
--D CMAKE_OSX_DEPLOYMENT_TARGET="13.0" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="12.5" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
+-D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
 -D EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="13.0" CODE_SIGNING_ALLOWED=NO -configuration "Release" -arch "arm64" -project sdl2gui.xcodeproj
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="12.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS"
 ```
+
+#### Xcode - Devices and Simulators
+
+> See [Xcode - Running your app in Simulator or on a device](https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device) for more details.
+
+#### Install APP on device or simulator
+
+1. Connect the device to your Mac (optional if installing on a simulator).
+1. Open **Xcode**.
+1. Select `Window > Devices and Simulators` from the main menu.
+1. Select the device or simulator from the list on the left.
+1. Click the `+` icon under **Installed Apps**.
+1. Locate and select `dist/bin/testsdl2gui.app`.
+
+The app should now be installed on the device or simulator with the name **testsdl2gui**.
+
+> If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
+
+![Screenshot of Test project on iPhone](screenshots/iphone_480p.png)
+![Screenshot of Test project on iPad](screenshots/ipad_480p.png)
 
 ### macOS
 
@@ -89,8 +146,10 @@ You can get the macOS SDK path with the following command: `xcrun --sdk macosx -
 -D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
 -D EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -configuration "Release" -arch "x86_64" -project sdl2gui.xcodeproj
+xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -project sdl2gui.xcodeproj -configuration Release
 ```
+
+![Screenshot of Test project on macOS](screenshots/macos_480p.png)
 
 ### Linux
 
@@ -100,6 +159,8 @@ cmake .. -G "Unix Makefiles" -D EXT_LIB_DIR="/path/to/libs"
 make
 ```
 
+![Screenshot of Test project on Linux](screenshots/linux_480p.png)
+
 ### Windows
 
 ```bash
@@ -108,9 +169,11 @@ cmake .. -G "Visual Studio 17 2022" -D EXT_LIB_DIR="/path/to/libs"
 devenv.com sdl2gui.sln -build "Release|x64"
 ```
 
+![Screenshot of Test project on Windows](screenshots/windows_480p.png)
+
 ## Test project
 
-You must call [LSG_Start](#lsg_start-xml) before using other *LSG_\** methods, see the *test* project for examples.
+You must call [LSG_Start](#lsg_start) before using other *LSG_\** methods, see the *test* project for examples.
 
 ```cpp
 try {
@@ -137,19 +200,15 @@ try {
 
 ## Start
 
-```cpp
-SDL_Renderer* renderer = LSG_Start("Test SDL2 GUI", 800, 600); // Load an empty window with no UI components
-```
-
-```cpp
-SDL_Renderer* renderer = LSG_Start("ui/main.xml"); // Load a window and UI components from an XML file
-```
-
-The first step is to run [LSG_Start](#lsg_start-xml) which
+The first step is to run [LSG_Start](#lsg_start) which
 
 - creates a new [SDL_Window](https://wiki.libsdl.org/SDL2/SDL_CreateWindow)
-- loads UI components from an XML file (if provided)
+- loads UI components from the XML file
 - creates and returns an [SDL_Renderer](https://wiki.libsdl.org/SDL2/SDL_CreateRenderer)
+
+```cpp
+SDL_Renderer* renderer = LSG_Start("ui/main.xml");
+```
 
 ## Handle Events
 
@@ -190,8 +249,8 @@ void myapp_handleUserEvent(const SDL_UserEvent& event)
   LSG_EventType type = (LSG_EventType)event.code;
   const char*   id   = static_cast<const char*>(event.data1);
 
-  if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED))
-    int rowIndex = *static_cast<int*>(event.data2); // 0-based row index
+  if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
+    int rowIndex = *static_cast<int*>(event.data2); // 0-based row index (-1 for unselected)
   else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
     double sliderValue = *static_cast<double*>(event.data2); // Percent-based slider value: [0.0, 1.0]
 }
@@ -199,7 +258,7 @@ void myapp_handleUserEvent(const SDL_UserEvent& event)
 
 ## Custom Render
 
-You can also perform custom rendering like [SDL_RenderFillRect](https://wiki.libsdl.org/SDL2/SDL_RenderFillRect) by using the [SDL_Renderer](https://wiki.libsdl.org/SDL2/SDL_CreateRenderer) returned from [LSG_Start](#lsg_start-xml).
+You can also perform custom rendering like [SDL_RenderFillRect](https://wiki.libsdl.org/SDL2/SDL_RenderFillRect) by using the [SDL_Renderer](https://wiki.libsdl.org/SDL2/SDL_CreateRenderer) returned from [LSG_Start](#lsg_start).
 
 > Make sure to render after calling [LSG_Run](#lsg_run) as it will clear anything in the render buffer.
 
@@ -225,20 +284,82 @@ Make sure to call [LSG_Quit](#lsg_quit) to cleanup all resources and close the l
 
 ## XML UI components
 
-### \<window\>
+### \<button\>
 
-[boolean](#boolean) | [file_path](#file_path)
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
+
+Triggers [LSG_EVENT_BUTTON_CLICKED](#handle-events) event.
 
 ```ini
-title="string"
-width="int"
-height="int"
-min-width="int" # default="400"
-min-height="int" # default="400"
-x="int"
-y="int"
-maximized="boolean"
-color-theme-file="file_path"
+id="string"
+enabled="boolean"
+width="size"
+height="size"
+orientation="orientation"
+background-color="color"
+border="int"
+border-color="color"
+margin="int"
+padding="int"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+spacing="int"
+font-size="int" # default="14"
+text-color="color"
+```
+
+### \<image\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [file_path](#file_path) | [size](#size)
+
+```ini
+id="string"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+
+file="file_path"
+fill="boolean"
+```
+
+### \<line\>
+
+[color](#color) | [orientation](#orientation) | [size](#size)
+
+```ini
+id="string"
+width="size"
+height="size"
+orientation="orientation"
+
+color="color"
+```
+
+### \<list\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size) | [sort_order](#sort_order)
+
+Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+row-border="boolean"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+font-size="int" # default="14"
+text-color="color"
+
+sort="sort_order"
 ```
 
 ### \<menu\>
@@ -285,71 +406,6 @@ font-size="int" # default="14"
 text-color="color"
 ```
 
-### \<button\>
-
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
-
-Triggers [LSG_EVENT_BUTTON_CLICKED](#handle-events) event.
-
-```ini
-id="string"
-enabled="boolean"
-width="size"
-height="size"
-orientation="orientation"
-background-color="color"
-border="int"
-border-color="color"
-margin="int"
-padding="int"
-halign="alignment_horizontal"
-valign="alignment_vertical"
-spacing="int"
-font-size="int" # default="14"
-text-color="color"
-```
-
-### \<image\>
-
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [file_path](#file_path) | [size](#size)
-
-```ini
-id="string"
-width="size"
-height="size"
-background-color="color"
-border="int"
-border-color="color"
-halign="alignment_horizontal"
-valign="alignment_vertical"
-
-file="file_path"
-fill="boolean"
-```
-
-### \<text\>
-
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
-
-```ini
-id="string"
-width="size"
-height="size"
-background-color="color"
-border="int"
-border-color="color"
-halign="alignment_horizontal"
-valign="alignment_vertical"
-font-size="int" # default="14"
-text-color="color"
-
-bold="boolean"
-italic="boolean"
-strike-through="boolean"
-underline="boolean"
-wrap="boolean"
-```
-
 ### \<slider\>
 
 [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [percent](#percent) | [size](#size)
@@ -377,34 +433,11 @@ thumb-border-color="color"
 thumb-border="int"
 ```
 
-### \<list\>
-
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size) | [sort_order](#sort_order)
-
-Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events) and [LSG_EVENT_ROW_SELECTED](#handle-events) events.
-
-```ini
-id="string"
-enabled="boolean"
-width="size"
-height="size"
-background-color="color"
-border="int"
-border-color="color"
-row-border="boolean"
-halign="alignment_horizontal"
-valign="alignment_vertical"
-font-size="int" # default="14"
-text-color="color"
-
-sort="sort_order"
-```
-
 ### \<table\>
 
 [alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size) | [sort_order](#sort_order)
 
-Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events) and [LSG_EVENT_ROW_SELECTED](#handle-events) events.
+Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
 
 ```ini
 id="string"
@@ -422,6 +455,45 @@ text-color="color"
 
 sort="sort_order"
 sort-column="int" # 0-based index
+```
+
+### \<text\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+
+```ini
+id="string"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+font-size="int" # default="14"
+text-color="color"
+
+bold="boolean"
+italic="boolean"
+strike-through="boolean"
+underline="boolean"
+wrap="boolean"
+```
+
+### \<window\>
+
+[boolean](#boolean) | [file_path](#file_path)
+
+```ini
+title="string"
+width="int"
+height="int"
+min-width="int" # default="400"
+min-height="int" # default="400"
+x="int"
+y="int"
+maximized="boolean"
+color-theme-file="file_path"
 ```
 
 ## XML UI component attributes
@@ -489,7 +561,7 @@ value="ascending|descending" # default="ascending"
 - `<id>` needs to correspond to the XML-attribute `id` of the UI component.
 - `<color>` can have the same values as [color](#color) (without the string quotes).
   - Unlike XML, the `.colortheme` file does not wrap the values in string quotes, so `"#000000"` becomes `#000000`.
-- `<id>` and `*-color` are seperated by a `.` (dot) character.
+- `<id>` and `*-color` attribute are seperated by a `.` (dot) character.
 
 ```ini
 Root.background-color=rgb(245, 245, 245)
@@ -518,6 +590,7 @@ enum LSG_EventType {
   LSG_EVENT_MENU_ITEM_SELECTED,
   LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
   LSG_EVENT_ROW_SELECTED,
+  LSG_EVENT_ROW_UNSELECTED,
   LSG_EVENT_SLIDER_VALUE_CHANGED
 };
 ```
@@ -636,7 +709,7 @@ LSG_AddListItem("List", "My new list item");
 ### LSG_AddSubMenuItem
 
 ```cpp
-void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId = "")
+void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
 ```
 
 Adds a new item to the \<menu-sub\> component.
@@ -645,7 +718,7 @@ Parameters
 
 - **id** \<menu-sub\> component ID
 - **item** \<menu-item\> value
-- **itemId** Optional \<menu-item\> component ID, otherwise one will be generated.
+- **itemId** \<menu-item\> component ID
 
 Exceptions
 
@@ -662,7 +735,7 @@ LSG_AddSubMenuItem("MenuIdColorThemes", "Light", "MenuIdColorThemeLight");
 ### LSG_AddTableGroup
 
 ```cpp
-void LSG_AddTableGroup(const std::string& id, const std::string& group, const LSG_TableRows& rows);
+void LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group);
 ```
 
 Adds a new group with rows to the \<table\> component.
@@ -670,8 +743,7 @@ Adds a new group with rows to the \<table\> component.
 Parameters
 
 - **id** \<table\> component ID
-- **group** Table group name
-- **rows**  Table group rows
+- **group** Table group and rows
 
 Exceptions
 
@@ -681,12 +753,15 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableRows rows = {
-  { "First Row",  "New first row" },
-  { "Second Row", "New second row" }
+LSG_TableGroupRows group = {
+  .group = "New Group",
+  .rows = {
+    { "New row 1 - Column A", "My new row 1 - Column B" },
+    { "New row 2 - Column A", "My new row 2 - Column B" }
+  }
 };
 
-LSG_AddTableGroup("TableWithGroups", "New Group", rows);
+LSG_AddTableGroup("TableWithGroups", group);
 ```
 
 ### LSG_AddTableRow
@@ -710,7 +785,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_Strings row = { "New Row", "My new table row" };
+LSG_Strings row = { "New row - Column A", "New row - Column B" };
 
 LSG_AddTableRow("Table", row);
 ```
@@ -744,13 +819,30 @@ Exceptions
 
 - runtime_error
 
+### LSG_GetLastPage
+
+```cpp
+int LSG_GetLastPage(const std::string& id);
+```
+
+Returns the last 0-based page index of the \<list\> or \<table\> component.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetListItem
 
 ```cpp
 std::string LSG_GetListItem(const std::string& id, int row);
 ```
 
-Returns the item row from the \<list\> component.
+Returns the item from the \<list\> component.
 
 Parameters
 
@@ -768,7 +860,7 @@ Exceptions
 LSG_Strings LSG_GetListItems(const std::string& id);
 ```
 
-Returns all items from the \<list\> component.
+Returns all the items from the \<list\> component.
 
 Parameters
 
@@ -790,6 +882,93 @@ Returns the current 0-based page index of the \<list\> or \<table\> component.
 Parameters
 
 - **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPageListItem
+
+```cpp
+std::string LSG_GetPageListItem(const std::string& id, int row);
+```
+
+Returns the item on the current page of the \<list\> component.
+
+Parameters
+
+- **id** \<list\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPageListItems
+
+```cpp
+LSG_Strings LSG_GetPageListItems(const std::string& id);
+```
+
+Returns the items on the current page of the \<list\> component.
+
+Parameters
+
+- **id** \<list\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPageTableGroups
+
+```cpp
+LSG_TableRows LSG_GetPageTableGroups(const std::string& id);
+```
+
+Returns the groups on the current page of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPageTableRow
+
+```cpp
+LSG_Strings LSG_GetPageTableRow(const std::string& id, int row);
+```
+
+Returns the columns on the current page of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPageTableRows
+
+```cpp
+LSG_TableRows LSG_GetPageTableRows(const std::string& id);
+```
+
+Returns the rows on the current page of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
 
 Exceptions
 
@@ -819,7 +998,7 @@ Exceptions
 int LSG_GetScrollHorizontal(const std::string& id);
 ```
 
-Returns the horizontal scroll offset/position of a \<list\>, \<table\> or \<text\> component.
+Returns the horizontal scroll offset/position of the \<list\>, \<table\> or \<text\> component.
 
 Parameters
 
@@ -836,7 +1015,7 @@ Exceptions
 int LSG_GetScrollVertical(const std::string& id);
 ```
 
-Returns the vertical scroll offset/position of a \<list\>, \<table\> or \<text\> component.
+Returns the vertical scroll offset/position of the \<list\>, \<table\> or \<text\> component.
 
 Parameters
 
@@ -853,7 +1032,7 @@ Exceptions
 int LSG_GetSelectedRow(const std::string& id);
 ```
 
-Returns the selected 0-based row index of a \<list\> or \<table\> component.
+Returns the selected 0-based row index of the \<list\> or \<table\> component.
 
 Parameters
 
@@ -887,7 +1066,7 @@ Exceptions
 double LSG_GetSliderValue(const std::string& id);
 ```
 
-Returns the value of a \<slider\> component as a percent between 0 and 1.
+Returns the value of the \<slider\> component as a percent between 0 and 1.
 
 Parameters
 
@@ -932,13 +1111,65 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetTableGroup
+
+```cpp
+LSG_TableGroupRows LSG_GetTableGroup(const std::string& id, const std::string& group);
+```
+
+Returns the group from the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+- **group** The group name
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTableGroups
+
+```cpp
+LSG_TableRows LSG_GetTableGroups(const std::string& id);
+```
+
+Returns all the groups from the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTableHeader
+
+```cpp
+LSG_Strings LSG_GetTableHeader(const std::string& id);
+```
+
+Returns the header columns from the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetTableRow
 
 ```cpp
 LSG_Strings LSG_GetTableRow(const std::string& id, int row);
 ```
 
-Returns the row columns from the \<table\> component.
+Returns the columns from the \<table\> component.
 
 Parameters
 
@@ -956,7 +1187,7 @@ Exceptions
 LSG_TableRows LSG_GetTableRows(const std::string& id);
 ```
 
-Returns all rows from the \<table\> component.
+Returns all the rows from the \<table\> component.
 
 Parameters
 
@@ -973,7 +1204,7 @@ Exceptions
 std::string LSG_GetText(const std::string& id);
 ```
 
-Returns the text value of a \<text\> component.
+Returns the text value of the \<text\> component.
 
 Parameters
 
@@ -1047,6 +1278,18 @@ Parameters
 Exceptions
 
 - invalid_argument
+- runtime_error
+
+### LSG_IsPreferredDarkMode
+
+```cpp
+bool LSG_IsPreferredDarkMode();
+```
+
+Returns true if the platform prefers dark mode.
+
+Exceptions
+
 - runtime_error
 
 ### LSG_IsRunning
@@ -1176,7 +1419,7 @@ Cleans up allocated resources and closes the window.
 void LSG_RemoveListItem(const std::string& id, int row);
 ```
 
-Removes the item row from a \<list\> component.
+Removes the item row from the \<list\> component.
 
 Parameters
 
@@ -1217,13 +1460,61 @@ Example
 LSG_RemoveMenuItem("MenuIdColorThemeDark");
 ```
 
+### LSG_RemovePageListItem
+
+```cpp
+void LSG_RemovePageListItem(const std::string& id, int row);
+```
+
+Removes the item on the current page of the \<list\> component.
+
+Parameters
+
+- **id** \<list\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemovePageListItem("List", 12);
+```
+
+### LSG_RemovePageTableRow
+
+```cpp
+void LSG_RemovePageTableRow(const std::string& id, int row);
+```
+
+Removes the row on the current page of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemoveTableRow("Table", 6);
+```
+
 ### LSG_RemoveTableHeader
 
 ```cpp
 void LSG_RemoveTableHeader(const std::string& id);
 ```
 
-Removes the header columns from a \<table\> component.
+Removes the header columns from the \<table\> component.
 
 Parameters
 
@@ -1246,7 +1537,7 @@ LSG_RemoveTableHeader("Table");
 void LSG_RemoveTableGroup(const std::string& id, const std::string& group);
 ```
 
-Removes the grouped rows from a \<table\> component.
+Removes the grouped rows from the \<table\> component.
 
 Parameters
 
@@ -1270,7 +1561,7 @@ LSG_RemoveTableGroup("TableWithGroups", "Quis Hendrerit");
 void LSG_RemoveTableRow(const std::string& id, int row);
 ```
 
-Removes the row columns from a \<table\> component.
+Removes the row from the \<table\> component.
 
 Parameters
 
@@ -1373,7 +1664,7 @@ Exceptions
 void LSG_SelectRow(const std::string& id, int row);
 ```
 
-Selects the row in a \<list\> or \<table\> component.
+Selects the row in the \<list\> or \<table\> component.
 
 Parameters
 
@@ -1397,7 +1688,7 @@ LSG_SelectRow("List", 2);
 void LSG_SelectRowByOffset(const std::string& id, int offset);
 ```
 
-Selects a row relative to the currently selected row in a \<list\> or \<table\> component.
+Selects a row relative to the currently selected row in the \<list\> or \<table\> component.
 
 Parameters
 
@@ -1681,7 +1972,7 @@ LSG_SetImage("ImageIdColorThemeDark", "img/dark-24.png");
 void LSG_SetListItem(const std::string& id, int row, const std::string& item);
 ```
 
-Updates and overwrites the item row in a \<list\> component.
+Updates and overwrites the item in the \<list\> component.
 
 Parameters
 
@@ -1706,7 +1997,7 @@ LSG_SetListItem("List", 12, "My updated list item.");
 void LSG_SetListItems(const std::string& id, const LSG_Strings& items);
 ```
 
-Sets the items of a \<list\> component.
+Sets the items of the \<list\> component.
 
 Parameters
 
@@ -1787,7 +2078,7 @@ Exceptions
 void LSG_SetMenuItemValue(const std::string& id, const std::string& value);
 ```
 
-Sets the text value of a \<menu-item\> component.
+Sets the text value of the \<menu-item\> component.
 
 Parameters
 
@@ -1857,7 +2148,7 @@ LSG_SetPadding("Root", 10);
 void LSG_SetPage(const std::string& id, int page);
 ```
 
-Navigates to and sets the page of a \<list\> or \<table\> component.
+Navigates to and sets the page of the \<list\> or \<table\> component.
 
 Parameters
 
@@ -1873,6 +2164,58 @@ Example
 
 ```cpp
 LSG_SetPage("List", 0);
+```
+
+### LSG_SetPageListItem
+
+```cpp
+void LSG_SetPageListItem(const std::string& id, int row, const std::string& item);
+```
+
+Updates and overwrites the item on the current page of the \<list\> component.
+
+Parameters
+
+- **id** \<list\> component ID
+- **row**  0-based row index
+- **item** New list item value
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetPageListItem("List", 12, "My updated list item.");
+```
+
+### LSG_SetPageTableRow
+
+```cpp
+void LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
+```
+
+Updates and overwrites the row columns on the current page of the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+- **row** 0-based row index
+- **columns** New row columns
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_Strings row = { "Updated Row", "My updated table row" };
+
+LSG_SetPageTableRow("Table", 6, row);
 ```
 
 ### LSG_SetSize
@@ -1905,7 +2248,7 @@ LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
 void LSG_SetSliderValue(const std::string& id, double percent);
 ```
 
-Sets the value of a \<slider\> component as a percent between 0 and 1.
+Sets the value of the \<slider\> component as a percent between 0 and 1.
 
 Parameters
 
@@ -1947,18 +2290,50 @@ Example
 LSG_SetSpacing("Root", 20);
 ```
 
+### LSG_SetTableGroup
+
+```cpp
+void LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+```
+
+Sets the rows of the group in the \<table\> component.
+
+Parameters
+
+- **id** \<table\> component ID
+- **group** The group to update
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TableGroupRows tableGroup = {
+    "Quis Hendrerit", {
+      { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
+      { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
+      { "Consequat", "Ac felis donec et odio pellentesque diam volutpat commodo" }
+    }
+};
+
+LSG_SetTableGroups("TableWithGroups", tableGroup);
+```
+
 ### LSG_SetTableGroups
 
 ```cpp
 void LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups);
 ```
 
-Sets the grouped rows of a \<table\> component.
+Sets the groups of the \<table\> component.
 
 Parameters
 
 - **id** \<table\> component ID
-- **groups** Grouped table rows
+- **groups** Groups with rows
 
 Exceptions
 
@@ -1994,7 +2369,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroups);
 void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 ```
 
-Sets the header columns of a \<table\> component.
+Sets the header columns of the \<table\> component.
 
 Parameters
 
@@ -2023,7 +2398,7 @@ LSG_SetTableHeader("Table", tableHeader);
 void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
-Updates and overwrites the row columns in a \<table\> component.
+Updates and overwrites the row columns in the \<table\> component.
 
 Parameters
 
@@ -2050,7 +2425,7 @@ LSG_SetTableRow("Table", 6, row);
 void LSG_SetTableRows(const std::string& id, const LSG_TableRows& rows);
 ```
 
-Sets the rows of a \<table\> component.
+Sets the rows of the \<table\> component.
 
 Parameters
 
@@ -2083,7 +2458,7 @@ LSG_SetTableRows("Table", rows);
 void LSG_SetText(const std::string& id, const std::string& value);
 ```
 
-Sets the text value of a \<text\> component.
+Sets the text value of the \<text\> component.
 
 Parameters
 
@@ -2367,7 +2742,7 @@ LSG_SortTable("Table", LSG_SORT_ORDER_ASCENDING, 0);
 LSG_SortTable("TableWithGroups", LSG_SORT_ORDER_DESCENDING, 1);
 ```
 
-### LSG_Start (XML)
+### LSG_Start
 
 ```cpp
 SDL_Renderer* LSG_Start(const std::string& xmlFile);
@@ -2389,30 +2764,4 @@ Example
 
 ```cpp
 SDL_Renderer* renderer = LSG_Start("ui/main.xml");
-```
-
-### LSG_Start
-
-```cpp
-SDL_Renderer* LSG_Start(const std::string& title, int width, int height);
-```
-
-Tries to initialize the library and open a new window.
-
-Returns an SDL2 renderer.
-
-Parameters
-
-- **title** Window title
-- **width** Window width
-- **height** Window height
-
-Exceptions
-
-- runtime_error
-
-Example
-
-```cpp
-SDL_Renderer* renderer = LSG_Start("Test SDL2 GUI", 800, 600);
 ```

@@ -1,3 +1,8 @@
 Root.background-color=rgb(245, 245, 245)
 Root.border-color=#000000
 Root.text-color=#000000
+
+PanelIdList.background-color=#FFFFFF
+PanelIdTable.background-color=#FFFFFF
+PanelIdTableWithGroups.background-color=#FFFFFF
+PanelIdTextWrap.background-color=#FFFFFF

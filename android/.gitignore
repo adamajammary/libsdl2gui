@@ -1,0 +1,5 @@
+.gradle
+.idea
+testsdl2gui/build
+testsdl2gui/libs/arm64-v8a/*
+testsdl2gui/src/main/assets/*

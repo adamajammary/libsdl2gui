@@ -3,30 +3,24 @@
 #ifndef LSG_MENU_SUB_H
 #define LSG_MENU_SUB_H
 
-class LSG_MenuSub : public LSG_Menu
+class LSG_MenuSub : public LSG_MenuItem
 {
 public:
-	LSG_MenuSub(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
+	LSG_MenuSub(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_MenuSub() {}
 
-private:
-	LSG_Strings items;
-	int         selectedSubMenu;
+public:
+	static const int PaddingArrow   = 8;
+	static const int PaddingArrow2x = 16;
 
 public:
-	void         AddItem(const std::string& item, const std::string& itemId = "");
-	void         Close();
-	LSG_Strings  GetItems();
-	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
+	void         AddItem(const std::string& item, const std::string& itemId);
 	virtual void Render(SDL_Renderer* renderer) override;
-	void         SetItems();
+	void         SetSubMenu(const SDL_Rect& background);
 
 private:
-	int          getSelectedIndex();
-	bool         open(const SDL_Point& mousePosition, int index);
-	void         renderDisabledOverlay(SDL_Renderer* renderer, const SDL_Rect& background);
-	void         renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Color& backgroundColor);
-	virtual void sendEvent(LSG_EventType type) override;
+	int  getMaxHeightArrow();
+	void renderArrow(SDL_Renderer* renderer);
 
 };
 

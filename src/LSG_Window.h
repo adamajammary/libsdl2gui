@@ -10,6 +10,9 @@ private:
     ~LSG_Window() {}
 
 private:
+    static const int MinSize = 400;
+
+private:
     static SDL_Renderer* renderer;
     static SDL_Window*   window;
 
@@ -22,10 +25,12 @@ private:
 
 public:
     static void          Close();
+    static int           GetDisplayIndex();
     static SDL_Size      GetMinimumSize();
     static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();
     static SDL_Size      GetSize();
+    static SDL_FPoint    GetSizeScale();
     static std::string   GetTitle();
     static bool          IsMaximized();
     static SDL_Renderer* Open(const std::string& title, int width, int height);
@@ -52,6 +57,10 @@ public:
         static std::string              OpenFolder();
         static std::vector<std::string> OpenFolders();
         static std::string              SaveFile();
+    #endif
+
+    #if defined _windows && defined _DEBUG
+        static void OpenTest();
     #endif
 
 };

@@ -3,23 +3,36 @@
 #ifndef LSG_MENU_ITEM_H
 #define LSG_MENU_ITEM_H
 
-class LSG_MenuItem : public LSG_Menu
+class LSG_MenuItem : public LSG_Text, public LSG_IEvent
 {
 public:
-	LSG_MenuItem(const std::string& id, int layer, LibXml::xmlDoc* xmlDoc, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
+	LSG_MenuItem(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_MenuItem() {}
 
+public:
+	static const int Height = 32;
+
 private:
-	bool selected;
+	static const int PaddingIcon   = 5;
+	static const int PaddingIcon2x = 10;
+
+private:
+	LSG_ImageOrientation iconOrientation;
+	bool                 selected;
 
 public:
-	bool         IsSelected();
-	virtual bool MouseClick(const SDL_MouseButtonEvent& event) override;
+	void         Close();
+	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	virtual void Render(SDL_Renderer* renderer) override;
+	void         SetMenuItem(const SDL_Rect& background);
 	void         SetSelected(bool selected = true);
-	void         SetValue(const std::string& value);
 
 private:
+	SDL_Texture* getIcon(const std::string& imageFile);
+	int          getMaxHeightIcon() const;
+	void         renderIcon(SDL_Renderer*     renderer);
+	void         renderSelected(SDL_Renderer* renderer);
+	void         renderText(SDL_Renderer*     renderer);
 	virtual void sendEvent(LSG_EventType type) override;
 
 };
