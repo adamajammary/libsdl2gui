@@ -11,9 +11,9 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 Library | Version | License
 ------- | ------- | -------
 [SDL2](https://www.libsdl.org/) | [2.28.5](https://www.libsdl.org/release/SDL2-2.28.5.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.6.3](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.6.3.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.1](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.11.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.11.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[libXML2](https://github.com/GNOME/libxml2) | [2.12.3](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.3.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
