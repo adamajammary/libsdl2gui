@@ -20,6 +20,8 @@ void LSG_MenuSub::AddItem(const std::string& item, const std::string& itemId)
 	auto itemComponent = LSG_UI::AddXmlNode(itemNode, this);
 
 	itemComponent->text = item;
+
+	itemComponent->SetColors();
 }
 
 int LSG_MenuSub::getMaxHeightArrow()
