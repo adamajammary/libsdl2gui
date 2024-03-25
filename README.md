@@ -10,10 +10,10 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.28.5](https://www.libsdl.org/release/SDL2-2.28.5.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.1](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.20.2](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.12.3](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.3.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[SDL2](https://www.libsdl.org/) | [2.30.1](https://www.libsdl.org/release/SDL2-2.30.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.2](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[libXML2](https://github.com/GNOME/libxml2) | [2.12.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
@@ -25,6 +25,7 @@ iOS | UIKit/UIKit.h | UIKit Framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
 Windows | shobjidl_core.h | Win32 API
+Windows | windows.h | WinMain
 
 ## Compilers and C++20
 
@@ -67,7 +68,7 @@ cmake .. -G "Unix Makefiles" \
 -D CMAKE_TOOLCHAIN_FILE="/path/to/ANDROID_NDK/build/cmake/android.toolchain.cmake" \
 -D ANDROID_NDK="/path/to/ANDROID_NDK" \
 -D ANDROID_ABI="arm64-v8a" \
--D ANDROID_PLATFORM="android-26" \
+-D ANDROID_PLATFORM="android-29" \
 -D EXT_LIB_DIR="/path/to/libs"
 
 make
@@ -80,13 +81,13 @@ make
 ##### Install APK to device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdl2gui-debug.apk
+/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdl2gui-arm64-v8a-debug.apk
 ```
 
 ##### Re-install (update) APK to device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdl2gui-debug.apk
+/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdl2gui-arm64-v8a-debug.apk
 ```
 
 ##### Uninstall (remove) APK from device
@@ -110,25 +111,26 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 -D CMAKE_OSX_DEPLOYMENT_TARGET="12.5" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
 -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
--D EXT_LIB_DIR="/path/to/libs"
+-D EXT_LIB_DIR="/path/to/libs" \
+-D IOS_SDK="iphoneos"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="12.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS"
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="12.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
 ```
 
-#### Xcode - Devices and Simulators
+#### Xcode - Devices
 
-> See [Xcode - Running your app in Simulator or on a device](https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device) for more details.
+> See [Xcode - Running your app on a device](https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device) for more details.
 
-#### Install APP on device or simulator
+#### Install APP on a device
 
-1. Connect the device to your Mac (optional if installing on a simulator).
+1. Connect the device to your Mac.
 1. Open **Xcode**.
 1. Select `Window > Devices and Simulators` from the main menu.
-1. Select the device or simulator from the list on the left.
+1. Select the device from the list on the left.
 1. Click the `+` icon under **Installed Apps**.
-1. Locate and select `dist/bin/testsdl2gui.app`.
+1. Locate and select `dist/bin/testsdl2gui-arm64.app`.
 
-The app should now be installed on the device or simulator with the name **testsdl2gui**.
+The app should now be installed on the device with the name **testsdl2gui**.
 
 > If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
 
