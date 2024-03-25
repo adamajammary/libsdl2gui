@@ -8,26 +8,29 @@ bool           LSG_Events::isMouseDown    = false;
 
 SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 {
-	SDL_Point mousePosition = {};
+	SDL_Point position = {};
 
 	if ((event.type == SDL_FINGERDOWN) || (event.type == SDL_FINGERUP) || (event.type == SDL_FINGERMOTION))
 	{
-		auto windowSize = LSG_Window::GetSize();
+		auto size = LSG_Window::GetSize();
+		position  = { (int)(event.tfinger.x * (float)size.width), (int)(event.tfinger.y * (float)size.height) };
 
-		mousePosition = {
-			(int)(event.tfinger.x * (float)windowSize.width),
-			(int)(event.tfinger.y * (float)windowSize.height)
-		};
-
-		return mousePosition;
+		return position;
 	}
 
-	if ((event.type == SDL_MOUSEBUTTONDOWN) || (event.type == SDL_MOUSEBUTTONUP))
-		mousePosition = { event.button.x, event.button.y };
-	else if (event.type == SDL_MOUSEMOTION)
-		mousePosition = { event.motion.x, event.motion.y };
+	#if defined _macosx
+		if ((event.type == SDL_MOUSEBUTTONDOWN) || (event.type == SDL_MOUSEBUTTONUP))
+			position = { LSG_Graphics::GetDPIScaled(event.button.x), LSG_Graphics::GetDPIScaled(event.button.y) };
+		else if (event.type == SDL_MOUSEMOTION)
+			position = { LSG_Graphics::GetDPIScaled(event.motion.x), LSG_Graphics::GetDPIScaled(event.motion.y) };
+	#else
+		if ((event.type == SDL_MOUSEBUTTONDOWN) || (event.type == SDL_MOUSEBUTTONUP))
+			position = { event.button.x, event.button.y };
+		else if (event.type == SDL_MOUSEMOTION)
+			position = { event.motion.x, event.motion.y };
+	#endif
 
-	return mousePosition;
+	return position;
 }
 
 void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)

@@ -3,7 +3,7 @@
 #include <cstdio> // snprintf(x)
 
 #if defined _windows
-	#include <windows.h>
+	#include <windows.h> // WinMain(x)
 #endif
 
 #include <libsdl2gui.h>

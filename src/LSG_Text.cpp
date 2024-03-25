@@ -21,7 +21,6 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
 		auto FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
-		//auto FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // Missing CJK
 	#elif defined  _macosx
 		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
