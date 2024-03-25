@@ -25,7 +25,7 @@ private:
 
 public:
     static void          Close();
-    static int           GetDisplayIndex();
+    static float         GetDPI();
     static SDL_Size      GetMinimumSize();
     static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();

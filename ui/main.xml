@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<window title="Test SDL2 GUI" width="800" height="600" color-theme-file="ui/dark.colortheme">
+<window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
   <panel id="Root" orientation="vertical" padding="10" spacing="10">
     <panel height="32">
       <panel>
@@ -15,7 +15,7 @@
       </panel>
 
       <panel halign="right">
-        <text font-size="18">Test SDL2 GUI</text>
+        <text font-size="18">SDL2 GUI Library</text>
       </panel>
     </panel>
 

@@ -40,39 +40,12 @@ SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size
 int LSG_Graphics::GetDPIScaled(int value)
 {
 	#if defined _android
-		const float DEFAULT_DPI = 160.0f;
-
-		auto dpi            = 0.0f;
-		auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
-		auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
-		auto jniGetDPI      = jniEnvironment->GetStaticMethodID(jniActivity, "GetDPI", "()I");
-
-		if (jniGetDPI)
-			dpi = (float)jniEnvironment->CallStaticIntMethod(jniActivity, jniGetDPI);
-
-		jniEnvironment->DeleteLocalRef(jniActivity);
-
-		return (int)((float)value * (dpi / DEFAULT_DPI));
-	#elif defined _ios
-		auto windowScale = LSG_Window::GetSizeScale();
-
-		return (int)((float)value * windowScale.x);
+		auto scale = (LSG_Window::GetDPI() / 160.0f);
 	#else
-		#if defined _macosx
-			const float DEFAULT_DPI = 72.0f;
-		#else
-			const float DEFAULT_DPI = 96.0f;
-		#endif
-
-		auto dpi     = 0.0f;
-		auto display = LSG_Window::GetDisplayIndex();
-		auto result  = SDL_GetDisplayDPI(display, &dpi, nullptr, nullptr);
-
-		if (result != 0)
-			return value;
-
-		return (int)((float)value * (dpi / DEFAULT_DPI));
+		auto scale = LSG_Window::GetSizeScale().x;
 	#endif
+
+	return (int)((float)value * scale);
 }
 
 SDL_Color LSG_Graphics::GetFillColor(const SDL_Color& backgroundColor)

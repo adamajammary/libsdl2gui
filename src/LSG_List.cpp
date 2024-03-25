@@ -238,10 +238,7 @@ void LSG_List::reset()
 
 bool LSG_List::Select(int row)
 {
-	auto firstRow = (this->pageHeader ? 1 : 0);
-	auto lastRow  = (firstRow + this->getLastRow());
-
-	if (!this->enabled || (row > lastRow))
+	if (!this->enabled || (row > this->getLastRow()))
 		return false;
 
 	if (row == this->row)
@@ -259,9 +256,7 @@ void LSG_List::SelectFirstRow()
 	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
 		return;
 
-	auto firstRow = (this->pageHeader ? 1 : 0);
-
-	this->Select(firstRow);
+	this->Select(0);
 	this->OnScrollHome();
 }
 
@@ -270,10 +265,7 @@ void LSG_List::SelectLastRow()
 	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
 		return;
 
-	auto firstRow = (this->pageHeader ? 1 : 0);
-	auto lastRow  = (firstRow + this->getLastRow());
-
-	this->Select(lastRow);
+	this->Select(this->getLastRow());
 	this->OnScrollEnd();
 }
 
@@ -282,11 +274,9 @@ void LSG_List::SelectRow(int offset)
 	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
 		return;
 
-	auto firstRow = (this->pageHeader ? 1 : 0);
-	auto lastRow  = (firstRow + this->getLastRow());
-	auto nextRow  = (this->row + offset);
+	auto nextRow = (this->row + offset);
 
-	this->Select(std::max(firstRow, std::min(lastRow, nextRow)));
+	this->Select(std::max(0, std::min(this->getLastRow(), nextRow)));
 
 	if (!this->showScrollY)
 		return;

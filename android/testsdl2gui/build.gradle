@@ -4,12 +4,12 @@ android {
   namespace "com.libsdl2gui.test"
 
   defaultConfig {
+    applicationId "com.libsdl2gui.test"
     compileSdk 33
-    minSdkVersion 26
+    minSdkVersion 29
     targetSdkVersion 33
     versionCode 1
     versionName "1.0.0"
-    applicationId "com.libsdl2gui.test"
   }
 
   sourceSets.main {

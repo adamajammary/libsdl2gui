@@ -21,7 +21,6 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
 		auto FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
-		//auto FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"; // Missing CJK
 	#elif defined  _macosx
 		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
@@ -98,7 +97,7 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text)
 	#if defined _linux
 		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
 	#else
-		auto textUTF16 = SDL_iconv_utf8_ucs2(text.c_str());
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
 	#endif
 
 	if (!textUTF16)

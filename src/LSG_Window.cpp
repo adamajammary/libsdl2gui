@@ -18,9 +18,12 @@ void LSG_Window::Close()
 	SDL_Quit();
 }
 
-int LSG_Window::GetDisplayIndex()
+float LSG_Window::GetDPI()
 {
-	return SDL_GetWindowDisplayIndex(LSG_Window::window);
+	float dpi;
+	SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(LSG_Window::window), &dpi, nullptr, nullptr);
+
+	return dpi;
 }
 
 SDL_Size LSG_Window::GetMinimumSize()
