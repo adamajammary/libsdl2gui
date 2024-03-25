@@ -14,8 +14,8 @@ BEGIN
 			VALUE "LegalCopyright",   "(c) 2021 Adam A. Jammary (Jammary Studio)"
 			VALUE "ProductName",      "libsdl2gui"
 			VALUE "FileDescription",  "libsdl2gui"
-			VALUE "FileVersion",      "1.1.0"
-			VALUE "ProductVersion",   "1.1.0"
+			VALUE "FileVersion",      "1.2.1"
+			VALUE "ProductVersion",   "1.2.1"
 			VALUE "InternalName",     "libsdl2gui.dll"
 			VALUE "OriginalFilename", "libsdl2gui.dll"
 		END
