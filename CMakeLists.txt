@@ -217,15 +217,15 @@ if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/src/main/assets/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/src/main/assets/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mkdir -p \"${OUT_DIR}/libs/arm64-v8a\")
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mkdir -p \"${OUT_DIR}/libs/${ANDROID_ABI}\")
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/arm64-v8a/libmain.so)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/${ANDROID_ABI}/libmain.so)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${OUT_DIR}/libs/arm64-v8a/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${OUT_DIR}/libs/arm64-v8a/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${OUT_DIR}/libs/arm64-v8a/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew --stop)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew assembleDebug WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/android)
