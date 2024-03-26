@@ -145,6 +145,7 @@ if (WIN32)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"     mkdir \"${DIST_DIR}/lib\")
 
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.lib ${DIST_DIR}/lib/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll ${DIST_DIR}/lib/)
 else()
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND rm -rf \"${DIST_DIR}\")
 
