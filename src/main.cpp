@@ -1487,6 +1487,8 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 
 SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
+	LibXml::xmlInitParser();
+
 	if (!basePath)
 		initBasePath();
 
@@ -1525,6 +1527,8 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile)
 #if defined _windows && defined _DEBUG
 void LSG_StartTest(const std::string& xmlFile, const std::string& workingDir)
 {
+	LibXml::xmlInitParser();
+
 	if (!basePath)
 		basePath = (char*)workingDir.c_str();
 
