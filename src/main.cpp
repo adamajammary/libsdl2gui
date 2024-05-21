@@ -1505,6 +1505,10 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile)
 
 	if ((minWidth > 0) && (minHeight > 0))
 		LSG_SetWindowMinimumSize(minWidth, minHeight);
+	else if (minWidth > 0)
+		LSG_SetWindowMinimumSize(minWidth, LSG_Window::MinSize);
+	else if (minHeight > 0)
+		LSG_SetWindowMinimumSize(LSG_Window::MinSize, minHeight);
 
 	auto x = (windowAttribs.contains("x") ? std::atoi(windowAttribs["x"].c_str()) : 0);
 	auto y = (windowAttribs.contains("y") ? std::atoi(windowAttribs["y"].c_str()) : 0);

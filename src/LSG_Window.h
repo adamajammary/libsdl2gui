@@ -9,7 +9,7 @@ private:
     LSG_Window()  {}
     ~LSG_Window() {}
 
-private:
+public:
     static const int MinSize = 400;
 
 private:
