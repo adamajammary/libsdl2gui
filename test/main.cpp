@@ -75,6 +75,12 @@ static void handleUserEvent(const SDL_UserEvent& event)
     default:
         break;
     }
+
+    if (event.data1)
+        free(event.data1);
+
+    if (event.data2)
+        delete event.data2;
 }
 
 #if defined _android || defined _ios

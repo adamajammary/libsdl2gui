@@ -306,7 +306,7 @@ void LSG_List::sendEvent(LSG_EventType type)
 	listEvent.type       = SDL_RegisterEvents(1);
 	listEvent.user.code  = (int)type;
 	listEvent.user.data1 = (void*)strdup(this->id.c_str());
-	listEvent.user.data2 = (void*)&this->row;
+	listEvent.user.data2 = new int(this->row);
 
 	SDL_PushEvent(&listEvent);
 }

@@ -184,7 +184,7 @@ void LSG_Slider::sendEvent(LSG_EventType type)
 	sliderEvent.type       = SDL_RegisterEvents(1);
 	sliderEvent.user.code  = (int)type;
 	sliderEvent.user.data1 = (void*)strdup(this->id.c_str());
-	sliderEvent.user.data2 = (void*)&this->value;
+	sliderEvent.user.data2 = new double(this->value);
 
 	SDL_PushEvent(&sliderEvent);
 }
