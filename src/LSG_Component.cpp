@@ -245,6 +245,13 @@ LSG_Component* LSG_Component::GetParent()
 	return this->parent;
 }
 
+int LSG_Component::GetSpacing()
+{
+	auto spacing = LSG_XML::GetAttribute(this->xmlNode, "spacing");
+
+	return (!spacing.empty() ? std::atoi(spacing.c_str()) : 0);
+}
+
 int LSG_Component::getTextureHeight()
 {
 	if (this->texture)

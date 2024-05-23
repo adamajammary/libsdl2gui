@@ -39,7 +39,7 @@ MSVC | 2019
 
 ## How to build
 
-1. Build the third-party libraries and place the them in a common directory.
+1. Build the [third-party libraries](#3rd-party-libraries) and place the them in a common directory.
 1. Make sure you have [cmake](https://cmake.org/download/) installed.
 1. Open a command prompt or terminal.
 1. Create a **build** directory and enter it.
@@ -879,6 +879,40 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetMargin
+
+```cpp
+int LSG_GetMargin(const std::string& id);
+```
+
+Returns the margin around a component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPadding
+
+```cpp
+int LSG_GetPadding(const std::string& id);
+```
+
+Returns the padding inside a component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetPage
 
 ```cpp
@@ -1119,6 +1153,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetSpacing
+
+```cpp
+int LSG_GetSpacing(const std::string& id);
+```
+
+Returns the spacing between child components.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetTableGroup
 
 ```cpp
@@ -1269,6 +1320,23 @@ Returns the window title.
 
 Exceptions
 
+- runtime_error
+
+### LSG_IsEnabled
+
+```cpp
+bool LSG_IsEnabled(const std::string& id);
+```
+
+Returns true if the component is enabled.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
 - runtime_error
 
 ### LSG_IsMenuOpen

@@ -167,6 +167,22 @@ DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
 DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 
 /**
+ * @returns the margin around a component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetMargin(const std::string& id);
+
+/**
+ * @returns the padding inside a component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetPadding(const std::string& id);
+
+/**
  * @returns the current 0-based page index of the <list> or <table> component
  * @param id <list> or <table> component ID
  * @throws invalid_argument
@@ -281,6 +297,14 @@ DLLEXPORT int DLL LSG_GetSortColumn(const std::string& id);
 DLLEXPORT LSG_SortOrder DLL LSG_GetSortOrder(const std::string& id);
 
 /**
+ * @returns the spacing between child components
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetSpacing(const std::string& id);
+
+/**
  * @returns the group from the <table> component
  * @param id    <table> component ID
  * @param group The group name
@@ -353,6 +377,14 @@ DLLEXPORT SDL_Size DLL LSG_GetWindowSize();
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetWindowTitle();
+
+/**
+ * @returns true if the component is enabled
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT bool DLL LSG_IsEnabled(const std::string& id);
 
 /**
  * @returns true if the <menu> component is open

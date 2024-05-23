@@ -233,6 +233,32 @@ LSG_Strings LSG_GetListItems(const std::string& id)
 	return static_cast<LSG_List*>(component)->GetItems();
 }
 
+int LSG_GetMargin(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->margin;
+}
+
+int LSG_GetPadding(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->padding;
+}
+
 int LSG_GetPage(const std::string& id)
 {
 	if (!isRunning)
@@ -435,6 +461,19 @@ LSG_SortOrder LSG_GetSortOrder(const std::string& id)
 	return static_cast<LSG_List*>(component)->GetSortOrder();
 }
 
+int LSG_GetSpacing(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetSpacing();
+}
+
 LSG_TableGroupRows LSG_GetTableGroup(const std::string& id, const std::string& group)
 {
 	if (!isRunning)
@@ -543,6 +582,19 @@ std::string LSG_GetWindowTitle()
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
 	return LSG_Window::GetTitle();
+}
+
+bool LSG_IsEnabled(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->enabled;
 }
 
 bool LSG_IsMenuOpen(const std::string& id)
