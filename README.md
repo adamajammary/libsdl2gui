@@ -1342,6 +1342,23 @@ Exceptions
 ### LSG_IsMenuOpen
 
 ```cpp
+bool LSG_IsMenuItemSelected(const std::string& id);
+```
+
+Returns true if the \<menu-item\> component is selected.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_IsMenuOpen
+
+```cpp
 bool LSG_IsMenuOpen(const std::string& id);
 ```
 

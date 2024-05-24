@@ -597,6 +597,19 @@ bool LSG_IsEnabled(const std::string& id)
 	return component->enabled;
 }
 
+bool LSG_IsMenuItemSelected(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
+
+	return static_cast<LSG_MenuItem*>(component)->IsSelected();
+}
+
 bool LSG_IsMenuOpen(const std::string& id)
 {
 	if (!isRunning)

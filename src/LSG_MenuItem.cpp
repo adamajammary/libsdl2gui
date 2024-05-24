@@ -35,6 +35,11 @@ int LSG_MenuItem::getMaxHeightIcon() const
 	return (this->background.h - padding);
 }
 
+bool LSG_MenuItem::IsSelected() const
+{
+	return this->selected;
+}
+
 bool LSG_MenuItem::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || !this->visible)

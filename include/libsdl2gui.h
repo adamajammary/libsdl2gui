@@ -387,6 +387,14 @@ DLLEXPORT std::string DLL LSG_GetWindowTitle();
 DLLEXPORT bool DLL LSG_IsEnabled(const std::string& id);
 
 /**
+ * @returns true if the <menu-item> component is selected
+ * @param id <menu-item> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT bool DLL LSG_IsMenuItemSelected(const std::string& id);
+
+/**
  * @returns true if the <menu> component is open
  * @param id <menu> component ID
  * @throws invalid_argument
