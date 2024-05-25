@@ -3,12 +3,15 @@
 LSG_MenuItem::LSG_MenuItem(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->closed          = true;
 	this->iconOrientation = {};
 	this->selected        = false;
 }
 
 void LSG_MenuItem::Close()
 {
+	this->closed = true;
+
 	this->destroyTextures();
 }
 
@@ -35,6 +38,11 @@ int LSG_MenuItem::getMaxHeightIcon() const
 	return (this->background.h - padding);
 }
 
+bool LSG_MenuItem::IsClosed() const
+{
+	return this->closed;
+}
+
 bool LSG_MenuItem::IsSelected() const
 {
 	return this->selected;
@@ -48,6 +56,11 @@ bool LSG_MenuItem::OnMouseClick(const SDL_Point& mousePosition)
 	this->sendEvent(LSG_EVENT_MENU_ITEM_SELECTED);
 
 	return true;
+}
+
+void LSG_MenuItem::Open()
+{
+	this->closed = false;
 }
 
 void LSG_MenuItem::Render(SDL_Renderer* renderer)

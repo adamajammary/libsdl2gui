@@ -159,6 +159,9 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition)
 		if (component->IsMenu() && static_cast<LSG_Menu*>(component)->IsOpen())
 			return component;
 
+		if ((component->IsMenuItem() || component->IsSubMenu()) && static_cast<LSG_MenuItem*>(component)->IsClosed())
+			continue;
+
 		if (component->visible && SDL_PointInRect(&mousePosition, &component->background))
 			return component;
 	}

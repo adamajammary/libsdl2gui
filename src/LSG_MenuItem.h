@@ -17,13 +17,16 @@ private:
 	static const int PaddingIcon2x = 10;
 
 private:
+	bool                 closed;
 	LSG_ImageOrientation iconOrientation;
 	bool                 selected;
 
 public:
 	void         Close();
+	bool         IsClosed() const;
 	bool         IsSelected() const;
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	void         Open();
 	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetMenuItem(const SDL_Rect& background);
 	void         SetSelected(bool selected = true);

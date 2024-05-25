@@ -268,6 +268,11 @@ void LSG_Menu::open()
 
 	this->setMenuOpened();
 
+	for (auto& child : this->subMenu->GetChildren()) {
+		if (child->IsMenuItem() || child->IsSubMenu())
+			static_cast<LSG_MenuItem*>(child)->Open();
+	}
+
 	this->isOpen = true;
 }
 
