@@ -47,9 +47,11 @@ public:
 	#endif
 
 protected:
-	SDL_Texture* getTexture(const std::string& text);
+	SDL_Texture* getTexture(const std::string& text, int fontSize = 0);
 	bool         hasChanged();
 
+private:
+	std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
 };
 
 #endif

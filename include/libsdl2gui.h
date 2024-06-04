@@ -241,6 +241,14 @@ DLLEXPORT LSG_TableRows DLL LSG_GetPageTableRows(const std::string& id);
 DLLEXPORT SDL_Point DLL LSG_GetPosition(const std::string& id);
 
 /**
+ * @returns the value of the <progress-bar> component as a percent between 0 and 1
+ * @param id <progress-bar> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT double DLL LSG_GetProgressValue(const std::string& id);
+
+/**
  * @returns the horizontal scroll offset/position of the <list>, <table> or <text> component
  * @param id <list>, <table> or <text> component ID
  * @throws invalid_argument
@@ -791,6 +799,15 @@ DLLEXPORT void DLL LSG_SetPageListItem(const std::string& id, int row, const std
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
+
+/**
+ * @brief Sets the value of the <progress-bar> component as a percent between 0 and 1.
+ * @param id      <progress-bar> component ID
+ * @param percent [0.0-1.0]
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetProgressValue(const std::string& id, double percent);
 
 /**
  * @brief Sets the size of a component.

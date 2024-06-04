@@ -54,6 +54,8 @@ public:
 	bool             IsListItem() const;
 	bool             IsMenu() const;
 	bool             IsMenuItem() const;
+	bool             IsModal() const;
+	bool             IsProgressBar() const;
 	bool             IsScrollable() const;
 	bool             IsSlider() const;
 	bool             IsSubMenu() const;
@@ -97,7 +99,7 @@ protected:
 private:
 	void renderBorder(SDL_Renderer* renderer);
 	void renderFill(SDL_Renderer* renderer);
-
+	void setSizePercent(const SDL_Rect& parentBackground);
 };
 
 #endif

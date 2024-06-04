@@ -352,6 +352,21 @@ SDL_Point LSG_GetPosition(const std::string& id)
 	return position;
 }
 
+double LSG_GetProgressValue(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsProgressBar())
+		throw std::invalid_argument(getErrorNoID("<progress-bar>", id));
+
+	auto value = static_cast<LSG_ProgressBar*>(component)->GetValue();
+
+	return value;
+}
+
 int LSG_GetScrollHorizontal(const std::string& id)
 {
 	if (!isRunning)
@@ -1297,6 +1312,19 @@ void LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& colu
 	static_cast<LSG_Table*>(component)->SetPageRow(row, columns);
 }
 
+void LSG_SetProgressValue(const std::string& id, double percent)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsProgressBar())
+		throw std::invalid_argument(getErrorNoID("<progress-bar>", id));
+
+	static_cast<LSG_ProgressBar*>(component)->SetValue(percent);
+}
+
 void LSG_SetSize(const std::string& id, const SDL_Size& size)
 {
 	if (!isRunning)
@@ -1446,7 +1474,10 @@ void LSG_SetVisible(const std::string& id, bool visible)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->visible = visible;
+	if (component->IsModal())
+		LSG_Modal::SetVisible(component, visible);
+	else
+		component->visible = visible;
 
 	LSG_UI::LayoutRoot();
 }

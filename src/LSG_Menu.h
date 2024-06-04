@@ -23,6 +23,7 @@ private:
 	LSG_Component* subMenu;
 
 public:
+	void         Close();
 	void         Highlight(const SDL_Point& mousePosition);
 	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition);
 	bool         IsOpen() const;
@@ -31,7 +32,6 @@ public:
 	void         SetMenu();
 
 private:
-	void                  close();
 	SDL_Rect              getIconClose(const SDL_Rect& menu);
 	SDL_Rect              getIconOpen();
 	SDL_Rect              getMenu(const SDL_Rect& window);
@@ -51,7 +51,6 @@ private:
 	virtual void          sendEvent(LSG_EventType type) override;
 	void                  setMenuOpened();
 	void                  setMenuClosed();
-
 };
 
 #endif

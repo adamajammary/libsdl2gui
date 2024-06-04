@@ -26,17 +26,10 @@ static void setColorTheme(const std::string& menuItemId, const std::string& colo
     LSG_SetMenuItemSelected(menuItemId, true);
 }
 
-static void showAbout()
-{
-    auto about = "libsdl2gui is a free cross-platform user interface library using SDL2.\n\n(c) 2021 Adam A. Jammary (Jammary Studio)";
-
-    SDL_ShowSimpleMessageBox(0, "About", about, nullptr);
-}
-
 static void handleIdEvent(const std::string& id)
 {
     if (id == "MenuIdAbout")
-        showAbout();
+        LSG_SetVisible("ModalIdAbout", true);
     else if ((id == "ButtonIdColorThemeDark") || (id == "MenuIdColorThemeDark"))
         setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
     else if ((id == "ButtonIdColorThemeLight") || (id == "MenuIdColorThemeLight"))
@@ -70,7 +63,8 @@ static void handleUserEvent(const SDL_UserEvent& event)
         handleRowEvent(id, *static_cast<int*>(event.data2));
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
-        LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
+        if (std::string(id) == "Slider")
+            LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
         break;
     default:
         break;
@@ -148,7 +142,7 @@ int SDL_main(int argc, char* argv[])
             if (!LSG_IsPreferredDarkMode())
                 setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
             else
-                setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+                setColorTheme("MenuIdColorThemeDark",  "ui/dark.colortheme");
         }
 
         std::vector<SDL_Event> events;

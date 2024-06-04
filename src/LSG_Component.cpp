@@ -339,6 +339,16 @@ bool LSG_Component::IsMenuItem() const
 	return (this->xmlNodeName == "menu-item");
 }
 
+bool LSG_Component::IsModal() const
+{
+	return (this->xmlNodeName == "modal");
+}
+
+bool LSG_Component::IsProgressBar() const
+{
+	return (this->xmlNodeName == "progress-bar");
+}
+
 bool LSG_Component::IsScrollable() const
 {
 	return (this->IsList() || this->IsTable() || this->IsTextLabel());
@@ -415,7 +425,7 @@ void LSG_Component::Render(SDL_Renderer* renderer)
 	this->renderBorder(renderer);
 
 	for (auto child : this->children) {
-		if (!child->IsMenu())
+		if (!child->IsMenu() && !child->IsModal())
 			child->Render(renderer);
 	}
 
@@ -667,6 +677,11 @@ void LSG_Component::SetSizePercent(LSG_Component* parent)
 		parentBackground.h -= parentBorder2x;
 	}
 
+	this->setSizePercent(parentBackground);
+}
+
+void LSG_Component::setSizePercent(const SDL_Rect& parentBackground)
+{
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
 	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");

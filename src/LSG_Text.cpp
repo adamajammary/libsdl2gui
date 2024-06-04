@@ -84,20 +84,24 @@ bool LSG_Text::GetXmlValueCompare(LSG_Component* i1, LSG_Component* i2)
 //	return xmlText;
 //}
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text)
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize)
 {
 	if (text.empty())
 		return nullptr;
 
-	auto fontSize = this->getFontSize();
-	auto font     = LSG_Text::GetFontArial(fontSize);
+	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
+
+	if (fontSize == 0)
+		fontSize = this->getFontSize();
+
+	auto font = LSG_Text::GetFontArial(fontSize);
 
 	TTF_SetFontStyle(font, this->fontStyle);
 
 	#if defined _linux
-		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
 	#else
-		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
 	#endif
 
 	if (!textUTF16)
@@ -132,4 +136,17 @@ bool LSG_Text::hasChanged()
 	bool isFontSizeChanged = (this->getFontSize() != this->lastFontSize);
 
 	return (isColorChanged || isFontSizeChanged);
+}
+
+std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
+{
+	auto result        = std::string(text);
+	auto matchPosition = result.find(oldSubstring);
+
+	while (matchPosition != std::string::npos) {
+		result        = result.replace(matchPosition, oldSubstring.size(), newSubstring);
+		matchPosition = result.find(oldSubstring, (matchPosition + newSubstring.size()));
+	}
+
+	return result;
 }

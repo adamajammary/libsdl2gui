@@ -63,7 +63,7 @@ namespace LibXml {
 class LSG_Component;
 
 using LSG_Components        = std::vector<LSG_Component*>;
-using LSG_ComponentsCompare = std::function<bool(LSG_Component* i1, LSG_Component* i2)>;
+using LSG_ComponentsCompare = std::function<bool(LSG_Component* c1, LSG_Component* c2)>;
 using LSG_MapIntComponent   = std::map<int, LSG_Component*>;
 using LSG_UMapIntComponent  = std::unordered_map<int, LSG_Component*>;
 using LSG_UMapStrStr        = std::unordered_map<std::string, std::string>;
@@ -86,6 +86,13 @@ enum LSG_MenuItemTexture
 	LSG_MENU_ITEM_TEXTURE_ARROW,
 	LSG_MENU_ITEM_TEXTURE_SELECTED,
 	NR_OF_MENU_ITEM_TEXTURES
+};
+
+enum LSG_ModalTexture
+{
+	LSG_MODAL_TEXTURE_ICON_CLOSE,
+	LSG_MODAL_TEXTURE_TITLE,
+	NR_OF_MODAL_TEXTURES
 };
 
 enum LSG_TriangleOrientation
@@ -217,6 +224,8 @@ const char* LSG_GetBasePath();
 #include "LSG_Menu.h"
 #include "LSG_MenuItem.h"
 #include "LSG_MenuSub.h"
+#include "LSG_Modal.h"
+#include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"
 #include "LSG_Table.h"
 #include "LSG_TableColumn.h"

@@ -35,12 +35,23 @@ SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 
 void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 {
-	auto component = LSG_UI::GetComponent(LSG_Window::GetMousePosition());
+	auto component = LSG_UI::GetComponent(LSG_Window::GetMousePosition(), true);
 
 	if (!component || !component->enabled)
 		return;
 
-	if (component->IsTextLabel())
+	if (component->IsModal())
+	{
+		static_cast<LSG_Modal*>(component)->OnKeyDown(event);
+	}
+	else if (component->IsMenu())
+	{
+		auto menu = static_cast<LSG_Menu*>(component);
+
+		if (menu->IsOpen() && (event.keysym.sym == SDLK_ESCAPE))
+			menu->Close();
+	}
+	else if (component->IsTextLabel())
 	{
 		auto textLabel = static_cast<LSG_TextLabel*>(component);
 

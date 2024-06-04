@@ -23,7 +23,22 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 	auto xmlID = LSG_XML::GetAttribute(node, "id");
 	auto layer = LSG_UI::id++;
 	auto name  = std::string(reinterpret_cast<const char*>(node->name));
-	auto id    = (!xmlID.empty() ? xmlID : LSG_Text::Format("%s_%d", name.c_str(), layer));
+
+	if (name == "modal")
+		layer += LSG_Modal::LayerOffsetMax;
+	else if (name == "menu")
+		layer += LSG_Menu::LayerOffset;
+	else if (name == "button")
+		layer += LSG_Button::LayerOffset;
+	else if (name == "list")
+		layer += LSG_List::LayerOffset;
+	else if (name == "table")
+		layer += LSG_Table::LayerOffset;
+
+	if ((name != "modal") && LSG_Modal::IsModalChild(parent))
+		layer += LSG_Modal::LayerOffsetMin;
+
+	auto id = (!xmlID.empty() ? xmlID : LSG_Text::Format("%s_%d", name.c_str(), layer));
 
 	if (LSG_UI::components.contains(id))
 		throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", id.c_str()));
@@ -40,6 +55,8 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		component = new LSG_MenuItem(id, layer, node, name, parent);
 	else if (name == "menu-sub")
 		component = new LSG_MenuSub(id, layer, node, name, parent);
+	else if (name == "modal")
+		component = new LSG_Modal(id, layer, node, name, parent);
 	else if (name == "list")
 		component = new LSG_List(id, layer, node, name, parent);
 	else if (name == "list-item")
@@ -58,6 +75,8 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		component = new LSG_TableRow(id, layer, node, name, parent);
 	else if (name == "image")
 		component = new LSG_Image(id, layer, node, name, parent);
+	else if (name == "progress-bar")
+		component = new LSG_ProgressBar(id, layer, node, name, parent);
 	else if (name == "slider")
 		component = new LSG_Slider(id, layer, node, name, parent);
 	else if (name == "text")
@@ -66,17 +85,11 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 	if (!component)
 		return nullptr;
 
+	if (layer >= LSG_Modal::LayerOffsetMin)
+		component->visible = false;
+
 	if (!LSG_UI::root && (name == "panel"))
 		LSG_UI::root = component;
-
-	if (name == "menu")
-		layer += LSG_Menu::LayerOffset;
-	else if (name == "button")
-		layer += LSG_Button::LayerOffset;
-	else if (name == "list")
-		layer += LSG_List::LayerOffset;
-	else if (name == "table")
-		layer += LSG_Table::LayerOffset;
 
 	LSG_UI::components[id]           = component;
 	LSG_UI::componentsByLayer[layer] = component;
@@ -150,11 +163,25 @@ LSG_Component* LSG_UI::GetComponent(const std::string& id)
 	return nullptr;
 }
 
-LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition)
+LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipModalChildren)
 {
+	int modalLayer = 0;
+
 	for (auto i = LSG_UI::componentsByLayer.rbegin(); i != LSG_UI::componentsByLayer.rend(); i++)
 	{
 		auto component = (*i).second;
+
+		if (component->IsModal() && component->visible)
+		{
+			if (skipModalChildren)
+				return component;
+
+			if (static_cast<LSG_Modal*>(component)->CloseOnMouseClick(mousePosition))
+				return nullptr;
+
+			modalLayer = LSG_Modal::LayerOffsetMin;
+			continue;
+		}
 
 		if (component->IsMenu() && static_cast<LSG_Menu*>(component)->IsOpen())
 			return component;
@@ -162,7 +189,7 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition)
 		if ((component->IsMenuItem() || component->IsSubMenu()) && static_cast<LSG_MenuItem*>(component)->IsClosed())
 			continue;
 
-		if (component->visible && SDL_PointInRect(&mousePosition, &component->background))
+		if (component->visible && (component->GetLayer() > modalLayer) && SDL_PointInRect(&mousePosition, &component->background))
 			return component;
 	}
 
@@ -190,8 +217,12 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 		if (!component->visible || !component->enabled)
 			continue;
 
-		if (component->IsMenu())
-		{
+		if (component->IsModal()) {
+			static_cast<LSG_Modal*>(component)->Highlight(mousePosition);
+			return;
+		}
+
+		if (component->IsMenu()) {
 			auto menu = static_cast<LSG_Menu*>(component);
 
 			if (menu->IsOpen()) {
@@ -296,19 +327,52 @@ void LSG_UI::Layout()
 
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
+	LSG_UI::layoutModal(LSG_UI::root);
 
 	LSG_UI::setMenu(LSG_UI::root);
 }
 
-void LSG_UI::layoutFixed(LSG_Component* component)
+void LSG_UI::layoutFixed(LSG_Component* component, bool skipModal)
 {
-	if (!component)
+	if (!component || (skipModal && component->IsModal()))
 		return;
 
 	component->SetSizeFixed();
 
 	for (auto child : component->GetChildren())
-		LSG_UI::layoutFixed(child);
+		LSG_UI::layoutFixed(child, skipModal);
+}
+
+void LSG_UI::layoutModal(LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsModal())
+	{
+		static_cast<LSG_Modal*>(component)->Layout();
+
+		LSG_UI::setImages(component);
+		LSG_UI::setListItems(component);
+		LSG_UI::setTableRows(component);
+		LSG_UI::setTextLabels(component);
+
+		auto height = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
+
+		component->background.y += height;
+		component->background.h -= height;
+
+		LSG_UI::layoutFixed(component,    false);
+		LSG_UI::layoutRelative(component, false);
+
+		component->background.y -= height;
+		component->background.h += height;
+
+		return;
+	}
+
+	for (auto child : component->GetChildren())
+		LSG_UI::layoutModal(child);
 }
 
 void LSG_UI::LayoutParent(LSG_Component* component)
@@ -324,6 +388,7 @@ void LSG_UI::LayoutParent(LSG_Component* component)
 	{
 		LSG_UI::layoutFixed(parent);
 		LSG_UI::layoutRelative(parent);
+		LSG_UI::layoutModal(parent);
 
 		return;
 	}
@@ -332,17 +397,109 @@ void LSG_UI::LayoutParent(LSG_Component* component)
 
 	LSG_UI::layoutFixed(component);
 	LSG_UI::layoutRelative(component);
+	LSG_UI::layoutModal(component);
 }
 
-void LSG_UI::layoutRelative(LSG_Component* component)
+void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components& children)
 {
-	if (!component)
+	if (!component || children.empty())
+		return;
+
+	auto attributes = component->GetXmlAttributes();
+	bool isVertical = component->IsVertical();
+	auto halign     = (attributes.contains("halign") ? attributes["halign"] : "");
+	auto valign     = (attributes.contains("valign") ? attributes["valign"] : "");
+	auto spacing    = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
+	auto border     = component->border;
+	auto border2x   = (border * 2);
+	auto padding    = component->padding;
+	auto padding2x  = (padding * 2);
+	auto offsetX    = (component->background.x + border + padding);
+	auto offsetY    = (component->background.y + border + padding);
+	auto maxX       = (component->background.w - border2x - padding2x);
+	auto maxY       = (component->background.h - border2x - padding2x);
+	auto remainingX = maxX;
+	auto remainingY = maxY;
+
+	// TOP-LEFT ALIGN
+	for (size_t i = 0; i < children.size(); i++)
+	{
+		auto child = children[i];
+
+		if (!child->visible || child->IsModal())
+			continue;
+
+		auto childMargin   = child->margin;
+		auto childMargin2x = (childMargin * 2);
+
+		bool addSpacing     = (i > 0 && children.size() > 1);
+		auto childSpacingX  = (addSpacing && !isVertical ? spacing : 0);
+		auto childSpacingY  = (addSpacing && isVertical  ? spacing : 0);
+
+		child->SetPositionAlign(offsetX + childMargin + childSpacingX, offsetY + childMargin + childSpacingY);
+
+		if (isVertical) {
+			offsetY    += (child->background.h + childMargin2x + childSpacingY);
+			remainingY -= (child->background.h + childMargin2x + childSpacingY);
+		} else {
+			offsetX    += (child->background.w + childMargin2x + childSpacingX);
+			remainingX -= (child->background.w + childMargin2x + childSpacingX);
+		}
+	}
+
+	// ALIGN
+	for (auto child : children)
+	{
+		if (!child->visible || child->IsModal())
+			continue;
+
+		auto childOffsetX  = child->background.x;
+		auto childOffsetY  = child->background.y;
+		auto childMargin2x = (child->margin * 2);
+
+		// VERTICAL
+		if (isVertical)
+		{
+			// V-ALIGN
+			if (valign == "middle")
+				childOffsetY += (remainingY / 2);
+			else if (valign == "bottom")
+				childOffsetY += remainingY;
+
+			// H-ALIGN
+			if (halign == "center")
+				childOffsetX += ((maxX - child->background.w - childMargin2x) / 2);
+			else if (halign == "right")
+				childOffsetX += (maxX - child->background.w - childMargin2x);
+		}
+		// HORIZONTAL
+		else
+		{
+			// H-ALIGN
+			if (halign == "center")
+				childOffsetX += (remainingX / 2);
+			else if (halign == "right")
+				childOffsetX += remainingX;
+
+			// V-ALIGN
+			if (valign == "middle")
+				childOffsetY += ((maxY - child->background.h - childMargin2x) / 2);
+			else if (valign == "bottom")
+				childOffsetY += (maxY - child->background.h - childMargin2x);
+		}
+
+		child->SetPositionAlign(childOffsetX, childOffsetY);
+	}
+}
+void LSG_UI::layoutRelative(LSG_Component* component, bool skipModal)
+{
+	if (!component || (skipModal && component->IsModal()))
 		return;
 
 	auto children = component->GetChildren();
 
 	for (auto child : children) {
-		if (child->visible)
+		if (child->visible && (!skipModal || !child->IsModal()))
 			child->SetSizePercent(component);
 	}
 
@@ -350,7 +507,7 @@ void LSG_UI::layoutRelative(LSG_Component* component)
 	LSG_UI::layoutPositionAlign(component, children);
 
 	for (auto child : children)
-		LSG_UI::layoutRelative(child);
+		LSG_UI::layoutRelative(child, skipModal);
 }
 
 /**
@@ -367,6 +524,7 @@ void LSG_UI::LayoutRoot()
 
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
+	LSG_UI::layoutModal(LSG_UI::root);
 }
 
 void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& children)
@@ -398,7 +556,7 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	{
 		auto child = children[i];
 
-		if (!child->visible)
+		if (!child->visible || child->IsModal())
 			continue;
 
 		auto childAttribs  = child->GetXmlAttributes();
@@ -441,100 +599,8 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	}
 
 	for (auto child : children) {
-		if (child->visible)
+		if (child->visible && !child->IsModal())
 			child->SetSizeBlank(sizeX, sizeY, componentsX, componentsY);
-	}
-}
-
-void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components& children)
-{
-	if (!component || children.empty())
-		return;
-
-	auto attributes = component->GetXmlAttributes();
-	bool isVertical = component->IsVertical();
-	auto halign     = (attributes.contains("halign") ? attributes["halign"] : "");
-	auto valign     = (attributes.contains("valign") ? attributes["valign"] : "");
-	auto spacing    = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
-	auto border     = component->border;
-	auto border2x   = (border * 2);
-	auto padding    = component->padding;
-	auto padding2x  = (padding * 2);
-	auto offsetX    = (component->background.x + border + padding);
-	auto offsetY    = (component->background.y + border + padding);
-	auto maxX       = (component->background.w - border2x - padding2x);
-	auto maxY       = (component->background.h - border2x - padding2x);
-	auto remainingX = maxX;
-	auto remainingY = maxY;
-
-	// TOP-LEFT ALIGN
-	for (size_t i = 0; i < children.size(); i++)
-	{
-		auto child = children[i];
-
-		if (!child->visible)
-			continue;
-
-		auto childMargin   = child->margin;
-		auto childMargin2x = (childMargin * 2);
-
-		bool addSpacing     = (i > 0 && children.size() > 1);
-		auto childSpacingX  = (addSpacing && !isVertical ? spacing : 0);
-		auto childSpacingY  = (addSpacing && isVertical  ? spacing : 0);
-
-		child->SetPositionAlign(offsetX + childMargin + childSpacingX, offsetY + childMargin + childSpacingY);
-
-		if (isVertical) {
-			offsetY    += (child->background.h + childMargin2x + childSpacingY);
-			remainingY -= (child->background.h + childMargin2x + childSpacingY);
-		} else {
-			offsetX    += (child->background.w + childMargin2x + childSpacingX);
-			remainingX -= (child->background.w + childMargin2x + childSpacingX);
-		}
-	}
-
-	// ALIGN
-	for (auto child : children)
-	{
-		if (!child->visible)
-			continue;
-
-		auto childOffsetX  = child->background.x;
-		auto childOffsetY  = child->background.y;
-		auto childMargin2x = (child->margin * 2);
-
-		// VERTICAL
-		if (isVertical)
-		{
-			// V-ALIGN
-			if (valign == "middle")
-				childOffsetY += (remainingY / 2);
-			else if (valign == "bottom")
-				childOffsetY += remainingY;
-
-			// H-ALIGN
-			if (halign == "center")
-				childOffsetX += ((maxX - child->background.w - childMargin2x) / 2);
-			else if (halign == "right")
-				childOffsetX += (maxX - child->background.w - childMargin2x);
-		}
-		// HORIZONTAL
-		else
-		{
-			// H-ALIGN
-			if (halign == "center")
-				childOffsetX += (remainingX / 2);
-			else if (halign == "right")
-				childOffsetX += remainingX;
-
-			// V-ALIGN
-			if (valign == "middle")
-				childOffsetY += ((maxY - child->background.h - childMargin2x) / 2);
-			else if (valign == "bottom")
-				childOffsetY += (maxY - child->background.h - childMargin2x);
-		}
-
-		child->SetPositionAlign(childOffsetX, childOffsetY);
 	}
 }
 
@@ -588,7 +654,8 @@ LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 
 void LSG_UI::Present(SDL_Renderer* renderer)
 {
-	LSG_UI::renderMenu(renderer, LSG_UI::root);
+	LSG_UI::renderMenu(renderer,  LSG_UI::root);
+	LSG_UI::renderModal(renderer, LSG_UI::root);
 
 	SDL_RenderPresent(renderer);
 }
@@ -647,6 +714,18 @@ void LSG_UI::renderMenu(SDL_Renderer* renderer, LSG_Component* component)
 
 	for (auto child : component->GetChildren())
 		LSG_UI::renderMenu(renderer, child);
+}
+
+void LSG_UI::renderModal(SDL_Renderer* renderer, LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsModal())
+		component->Render(renderer);
+
+	for (auto child : component->GetChildren())
+		LSG_UI::renderModal(renderer, child);
 }
 
 void LSG_UI::resetSize(LSG_Component* component)
@@ -790,6 +869,8 @@ void LSG_UI::SetText(LSG_Component* component, bool sort)
 	LSG_UI::setTextLabels(component);
 
 	LSG_UI::setMenu(component);
+
+	LSG_UI::layoutModal(component);
 }
 
 void LSG_UI::UnhighlightComponents()

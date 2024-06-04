@@ -389,6 +389,34 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+title="string"
+```
+
+### \<modal\>
+
+[alignment](#alignment) | [color](#color) | [orientation](#orientation) | [size](#size)
+
+```ini
+id="string"
+width="size"
+height="size"
+orientation="orientation"
+background-color="color"
+border="int"
+border-color="color"
+padding="int"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+spacing="int"
+font-size="int" # default="14"
+text-color="color"
+title="string"
+
+hide-close-icon="boolean"
+max-width="int"
+max-height="int"
+min-width="int"
+min-height="int"
 ```
 
 ### \<panel\>
@@ -414,6 +442,25 @@ font-size="int" # default="14"
 text-color="color"
 ```
 
+### \<progress-bar\>
+
+[boolean](#boolean) | [color](#color) | [percent](#percent) | [size](#size)
+
+```ini
+id="string"
+enabled="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+margin="int"
+padding="int"
+
+value="percent"
+progress-color="color"
+```
+
 ### \<slider\>
 
 [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [percent](#percent) | [size](#size)
@@ -423,8 +470,8 @@ Triggers [LSG_EVENT_SLIDER_VALUE_CHANGED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
-width="size" # minimum="20" (vertical)
-height="size" # minimum="20" (horizontal)
+width="size"
+height="size"
 orientation="orientation"
 background-color="color"
 border="int"
@@ -496,7 +543,7 @@ wrap="boolean"
 title="string"
 width="int"
 height="int"
-min-width="int" # default="400"
+min-width="int"  # default="400"
 min-height="int" # default="400"
 x="int"
 y="int"
@@ -1034,6 +1081,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetProgressValue
+
+```cpp
+double LSG_GetProgressValue(const std::string& id);
+```
+
+Returns the value of the \<progress-bar\> component as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<progress-bar\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetScrollHorizontal
 
 ```cpp
@@ -1339,7 +1403,7 @@ Exceptions
 - invalid_argument
 - runtime_error
 
-### LSG_IsMenuOpen
+### LSG_IsMenuItemSelected
 
 ```cpp
 bool LSG_IsMenuItemSelected(const std::string& id);
@@ -2309,6 +2373,30 @@ Example
 LSG_Strings row = { "Updated Row", "My updated table row" };
 
 LSG_SetPageTableRow("Table", 6, row);
+```
+
+### LSG_SetProgressValue
+
+```cpp
+void LSG_SetProgressValue(const std::string& id, double percent);
+```
+
+Sets the value of the \<progress-bar\> component as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<progress-bar\> component ID
+- **percent** [0.0-1.0]
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetProgressValue("ProgressBar", 0.5);
 ```
 
 ### LSG_SetSize

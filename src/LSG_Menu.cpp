@@ -15,7 +15,7 @@ LSG_Menu::LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 		this->padding = LSG_Graphics::GetDPIScaled(LSG_Menu::Padding);
 }
 
-void LSG_Menu::close()
+void LSG_Menu::Close()
 {
 	this->isOpen = false;
 
@@ -214,7 +214,7 @@ bool LSG_Menu::IsOpen() const
 
 void LSG_Menu::navigate(LSG_Component* component)
 {
-	this->close();
+	this->Close();
 	this->subMenu = component;
 	this->open();
 }
@@ -237,7 +237,7 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 		}
 
 		if (this->isMouseOverIconClose(mousePosition) || !this->isMouseOverMenu(mousePosition)) {
-			this->close();
+			this->Close();
 			return true;
 		}
 
@@ -250,7 +250,7 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 				this->navigate(child);
 			} else if (child->IsMenuItem()) {
 				if (static_cast<LSG_MenuItem*>(child)->OnMouseClick(mousePosition))
-					this->close();
+					this->Close();
 			}
 
 			break;
@@ -304,17 +304,15 @@ void LSG_Menu::renderMenuClosed(SDL_Renderer* renderer)
 
 void LSG_Menu::renderMenuOpened(SDL_Renderer* renderer)
 {
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+	auto      background      = LSG_UI::GetBackgroundArea();
+	SDL_Color backgroundColor = { 0, 0, 0, 128 };
 
-	auto window = LSG_UI::GetBackgroundArea();
-
-	SDL_RenderFillRect(renderer, &window);
+	this->renderFill(renderer, 0, backgroundColor, background);
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, this->backgroundColor.r, this->backgroundColor.g, this->backgroundColor.b, 255);
 
-	auto menu = this->getMenu(window);
+	auto menu = this->getMenu(background);
 
 	SDL_RenderFillRect(renderer, &menu);
 
@@ -392,6 +390,8 @@ void LSG_Menu::setMenuOpened()
 
 	this->textures.resize(NR_OF_MENU_TEXTURES);
 
+	std::string navTitle = "";
+
 	if (this->subMenu->IsSubMenu())
 	{
 		auto     padding2x   = LSG_Graphics::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
@@ -401,11 +401,15 @@ void LSG_Menu::setMenuOpened()
 
 		this->textures[LSG_MENU_TEXTURE_NAV_BACK] = LSG_Graphics::GetVectorBack(this->textColor, navBackSize);
 
-		auto navTitle = LSG_XML::GetAttribute(this->subMenu->GetXmlNode(), "label");
-
-		if (!navTitle.empty())
-			this->textures[LSG_MENU_TEXTURE_NAV_TITLE] = this->getTexture(navTitle);
+		navTitle = LSG_XML::GetAttribute(this->subMenu->GetXmlNode(), "label");
 	}
+	else if (this->IsMenu())
+	{
+		navTitle = LSG_XML::GetAttribute(this->GetXmlNode(), "title");
+	}
+
+	if (!navTitle.empty())
+		this->textures[LSG_MENU_TEXTURE_NAV_TITLE] = this->getTexture(navTitle);
 
 	SDL_Size closeIconSize = { this->background.h, this->background.h };
 
