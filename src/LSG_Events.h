@@ -30,7 +30,7 @@ private:
 	static void      handleMouseUp(const SDL_Event& event);
 	static void      handleSysWMEvent(const SDL_SysWMEvent& event);
 	static void      handleWindowEvent(const SDL_WindowEvent& event);
-	static void      sendEvent(LSG_EventType type, const std::string& id);
+	static void      sendEvent(LSG_EventType type, const std::string& id, SDL_Keycode key = SDLK_UNKNOWN);
 
 };
 

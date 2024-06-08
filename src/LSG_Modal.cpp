@@ -90,10 +90,14 @@ void LSG_Modal::Layout()
 	this->setTextures(attributes);
 }
 
-void LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
+bool LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
 {
-	if (this->visible && !this->hideCloseIcon && (event.keysym.sym == SDLK_ESCAPE))
-		LSG_Modal::SetVisible(this, false);
+	if (!this->visible || this->hideCloseIcon || (event.keysym.sym != SDLK_ESCAPE))
+		return false;
+
+	LSG_Modal::SetVisible(this, false);
+
+	return true;
 }
 
 void LSG_Modal::Render(SDL_Renderer* renderer)

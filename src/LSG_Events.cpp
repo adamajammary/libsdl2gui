@@ -42,14 +42,17 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 
 	if (component->IsModal())
 	{
-		static_cast<LSG_Modal*>(component)->OnKeyDown(event);
+		if (static_cast<LSG_Modal*>(component)->OnKeyDown(event))
+			return;
 	}
 	else if (component->IsMenu())
 	{
 		auto menu = static_cast<LSG_Menu*>(component);
 
-		if (menu->IsOpen() && (event.keysym.sym == SDLK_ESCAPE))
+		if (menu->IsOpen() && (event.keysym.sym == SDLK_ESCAPE)) {
 			menu->Close();
+			return;
+		}
 	}
 	else if (component->IsTextLabel())
 	{
@@ -102,7 +105,7 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 		}
 	}
 
-	LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID());
+	LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID(), event.keysym.sym);
 }
 
 void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
@@ -353,13 +356,16 @@ bool LSG_Events::IsMouseDown()
 	return LSG_Events::isMouseDown;
 }
 
-void LSG_Events::sendEvent(LSG_EventType type, const std::string& id)
+void LSG_Events::sendEvent(LSG_EventType type, const std::string& id, SDL_Keycode key)
 {
 	SDL_Event clickEvent = {};
 
 	clickEvent.type       = SDL_RegisterEvents(1);
 	clickEvent.user.code  = (int)type;
 	clickEvent.user.data1 = (void*)strdup(id.c_str());
+
+	if (key != SDLK_UNKNOWN)
+		clickEvent.user.data2 = new SDL_Keycode(key);
 
 	SDL_PushEvent(&clickEvent);
 }

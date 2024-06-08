@@ -31,7 +31,7 @@ public:
 	bool         CloseOnMouseClick(const SDL_Point& mousePosition);
 	void         Highlight(const SDL_Point& mousePosition);
 	void         Layout();
-	void         OnKeyDown(const SDL_KeyboardEvent& event);
+	bool         OnKeyDown(const SDL_KeyboardEvent& event);
 	virtual void Render(SDL_Renderer* renderer) override;
 
 private:
