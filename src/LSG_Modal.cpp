@@ -24,7 +24,7 @@ bool LSG_Modal::CloseOnMouseClick(const SDL_Point& mousePosition)
 	bool close            = (clickedCloseIcon || clickedOutside);
 
 	if (close)
-		LSG_Modal::SetVisible(this, false);
+		this->SetVisible(false);
 
 	return close;
 }
@@ -95,7 +95,7 @@ bool LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
 	if (!this->visible || this->hideCloseIcon || (event.keysym.sym != SDLK_ESCAPE))
 		return false;
 
-	LSG_Modal::SetVisible(this, false);
+	this->SetVisible(false);
 
 	return true;
 }
@@ -292,15 +292,4 @@ void LSG_Modal::setTextures(const LSG_UMapStrStr& attributes)
 	auto fontSize = LSG_Graphics::GetDPIScaled(LSG_Modal::TitleFontSize);
 
 	this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, fontSize);
-}
-
-void LSG_Modal::SetVisible(LSG_Component* component, bool visible)
-{
-	if (!component)
-		return;
-
-	component->visible = visible;
-
-	for (auto child : component->GetChildren())
-		LSG_Modal::SetVisible(child, visible);
 }

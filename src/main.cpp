@@ -1474,10 +1474,7 @@ void LSG_SetVisible(const std::string& id, bool visible)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	if (component->IsModal())
-		LSG_Modal::SetVisible(component, visible);
-	else
-		component->visible = visible;
+	component->SetVisible(visible);
 
 	LSG_UI::LayoutRoot();
 }

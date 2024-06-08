@@ -77,6 +77,7 @@ public:
 	void             SetSizeFixed();
 	void             SetSizePercent(LSG_Component* parent);
 	void             SetSpacing(int spacing);
+	void             SetVisible(bool visible);
 
 protected:
 	void            destroyTextures();

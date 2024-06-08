@@ -704,3 +704,11 @@ void LSG_Component::SetSpacing(int spacing)
 {
 	LSG_XML::SetAttribute(this->xmlNode, "spacing", std::to_string(spacing));
 }
+
+void LSG_Component::SetVisible(bool visible)
+{
+	this->visible = visible;
+
+	for (auto child : this->GetChildren())
+		child->SetVisible(visible);
+}

@@ -25,7 +25,6 @@ private:
 
 public:
 	static bool IsModalChild(LSG_Component* component);
-	static void SetVisible(LSG_Component* component, bool visible);
 
 public:
 	bool         CloseOnMouseClick(const SDL_Point& mousePosition);
