@@ -1490,7 +1490,7 @@ void LSG_SetTitle(const std::string& id, const std::string& title)
 	LSG_XML::SetAttribute(component->GetXmlNode(), "title", title);
 
 	if (component->IsModal())
-		static_cast<LSG_Modal*>(component)->Layout();
+		static_cast<LSG_Modal*>(component)->Update();
 	else if (component->IsMenu())
 		static_cast<LSG_Menu*>(component)->SetMenu();
 	else if (component->IsSubMenu())

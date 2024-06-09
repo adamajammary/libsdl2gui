@@ -87,7 +87,7 @@ void LSG_Modal::Layout()
 	this->setMargin(attributes);
 	this->setPadding(attributes);
 
-	this->setTextures(attributes);
+	this->setTextures(attributes.contains("title") ? attributes["title"] : "");
 }
 
 bool LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
@@ -274,7 +274,7 @@ void LSG_Modal::setSize(const LSG_UMapStrStr& attributes, const SDL_Rect& parent
 		this->background.h = std::max(std::atoi(minHeight.c_str()), this->background.h);
 }
 
-void LSG_Modal::setTextures(const LSG_UMapStrStr& attributes)
+void LSG_Modal::setTextures(const std::string& title)
 {
 	this->destroyTextures();
 
@@ -284,12 +284,15 @@ void LSG_Modal::setTextures(const LSG_UMapStrStr& attributes)
 
 	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVectorClose(this->textColor, closeIconSize);
 
-	auto title = (attributes.contains("title") ? attributes.at("title") : "");
-
 	if (title.empty())
 		return;
 	
 	auto fontSize = LSG_Graphics::GetDPIScaled(LSG_Modal::TitleFontSize);
 
 	this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, fontSize);
+}
+
+void LSG_Modal::Update()
+{
+	this->setTextures(LSG_XML::GetAttribute(this->xmlNode, "title"));
 }

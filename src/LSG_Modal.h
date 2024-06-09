@@ -32,6 +32,7 @@ public:
 	void         Layout();
 	bool         OnKeyDown(const SDL_KeyboardEvent& event);
 	virtual void Render(SDL_Renderer* renderer) override;
+	void         Update();
 
 private:
 	SDL_Rect getCloseIcon();
@@ -46,7 +47,7 @@ private:
 	void     setPadding(const LSG_UMapStrStr& attributes);
 	void     setPosition(const LSG_UMapStrStr& attributes, const SDL_Rect& parentBackground);
 	void     setSize(const LSG_UMapStrStr& attributes, const SDL_Rect& parentBackground);
-	void     setTextures(const LSG_UMapStrStr& attributes);
+	void     setTextures(const std::string& title);
 };
 
 #endif
