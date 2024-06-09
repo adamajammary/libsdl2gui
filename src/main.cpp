@@ -567,6 +567,19 @@ std::string LSG_GetText(const std::string& id)
 	return component->text;
 }
 
+std::string LSG_GetTitle(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsModal() && !component->IsMenu() && !component->IsSubMenu()))
+		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
+
+	return LSG_XML::GetAttribute(component->GetXmlNode(), "title");
+}
+
 SDL_Size LSG_GetWindowMinimumSize()
 {
 	if (!isRunning)
@@ -1462,6 +1475,26 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	LSG_XML::SetAttribute(component->GetXmlNode(), "text-color", LSG_Graphics::ToXmlAttribute(color));
 
 	LSG_UI::SetText(component);
+}
+
+void LSG_SetTitle(const std::string& id, const std::string& title)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsModal() && !component->IsMenu() && !component->IsSubMenu()))
+		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "title", title);
+
+	if (component->IsModal())
+		static_cast<LSG_Modal*>(component)->Layout();
+	else if (component->IsMenu())
+		static_cast<LSG_Menu*>(component)->SetMenu();
+	else if (component->IsSubMenu())
+		static_cast<LSG_MenuSub*>(component)->SetSubMenu(component->background);
 }
 
 void LSG_SetVisible(const std::string& id, bool visible)

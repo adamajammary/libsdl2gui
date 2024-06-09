@@ -64,7 +64,7 @@ void LSG_MenuSub::SetSubMenu(const SDL_Rect& background)
 {
 	LSG_MenuItem::SetMenuItem(background);
 
-	auto xmlText = LSG_XML::GetAttribute(this->xmlNode, "label");
+	auto xmlText = LSG_XML::GetAttribute(this->xmlNode, "title");
 
 	if (!xmlText.empty())
 		this->textures[LSG_MENU_ITEM_TEXTURE_TEXT] = this->getTexture(xmlText);

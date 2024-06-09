@@ -401,11 +401,11 @@ void LSG_Menu::setMenuOpened()
 
 		this->textures[LSG_MENU_TEXTURE_NAV_BACK] = LSG_Graphics::GetVectorBack(this->textColor, navBackSize);
 
-		navTitle = LSG_XML::GetAttribute(this->subMenu->GetXmlNode(), "label");
+		navTitle = LSG_XML::GetAttribute(this->subMenu->GetXmlNode(), "title");
 	}
 	else if (this->IsMenu())
 	{
-		navTitle = LSG_XML::GetAttribute(this->GetXmlNode(), "title");
+		navTitle = LSG_XML::GetAttribute(this->xmlNode, "title");
 	}
 
 	if (!navTitle.empty())

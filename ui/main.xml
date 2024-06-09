@@ -11,7 +11,7 @@
     <panel height="32">
       <panel>
         <menu font-size="15" title="Menu">
-          <menu-sub label="Color Theme">
+          <menu-sub title="Color Theme">
             <menu-item id="MenuIdColorThemeDark">Dark</menu-item>
             <menu-item id="MenuIdColorThemeLight">Light</menu-item>
           </menu-sub>

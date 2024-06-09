@@ -1340,6 +1340,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetTitle
+
+```cpp
+std::string LSG_GetTitle(const std::string& id);
+```
+
+Returns the header title of the \<modal\>, \<menu\> or \<menu-sub\> component.
+
+Parameters
+
+- **id** \<modal\>, \<menu\> or \<menu-sub\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetWindowMinimumSize
 
 ```cpp
@@ -2681,6 +2698,30 @@ Example
 
 ```cpp
 LSG_SetTextColor("TextIdColorTheme", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetTitle
+
+```cpp
+void LSG_SetTitle(const std::string& id, const std::string& title);
+```
+
+Sets the header title of the \<modal\>, \<menu\> or \<menu-sub\> component.
+
+Parameters
+
+- **id** \<modal\>, \<menu\> or \<menu-sub\> component ID
+- **title** Header title
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
 ```
 
 ### LSG_SetVisible

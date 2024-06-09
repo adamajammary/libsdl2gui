@@ -363,6 +363,14 @@ DLLEXPORT LSG_TableRows DLL LSG_GetTableRows(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetText(const std::string& id);
 
 /**
+ * @returns the header title of the <modal>, <menu> or <menu-sub> component
+ * @param id <modal>, <menu> or <menu-sub> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetTitle(const std::string& id);
+
+/**
  * @returns the minimum window size
  * @throws runtime_error
  */
@@ -899,6 +907,15 @@ DLLEXPORT void DLL LSG_SetText(const std::string& id, const std::string& value);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetTextColor(const std::string& id, const SDL_Color& color);
+
+/**
+ * @brief Sets the header title of the <modal>, <menu> or <menu-sub> component.
+ * @param id    <modal>, <menu> or <menu-sub> component ID
+ * @param title Header title
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTitle(const std::string& id, const std::string& title);
 
 /**
  * @brief Shows or hides the component.
