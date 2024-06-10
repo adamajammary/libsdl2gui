@@ -449,7 +449,7 @@ void LSG_Pagination::renderPagination(SDL_Renderer* renderer, const SDL_Rect& ba
 
 bool LSG_Pagination::showPagination()
 {
-	return (this->getRowCount() >= LSG_MAX_ROWS_PER_PAGE);
+	return (this->getRowCount() > LSG_MAX_ROWS_PER_PAGE);
 }
 
 void LSG_Pagination::updatePagination(const SDL_Rect& background)
