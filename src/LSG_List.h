@@ -19,6 +19,7 @@ protected:
 public:
 	LSG_Component* AddItem(const std::string& item, bool reset = true);
 	void           Activate();
+	void           Activate(const SDL_Point& mousePosition);
 	int            GetSelectedRow() const;
 	LSG_SortOrder  GetSortOrder();
 	virtual bool   OnMouseClick(const SDL_Point& mousePosition) override;

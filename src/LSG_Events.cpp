@@ -231,7 +231,7 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			if ((event.type == SDL_FINGERUP) && isRightClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_RIGHT_CLICKED, component->GetID());
 			else if (isDoubleClick && (component->IsList() || component->IsTable()))
-				static_cast<LSG_List*>(component)->Activate();
+				static_cast<LSG_List*>(component)->Activate(mousePosition);
 			else if (isDoubleClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
 			else if (component->IsButton())
