@@ -231,9 +231,6 @@ bool LSG_List::Select(int row)
 	if (!this->enabled || (row > this->getLastRow()))
 		return false;
 
-	if (row == this->row)
-		return true;
-
 	this->row = row;
 
 	this->sendEvent(row < 0 ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
