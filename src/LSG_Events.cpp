@@ -138,6 +138,8 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 		enableMouseDown = static_cast<LSG_Table*>(component)->OnScrollMouseClick(mousePosition);
 	else if (component->IsTextLabel())
 		enableMouseDown = static_cast<LSG_TextLabel*>(component)->OnScrollMouseClick(mousePosition);
+	else if (component->IsButton())
+		enableMouseDown = true;
 
 	if (enableMouseDown)
 	{
@@ -146,6 +148,8 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 
 		if (component->IsScrollable())
 			LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
+		else if (component->IsButton())
+			LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, component->GetID());
 	}
 }
 
@@ -163,6 +167,8 @@ void LSG_Events::handleMouseLastDownEvent()
 		static_cast<LSG_Table*>(lastComponent)->OnScrollMouseDown(lastPosition);
 	else if (lastComponent->IsTextLabel())
 		static_cast<LSG_TextLabel*>(lastComponent)->OnScrollMouseDown(lastPosition);
+	else if (lastComponent->IsButton())
+		LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, lastComponent->GetID());
 }
 
 void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
@@ -234,8 +240,6 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 				static_cast<LSG_List*>(component)->Activate(mousePosition);
 			else if (isDoubleClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
-			else if (component->IsButton())
-				static_cast<LSG_Button*>(component)->OnMouseClick(mousePosition);
 			else if (component->IsList())
 				static_cast<LSG_List*>(component)->OnMouseClick(mousePosition);
 			else if (component->IsMenu())
@@ -259,6 +263,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsTextLabel())
 			static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseUp();
+		else if (LSG_Events::lastComponent->IsButton())
+			static_cast<LSG_Button*>(LSG_Events::lastComponent)->OnMouseClick(LSG_Events::getMousePosition(LSG_Events::lastEvent));
 	}
 
 	LSG_Events::isMouseDown   = false;
