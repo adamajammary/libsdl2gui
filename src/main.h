@@ -62,13 +62,12 @@ namespace LibXml {
 
 class LSG_Component;
 
-using LSG_Components        = std::vector<LSG_Component*>;
-using LSG_ComponentsCompare = std::function<bool(LSG_Component* c1, LSG_Component* c2)>;
-using LSG_MapIntComponent   = std::map<int, LSG_Component*>;
-using LSG_UMapIntComponent  = std::unordered_map<int, LSG_Component*>;
-using LSG_UMapStrStr        = std::unordered_map<std::string, std::string>;
-using LSG_UMapStrComponent  = std::unordered_map<std::string, LSG_Component*>;
-using LSG_XmlNodes          = std::vector<LibXml::xmlNode*>;
+using LSG_Components       = std::vector<LSG_Component*>;
+using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
+using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
+using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
+using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
+using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
 
 enum LSG_MenuTexture
 {
@@ -220,7 +219,6 @@ const char* LSG_GetBasePath();
 #include "LSG_Image.h"
 #include "LSG_Line.h"
 #include "LSG_List.h"
-#include "LSG_ListItem.h"
 #include "LSG_Menu.h"
 #include "LSG_MenuItem.h"
 #include "LSG_MenuSub.h"
@@ -228,10 +226,6 @@ const char* LSG_GetBasePath();
 #include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"
 #include "LSG_Table.h"
-#include "LSG_TableColumn.h"
-#include "LSG_TableGroup.h"
-#include "LSG_TableHeader.h"
-#include "LSG_TableRow.h"
 #include "LSG_TextLabel.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"

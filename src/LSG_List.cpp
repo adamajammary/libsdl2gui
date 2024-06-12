@@ -19,34 +19,20 @@ void LSG_List::Activate(const SDL_Point& mousePosition)
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
-/**
- * @throws runtime_error
- */
-LSG_Component* LSG_List::AddItem(const std::string& item, bool reset)
+void LSG_List::AddItem(const std::string& item, bool reset)
 {
 	if (item.empty())
-		return nullptr;
+		return;
 
-	auto itemNode = LSG_XML::AddChildNode(this->xmlNode, "list-item");
-
-	if (!itemNode) {
-		auto error = LibXml::xmlGetLastError();
-		throw std::runtime_error(LSG_Text::Format("Failed to add list item: %s", (error ? error->message : "")));
-	}
-
-	auto itemComponent = LSG_UI::AddXmlNode(itemNode, this);
-
-	itemComponent->text = item;
+	this->items.push_back(item);
 
 	if (reset)
 		this->reset();
-
-	return itemComponent;
 }
 
 int LSG_List::getRowHeight()
 {
-	auto header = (this->pageHeader ? 1 : 0);
+	auto header = (!this->header.empty() ? 1 : 0);
 	auto rows   = (this->getLastRow() + header + 1);
 
 	if (rows > 0)
@@ -67,7 +53,7 @@ LSG_SortOrder LSG_List::GetSortOrder()
 
 bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->children.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown() || this->items.empty())
 		return false;
 
 	if (this->isPaginationClicked(mousePosition))
@@ -97,14 +83,12 @@ void LSG_List::removeItem(int row, int lastRow)
 	if ((row < 0) || (row > lastRow))
 		return;
 
-	auto itemIter = (this->pageItems.begin() + (size_t)row);
+	auto itemIter = (this->items.begin() + (size_t)row);
 
-	if ((row >= (int)this->pageItems.size()) || (itemIter == this->pageItems.end()))
+	if ((row >= (int)this->items.size()) || (itemIter == this->items.end()))
 		return;
 
-	LSG_UI::RemoveXmlNode(*itemIter);
-
-	this->pageItems.erase(itemIter);
+	this->items.erase(itemIter);
 
 	this->Update();
 
@@ -124,7 +108,7 @@ void LSG_List::removeItem(int row, int lastRow)
 
 void LSG_List::RemoveItem(int row)
 {
-	auto lastRow = (int)(this->pageItems.size() - 1);
+	auto lastRow = (int)(this->items.size() - 1);
 
 	this->removeItem(row, lastRow);
 }
@@ -181,7 +165,7 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 	if (this->row < 0)
 		return;
 
-	auto header = (this->pageHeader ? rowHeight : 0);
+	auto header = (!this->header.empty() ? rowHeight : 0);
 
 	auto scrollSize  = LSG_ScrollBar::GetSize();
 	auto scrollWidth = (this->showScrollY ? scrollSize : 0);
@@ -224,7 +208,7 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroun
 	auto scrollWidth   = (this->showScrollY ? scrollSize : 0);
 	auto scrollHeight  = (this->showScrollX ? scrollSize : 0);
 
-	auto header = (this->pageHeader ? rowHeight : 0);
+	auto header = (!this->header.empty() ? rowHeight : 0);
 	auto rows   = (int)((float)(background.h - header - scrollHeight) / (float)rowHeight);
 
 	auto y  = (background.y + header + rowHeight - scrollOffsetY);
@@ -259,7 +243,7 @@ bool LSG_List::Select(int row)
 
 void LSG_List::SelectFirstRow()
 {
-	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
+	if (!this->enabled || (this->items.empty() && this->groups.empty() && this->rows.empty()))
 		return;
 
 	this->Select(0);
@@ -268,7 +252,7 @@ void LSG_List::SelectFirstRow()
 
 void LSG_List::SelectLastRow()
 {
-	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
+	if (!this->enabled || (this->items.empty() && this->groups.empty() && this->rows.empty()))
 		return;
 
 	this->Select(this->getLastRow());
@@ -277,7 +261,7 @@ void LSG_List::SelectLastRow()
 
 void LSG_List::SelectRow(int offset)
 {
-	if (!this->enabled || (this->pageItems.empty() && this->pageGroups.empty() && this->pageRows.empty()))
+	if (!this->enabled || (this->items.empty() && this->groups.empty() && this->rows.empty()))
 		return;
 
 	auto nextRow = (this->row + offset);
@@ -319,17 +303,17 @@ void LSG_List::sendEvent(LSG_EventType type)
 
 void LSG_List::SetItem(int row, const std::string& item)
 {
-	auto lastRow = (int)(this->pageItems.size() - 1);
+	auto lastRow = (int)(this->items.size() - 1);
 
 	this->setItem(row, lastRow, item);
 }
 
 void LSG_List::setItem(int row, int lastRow, const std::string& item)
 {
-	if ((row < 0) || (row > lastRow) || (row >= (int)this->pageItems.size()))
+	if ((row < 0) || (row > lastRow) || (row >= (int)this->items.size()))
 		return;
 
-	this->pageItems[row]->text = item;
+	this->items[row] = item;
 
 	this->destroyTextures();
 	this->setItems();
@@ -343,18 +327,9 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 	this->Select(-1);
 
-	this->pageItems.clear();
-
 	this->destroyTextures();
 
-	LSG_UI::RemoveXmlChildNodes(this);
-
-	for (const auto& item : items)
-	{
-		auto itemComponent = this->AddItem(item, false);
-
-		this->pageItems.push_back(itemComponent);
-	}
+	this->items = items;
 
 	this->setItems();
 }
@@ -364,12 +339,7 @@ void LSG_List::SetItems()
 	if (this->texture && !this->hasChanged())
 		return;
 
-	this->pageItems.clear();
-
 	this->destroyTextures();
-
-	for (auto child : this->children)
-		this->pageItems.push_back(child);
 
 	this->setItems();
 }
@@ -433,7 +403,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 void LSG_List::sort()
 {
 	if (this->GetXmlAttribute("sort") == LSG_ConstSortOrder::Descending)
-		std::sort(this->pageItems.rbegin(), this->pageItems.rend(), LSG_Text::GetXmlValueCompare);
+		std::sort(this->items.rbegin(), this->items.rend());
 	else
-		std::sort(this->pageItems.begin(), this->pageItems.end(), LSG_Text::GetXmlValueCompare);
+		std::sort(this->items.begin(), this->items.end());
 }

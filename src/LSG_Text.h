@@ -15,10 +15,9 @@ protected:
 	bool      wrap;
 
 public:
-	static TTF_Font*             GetFontArial(int fontSize);
-	static std::string           GetFullPath(const std::string& path);
-	static LSG_ComponentsCompare GetRowCompare(int column);
-	static bool                  GetXmlValueCompare(LSG_Component* c1, LSG_Component* c2);
+	static TTF_Font*           GetFontArial(int fontSize);
+	static std::string         GetFullPath(const std::string& path);
+	static LSG_TableRowCompare GetTableRowCompare(int column);
 
 	template<typename... Args>
 	static std::string Format(const char* formatString, const Args&... args)

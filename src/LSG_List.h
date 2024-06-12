@@ -17,7 +17,7 @@ protected:
 	int row;
 
 public:
-	LSG_Component* AddItem(const std::string& item, bool reset = true);
+	void           AddItem(const std::string& item, bool reset = true);
 	void           Activate();
 	void           Activate(const SDL_Point& mousePosition);
 	int            GetSelectedRow() const;
@@ -50,7 +50,6 @@ private:
 	void setItem(int row, int lastRow, const std::string& item);
 	void setItems(bool sort = true);
 	void sort();
-
 };
 
 #endif

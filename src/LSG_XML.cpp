@@ -124,7 +124,7 @@ void LSG_XML::RemoveChildNodes(LibXml::xmlNode* xmlNode)
 	if (!xmlNode)
 		return;
 
-	auto xmlChildNode = xmlNode->xmlChildrenNode;
+	auto xmlChildNode = xmlNode->children;
 
 	while (xmlChildNode) {
 		LSG_XML::RemoveNode(xmlChildNode);

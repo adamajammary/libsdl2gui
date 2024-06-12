@@ -49,8 +49,6 @@ LSG_Component::~LSG_Component()
 			delete static_cast<LSG_Line*>(child);
 		else if (child->IsList())
 			delete static_cast<LSG_List*>(child);
-		else if (child->IsListItem())
-			delete static_cast<LSG_ListItem*>(child);
 		else if (child->IsMenu())
 			delete static_cast<LSG_Menu*>(child);
 		else if (child->IsMenuItem())
@@ -61,14 +59,6 @@ LSG_Component::~LSG_Component()
 			delete static_cast<LSG_Slider*>(child);
 		else if (child->IsTable())
 			delete static_cast<LSG_Table*>(child);
-		else if (child->IsTableColumn())
-			delete static_cast<LSG_TableColumn*>(child);
-		else if (child->IsTableGroup())
-			delete static_cast<LSG_TableGroup*>(child);
-		else if (child->IsTableHeader())
-			delete static_cast<LSG_TableHeader*>(child);
-		else if (child->IsTableRow())
-			delete static_cast<LSG_TableRow*>(child);
 		else if (child->IsTextLabel())
 			delete static_cast<LSG_TextLabel*>(child);
 		else
@@ -324,11 +314,6 @@ bool LSG_Component::IsList() const
 	return (this->xmlNodeName == "list");
 }
 
-bool LSG_Component::IsListItem() const
-{
-	return (this->xmlNodeName == "list-item");
-}
-
 bool LSG_Component::IsMenu() const
 {
 	return (this->xmlNodeName == "menu");
@@ -367,26 +352,6 @@ bool LSG_Component::IsSubMenu() const
 bool LSG_Component::IsTable() const
 {
 	return (this->xmlNodeName == "table");
-}
-
-bool LSG_Component::IsTableColumn() const
-{
-	return (this->xmlNodeName == "table-column");
-}
-
-bool LSG_Component::IsTableGroup() const
-{
-	return (this->xmlNodeName == "table-group");
-}
-
-bool LSG_Component::IsTableHeader() const
-{
-	return (this->xmlNodeName == "table-header");
-}
-
-bool LSG_Component::IsTableRow() const
-{
-	return (this->xmlNodeName == "table-row");
 }
 
 bool LSG_Component::IsTextLabel() const

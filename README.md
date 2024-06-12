@@ -702,10 +702,10 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
-### LSG_TableGroupRows
+### LSG_TableGroup
 
 ```cpp
-struct LSG_TableGroupRows
+struct LSG_TableGroup
 {
   std::string   group;
   LSG_TableRows rows;
@@ -730,7 +730,7 @@ using LSG_Strings = std::vector<std::string>;
 ### LSG_TableGroups
 
 ```cpp
-using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
+using LSG_TableGroups = std::vector<LSG_TableGroup>;
 ```
 
 ### LSG_TableRows
@@ -792,7 +792,7 @@ LSG_AddSubMenuItem("MenuIdColorThemes", "Light", "MenuIdColorThemeLight");
 ### LSG_AddTableGroup
 
 ```cpp
-void LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+void LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group);
 ```
 
 Adds a new group with rows to the \<table\> component.
@@ -810,7 +810,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableGroupRows group = {
+LSG_TableGroup group = {
   .group = "New Group",
   .rows = {
     { "New row 1 - Column A", "My new row 1 - Column B" },
@@ -1239,7 +1239,7 @@ Exceptions
 ### LSG_GetTableGroup
 
 ```cpp
-LSG_TableGroupRows LSG_GetTableGroup(const std::string& id, const std::string& group);
+LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group);
 ```
 
 Returns the group from the \<table\> component.
@@ -2493,7 +2493,7 @@ LSG_SetSpacing("Root", 20);
 ### LSG_SetTableGroup
 
 ```cpp
-void LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group);
 ```
 
 Sets the rows of the group in the \<table\> component.
@@ -2511,7 +2511,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableGroupRows tableGroup = {
+LSG_TableGroup tableGroup = {
     "Quis Hendrerit", {
       { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
       { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },

@@ -44,29 +44,24 @@ std::string LSG_Text::GetFullPath(const std::string& path)
 	#endif
 }
 
-LSG_ComponentsCompare LSG_Text::GetRowCompare(int column)
+LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 {
-	auto compare = [column](LSG_Component* i1, LSG_Component* i2)
+	auto rowCompare = [column](const LSG_Strings& r1, const LSG_Strings& r2)
 	{
-		if ((column < 0) || (column >= (int)i1->GetChildCount()) || (column >= (int)i2->GetChildCount()))
+		if ((column < 0) || (column >= (int)r1.size()) || (column >= (int)r2.size()))
 			return false;
 
-		return LSG_Text::GetXmlValueCompare(i1->GetChild(column), i2->GetChild(column));
+		return std::lexicographical_compare(
+			r1[column].begin(), r1[column].end(),
+			r2[column].begin(), r2[column].end(),
+			[](char c1, char c2) {
+				return (std::tolower(c1) < std::tolower(c2));
+			}
+		);
 	};
 
-	return compare;
+	return rowCompare;
 }
-
-bool LSG_Text::GetXmlValueCompare(LSG_Component* i1, LSG_Component* i2)
-{
-	return std::lexicographical_compare(
-		i1->text.begin(), i1->text.end(),
-		i2->text.begin(), i2->text.end(),
-		[](const char& c1, const char& c2) {
-			return std::tolower(c1) < std::tolower(c2);
-		}
-	);
-};
 
 //std::string LSG_TextLabel::getText(const std::string& text)
 //{

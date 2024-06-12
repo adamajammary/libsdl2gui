@@ -5,117 +5,72 @@ LSG_Table::LSG_Table(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 {
 }
 
-void LSG_Table::addColumn(const std::string& column, LSG_Component* parent)
+void LSG_Table::AddGroup(const LSG_TableGroup& group)
 {
-	if (!parent)
-		return;
-
-	auto columnNode      = LSG_XML::AddChildNode(parent->GetXmlNode(), "table-column");
-	auto columnComponent = LSG_UI::AddXmlNode(columnNode, parent);
-
-	columnComponent->text = column;
-}
-
-void LSG_Table::addHeader(const LSG_Strings& header)
-{
-	auto headerNode = LSG_XML::AddChildNode(this->xmlNode, "table-header");
-
-	if (!headerNode) {
-		auto error = LibXml::xmlGetLastError();
-		throw std::runtime_error(LSG_Text::Format("Failed to add table header: %s", (error ? error->message : "")));
-	}
-
-	auto headerComponent = LSG_UI::AddXmlNode(headerNode, this);
-
-	for (const auto& column : header)
-		this->addColumn(column, headerComponent);
-
-	this->pageHeader = headerComponent;
-}
-
-LSG_Component* LSG_Table::AddGroup(const LSG_TableGroupRows& group)
-{
-	auto groupComponent = this->addGroup(group);
+	this->groups.push_back(group);
 
 	this->reset();
-
-	return groupComponent;
 }
 
-LSG_Component* LSG_Table::addGroup(const LSG_TableGroupRows& group)
+void LSG_Table::AddGroup(LibXml::xmlNode* node)
 {
-	if (group.group.empty() || group.rows.empty())
-		return nullptr;
+	LSG_TableGroup group = { .group = LSG_XML::GetAttribute(node, "group") };
 
-	auto groupNode = LSG_XML::AddChildNode(this->xmlNode, "table-group");
+	auto rowNodes = LSG_XML::GetChildNodes(node);
 
-	if (!groupNode) {
-		auto error = LibXml::xmlGetLastError();
-		throw std::runtime_error(LSG_Text::Format("Failed to add table group: %s", (error ? error->message : "")));
-	}
-
-	LSG_XML::SetAttribute(groupNode, "group", group.group);
-
-	auto groupCompoment = LSG_UI::AddXmlNode(groupNode, this);
-
-	for (const auto& row : group.rows)
+	for (auto rowNode : rowNodes)
 	{
-		auto rowNode      = LSG_XML::AddChildNode(groupNode, "table-row");
-		auto rowComponent = LSG_UI::AddXmlNode(rowNode, groupCompoment);
+		if (std::string(reinterpret_cast<const char*>(rowNode->name)) != "table-row")
+			continue;
+			
+		LSG_Strings row;
 
-		for (const auto& column : row)
-			this->addColumn(column, rowComponent);
+		auto columnNodes = LSG_XML::GetChildNodes(rowNode);
+
+		for (auto columnNode : columnNodes)
+		{
+			if (std::string(reinterpret_cast<const char*>(columnNode->name)) == "table-column")
+				row.push_back(LSG_XML::GetValue(columnNode));
+		}
+
+		group.rows.push_back(row);
 	}
 
-	return groupCompoment;
+	this->AddGroup(group);
 }
 
-/**
- * @throws runtime_error
- */
-LSG_Component* LSG_Table::AddRow(const LSG_Strings& columns)
+void LSG_Table::AddRow(const LSG_Strings& row)
 {
-	auto rowComponent = this->addRow(columns, this);
+	this->rows.push_back(row);
 
 	this->reset();
-
-	return rowComponent;
 }
 
-/**
- * @throws runtime_error
- */
-LSG_Component* LSG_Table::addRow(const LSG_Strings& columns, LSG_Component* parent)
+void LSG_Table::AddRow(LibXml::xmlNode* node)
 {
-	if (columns.empty() || !parent)
-		return nullptr;
+	LSG_Strings row;
 
-	auto rowNode = LSG_XML::AddChildNode(parent->GetXmlNode(), "table-row");
+	auto children = LSG_XML::GetChildNodes(node);
 
-	if (!rowNode) {
-		auto error = LibXml::xmlGetLastError();
-		throw std::runtime_error(LSG_Text::Format("Failed to add table row: %s", (error ? error->message : "")));
+	for (auto child : children) {
+		if (std::string(reinterpret_cast<const char*>(child->name)) == "table-column")
+			row.push_back(LSG_XML::GetValue(child));
 	}
 
-	auto rowComponent = LSG_UI::AddXmlNode(rowNode, parent);
-
-	for (const auto& column : columns)
-		this->addColumn(column, rowComponent);
-
-	return rowComponent;
+	this->AddRow(row);
 }
 
 int LSG_Table::getColumnCount()
 {
-	auto columns = (int)(this->pageHeader ? this->pageHeader->GetChildCount() : 0);
+	auto columns = (int)this->header.size();
 
-	for (const auto& group : this->pageGroups) {
-		for (const auto& row : group->GetChildren())
-			columns = std::max((int)row->GetChildCount(), columns);
+	for (const auto& group : this->groups) {
+		for (const auto& row : group.rows)
+			columns = std::max((int)row.size(), columns);
 	}
 
-	for (const auto& row : this->pageRows)
-		columns = std::max((int)row->GetChildCount(), columns);
+	for (const auto& row : this->rows)
+		columns = std::max((int)row.size(), columns);
 
 	return columns;
 }
@@ -129,7 +84,7 @@ int LSG_Table::GetSortColumn()
 
 bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->children.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown() || (this->rows.empty() && this->groups.empty()))
 		return false;
 
 	if (this->isPaginationClicked(mousePosition))
@@ -149,7 +104,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	if (rowHeight < 1)
 		return false;
 
-	if (this->pageHeader && ((positionY / rowHeight) == 0))
+	if (!this->header.empty() && ((positionY / rowHeight) == 0))
 	{
 		int  column      = 0;
 		auto positionX   = (mousePosition.x - background.x + this->scrollOffsetX);
@@ -178,7 +133,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 		return true;
 	}
 
-	auto header = (this->pageHeader ? 1 : 0);
+	auto header = (!this->header.empty() ? 1 : 0);
 	auto row    = (((positionY + this->scrollOffsetY) / rowHeight) - header);
 
 	this->Select(row);
@@ -188,52 +143,24 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 
 void LSG_Table::RemoveHeader()
 {
-	this->removeHeader();
+	this->header.clear();
+
 	this->Update();
-}
-
-void LSG_Table::removeHeader()
-{
-	if (!this->pageHeader)
-		return;
-
-	LSG_UI::RemoveXmlChildNodes(this->pageHeader);
-	LSG_UI::RemoveXmlNode(this->pageHeader);
-
-	this->pageHeader = nullptr;
 }
 
 void LSG_Table::RemoveGroup(const std::string& group)
 {
-	for (auto groupIter = this->pageGroups.begin(); groupIter != this->pageGroups.end(); groupIter++)
+	for (auto groupIter = this->groups.begin(); groupIter != this->groups.end(); groupIter++)
 	{
-		if ((*groupIter)->GetXmlAttribute("group") != group)
+		if ((*groupIter).group != group)
 			continue;
 
-		this->removeGroup(*groupIter);
-		this->pageGroups.erase(groupIter);
+		this->groups.erase(groupIter);
 
 		this->removeRow();
 
 		break;
 	}
-}
-
-void LSG_Table::removeGroup(LSG_Component* group)
-{
-	auto rows = group->GetChildren();
-
-	for (auto rowIter = rows.begin(); rowIter != rows.end(); rowIter++)
-	{
-		auto columns = (*rowIter)->GetChildren();
-
-		for (auto colIter = columns.begin(); colIter != columns.end(); colIter++)
-			LSG_UI::RemoveXmlNode(*colIter);
-
-		LSG_UI::RemoveXmlNode(*rowIter);
-	}
-
-	LSG_UI::RemoveXmlNode(group);
 }
 
 void LSG_Table::RemovePageRow(int row)
@@ -254,18 +181,18 @@ void LSG_Table::removeRow(int row, int start, int end)
 {
 	int i = -1;
 
-	for (const auto& pageGroup : this->pageGroups)
+	for (const auto& pageGroup : this->groups)
 	{
 		if ((++i) >= end)
 			return;
 
-		for (auto groupRow : pageGroup->GetChildren()) {
+		for (const auto& groupRow : pageGroup.rows) {
 			if ((++i) >= end)
 				return;
 		}
 	}
 
-	for (auto rowIter = this->pageRows.begin(); (rowIter != this->pageRows.end()) && (i < end); rowIter++)
+	for (auto rowIter = this->rows.begin(); (rowIter != this->rows.end()) && (i < end); rowIter++)
 	{
 		if ((++i) >= end)
 			return;
@@ -273,18 +200,12 @@ void LSG_Table::removeRow(int row, int start, int end)
 		if ((i < start) || (i != row))
 			continue;
 
-		this->removeRow(*rowIter);
-		this->pageRows.erase(rowIter);
+		this->rows.erase(rowIter);
+
 		this->removeRow();
 
 		return;
 	}
-}
-
-void LSG_Table::removeRow(LSG_Component* row)
-{
-	LSG_UI::RemoveXmlChildNodes(row);
-	LSG_UI::RemoveXmlNode(row);
 }
 
 void LSG_Table::removeRow()
@@ -339,7 +260,7 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 
 	this->renderHighlightSelection(renderer, background, rowHeight);
 
-	if (this->pageHeader)
+	if (!this->header.empty())
 		this->renderHeader(renderer, background, alignment, textureSize, columnSpacing, rowHeight);
 
 	if (this->showScrollX)
@@ -372,17 +293,14 @@ void LSG_Table::reset()
 	this->SetRows();
 }
 
-void LSG_Table::SetGroup(const LSG_TableGroupRows& group)
+void LSG_Table::SetGroup(const LSG_TableGroup& group)
 {
-	for (auto pageGroup : this->pageGroups)
+	for (auto& pageGroup : this->groups)
 	{
-		if (pageGroup->GetXmlAttribute("group") != group.group)
+		if (pageGroup.group != group.group)
 			continue;
 
-		LSG_UI::RemoveXmlChildNodes(pageGroup);
-
-		for (const auto& row : group.rows)
-			this->addRow(row, pageGroup);
+		pageGroup.rows = group.rows;
 
 		this->reset();
 
@@ -392,23 +310,30 @@ void LSG_Table::SetGroup(const LSG_TableGroupRows& group)
 
 void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 {
-	for (auto pageGroup : this->pageGroups)
-		this->removeGroup(pageGroup);
-
-	this->pageGroups.clear();
-
-	for (const auto& group : groups)
-		this->addGroup(group);
+	this->groups = groups;
 
 	this->reset();
 }
 
 void LSG_Table::SetHeader(const LSG_Strings& header)
 {
-	this->removeHeader();
-	this->addHeader(header);
+	this->header = header;
 
 	this->Update();
+}
+
+void LSG_Table::SetHeader(LibXml::xmlNode* node)
+{
+	LSG_Strings header;
+
+	auto children = LSG_XML::GetChildNodes(node);
+
+	for (auto child : children) {
+		if (std::string(reinterpret_cast<const char*>(child->name)) == "table-column")
+			header.push_back(LSG_XML::GetValue(child));
+	}
+
+	this->SetHeader(header);
 }
 
 void LSG_Table::SetPageRow(int row, const LSG_Strings& columns)
@@ -429,18 +354,18 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 {
 	int i = -1;
 
-	for (const auto& pageGroup : this->pageGroups)
+	for (const auto& pageGroup : this->groups)
 	{
 		if ((++i) >= end)
 			return;
 
-		for (auto groupRow : pageGroup->GetChildren()) {
+		for (const auto& groupRow : pageGroup.rows) {
 			if ((++i) >= end)
 				return;
 		}
 	}
 
-	for (auto pageRow : this->pageRows)
+	for (auto& pageRow : this->rows)
 	{
 		if ((++i) >= end)
 			return;
@@ -448,10 +373,7 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 		if ((i < start) || (i != row))
 			continue;
 
-		LSG_UI::RemoveXmlChildNodes(pageRow);
-		
-		for (const auto& column : columns)
-			this->addColumn(column, pageRow);
+		pageRow = columns;
 
 		this->reset();
 
@@ -461,13 +383,7 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 
 void LSG_Table::SetRows(const LSG_TableRows& rows)
 {
-	for (auto pageRow : this->pageRows)
-		this->removeRow(pageRow);
-
-	this->pageRows.clear();
-
-	for (const auto& row : rows)
-		this->addRow(row, this);
+	this->rows = rows;
 
 	this->reset();
 }
@@ -477,30 +393,9 @@ void LSG_Table::SetRows()
 	if (!this->textures.empty() && !this->hasChanged())
 		return;
 
-	this->pageHeader = nullptr;
-
-	this->pageGroups.clear();
-	this->pageRows.clear();
-
 	this->destroyTextures();
-
-	for (auto child : this->children)
-	{
-		if (child->IsTableGroup())
-			this->pageGroups.push_back(child);
-		else if (child->IsTableRow())
-			this->pageRows.push_back(child);
-		else if (child->IsTableHeader())
-			this->pageHeader = child;
-	}
 
 	this->setRows();
-}
-
-void LSG_Table::Update()
-{
-	this->destroyTextures();
-	this->setRows(false);
 }
 
 void LSG_Table::setRows(bool sort)
@@ -513,7 +408,6 @@ void LSG_Table::setRows(bool sort)
 	if (sort && !sortOrder.empty())
 		this->sort();
 
-	auto header      = this->GetHeader();
 	auto pageGroups  = this->GetPageGroups();
 	auto pageRows    = this->GetPageRows();
 	auto sortColumn  = this->GetSortColumn();
@@ -524,18 +418,18 @@ void LSG_Table::setRows(bool sort)
 
 	auto columns = LSG_Strings(columnCount, "");
 
-	if (this->pageHeader)
+	if (!this->header.empty())
 	{
 		for (size_t i = 0; i < columns.size(); i++)
 		{
-			if (i < header.size())
+			if (i < this->header.size())
 			{
 				if ((i == sortColumn) && (sortOrder == LSG_ConstSortOrder::Ascending))
 					columns[i].append(LSG_ConstUnicodeCharacter::ArrowUp);
 				else if ((i == sortColumn) && (sortOrder == LSG_ConstSortOrder::Descending))
 					columns[i].append(LSG_ConstUnicodeCharacter::ArrowDown);
 
-				columns[i].append(!header[i].empty() ? header[i] : " ");
+				columns[i].append(!this->header[i].empty() ? this->header[i] : " ");
 			}
 
 			columns[i].append("\n");
@@ -598,20 +492,26 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 void LSG_Table::sort()
 {
 	auto sortColumn = std::max(0, this->GetSortColumn());
-	auto compare    = LSG_Text::GetRowCompare(sortColumn);
+	auto compare    = LSG_Text::GetTableRowCompare(sortColumn);
 
 	if (this->GetXmlAttribute("sort") == LSG_ConstSortOrder::Descending)
 	{
-		for (auto group : this->pageGroups)
-			static_cast<LSG_TableGroup*>(group)->Sort(compare, LSG_SORT_ORDER_DESCENDING);
+		for (auto& group : this->groups)
+			std::sort(group.rows.rbegin(), group.rows.rend(), compare);
 
-		std::sort(this->pageRows.rbegin(), this->pageRows.rend(), compare);
+		std::sort(this->rows.rbegin(), this->rows.rend(), compare);
 	}
 	else
 	{
-		for (auto group : this->pageGroups)
-			static_cast<LSG_TableGroup*>(group)->Sort(compare, LSG_SORT_ORDER_ASCENDING);
+		for (auto& group : this->groups)
+			std::sort(group.rows.begin(), group.rows.end(), compare);
 
-		std::sort(this->pageRows.begin(), this->pageRows.end(), compare);
+		std::sort(this->rows.begin(), this->rows.end(), compare);
 	}
+}
+
+void LSG_Table::Update()
+{
+	this->destroyTextures();
+	this->setRows(false);
 }

@@ -6,12 +6,12 @@ LSG_Pagination::LSG_Pagination()
 	this->arrowHome        = {};
 	this->arrowNext        = {};
 	this->arrowPrev        = {};
+	this->header           = {};
+	this->items            = {};
+	this->groups           = {};
 	this->label            = {};
 	this->page             = 0;
-	this->pageHeader       = nullptr;
-	this->pageItems        = {};
-	this->pageGroups       = {};
-	this->pageRows         = {};
+	this->rows             = {};
 	this->pagination       = {};
 	this->textureArrowEnd  = nullptr;
 	this->textureArrowHome = nullptr;
@@ -70,31 +70,11 @@ SDL_Rect LSG_Pagination::getDestinationCenterAligned(const SDL_Rect& background,
 	return destination;
 }
 
-LSG_TableGroupRows LSG_Pagination::getGroup(LSG_Component* component)
+LSG_TableGroup LSG_Pagination::GetGroup(const std::string& group)
 {
-	LSG_TableGroupRows group = {
-		.group = component->GetXmlAttribute("group"),
-		.rows  = {}
-	};
-
-	for (auto row : component->GetChildren())
-	{
-		LSG_Strings columns = {};
-
-		for (auto column : row->GetChildren())
-			columns.push_back(column->text);
-
-		group.rows.push_back(columns);
-	}
-
-	return group;
-}
-
-LSG_TableGroupRows LSG_Pagination::GetGroup(const std::string& group)
-{
-	for (const auto& pageGroup : this->pageGroups) {
-		if (pageGroup->GetXmlAttribute("group") == group)
-			return this->getGroup(pageGroup);
+	for (const auto& pageGroup : this->groups) {
+		if (pageGroup.group == group)
+			return pageGroup;
 	}
 
 	return {};
@@ -102,43 +82,25 @@ LSG_TableGroupRows LSG_Pagination::GetGroup(const std::string& group)
 
 LSG_TableGroups LSG_Pagination::GetGroups()
 {
-	LSG_TableGroups groups = {};
-
-	for (const auto& group : this->pageGroups)
-		groups.push_back(this->getGroup(group));
-
-	return groups;
+	return this->groups;
 }
 
 LSG_Strings LSG_Pagination::GetHeader()
 {
-	if (!this->pageHeader)
-		return {};
-
-	LSG_Strings columns = {};
-
-	for (auto column : this->pageHeader->GetChildren())
-		columns.push_back(column->text);
-
-	return columns;
+	return this->header;
 }
 
 std::string LSG_Pagination::GetItem(int row)
 {
-	if (this->pageItems.empty() || (row < 0) || (row >= (int)this->pageItems.size()))
-		return "";
+	if (!this->items.empty() && (row >= 0) && (row < (int)this->items.size()))
+		return this->items[row];
 
-	return this->pageItems[row]->text;
+	return "";
 }
 
 LSG_Strings LSG_Pagination::GetItems()
 {
-	LSG_Strings items = {};
-
-	for (auto item : this->pageItems)
-		items.push_back(item->text);
-
-	return items;
+	return this->items;
 }
 
 std::string LSG_Pagination::getLabel()
@@ -149,7 +111,7 @@ std::string LSG_Pagination::getLabel()
 	auto page  = (this->page + 1);
 	auto last  = (this->GetLastPage() + 1);
 
-	return LSG_Text::Format("%d - %d / %d ( %d / %d )", (start + 1), end, rows, page, last);
+	return LSG_Text::Format("%d - %d / %d (%d / %d)", (start + 1), end, rows, page, last);
 }
 
 int LSG_Pagination::GetLastPage()
@@ -173,7 +135,7 @@ int LSG_Pagination::getLastRow()
 	return ((end - start) - 1);
 }
 
-int LSG_Pagination::GetPage()
+int LSG_Pagination::GetPage() const
 {
 	return this->page;
 }
@@ -184,19 +146,19 @@ LSG_TableGroups LSG_Pagination::GetPageGroups()
 	auto end   = (start + LSG_MAX_ROWS_PER_PAGE);
 	int  i     = -1;
 
-	LSG_TableGroups groups = {};
+	LSG_TableGroups groups;
 
-	for (const auto& group : this->pageGroups)
+	for (const auto& group : this->groups)
 	{
 		if ((++i) >= end)
 			return groups;
 
-		for (auto groupRow : group->GetChildren())
+		for (const auto& groupRow : group.rows)
 			if ((++i) >= end)
 				return groups;
 
 		if (i >= start)
-			groups.push_back(this->getGroup(group));
+			groups.push_back(group);
 	}
 
 	return groups;
@@ -204,31 +166,22 @@ LSG_TableGroups LSG_Pagination::GetPageGroups()
 
 std::string LSG_Pagination::GetPageItem(int row)
 {
-	if (this->pageItems.empty() || (row < 0) || (row > (int)this->getLastRow()))
+	if (this->items.empty() || (row < 0) || (row > (int)this->getLastRow()))
 		return "";
 
 	auto rowOffset = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
 
-	return this->pageItems[rowOffset]->text;
+	return this->items[rowOffset];
 }
 
 LSG_Strings LSG_Pagination::GetPageItems()
 {
-	LSG_Strings items = {};
-
-	if (this->pageItems.size() <= LSG_MAX_ROWS_PER_PAGE)
-	{
-		for (auto item : this->pageItems)
-			items.push_back(item->text);
-
-		return items;
-	}
+	if (this->items.size() <= LSG_MAX_ROWS_PER_PAGE)
+		return this->items;
 
 	auto start = (size_t)(this->page * LSG_MAX_ROWS_PER_PAGE);
-	auto end   = std::min(this->pageItems.size(), (start + LSG_MAX_ROWS_PER_PAGE));
-
-	for (size_t i = start; i < end; i++)
-		items.push_back(this->pageItems[i]->text);
+	auto end   = std::min(this->items.size(), (start + LSG_MAX_ROWS_PER_PAGE));
+	auto items = LSG_Strings(this->items.begin() + start, this->items.begin() + end);
 
 	return items;
 }
@@ -248,26 +201,26 @@ LSG_TableRows LSG_Pagination::GetPageRows()
 	auto end   = (start + LSG_MAX_ROWS_PER_PAGE);
 	int  i     = -1;
 
-	for (const auto& group : this->pageGroups)
+	for (const auto& group : this->groups)
 	{
 		if ((++i) >= end)
 			return {};
 
-		for (auto groupRow : group->GetChildren()) {
+		for (const auto& groupRow : group.rows) {
 			if ((++i) >= end)
 				return {};
 		}
 	}
 
-	LSG_TableRows rows = {};
+	LSG_TableRows rows;
 
-	for (const auto& row : this->pageRows)
+	for (const auto& row : this->rows)
 	{
 		if ((++i) >= end)
 			return rows;
 
 		if (i >= start)
-			rows.push_back(this->getRow(row));
+			rows.push_back(row);
 	}
 
 	return rows;
@@ -295,16 +248,6 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	return texture;
 }
 
-LSG_Strings LSG_Pagination::getRow(LSG_Component* component)
-{
-	LSG_Strings row = {};
-
-	for (auto column : component->GetChildren())
-		row.push_back(column->text);
-
-	return row;
-}
-
 LSG_Strings LSG_Pagination::GetRow(int row)
 {
 	return this->getRow(row, 0, this->getRowCount());
@@ -314,24 +257,24 @@ LSG_Strings LSG_Pagination::getRow(int row, int start, int end)
 {
 	int i = -1;
 
-	for (const auto& pageGroup : this->pageGroups)
+	for (const auto& pageGroup : this->groups)
 	{
 		if ((++i) >= end)
 			return {};
 
-		for (auto groupRow : pageGroup->GetChildren()) {
+		for (const auto& groupRow : pageGroup.rows) {
 			if ((++i) >= end)
 				return {};
 		}
 	}
 
-	for (const auto& pageRow : this->pageRows)
+	for (const auto& pageRow : this->rows)
 	{
 		if ((++i) >= end)
 			return {};
 
 		if ((i >= start) && (i == row))
-			return this->getRow(pageRow);
+			return pageRow;
 	}
 
 	return {};
@@ -339,27 +282,22 @@ LSG_Strings LSG_Pagination::getRow(int row, int start, int end)
 
 int LSG_Pagination::getRowCount()
 {
-	if (!this->pageItems.empty())
-		return (int)this->pageItems.size();
+	if (!this->items.empty())
+		return (int)this->items.size();
 
 	int rows = 0;
 
-	for (const auto& group : this->pageGroups)
-		rows += (int)(1 + group->GetChildCount());
+	for (const auto& group : this->groups)
+		rows += (int)(1 + group.rows.size());
 
-	rows += (int)this->pageRows.size();
+	rows += (int)this->rows.size();
 
 	return rows;
 }
 
 LSG_TableRows LSG_Pagination::GetRows()
 {
-	LSG_TableRows rows = {};
-
-	for (const auto& row : this->pageRows)
-		rows.push_back(this->getRow(row));
-
-	return rows;
+	return this->rows;
 }
 
 void LSG_Pagination::initPagination(const SDL_Rect& background, const SDL_Color& backgroundColor)

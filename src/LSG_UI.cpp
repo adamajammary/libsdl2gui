@@ -60,19 +60,17 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 	else if (name == "list")
 		component = new LSG_List(id, layer, node, name, parent);
 	else if (name == "list-item")
-		component = new LSG_ListItem(id, layer, node, name, parent);
+		static_cast<LSG_List*>(parent)->AddItem(LSG_XML::GetValue(node));
 	else if (name == "panel")
 		component = new LSG_Component(id, layer, node, name, parent);
 	else if (name == "table")
 		component = new LSG_Table(id, layer, node, name, parent);
-	else if (name == "table-column")
-		component = new LSG_TableColumn(id, layer, node, name, parent);
 	else if (name == "table-group")
-		component = new LSG_TableGroup(id, layer, node, name, parent);
+		static_cast<LSG_Table*>(parent)->AddGroup(node);
 	else if (name == "table-header")
-		component = new LSG_TableHeader(id, layer, node, name, parent);
+		static_cast<LSG_Table*>(parent)->SetHeader(node);
 	else if (name == "table-row")
-		component = new LSG_TableRow(id, layer, node, name, parent);
+		static_cast<LSG_Table*>(parent)->AddRow(node);
 	else if (name == "image")
 		component = new LSG_Image(id, layer, node, name, parent);
 	else if (name == "progress-bar")

@@ -82,13 +82,13 @@ struct SDL_Size
 using LSG_Strings   = std::vector<std::string>;
 using LSG_TableRows = std::vector<LSG_Strings>;
 
-struct LSG_TableGroupRows
+struct LSG_TableGroup
 {
 	std::string   group;
 	LSG_TableRows rows;
 };
 
-using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
+using LSG_TableGroups = std::vector<LSG_TableGroup>;
 
 /**
  * @brief Adds a new item to the <list> component.
@@ -116,7 +116,7 @@ DLLEXPORT void DLL LSG_AddSubMenuItem(const std::string& id, const std::string& 
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group);
 
 /**
  * @brief Adds a new row to the <table> component.
@@ -319,7 +319,7 @@ DLLEXPORT int DLL LSG_GetSpacing(const std::string& id);
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT LSG_TableGroupRows DLL LSG_GetTableGroup(const std::string& id, const std::string& group);
+DLLEXPORT LSG_TableGroup DLL LSG_GetTableGroup(const std::string& id, const std::string& group);
 
 /**
  * @returns all the groups from the <table> component
@@ -851,7 +851,7 @@ DLLEXPORT void DLL LSG_SetSpacing(const std::string& id, int spacing);
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+DLLEXPORT void DLL LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group);
 
 /**
  * @brief Sets the groups of the <table> component.

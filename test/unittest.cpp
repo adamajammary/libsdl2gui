@@ -315,7 +315,7 @@ namespace LSG_UnitTest
             {
                 for (int i = 0; i < 20; i++)
                 {
-                    LSG_TableGroupRows newGroup = { .group = ("My new group " + std::to_string(i)), .rows = {} };
+                    LSG_TableGroup newGroup = { .group = ("My new group " + std::to_string(i)) };
 
                     for (int j = 0; j < 10; j++)
                         newGroup.rows.push_back({ ("My new group row " + std::to_string(j) + " - Column A"), ("My new group row " + std::to_string(j) + " - Column B") });
@@ -463,7 +463,7 @@ namespace LSG_UnitTest
 
                 for (int i = 0; i < 20; i++)
                 {
-                    LSG_TableGroupRows newGroup = { .group = ("My new group " + std::to_string(i)), .rows = {} };
+                    LSG_TableGroup newGroup = { .group = ("My new group " + std::to_string(i)) };
 
                     for (int j = 0; j < 10; j++)
                         newGroup.rows.push_back({ ("My new group row " + std::to_string(j) + " - Column A"), ("My new group row " + std::to_string(j) + " - Column B") });

@@ -147,7 +147,7 @@ void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const st
 	static_cast<LSG_MenuSub*>(component)->AddItem(item, itemId);
 }
 
-void LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group)
+void LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -489,7 +489,7 @@ int LSG_GetSpacing(const std::string& id)
 	return component->GetSpacing();
 }
 
-LSG_TableGroupRows LSG_GetTableGroup(const std::string& id, const std::string& group)
+LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1382,7 +1382,7 @@ void LSG_SetSpacing(const std::string& id, int spacing)
 	LSG_UI::LayoutParent(component);
 }
 
-void LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group)
+void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
