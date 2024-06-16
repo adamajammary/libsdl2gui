@@ -54,6 +54,7 @@ public:
 	bool             IsMenu() const;
 	bool             IsMenuItem() const;
 	bool             IsModal() const;
+	bool             IsPanel() const;
 	bool             IsProgressBar() const;
 	bool             IsScrollable() const;
 	bool             IsSlider() const;

@@ -329,6 +329,11 @@ bool LSG_Component::IsModal() const
 	return (this->xmlNodeName == "modal");
 }
 
+bool LSG_Component::IsPanel() const
+{
+	return (this->xmlNodeName == "panel");
+}
+
 bool LSG_Component::IsProgressBar() const
 {
 	return (this->xmlNodeName == "progress-bar");
@@ -336,7 +341,7 @@ bool LSG_Component::IsProgressBar() const
 
 bool LSG_Component::IsScrollable() const
 {
-	return (this->IsList() || this->IsTable() || this->IsTextLabel());
+	return (this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel());
 }
 
 bool LSG_Component::IsSlider() const

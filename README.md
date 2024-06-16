@@ -423,7 +423,7 @@ min-height="int"
 
 ### \<panel\>
 
-[alignment](#alignment) | [color](#color) | [orientation](#orientation) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
 
 Triggers [LSG_EVENT_COMPONENT_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_DOUBLE_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_RIGHT_CLICKED](#handle-events) events.
 
@@ -442,6 +442,8 @@ valign="alignment_vertical"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
+
+scrollable="boolean"
 ```
 
 ### \<progress-bar\>
@@ -1107,11 +1109,11 @@ Exceptions
 int LSG_GetScrollHorizontal(const std::string& id);
 ```
 
-Returns the horizontal scroll offset/position of the \<list\>, \<table\> or \<text\> component.
+Returns the horizontal scroll offset/position of the \<list\>, \<panel\>, \<table\> or \<text\> component.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 
 Exceptions
 
@@ -1124,11 +1126,11 @@ Exceptions
 int LSG_GetScrollVertical(const std::string& id);
 ```
 
-Returns the vertical scroll offset/position of the \<list\>, \<table\> or \<text\> component.
+Returns the vertical scroll offset/position of the \<list\>, \<panel\>, \<table\> or \<text\> component.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 
 Exceptions
 
@@ -1788,11 +1790,11 @@ std::string LSG_SaveFile();
 void LSG_ScrollHorizontal(const std::string& id, int scroll);
 ```
 
-Scrolls the \<list\>, \<table\> or \<text\> component horizontally by the specified offset/position.
+Scrolls the \<list\>, \<panel\>, \<table\> or \<text\> component horizontally by the specified offset/position.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 - **scroll** Horizontal scroll offset/position
 
 Exceptions
@@ -1806,11 +1808,11 @@ Exceptions
 void LSG_ScrollVertical(const std::string& id, int scroll);
 ```
 
-Scrolls the \<list\>, \<table\> or \<text\> component vertically by the specified offset/position.
+Scrolls the \<list\>, \<panel\>, \<table\> or \<text\> component vertically by the specified offset/position.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 - **scroll** Vertical scroll offset/position
 
 Exceptions
@@ -1824,11 +1826,11 @@ Exceptions
 void LSG_ScrollToBottom(const std::string& id);
 ```
 
-Scrolls to the bottom of the \<list\>, \<table\> or \<text\> component.
+Scrolls to the bottom of the \<list\>, \<panel\>, \<table\> or \<text\> component.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 
 Exceptions
 

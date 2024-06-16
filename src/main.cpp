@@ -375,7 +375,7 @@ int LSG_GetScrollHorizontal(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollX();
@@ -395,7 +395,7 @@ int LSG_GetScrollVertical(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollY();
@@ -951,8 +951,8 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 
 	auto component = LSG_UI::GetComponent(id);
 
-	if (!component || (!component->IsList() && !component->IsTable() && !component->IsTextLabel()))
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+	if (!component || (!component->IsScrollable()))
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollHorizontal(scroll);
@@ -970,7 +970,7 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollVertical(scroll);
@@ -988,7 +988,7 @@ void LSG_ScrollToBottom(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollEnd();

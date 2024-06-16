@@ -49,28 +49,30 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 	{
 		auto menu = static_cast<LSG_Menu*>(component);
 
-		if (menu->IsOpen() && (event.keysym.sym == SDLK_ESCAPE)) {
+		if (menu->IsOpen() && (event.keysym.sym == SDLK_ESCAPE))
 			menu->Close();
-			return;
-		}
+
+		return;
 	}
-	else if (component->IsTextLabel())
+	else if (component->IsSlider())
 	{
-		auto textLabel = static_cast<LSG_TextLabel*>(component);
+		auto slider = static_cast<LSG_Slider*>(component);
 
 		switch (event.keysym.sym) {
-			case SDLK_LEFT:     textLabel->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
-			case SDLK_RIGHT:    textLabel->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
-			case SDLK_HOME:     textLabel->OnScrollHome(); break;
-			case SDLK_END:      textLabel->OnScrollEnd(); break;
-			case SDLK_UP:       textLabel->OnScrollVertical(-LSG_ScrollBar::Unit); break;
-			case SDLK_DOWN:     textLabel->OnScrollVertical(LSG_ScrollBar::Unit); break;
-			case SDLK_PAGEUP:   textLabel->OnScrollVertical(-LSG_ScrollBar::UnitPage); break;
-			case SDLK_PAGEDOWN: textLabel->OnScrollVertical(LSG_ScrollBar::UnitPage); break;
+			case SDLK_LEFT:     slider->OnMouseScroll(LSG_ScrollBar::Unit); break;
+			case SDLK_RIGHT:    slider->OnMouseScroll(-LSG_ScrollBar::Unit); break;
+			case SDLK_HOME:     slider->SetValue(0.0); break;
+			case SDLK_END:      slider->SetValue(1.0); break;
+			case SDLK_UP:       slider->OnMouseScroll(-LSG_ScrollBar::Unit); break;
+			case SDLK_DOWN:     slider->OnMouseScroll(LSG_ScrollBar::Unit); break;
+			case SDLK_PAGEUP:   slider->OnMouseScroll(-LSG_ScrollBar::UnitPage); break;
+			case SDLK_PAGEDOWN: slider->OnMouseScroll(LSG_ScrollBar::UnitPage); break;
 			default: break;
 		}
+
+		return;
 	}
-	else if (component->IsList())
+	else if (component->IsList() || component->IsTable())
 	{
 		auto list = static_cast<LSG_List*>(component);
 
@@ -86,26 +88,54 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 			case SDLK_RETURN: case SDLK_KP_ENTER: list->Activate(); break;
 			default: break;
 		}
+
+		return;
 	}
-	else if (component->IsTable())
+
+	bool isHandled = false;
+
+	if (component->IsTextLabel())
 	{
-		auto table = static_cast<LSG_Table*>(component);
+		auto textLabel = static_cast<LSG_TextLabel*>(component);
 
 		switch (event.keysym.sym) {
-			case SDLK_LEFT:     table->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
-			case SDLK_RIGHT:    table->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
-			case SDLK_HOME:     table->SelectFirstRow(); break;
-			case SDLK_END:      table->SelectLastRow(); break;
-			case SDLK_UP:       table->SelectRow(-1); break;
-			case SDLK_DOWN:     table->SelectRow(1); break;
-			case SDLK_PAGEUP:   table->SelectRow(-LSG_List::UnitPage); break;
-			case SDLK_PAGEDOWN: table->SelectRow(LSG_List::UnitPage); break;
-			case SDLK_RETURN: case SDLK_KP_ENTER: table->Activate(); break;
+			case SDLK_LEFT:     isHandled = textLabel->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
+			case SDLK_RIGHT:    isHandled = textLabel->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
+			case SDLK_HOME:     isHandled = textLabel->OnScrollHome(); break;
+			case SDLK_END:      isHandled = textLabel->OnScrollEnd(); break;
+			case SDLK_UP:       isHandled = textLabel->OnScrollVertical(-LSG_ScrollBar::Unit); break;
+			case SDLK_DOWN:     isHandled = textLabel->OnScrollVertical(LSG_ScrollBar::Unit); break;
+			case SDLK_PAGEUP:   isHandled = textLabel->OnScrollVertical(-LSG_ScrollBar::UnitPage); break;
+			case SDLK_PAGEDOWN: isHandled = textLabel->OnScrollVertical(LSG_ScrollBar::UnitPage); break;
 			default: break;
 		}
 	}
 
-	LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID(), event.keysym.sym);
+	if (isHandled)
+		return;
+
+	auto isPanel = component->IsPanel();
+	auto parent  = component->GetParent();
+
+	if (isPanel || (parent && parent->IsPanel()))
+	{
+		auto panel = static_cast<LSG_Panel*>(isPanel ? component : parent);
+
+		switch (event.keysym.sym) {
+			case SDLK_LEFT:     isHandled = panel->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
+			case SDLK_RIGHT:    isHandled = panel->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
+			case SDLK_HOME:     isHandled = panel->OnScrollHome(); break;
+			case SDLK_END:      isHandled = panel->OnScrollEnd(); break;
+			case SDLK_UP:       isHandled = panel->OnScrollVertical(-LSG_ScrollBar::Unit); break;
+			case SDLK_DOWN:     isHandled = panel->OnScrollVertical(LSG_ScrollBar::Unit); break;
+			case SDLK_PAGEUP:   isHandled = panel->OnScrollVertical(-LSG_ScrollBar::UnitPage); break;
+			case SDLK_PAGEDOWN: isHandled = panel->OnScrollVertical(LSG_ScrollBar::UnitPage); break;
+			default: break;
+		}
+	}
+
+	if (!isHandled)
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID(), event.keysym.sym);
 }
 
 void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
@@ -128,29 +158,39 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 	LSG_Events::lastClickTime  = SDL_GetTicks();
 	LSG_Events::lastComponent  = component;
 
-	bool enableMouseDown = false;
+	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component->GetParent());
+	bool enableMouseDown  = false;
 
 	if (component->IsSlider())
-		enableMouseDown = static_cast<LSG_Slider*>(component)->OnMouseClickThumb(mousePosition);
+		enableMouseDown = static_cast<LSG_Slider*>(component)->OnMouseClickThumb(scrolledPosition);
 	else if (component->IsList())
-		enableMouseDown = static_cast<LSG_List*>(component)->OnScrollMouseClick(mousePosition);
+		enableMouseDown = static_cast<LSG_List*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsTable())
-		enableMouseDown = static_cast<LSG_Table*>(component)->OnScrollMouseClick(mousePosition);
+		enableMouseDown = static_cast<LSG_Table*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsTextLabel())
-		enableMouseDown = static_cast<LSG_TextLabel*>(component)->OnScrollMouseClick(mousePosition);
+		enableMouseDown = static_cast<LSG_TextLabel*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsButton())
 		enableMouseDown = true;
 
-	if (enableMouseDown)
+	if (!enableMouseDown)
 	{
-		LSG_Events::isMouseDown = true;
-		LSG_Events::lastEvent   = event;
+		bool isPanel = component->IsPanel();
+		auto parent  = component->GetParent();
 
-		if (component->IsScrollable())
-			LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
-		else if (component->IsButton())
-			LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, component->GetID());
+		if (isPanel || (parent && parent->IsPanel()))
+			enableMouseDown = static_cast<LSG_Panel*>(isPanel ? component : parent)->OnScrollMouseClick(mousePosition);
 	}
+
+	if (!enableMouseDown)
+		return;
+
+	LSG_Events::isMouseDown = true;
+	LSG_Events::lastEvent   = event;
+
+	if (component->IsScrollable())
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
+	else if (component->IsButton())
+		LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, component->GetID());
 }
 
 void LSG_Events::handleMouseLastDownEvent()
@@ -158,17 +198,28 @@ void LSG_Events::handleMouseLastDownEvent()
 	if (!LSG_Events::isMouseDown || !LSG_Events::lastComponent)
 		return;
 
-	auto lastPosition  = LSG_Events::getMousePosition(LSG_Events::lastEvent);
-	auto lastComponent = LSG_Events::lastComponent;
+	bool isPanel = LSG_Events::lastComponent->IsPanel();
+	auto parent  = LSG_Events::lastComponent->GetParent();
 
-	if (lastComponent->IsList())
-		static_cast<LSG_List*>(lastComponent)->OnScrollMouseDown(lastPosition);
-	else if (lastComponent->IsTable())
-		static_cast<LSG_Table*>(lastComponent)->OnScrollMouseDown(lastPosition);
-	else if (lastComponent->IsTextLabel())
-		static_cast<LSG_TextLabel*>(lastComponent)->OnScrollMouseDown(lastPosition);
-	else if (lastComponent->IsButton())
-		LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, lastComponent->GetID());
+	auto lastPosition     = LSG_Events::getMousePosition(LSG_Events::lastEvent);
+	auto scrolledPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent->GetParent());
+
+	if (LSG_Events::lastComponent->IsButton()) {
+		LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, LSG_Events::lastComponent->GetID());
+		return;
+	}
+
+	bool isHandled = false;
+
+	if (LSG_Events::lastComponent->IsList())
+		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseDown(scrolledPosition);
+	else if (LSG_Events::lastComponent->IsTable())
+		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseDown(scrolledPosition);
+	else if (LSG_Events::lastComponent->IsTextLabel())
+		isHandled = static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseDown(scrolledPosition);
+
+	if (!isHandled && (isPanel || (parent && parent->IsPanel())))
+		static_cast<LSG_Panel*>(isPanel ? LSG_Events::lastComponent : parent)->OnScrollMouseDown(lastPosition);
 }
 
 void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
@@ -183,20 +234,30 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 	if (!LSG_Events::lastComponent)
 		return;
 
-	auto lastPosition  = LSG_Events::getMousePosition(LSG_Events::lastEvent);
-	auto lastComponent = LSG_Events::lastComponent;
+	bool isPanel = LSG_Events::lastComponent->IsPanel();
+	auto parent  = LSG_Events::lastComponent->GetParent();
 
-	if (lastComponent->IsSlider())
-		static_cast<LSG_Slider*>(lastComponent)->OnMouseMove(mousePosition);
-	else if (lastComponent->IsList())
-		static_cast<LSG_List*>(lastComponent)->OnScrollMouseMove(mousePosition, lastPosition);
-	else if (lastComponent->IsTable())
-		static_cast<LSG_Table*>(lastComponent)->OnScrollMouseMove(mousePosition, lastPosition);
-	else if (lastComponent->IsTextLabel())
-		static_cast<LSG_TextLabel*>(lastComponent)->OnScrollMouseMove(mousePosition, lastPosition);
+	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, parent);
 
-	if (lastComponent->IsScrollable())
-		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, lastComponent->GetID());
+	auto lastPosition         = LSG_Events::getMousePosition(LSG_Events::lastEvent);
+	auto scrolledLastPosition = LSG_UI::GetScrolledPosition(lastPosition, parent);
+
+	bool isHandled = false;
+
+	if (LSG_Events::lastComponent->IsSlider())
+		isHandled = static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseMove(scrolledPosition);
+	else if (LSG_Events::lastComponent->IsList())
+		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+	else if (LSG_Events::lastComponent->IsTable())
+		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+	else if (LSG_Events::lastComponent->IsTextLabel())
+		isHandled = static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+
+	if (!isHandled && (isPanel || (parent && parent->IsPanel())))
+		static_cast<LSG_Panel*>(isPanel ? LSG_Events::lastComponent : parent)->OnScrollMouseMove(mousePosition, lastPosition);
+
+	if (LSG_Events::lastComponent->IsScrollable())
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, LSG_Events::lastComponent->GetID());
 }
 
 void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
@@ -208,16 +269,31 @@ void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 	if (!component || !component->enabled)
 		return;
 
-	if (component->IsSlider())
+	if (component->IsSlider()) {
 		static_cast<LSG_Slider*>(component)->OnMouseScroll(scroll);
-	else if (component->IsList())
-		static_cast<LSG_List*>(component)->OnScrollVertical(scroll);
-	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->OnScrollVertical(scroll);
-	else if (component->IsTextLabel())
-		static_cast<LSG_TextLabel*>(component)->OnScrollVertical(scroll);
+		return;
+	}
 
-	LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
+	bool isHandled = false;
+
+	if (component->IsList())
+		isHandled = static_cast<LSG_List*>(component)->OnScrollVertical(scroll);
+	else if (component->IsTable())
+		isHandled = static_cast<LSG_Table*>(component)->OnScrollVertical(scroll);
+	else if (component->IsTextLabel())
+		isHandled = static_cast<LSG_TextLabel*>(component)->OnScrollVertical(scroll);
+
+	if (isHandled)
+		return;
+
+	bool isPanel = component->IsPanel();
+	auto parent  = component->GetParent();
+
+	if (isPanel || (parent && parent->IsPanel()))
+		isHandled = static_cast<LSG_Panel*>(isPanel ? component : parent)->OnScrollVertical(scroll);
+
+	if (!isHandled)
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
 }
 
 void LSG_Events::handleMouseUp(const SDL_Event& event)
@@ -231,23 +307,26 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 		{
 			auto timeSinceLastClick2 = (SDL_GetTicks() - LSG_Events::lastClickTime2);
 			auto timeSinceLastClick  = (SDL_GetTicks() - LSG_Events::lastClickTime);
-			bool isDoubleClick       = (timeSinceLastClick2 < LSG_ConstClickTime::DoubleClick);
-			bool isRightClick        = (timeSinceLastClick >= LSG_ConstClickTime::RightClick);
+
+			bool isDoubleClick = (timeSinceLastClick2 < LSG_ConstClickTime::DoubleClick);
+			bool isRightClick  = (timeSinceLastClick >= LSG_ConstClickTime::RightClick);
+
+			auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component->GetParent());
 
 			if ((event.type == SDL_FINGERUP) && isRightClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_RIGHT_CLICKED, component->GetID());
 			else if (isDoubleClick && (component->IsList() || component->IsTable()))
-				static_cast<LSG_List*>(component)->Activate(mousePosition);
+				static_cast<LSG_List*>(component)->Activate(scrolledPosition);
 			else if (isDoubleClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
 			else if (component->IsList())
-				static_cast<LSG_List*>(component)->OnMouseClick(mousePosition);
+				static_cast<LSG_List*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsMenu())
-				static_cast<LSG_Menu*>(component)->OnMouseClick(mousePosition);
+				static_cast<LSG_Menu*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsSlider())
-				static_cast<LSG_Slider*>(component)->OnMouseClick(mousePosition);
+				static_cast<LSG_Slider*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsTable())
-				static_cast<LSG_Table*>(component)->OnMouseClick(mousePosition);
+				static_cast<LSG_Table*>(component)->OnMouseClick(scrolledPosition);
 			else
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_CLICKED, component->GetID());
 		}
@@ -255,6 +334,12 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 
 	if (LSG_Events::lastComponent)
 	{
+		bool isPanel = LSG_Events::lastComponent->IsPanel();
+		auto parent  = LSG_Events::lastComponent->GetParent();
+
+		auto lastPosition     = LSG_Events::getMousePosition(LSG_Events::lastEvent);
+		auto scrolledPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent->GetParent());
+
 		if (LSG_Events::lastComponent->IsSlider())
 			static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseUp();
 		else if (LSG_Events::lastComponent->IsList())
@@ -264,7 +349,10 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 		else if (LSG_Events::lastComponent->IsTextLabel())
 			static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsButton())
-			static_cast<LSG_Button*>(LSG_Events::lastComponent)->OnMouseClick(LSG_Events::getMousePosition(LSG_Events::lastEvent));
+			static_cast<LSG_Button*>(LSG_Events::lastComponent)->OnMouseClick(scrolledPosition);
+
+		if (isPanel || (parent && parent->IsPanel()))
+			static_cast<LSG_Panel*>(isPanel ? LSG_Events::lastComponent : parent)->OnScrollMouseUp();
 	}
 
 	LSG_Events::isMouseDown   = false;
@@ -312,47 +400,23 @@ std::vector<SDL_Event> LSG_Events::Handle()
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type) {
-		case SDL_QUIT:
-			LSG_Quit();
-			break;
-		case SDL_DISPLAYEVENT:
-			LSG_UI::Layout();
-			break;
-		case SDL_KEYDOWN:
-			LSG_Events::handleKeyDownEvent(event.key);
-			break;
-		case SDL_SYSWMEVENT:
-			LSG_Events::handleSysWMEvent(event.syswm);
-			break;
-		case SDL_WINDOWEVENT:
-			LSG_Events::handleWindowEvent(event.window);
-			break;
-		case SDL_MOUSEWHEEL:
-			LSG_Events::handleMouseScrollEvent(event.wheel);
-			break;
-		case SDL_FINGERDOWN:
-		case SDL_MOUSEBUTTONDOWN:
-			LSG_Events::handleMouseDownEvent(event);
-			break;
-		case SDL_FINGERUP:
-		case SDL_MOUSEBUTTONUP:
-			LSG_Events::handleMouseUp(event);
-			break;
-		case SDL_FINGERMOTION:
-		case SDL_MOUSEMOTION:
-			LSG_Events::handleMouseMoveEvent(event);
-			break;
-		default:
-			break;
+			case SDL_QUIT:         LSG_Quit(); break;
+			case SDL_DISPLAYEVENT: LSG_UI::Layout(); break;
+			case SDL_KEYDOWN:      LSG_Events::handleKeyDownEvent(event.key); break;
+			case SDL_SYSWMEVENT:   LSG_Events::handleSysWMEvent(event.syswm); break;
+			case SDL_WINDOWEVENT:  LSG_Events::handleWindowEvent(event.window); break;
+			case SDL_MOUSEWHEEL:   LSG_Events::handleMouseScrollEvent(event.wheel); break;
+			case SDL_FINGERDOWN:   case SDL_MOUSEBUTTONDOWN: LSG_Events::handleMouseDownEvent(event); break;
+			case SDL_FINGERUP:     case SDL_MOUSEBUTTONUP:   LSG_Events::handleMouseUp(event); break;
+			case SDL_FINGERMOTION: case SDL_MOUSEMOTION:     LSG_Events::handleMouseMoveEvent(event); break;
+			default: break;
 		}
 
 		events.push_back(SDL_Event(event));
 	}
 
-	if (LSG_Events::lastEvent.type == SDL_MOUSEBUTTONDOWN) {
-		int x, y;
-		LSG_Events::isMouseDown = (SDL_GetMouseState(&x, &y) == SDL_BUTTON_LEFT);
-	}
+	if (LSG_Events::lastEvent.type == SDL_MOUSEBUTTONDOWN)
+		LSG_Events::isMouseDown = (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT);
 
 	return events;
 }

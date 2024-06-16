@@ -62,7 +62,7 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 	else if (name == "list-item")
 		static_cast<LSG_List*>(parent)->AddItem(LSG_XML::GetValue(node));
 	else if (name == "panel")
-		component = new LSG_Component(id, layer, node, name, parent);
+		component = new LSG_Panel(id, layer, node, name, parent);
 	else if (name == "table")
 		component = new LSG_Table(id, layer, node, name, parent);
 	else if (name == "table-group")
@@ -169,7 +169,10 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 	{
 		auto component = (*i).second;
 
-		if (component->IsModal() && component->visible)
+		if (!component->visible)
+			continue;
+
+		if (component->IsModal())
 		{
 			if (skipModalChildren)
 				return component;
@@ -187,11 +190,43 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 		if ((component->IsMenuItem() || component->IsSubMenu()) && static_cast<LSG_MenuItem*>(component)->IsClosed())
 			continue;
 
-		if (component->visible && (component->GetLayer() > modalLayer) && SDL_PointInRect(&mousePosition, &component->background))
+		auto background = LSG_UI::GetScrolledBackground(component->background, component->GetParent());
+
+		if ((component->GetLayer() > modalLayer) && SDL_PointInRect(&mousePosition, &background))
 			return component;
 	}
 
 	return nullptr;
+}
+
+SDL_Rect LSG_UI::GetScrolledBackground(const SDL_Rect& background, LSG_Component* parent)
+{
+	SDL_Rect scrolled = background;
+
+	if (parent && parent->IsPanel())
+	{
+		auto panel = static_cast<LSG_Panel*>(parent);
+
+		scrolled.x -= panel->GetScrollX();
+		scrolled.y -= panel->GetScrollY();
+	}
+
+	return scrolled;
+}
+
+SDL_Point LSG_UI::GetScrolledPosition(const SDL_Point& position, LSG_Component* parent)
+{
+	SDL_Point scrolled = position;
+
+	if (parent && parent->IsPanel())
+	{
+		auto panel = static_cast<LSG_Panel*>(parent);
+
+		scrolled.x += panel->GetScrollX();
+		scrolled.y += panel->GetScrollY();
+	}
+
+	return scrolled;
 }
 
 LibXml::xmlDoc* LSG_UI::GetXmlDocument()
@@ -220,7 +255,8 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			return;
 		}
 
-		if (component->IsMenu()) {
+		if (component->IsMenu())
+		{
 			auto menu = static_cast<LSG_Menu*>(component);
 
 			if (menu->IsOpen()) {
@@ -229,9 +265,13 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			} else {
 				component->highlighted = menu->IsMouseOverIconOpen(mousePosition);
 			}
-		} else {
-			component->highlighted = SDL_PointInRect(&mousePosition, &component->background);
+
+			continue;
 		}
+
+		auto background = LSG_UI::GetScrolledBackground(component->background, component->GetParent());
+
+		component->highlighted = SDL_PointInRect(&mousePosition, &background);
 	}
 
 	if (!isMenuOpen)
@@ -407,6 +447,7 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	bool isVertical = component->IsVertical();
 	auto halign     = (attributes.contains("halign") ? attributes["halign"] : "");
 	auto valign     = (attributes.contains("valign") ? attributes["valign"] : "");
+	auto scrollable = (attributes.contains("scrollable") ? attributes["scrollable"] : "");
 	auto spacing    = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
 	auto border     = component->border;
 	auto border2x   = (border * 2);
@@ -416,6 +457,15 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	auto offsetY    = (component->background.y + border + padding);
 	auto maxX       = (component->background.w - border2x - padding2x);
 	auto maxY       = (component->background.h - border2x - padding2x);
+
+	if (scrollable == "true")
+	{
+		auto maxSize = static_cast<LSG_Panel*>(component)->GetTextureSize(component->background);
+
+		maxX = (maxSize.width  - border2x - padding2x);
+		maxY = (maxSize.height - border2x - padding2x);
+	}
+
 	auto remainingX = maxX;
 	auto remainingY = maxY;
 

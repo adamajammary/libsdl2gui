@@ -34,7 +34,7 @@ public:
 	double       GetValue() const;
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	bool         OnMouseClickThumb(const SDL_Point& mousePosition);
-	void         OnMouseMove(const SDL_Point& mousePosition);
+	bool         OnMouseMove(const SDL_Point& mousePosition);
 	void         OnMouseScroll(int offset);
 	void         OnMouseUp();
 	virtual void Render(SDL_Renderer* renderer) override;
