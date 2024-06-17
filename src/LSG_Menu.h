@@ -3,7 +3,7 @@
 #ifndef LSG_MENU_H
 #define LSG_MENU_H
 
-class LSG_Menu : public LSG_Text, public LSG_IEvent
+class LSG_Menu : public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
 {
 public:
 	LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -41,13 +41,19 @@ private:
 	SDL_Rect              getNavBackHighlight(const SDL_Rect& menu);
 	SDL_Rect              getNavTitle(const SDL_Rect& menu, const SDL_Rect& clip);
 	SDL_Rect              getNavTitleClip(const SDL_Rect& menu);
+	int                   getTextureHeight(const SDL_Rect& background);
 	bool                  isMouseOverIconClose(const SDL_Point& mousePosition);
 	bool                  isMouseOverMenu(const SDL_Point& mousePosition);
 	bool                  isMouseOverNavBack(const SDL_Point& mousePosition);
 	void                  navigate(LSG_Component* component);
 	void                  open();
-	void                  renderMenuClosed(SDL_Renderer* renderer);
-	void                  renderMenuOpened(SDL_Renderer* renderer);
+	void                  renderBorderLine(SDL_Renderer* renderer, const SDL_Rect& menu);
+	void                  renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu);
+	void                  renderIconOpen(SDL_Renderer* renderer);
+	void                  renderMenu(SDL_Renderer* renderer);
+	SDL_Texture*          renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize);
+	void                  renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu);
+	void                  renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu);
 	virtual void          sendEvent(LSG_EventType type) override;
 	void                  setMenuOpened();
 	void                  setMenuClosed();

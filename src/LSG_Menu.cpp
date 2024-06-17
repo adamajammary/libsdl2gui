@@ -29,6 +29,8 @@ void LSG_Menu::Close()
 	this->subMenu = this;
 
 	this->setMenuClosed();
+
+	this->scrollOffsetY = 0;
 }
 
 SDL_Rect LSG_Menu::getIconClose(const SDL_Rect& menu)
@@ -143,7 +145,7 @@ SDL_Rect LSG_Menu::getNavTitle(const SDL_Rect& menu, const SDL_Rect& clip)
 
 SDL_Rect LSG_Menu::getNavTitleClip(const SDL_Rect& menu)
 {
-	auto size     = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_TEXTURE_NAV_TITLE]);
+	auto size     = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_TEXTURE_TITLE]);
 	auto maxWidth = (menu.w - (this->padding + this->background.h + this->background.h + this->padding));
 
 	SDL_Rect clip = {
@@ -154,6 +156,16 @@ SDL_Rect LSG_Menu::getNavTitleClip(const SDL_Rect& menu)
 	};
 
 	return clip;
+}
+
+int LSG_Menu::getTextureHeight(const SDL_Rect& background)
+{
+	int height = 0;
+
+	for (auto child : this->subMenu->GetChildren())
+		height += child->background.h;
+
+	return std::max(background.h, (height + this->padding));
 }
 
 void LSG_Menu::Highlight(const SDL_Point& mousePosition)
@@ -241,9 +253,14 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 			return true;
 		}
 
+		auto scrollY = this->GetScrollY();
+
 		for (const auto& child : this->subMenu->GetChildren())
 		{
-			if (!child->enabled || !child->visible || !SDL_PointInRect(&mousePosition, &child->background))
+			auto background = SDL_Rect(child->background);
+			background.y   -= scrollY;
+
+			if (!child->enabled || !child->visible || !SDL_PointInRect(&mousePosition, &background))
 				continue;
 
 			if (child->IsSubMenu()) {
@@ -264,6 +281,8 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 
 void LSG_Menu::open()
 {
+	this->scrollOffsetY = 0;
+
 	this->destroyTextures();
 
 	this->setMenuOpened();
@@ -278,86 +297,144 @@ void LSG_Menu::open()
 
 void LSG_Menu::Render(SDL_Renderer* renderer)
 {
+	this->showScrollX = false;
+	this->showScrollY = false;
+
 	if (!this->visible)
 		return;
 
-	if (this->isOpen)
-		this->renderMenuOpened(renderer);
+	if (!this->isOpen)
+		this->renderIconOpen(renderer);
 	else
-		this->renderMenuClosed(renderer);
+		this->renderMenu(renderer);
 }
 
-void LSG_Menu::renderMenuClosed(SDL_Renderer* renderer)
+void LSG_Menu::renderBorderLine(SDL_Renderer* renderer, const SDL_Rect& menu)
 {
-	auto iconOpen = this->textures[LSG_MENU_TEXTURE_ICON_OPEN];
-
-	if (!iconOpen)
-		return;
-
-	auto destination = this->getIconOpen();
-
-	SDL_RenderCopy(renderer, iconOpen, nullptr, &destination);
-
-	if (this->enabled && this->highlighted)
-		this->renderHighlight(renderer, destination);
-}
-
-void LSG_Menu::renderMenuOpened(SDL_Renderer* renderer)
-{
-	auto      background      = LSG_UI::GetBackgroundArea();
-	SDL_Color backgroundColor = { 0, 0, 0, 128 };
-
-	this->renderFill(renderer, 0, backgroundColor, background);
-
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, this->backgroundColor.r, this->backgroundColor.g, this->backgroundColor.b, 255);
-
-	auto menu = this->getMenu(background);
-
-	SDL_RenderFillRect(renderer, &menu);
-
-	auto navBack = this->textures[LSG_MENU_TEXTURE_NAV_BACK];
-
-	if (navBack)
-	{
-		auto destination = this->getNavBack(menu);
-
-		SDL_RenderCopy(renderer, navBack, nullptr, &destination);
-
-		if (this->enabled && this->highlightedNavBack)
-			this->renderHighlight(renderer, this->getNavBackHighlight(menu));
-	}
-
-	auto navTitle = this->textures[LSG_MENU_TEXTURE_NAV_TITLE];
-
-	if (navTitle)
-	{
-		auto clip        = this->getNavTitleClip(menu);
-		auto destination = this->getNavTitle(menu, clip);
-
-		SDL_RenderCopy(renderer, navTitle, &clip, &destination);
-	}
-
-	auto iconClose = this->textures[LSG_MENU_TEXTURE_ICON_CLOSE];
-
-	if (iconClose)
-	{
-		auto destination = this->getIconClose(menu);
-
-		SDL_RenderCopy(renderer, iconClose, nullptr, &destination);
-
-		if (this->enabled && this->highlightedIconClose)
-			this->renderHighlight(renderer, destination);
-	}
-
 	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
 	auto border      = this->getMenuBorder(menu);
 
 	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, 255);
 	SDL_RenderDrawLine(renderer, border.x, border.y, border.w, border.h);
+}
+
+void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu)
+{
+	if (!this->textures[LSG_MENU_TEXTURE_ICON_CLOSE])
+		return;
+
+	auto destination = this->getIconClose(menu);
+
+	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_CLOSE], nullptr, &destination);
+
+	if (this->enabled && this->highlightedIconClose)
+		this->renderHighlight(renderer, destination);
+}
+
+void LSG_Menu::renderIconOpen(SDL_Renderer* renderer)
+{
+	if (!this->textures[LSG_MENU_TEXTURE_ICON_OPEN])
+		return;
+
+	auto destination = this->getIconOpen();
+
+	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_OPEN], nullptr, &destination);
+
+	if (this->enabled && this->highlighted)
+		this->renderHighlight(renderer, destination);
+}
+
+void LSG_Menu::renderMenu(SDL_Renderer* renderer)
+{
+	auto background = LSG_UI::GetBackgroundArea();
+	auto menu       = this->getMenu(background);
+
+	this->renderFill(renderer, 0, { 0, 0, 0, 128 },      background);
+	this->renderFill(renderer, 0, this->backgroundColor, menu);
+
+	this->renderNavBack(renderer,    menu);
+	this->renderTitle(renderer,      menu);
+	this->renderIconClose(renderer,  menu);
+	this->renderBorderLine(renderer, menu);
+
+	bool hasChildren = (this->subMenu->GetChildCount() > 0);
+	auto offsetY     = (hasChildren ? this->subMenu->GetChild(0)->background.y : 0);
+
+	menu.y += offsetY;
+	menu.h -= offsetY;
+	menu.w += LSG_ScrollBar::GetSize();
+
+	auto textureHeight = this->getTextureHeight(menu);
+
+	if ((textureHeight <= menu.h) || !hasChildren)
+	{
+		for (auto child : this->subMenu->GetChildren())
+			child->Render(renderer);
+
+		return;
+	}
+
+	this->showScrollY = true;
+
+	SDL_Size maxSize     = { menu.w, textureHeight };
+	SDL_Size textureSize = { menu.w, (textureHeight + offsetY) };
+
+	auto clip    = this->getClipWithOffset({ 0, offsetY, menu.w, menu.h }, maxSize);
+	auto texture = this->renderMenuContentToTexture(renderer, offsetY, textureSize);
+
+	SDL_RenderCopy(renderer, texture, &clip, &menu);
+
+	this->renderScrollBarVertical(renderer, menu, maxSize.height, this->backgroundColor, true);
+
+	SDL_DestroyTexture(texture);
+}
+
+SDL_Texture* LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize)
+{
+	auto format  = SDL_GetWindowPixelFormat(SDL_RenderGetWindow(renderer));
+	auto texture = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
+
+	SDL_SetRenderTarget(renderer, texture);
+
+	SDL_Rect background = {
+		0,
+		offsetY,
+		textureSize.width,
+		textureSize.height
+	};
+
+	this->renderFill(renderer, 0, this->backgroundColor, background);
 
 	for (auto child : this->subMenu->GetChildren())
 		child->Render(renderer);
+
+	SDL_SetRenderTarget(renderer, NULL);
+
+	return texture;
+}
+
+void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu)
+{
+	if (!this->textures[LSG_MENU_TEXTURE_NAV_BACK])
+		return;
+
+	auto destination = this->getNavBack(menu);
+
+	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_NAV_BACK], nullptr, &destination);
+
+	if (this->enabled && this->highlightedNavBack)
+		this->renderHighlight(renderer, this->getNavBackHighlight(menu));
+}
+
+void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu)
+{
+	if (!this->textures[LSG_MENU_TEXTURE_TITLE])
+		return;
+
+	auto clip        = this->getNavTitleClip(menu);
+	auto destination = this->getNavTitle(menu, clip);
+
+	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_TITLE], &clip, &destination);
 }
 
 void LSG_Menu::sendEvent(LSG_EventType type)
@@ -409,7 +486,7 @@ void LSG_Menu::setMenuOpened()
 	}
 
 	if (!navTitle.empty())
-		this->textures[LSG_MENU_TEXTURE_NAV_TITLE] = this->getTexture(navTitle);
+		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle);
 
 	SDL_Size closeIconSize = { this->background.h, this->background.h };
 

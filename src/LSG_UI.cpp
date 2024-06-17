@@ -239,7 +239,8 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 	if (!SDL_GetCursor())
 		return;
 
-	bool isMenuOpen = false;
+	bool isMenuOpen  = false;
+	int  menuScrollY = 0;
 
 	for (auto i = LSG_UI::componentsByLayer.rbegin(); i != LSG_UI::componentsByLayer.rend(); i++)
 	{
@@ -260,7 +261,8 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			auto menu = static_cast<LSG_Menu*>(component);
 
 			if (menu->IsOpen()) {
-				isMenuOpen = true;
+				isMenuOpen  = true;
+				menuScrollY = menu->GetScrollY();
 				break;
 			} else {
 				component->highlighted = menu->IsMouseOverIconOpen(mousePosition);
@@ -279,10 +281,13 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 
 	for (auto& component : LSG_UI::componentsByLayer)
 	{
+		auto background = SDL_Rect(component.second->background);
+		background.y   -= menuScrollY;
+
 		if (component.second->IsMenu())
 			static_cast<LSG_Menu*>(component.second)->Highlight(mousePosition);
 		else if (component.second->IsMenuItem() || component.second->IsSubMenu())
-			component.second->highlighted = SDL_PointInRect(&mousePosition, &component.second->background);
+			component.second->highlighted = SDL_PointInRect(&mousePosition, &background);
 		else
 			component.second->highlighted = false;
 	}

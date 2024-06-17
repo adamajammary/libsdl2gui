@@ -118,7 +118,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer)
 	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
 	SDL_Rect destination = {
-		(this->background.x + this->background.w - (size.width + padding)),
+		(this->background.x + this->background.w - size.width - padding),
 		(this->background.y + ((this->background.h - size.height) / 2)),
 		size.width,
 		size.height

@@ -49,8 +49,19 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 	{
 		auto menu = static_cast<LSG_Menu*>(component);
 
-		if (menu->IsOpen() && (event.keysym.sym == SDLK_ESCAPE))
-			menu->Close();
+		if (!menu->IsOpen())
+			return;
+
+		switch (event.keysym.sym) {
+			case SDLK_ESCAPE:   menu->Close(); break;
+			case SDLK_HOME:     menu->OnScrollHome(); break;
+			case SDLK_END:      menu->OnScrollEnd(); break;
+			case SDLK_UP:       menu->OnScrollVertical(-LSG_ScrollBar::Unit); break;
+			case SDLK_DOWN:     menu->OnScrollVertical(LSG_ScrollBar::Unit); break;
+			case SDLK_PAGEUP:   menu->OnScrollVertical(-LSG_ScrollBar::UnitPage); break;
+			case SDLK_PAGEDOWN: menu->OnScrollVertical(LSG_ScrollBar::UnitPage); break;
+			default: break;
+		}
 
 		return;
 	}
@@ -165,6 +176,8 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 		enableMouseDown = static_cast<LSG_Slider*>(component)->OnMouseClickThumb(scrolledPosition);
 	else if (component->IsList())
 		enableMouseDown = static_cast<LSG_List*>(component)->OnScrollMouseClick(scrolledPosition);
+	else if (component->IsMenu())
+		enableMouseDown = static_cast<LSG_Menu*>(component)->OnScrollMouseClick(mousePosition);
 	else if (component->IsTable())
 		enableMouseDown = static_cast<LSG_Table*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsTextLabel())
@@ -213,6 +226,8 @@ void LSG_Events::handleMouseLastDownEvent()
 
 	if (LSG_Events::lastComponent->IsList())
 		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseDown(scrolledPosition);
+	else if (LSG_Events::lastComponent->IsMenu())
+		isHandled = static_cast<LSG_Menu*>(LSG_Events::lastComponent)->OnScrollMouseDown(lastPosition);
 	else if (LSG_Events::lastComponent->IsTable())
 		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseDown(scrolledPosition);
 	else if (LSG_Events::lastComponent->IsTextLabel())
@@ -248,6 +263,8 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 		isHandled = static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseMove(scrolledPosition);
 	else if (LSG_Events::lastComponent->IsList())
 		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+	else if (LSG_Events::lastComponent->IsMenu())
+		isHandled = static_cast<LSG_Menu*>(LSG_Events::lastComponent)->OnScrollMouseMove(mousePosition, lastPosition);
 	else if (LSG_Events::lastComponent->IsTable())
 		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 	else if (LSG_Events::lastComponent->IsTextLabel())
@@ -268,6 +285,11 @@ void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 
 	if (!component || !component->enabled)
 		return;
+
+	if (component->IsMenu()) {
+		static_cast<LSG_Menu*>(component)->OnScrollVertical(scroll);
+		return;
+	}
 
 	if (component->IsSlider()) {
 		static_cast<LSG_Slider*>(component)->OnMouseScroll(scroll);
@@ -322,7 +344,7 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			else if (component->IsList())
 				static_cast<LSG_List*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsMenu())
-				static_cast<LSG_Menu*>(component)->OnMouseClick(scrolledPosition);
+				static_cast<LSG_Menu*>(component)->OnMouseClick(mousePosition);
 			else if (component->IsSlider())
 				static_cast<LSG_Slider*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsTable())
@@ -344,6 +366,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseUp();
 		else if (LSG_Events::lastComponent->IsList())
 			static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseUp();
+		else if (LSG_Events::lastComponent->IsMenu())
+			static_cast<LSG_Menu*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsTable())
 			static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsTextLabel())
