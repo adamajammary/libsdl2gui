@@ -7,12 +7,19 @@ LSG_Menu::LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	this->highlightedNavBack   = false;
 	this->isOpen               = false;
 	this->lastTextColor        = {};
+	this->renderTarget         = nullptr;
 	this->subMenu              = this;
 
 	auto padding = LSG_XML::GetAttribute(this->xmlNode, "padding");
 
 	if (padding.empty())
 		this->padding = LSG_Graphics::GetDPIScaled(LSG_Menu::Padding);
+}
+
+LSG_Menu::~LSG_Menu()
+{
+	if (this->renderTarget)
+		SDL_DestroyTexture(this->renderTarget);
 }
 
 void LSG_Menu::Close()
@@ -376,25 +383,20 @@ void LSG_Menu::renderMenu(SDL_Renderer* renderer)
 
 	this->showScrollY = true;
 
-	SDL_Size maxSize     = { menu.w, textureHeight };
-	SDL_Size textureSize = { menu.w, (textureHeight + offsetY) };
+	this->renderMenuContentToTexture(renderer, offsetY, { menu.w, (textureHeight + offsetY) });
 
-	auto clip    = this->getClipWithOffset({ 0, offsetY, menu.w, menu.h }, maxSize);
-	auto texture = this->renderMenuContentToTexture(renderer, offsetY, textureSize);
+	auto clip = this->getClipWithOffset({ 0, offsetY, menu.w, menu.h }, { menu.w, textureHeight });
 
-	SDL_RenderCopy(renderer, texture, &clip, &menu);
+	SDL_RenderCopy(renderer, this->renderTarget, &clip, &menu);
 
-	this->renderScrollBarVertical(renderer, menu, maxSize.height, this->backgroundColor, true);
-
-	SDL_DestroyTexture(texture);
+	this->renderScrollBarVertical(renderer, menu, textureHeight, this->backgroundColor, true);
 }
 
-SDL_Texture* LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize)
+void LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize)
 {
-	auto format  = SDL_GetWindowPixelFormat(SDL_RenderGetWindow(renderer));
-	auto texture = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
+	LSG_Window::InitRenderTarget(&this->renderTarget, textureSize);
 
-	SDL_SetRenderTarget(renderer, texture);
+	SDL_SetRenderTarget(renderer, this->renderTarget);
 
 	SDL_Rect background = {
 		0,
@@ -408,9 +410,7 @@ SDL_Texture* LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int of
 	for (auto child : this->subMenu->GetChildren())
 		child->Render(renderer);
 
-	SDL_SetRenderTarget(renderer, NULL);
-
-	return texture;
+	SDL_SetRenderTarget(renderer, nullptr);
 }
 
 void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu)

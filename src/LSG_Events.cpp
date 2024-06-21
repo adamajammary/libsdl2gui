@@ -260,7 +260,7 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 	bool isHandled = false;
 
 	if (LSG_Events::lastComponent->IsSlider())
-		isHandled = static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseMove(scrolledPosition);
+		isHandled = static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseMove(mousePosition);
 	else if (LSG_Events::lastComponent->IsList())
 		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 	else if (LSG_Events::lastComponent->IsMenu())
@@ -440,7 +440,7 @@ std::vector<SDL_Event> LSG_Events::Handle()
 	}
 
 	if (LSG_Events::lastEvent.type == SDL_MOUSEBUTTONDOWN)
-		LSG_Events::isMouseDown = (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT);
+		LSG_Events::isMouseDown = (SDL_GetMouseState(nullptr, nullptr) == SDL_BUTTON_LEFT);
 
 	return events;
 }

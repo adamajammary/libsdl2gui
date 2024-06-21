@@ -82,6 +82,29 @@ int LSG_Table::GetSortColumn()
 	return (!sortColumn.empty() ? std::atoi(sortColumn.c_str()) : -1);
 }
 
+SDL_Size LSG_Table::GetSize()
+{
+	auto attributes    = this->GetXmlAttributes();
+	auto columnSpacing = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto textureSize   = LSG_Graphics::GetTextureSize(this->textures, LSG_ORIENTATION_HORIZONTAL);
+
+	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
+
+	auto border2x  = (this->border  + this->border);
+	auto padding2x = (this->padding + this->padding);
+
+	textureSize.width  += (padding2x + border2x);
+	textureSize.height += (padding2x + border2x);
+
+	if (attributes.contains("width") && (this->background.w > 0))
+		textureSize.width = this->background.w;
+
+	if (attributes.contains("height") && (this->background.h > 0))
+		textureSize.height = this->background.h;
+
+	return textureSize;
+}
+
 bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || (this->rows.empty() && this->groups.empty()))
@@ -226,19 +249,52 @@ void LSG_Table::removeRow()
 	}
 }
 
-void LSG_Table::Render(SDL_Renderer* renderer)
+void LSG_Table::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
 
+	auto attributes    = this->GetXmlAttributes();
+	auto columnSpacing = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto textureSize   = LSG_Graphics::GetTextureSize(this->textures, LSG_ORIENTATION_HORIZONTAL);
+
+	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
+
+	SDL_Size size = {};
+
+	if (attributes.contains("width") && (this->background.w > 0))
+		size.width = this->background.w;
+
+	if (attributes.contains("height") && (this->background.h > 0))
+		size.height = this->background.h;
+
+	auto border2x  = (this->border  + this->border);
+	auto padding2x = (this->padding + this->padding);
+
+	this->background.x = position.x;
+	this->background.y = position.y;
+	this->background.w = (size.width  > 0 ? size.width  : (textureSize.width  + padding2x + border2x));
+	this->background.h = (size.height > 0 ? size.height : (textureSize.height + padding2x + border2x));
+
+	this->render(renderer);
+}
+
+void LSG_Table::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_Table::render(SDL_Renderer* renderer)
+{
 	LSG_Component::Render(renderer);
 
 	if (this->textures.empty())
 		return;
 
 	auto alignment       = this->getAlignment();
-	auto background      = this->getFillArea(this->background, this->border);
 	auto columnSpacing   = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto fillArea        = this->getFillArea(this->background, this->border);
 	auto rowHeight       = this->getRowHeight();
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	bool showPagination  = this->showPagination();
@@ -247,30 +303,30 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 
 	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
 
-	if (background.h < scrollBarSize2x)
+	if (fillArea.h < scrollBarSize2x)
 		return;
 
 	if (showPagination)
-		background.h -= LSG_ScrollBar::GetSize();
+		fillArea.h -= LSG_ScrollBar::GetSize();
 
-	this->renderScrollableTextures(renderer, background, alignment, this->textures, textureSize, columnSpacing);
+	this->renderScrollableTextures(renderer, fillArea, this->border, alignment, this->textures, textureSize, columnSpacing);
 
 	if (showRowBorder)
-		this->renderRowBorder(renderer, background, rowHeight);
+		this->renderRowBorder(renderer, fillArea, rowHeight);
 
-	this->renderHighlightSelection(renderer, background, rowHeight);
+	this->renderHighlightSelection(renderer, fillArea, rowHeight);
 
 	if (!this->header.empty())
-		this->renderHeader(renderer, background, alignment, textureSize, columnSpacing, rowHeight);
+		this->renderHeader(renderer, fillArea, alignment, textureSize, columnSpacing, rowHeight);
 
 	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, background, textureSize.width, this->backgroundColor, this->highlighted);
+		this->renderScrollBarHorizontal(renderer, fillArea, textureSize.width, this->backgroundColor, this->highlighted);
 
 	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer, background, textureSize.height, this->backgroundColor, this->highlighted);
+		this->renderScrollBarVertical(renderer, fillArea, textureSize.height, this->backgroundColor, this->highlighted);
 
 	if (showPagination)
-		this->renderPagination(renderer, background, this->backgroundColor);
+		this->renderPagination(renderer, fillArea, this->backgroundColor);
 }
 
 void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, const SDL_Size& size, int spacing, int rowHeight)

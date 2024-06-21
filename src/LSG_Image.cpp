@@ -19,23 +19,68 @@ LSG_Image::LSG_Image(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 		this->size.height = LSG_Graphics::GetDPIScaled(std::atoi(height.c_str()));
 }
 
-void LSG_Image::Render(SDL_Renderer* renderer)
+SDL_Size LSG_Image::GetSize()
+{
+	auto attributes  = this->GetXmlAttributes();
+	auto textureSize = this->getTextureSize();
+
+	auto border2x  = (this->border  + this->border);
+	auto padding2x = (this->padding + this->padding);
+
+	textureSize.width  += (padding2x + border2x);
+	textureSize.height += (padding2x + border2x);
+
+	if (attributes.contains("width") && (this->background.w > 0))
+		textureSize.width = this->background.w;
+
+	if (attributes.contains("height") && (this->background.h > 0))
+		textureSize.height = this->background.h;
+
+	return textureSize;
+}
+
+SDL_Size LSG_Image::GetTextureSize()
+{
+	return this->getTextureSize();
+}
+
+void LSG_Image::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
 
+	auto border2x    = (this->border  + this->border);
+	auto padding2x   = (this->padding + this->padding);
+	auto textureSize = this->getTextureSize();
+
+	this->background.x = position.x;
+	this->background.y = position.y;
+	this->background.w = ((this->size.width  > 0 ? this->size.width  : textureSize.width)  + padding2x + border2x);
+	this->background.h = ((this->size.height > 0 ? this->size.height : textureSize.height) + padding2x + border2x);
+
+	this->render(renderer);
+}
+
+void LSG_Image::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_Image::render(SDL_Renderer* renderer)
+{
 	LSG_Component::Render(renderer);
 
 	if (!this->texture)
 		return;
 
-	auto background = this->getArea();
+	auto fillArea = this->getArea(this->background);
 
 	if (this->size.width == 0)
-		this->size.width = background.w;
+		this->size.width = fillArea.w;
 
 	if (this->size.height == 0)
-		this->size.height = background.h;
+		this->size.height = fillArea.h;
 
 	auto textureSize    = this->getTextureSize();
 	auto downscaledSize = LSG_Graphics::GetDownscaledSize(textureSize, this->size);
@@ -46,14 +91,14 @@ void LSG_Image::Render(SDL_Renderer* renderer)
 	}
 
 	if (this->fill) {
-		SDL_RenderCopy(renderer, this->texture, nullptr, &background);
+		SDL_RenderCopy(renderer, this->texture, nullptr, &fillArea);
 		return;
 	}
 
-	auto      destination = LSG_Graphics::GetDestinationAligned(background, textureSize, this->getAlignment());
-	SDL_Point center      = { (destination.w / 2), (destination.h / 2) };
+	auto      dest   = LSG_Graphics::GetDestinationAligned(fillArea, textureSize, this->getAlignment());
+	SDL_Point center = { (dest.w / 2), (dest.h / 2) };
 
-	SDL_RenderCopyEx(renderer, this->texture, nullptr, &destination, this->orientation.rotation, &center, this->orientation.flip);
+	SDL_RenderCopyEx(renderer, this->texture, nullptr, &dest, this->orientation.rotation, &center, this->orientation.flip);
 }
 
 void LSG_Image::SetImage(const std::string& file, bool fill)

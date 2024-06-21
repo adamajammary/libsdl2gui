@@ -87,7 +87,7 @@ SDL_Renderer* init(const std::string& title, int width, int height)
 	#elif defined _linux
 		SDL_setenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN", "0", 1);
 
-		if ((std::getenv("DISPLAY") == NULL) || (strlen(std::getenv("DISPLAY")) == 0))
+		if (!std::getenv("DISPLAY"))
 			SDL_setenv("DISPLAY", ":0", 1);
 	#elif defined _windows
 		#if (WINVER >= 0x0605)

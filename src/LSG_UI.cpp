@@ -114,6 +114,64 @@ void LSG_UI::Close()
 	LibXml::xmlCleanupParser();
 }
 
+SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& position, const LSG_UMapStrStr& attributes, const LSG_UmapStrSize& sizes, int size, const SDL_Size& maxSize, LSG_Component* component, LSG_Component* parent)
+{
+	if (attributes.empty() || !component || !sizes.contains(component->GetID()) || !parent)
+		return {};
+
+	auto orientation = (attributes.contains("orientation") ? attributes.at("orientation") : "");
+	auto halign      = (attributes.contains("halign") ? attributes.at("halign") : "");
+	auto spacing     = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes.at("spacing").c_str())) : 0);
+	auto valign      = (attributes.contains("valign") ? attributes.at("valign") : "");
+
+	auto border2x      = (parent->border  + parent->border);
+	auto childMargin4x = (component->margin * 4);
+	bool isVertical    = (orientation == "vertical");
+	auto padding2x     = (parent->padding + parent->padding);
+	auto totalSpacing  = (spacing * ((int)sizes.size() - 1));
+
+	SDL_Point alignedPosition = position;
+
+	if (isVertical)
+	{
+		auto remainingHeight = std::max((maxSize.height - size - totalSpacing - padding2x - border2x - childMargin4x), 0);
+
+		if (valign == "middle")
+			alignedPosition.y += (remainingHeight / 2);
+		else if (valign == "bottom")
+			alignedPosition.y += remainingHeight;
+
+		auto remainingWidth = std::max((maxSize.width - sizes.at(component->GetID()).width - padding2x - border2x), 0);
+
+		if (halign == "center")
+			alignedPosition.x += (remainingWidth / 2);
+		else if (halign == "right")
+			alignedPosition.x += (remainingWidth - component->margin);
+		else
+			alignedPosition.x += component->margin;
+	}
+	else
+	{
+		auto remainingWidth = std::max((maxSize.width - size - totalSpacing - padding2x - border2x - childMargin4x), 0);
+
+		if (halign == "center")
+			alignedPosition.x += (remainingWidth / 2);
+		else if (halign == "right")
+			alignedPosition.x += remainingWidth;
+
+		auto remainingHeight = std::max((maxSize.height  - sizes.at(component->GetID()).height - padding2x - border2x), 0);
+
+		if (valign == "middle")
+			alignedPosition.y += (remainingHeight / 2);
+		else if (valign == "bottom")
+			alignedPosition.y += (remainingHeight - component->margin);
+		else
+			alignedPosition.y += component->margin;
+	}
+
+	return alignedPosition;
+}
+
 SDL_Rect LSG_UI::GetBackgroundArea()
 {
 	auto windowSize = LSG_Window::GetSize();
@@ -190,7 +248,7 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 		if ((component->IsMenuItem() || component->IsSubMenu()) && static_cast<LSG_MenuItem*>(component)->IsClosed())
 			continue;
 
-		auto background = LSG_UI::GetScrolledBackground(component->background, component->GetParent());
+		auto background = LSG_UI::GetScrolledBackground(component, component->GetParent());
 
 		if ((component->GetLayer() > modalLayer) && SDL_PointInRect(&mousePosition, &background))
 			return component;
@@ -199,9 +257,12 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 	return nullptr;
 }
 
-SDL_Rect LSG_UI::GetScrolledBackground(const SDL_Rect& background, LSG_Component* parent)
+SDL_Rect LSG_UI::GetScrolledBackground(LSG_Component* component, LSG_Component* parent)
 {
-	SDL_Rect scrolled = background;
+	if (!component)
+		return {};
+
+	SDL_Rect scrolled = component->background;
 
 	if (parent && parent->IsPanel())
 	{
@@ -271,7 +332,7 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			continue;
 		}
 
-		auto background = LSG_UI::GetScrolledBackground(component->background, component->GetParent());
+		auto background = LSG_UI::GetScrolledBackground(component, component->GetParent());
 
 		component->highlighted = SDL_PointInRect(&mousePosition, &background);
 	}
@@ -463,9 +524,9 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	auto maxX       = (component->background.w - border2x - padding2x);
 	auto maxY       = (component->background.h - border2x - padding2x);
 
-	if (scrollable == "true")
+	if (component->IsPanel() && (scrollable == "true"))
 	{
-		auto maxSize = static_cast<LSG_Panel*>(component)->GetTextureSize(component->background);
+		auto maxSize = static_cast<LSG_Panel*>(component)->GetSize();
 
 		maxX = (maxSize.width  - border2x - padding2x);
 		maxY = (maxSize.height - border2x - padding2x);
@@ -597,6 +658,7 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	}
 
 	auto attributes  = component->GetXmlAttributes();
+	auto scrollable  = (attributes.contains("scrollable") ? attributes["scrollable"] : "");
 	auto spacing     = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
 	auto border2x    = (component->border  * 2);
 	auto padding2x   = (component->padding * 2);
@@ -604,6 +666,14 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	auto sizeY       = (component->background.h - border2x - padding2x);
 	auto componentsX = 0;
 	auto componentsY = 0;
+
+	if (component->IsPanel() && (scrollable == "true"))
+	{
+		auto maxSize = static_cast<LSG_Panel*>(component)->GetSize();
+
+		sizeX = (maxSize.width  - border2x - padding2x);
+		sizeY = (maxSize.height - border2x - padding2x);
+	}
 
 	for (size_t i = 0; i < children.size(); i++)
 	{
@@ -617,7 +687,6 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 		auto height        = (childAttribs.contains("height") ? childAttribs["height"] : "");
 		auto childMargin2x = (child->margin * 2);
 		bool addSpacing    = (i > 0 && children.size() > 1);
-
 
 		// VERTICAL
 		if (component->IsVertical())

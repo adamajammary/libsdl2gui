@@ -33,12 +33,12 @@
       <panel height="52" spacing="10" font-size="18">
         <button id="ButtonIdColorThemeDark" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
           <image file="img/dark-512.png" width="32" height="32" halign="right" />
-          <text valign="middle">Dark</text>
+          <text>Dark</text>
         </button>
 
         <button id="ButtonIdColorThemeLight" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
           <image file="img/light-512.png" width="32" height="32" halign="right" />
-          <text valign="middle">Light</text>
+          <text>Light</text>
         </button>
       </panel>
     </panel>

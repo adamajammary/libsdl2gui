@@ -22,10 +22,29 @@ double LSG_ProgressBar::GetValue() const
 	return this->value;
 }
 
-void LSG_ProgressBar::Render(SDL_Renderer* renderer)
+void LSG_ProgressBar::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
+
+	this->background.x = position.x;
+	this->background.y = position.y;
+
+	this->render(renderer);
+}
+
+void LSG_ProgressBar::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_ProgressBar::render(SDL_Renderer* renderer)
+{
+	auto minHeight = LSG_Graphics::GetDPIScaled(LSG_ProgressBar::MinHeight);
+
+	if (this->background.h < minHeight)
+		this->background.h = minHeight;
 
 	auto backgroundArea = SDL_Rect(this->background);
 	auto fillArea       = this->getFillArea(backgroundArea, this->border);

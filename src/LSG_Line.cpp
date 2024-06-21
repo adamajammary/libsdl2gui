@@ -14,31 +14,41 @@ LSG_Line::LSG_Line(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	}
 }
 
-void LSG_Line::Render(SDL_Renderer* renderer)
+void LSG_Line::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
 
-	auto attributes = LSG_XML::GetAttributes(xmlNode);
+	this->background.x = position.x;
+	this->background.y = position.y;
 
+	this->render(renderer);
+}
+
+void LSG_Line::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_Line::render(SDL_Renderer* renderer)
+{
+	auto attributes  = LSG_XML::GetAttributes(xmlNode);
 	auto color       = (attributes.contains("color") ? LSG_Graphics::ToSdlColor(attributes["color"]) : LSG_Graphics::GetThumbColor(this->backgroundColor));
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
 
 	SDL_SetRenderDrawBlendMode(renderer, (color.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	SDL_SetRenderDrawColor(renderer,     color.r, color.g, color.b, color.a);
 
 	LSG_Alignment alignment = { LSG_HALIGN_CENTER, LSG_VALIGN_MIDDLE };
 	
-	if (orientation == "vertical")
-	{
-		auto destination = LSG_Graphics::GetDestinationAligned(this->background, { 1, this->background.h }, alignment);
+	if (orientation == "vertical") {
+		auto dest = LSG_Graphics::GetDestinationAligned(this->background, { 1, this->background.h }, alignment);
 
-		SDL_RenderDrawLine(renderer, destination.x, destination.y, destination.x, (destination.y + destination.h - 1));
-	}
-	else
-	{
-		auto destination = LSG_Graphics::GetDestinationAligned(this->background, { this->background.w, 1 }, alignment);
+		SDL_RenderDrawLine(renderer, dest.x, dest.y, dest.x, (dest.y + dest.h - 1));
+	} else {
+		auto dest = LSG_Graphics::GetDestinationAligned(this->background, { this->background.w, 1 }, alignment);
 
-		SDL_RenderDrawLine(renderer, destination.x, destination.y, (destination.x + destination.w - 1), destination.y);
+		SDL_RenderDrawLine(renderer, dest.x, dest.y, (dest.x + dest.w - 1), dest.y);
 	}
 }

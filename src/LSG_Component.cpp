@@ -14,7 +14,6 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	this->parent          = parent;
 	this->textColor       = {};
 	this->texture         = nullptr;
-	this->visible         = true;
 	this->xmlNode         = xmlNode;
 	this->xmlNodeName     = xmlNodeName;
 
@@ -23,10 +22,12 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	auto attributes  = LSG_XML::GetAttributes(this->xmlNode);
 	auto enabled     = (attributes.contains("enabled")     ? attributes["enabled"]     : "true");
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
+	auto visible     = (attributes.contains("visible")     ? attributes["visible"]     : "true");
 
 	this->enabled     = (enabled == "true");
 	this->fontStyle   = this->getFontStyle();
 	this->orientation = orientation;
+	this->visible     = (visible == "true");
 
 	if (this->parent)
 		this->parent->children.push_back(this);
@@ -115,13 +116,13 @@ LSG_Alignment LSG_Component::getAlignment()
 	return alignment;
 }
 
-SDL_Rect LSG_Component::getArea()
+SDL_Rect LSG_Component::getArea(const SDL_Rect& background)
 {
-	SDL_Rect area = this->background;
+	SDL_Rect area = background;
 
 	if (this->border > 0)
 	{
-		auto border2x = (this->border * 2);
+		auto border2x = (this->border + this->border);
 
 		area.x += this->border;
 		area.y += this->border;
@@ -131,7 +132,7 @@ SDL_Rect LSG_Component::getArea()
 
 	if (this->parent && (this->parent->padding > 0))
 	{
-		auto padding2x = (this->parent->padding * 2);
+		auto padding2x = (this->parent->padding + this->parent->padding);
 
 		area.x += this->parent->padding;
 		area.y += this->parent->padding;
@@ -160,13 +161,13 @@ LSG_Components LSG_Component::GetChildren()
 	return this->children;
 }
 
-SDL_Rect LSG_Component::getFillArea(const SDL_Rect& area, int border)
+SDL_Rect LSG_Component::getFillArea(const SDL_Rect& background, int border)
 {
-	SDL_Rect fillArea = SDL_Rect(area);
+	SDL_Rect fillArea = background;
 
 	if (border > 0)
 	{
-		auto border2x = (border * 2);
+		auto border2x = (border + border);
 
 		fillArea.x += border;
 		fillArea.y += border;
@@ -447,9 +448,9 @@ void LSG_Component::renderBorder(SDL_Renderer* renderer, int border, const SDL_C
 void LSG_Component::renderDisabled(SDL_Renderer* renderer)
 {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 64);
+	SDL_SetRenderDrawColor(renderer,     0, 0, 0, 64);
 
-	SDL_RenderFillRect(renderer, &this->background);
+	SDL_RenderFillRect(renderer, &background);
 }
 
 void LSG_Component::renderFill(SDL_Renderer* renderer)

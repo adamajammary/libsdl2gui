@@ -7,7 +7,7 @@ class LSG_Menu : public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
 {
 public:
 	LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
-	~LSG_Menu() {}
+	~LSG_Menu();
 
 public:
 	static const int LayerOffset = 1000000000;
@@ -20,6 +20,7 @@ private:
 	bool           highlightedIconClose;
 	bool           highlightedNavBack;
 	bool           isOpen;
+	SDL_Texture*   renderTarget;
 	LSG_Component* subMenu;
 
 public:
@@ -51,7 +52,7 @@ private:
 	void                  renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu);
 	void                  renderIconOpen(SDL_Renderer* renderer);
 	void                  renderMenu(SDL_Renderer* renderer);
-	SDL_Texture*          renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize);
+	void                  renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize);
 	void                  renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu);
 	void                  renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu);
 	virtual void          sendEvent(LSG_EventType type) override;

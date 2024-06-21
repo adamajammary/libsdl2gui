@@ -63,13 +63,13 @@ protected:
 	SDL_Rect getClipWithOffset(const SDL_Rect& clip, const SDL_Size& textureSize);
 	bool     onScrollSlideHorizontal(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
 	bool     onScrollSlideVertical(const SDL_Point&   mousePosition, const SDL_Point& lastEventPosition);
-	void     renderScrollableTexture(SDL_Renderer*  renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
-	void     renderScrollableTextures(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, const std::vector<SDL_Texture*>& textures, const SDL_Size& size, int spacing);
+	void     renderScrollableTexture(SDL_Renderer*  renderer, const SDL_Rect& fillArea, int border, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
+	void     renderScrollableTextures(SDL_Renderer* renderer, const SDL_Rect& fillArea, int border, const LSG_Alignment& alignment, const std::vector<SDL_Texture*>& textures, const SDL_Size& size, int spacing);
 	void     renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_Rect& background, int maxWidth,  const SDL_Color& backgroundColor, bool highlighted);
 	void     renderScrollBarVertical(SDL_Renderer* renderer,   const SDL_Rect& background, int maxHeight, const SDL_Color& backgroundColor, bool highlighted);
 
 private:
-	SDL_Rect getScrollableBackground(const SDL_Rect& background, const SDL_Size& textureSize, int scrollBarSize);
+	SDL_Rect getScrollableBackground(const SDL_Rect& fillArea, int border, const SDL_Size& textureSize);
 	SDL_Rect getScrollableClip(const SDL_Rect& background, const SDL_Size& textureSize);
 };
 

@@ -32,7 +32,7 @@ SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size
 
 		if (size.height > newSize.height)
 			size.height = (size.height >> 1);
-	} while ((size.width > newSize.width) || (size.height > newSize.height));
+	} while (((size.width > newSize.width) || (size.height > newSize.height)) && (size.width > 0) && (size.height > 0));
 
 	return size;
 }
@@ -258,7 +258,7 @@ SDL_Color LSG_Graphics::GetOffsetColor(const SDL_Color& color, int offset)
  */
 SDL_Texture* LSG_Graphics::GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize)
 {
-	if (imageFile.empty())
+	if (imageFile.empty() || (newSize.width < 1) || (newSize.height < 1))
 		return nullptr;
 
 	auto filePath = LSG_Text::GetFullPath(imageFile);

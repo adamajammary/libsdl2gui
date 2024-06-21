@@ -51,6 +51,26 @@ LSG_SortOrder LSG_List::GetSortOrder()
 	return LSG_ConstSortOrder::ToEnum(this->GetXmlAttribute("sort"));
 }
 
+SDL_Size LSG_List::GetSize()
+{
+	auto attributes  = this->GetXmlAttributes();
+	auto textureSize = this->getTextureSize();
+
+	auto border2x  = (this->border  + this->border);
+	auto padding2x = (this->padding + this->padding);
+
+	textureSize.width  += (padding2x + border2x);
+	textureSize.height += (padding2x + border2x);
+
+	if (attributes.contains("width") && (this->background.w > 0))
+		textureSize.width = this->background.w;
+
+	if (attributes.contains("height") && (this->background.h > 0))
+		textureSize.height = this->background.h;
+
+	return textureSize;
+}
+
 bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->items.empty())
@@ -120,44 +140,74 @@ void LSG_List::RemovePageItem(int row)
 	this->removeItem(rowIndex, this->getLastRow());
 }
 
-void LSG_List::Render(SDL_Renderer* renderer)
+void LSG_List::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
 
+	auto attributes  = this->GetXmlAttributes();
+	auto textureSize = this->getTextureSize();
+
+	SDL_Size size = {};
+
+	if (attributes.contains("width") && (this->background.w > 0))
+		size.width = this->background.w;
+
+	if (attributes.contains("height") && (this->background.h > 0))
+		size.height = this->background.h;
+
+	auto border2x  = (this->border  + this->border);
+	auto padding2x = (this->padding + this->padding);
+
+	this->background.x = position.x;
+	this->background.y = position.y;
+	this->background.w = (size.width  > 0 ? size.width  : (textureSize.width  + padding2x + border2x));
+	this->background.h = (size.height > 0 ? size.height : (textureSize.height + padding2x + border2x));
+
+	this->render(renderer);
+}
+
+void LSG_List::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_List::render(SDL_Renderer* renderer)
+{
 	LSG_Component::Render(renderer);
 
 	if (!this->texture)
 		return;
 
-	auto background      = this->getFillArea(this->background, this->border);
+	auto fillArea        = this->getFillArea(this->background, this->border);
 	auto rowHeight       = this->getRowHeight();
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	bool showPagination  = this->showPagination();
 	bool showRowBorder   = (this->GetXmlAttribute("row-border") == "true");
 	auto textureSize     = this->getTextureSize();
 
-	if (background.h < scrollBarSize2x)
+	if (fillArea.h < scrollBarSize2x)
 		return;
 
 	if (showPagination)
-		background.h -= LSG_ScrollBar::GetSize();
+		fillArea.h -= LSG_ScrollBar::GetSize();
 
-	this->renderScrollableTexture(renderer, background, this->getAlignment(), this->texture, textureSize);
+	this->renderScrollableTexture(renderer, fillArea, this->border, this->getAlignment(), this->texture, textureSize);
 
 	if (showRowBorder)
-		this->renderRowBorder(renderer, background, rowHeight);
+		this->renderRowBorder(renderer, fillArea, rowHeight);
 
-	this->renderHighlightSelection(renderer, background, rowHeight);
+	this->renderHighlightSelection(renderer, fillArea, rowHeight);
 
 	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, background, textureSize.width, this->backgroundColor, this->highlighted);
+		this->renderScrollBarHorizontal(renderer, fillArea, textureSize.width, this->backgroundColor, this->highlighted);
 
 	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer, background, textureSize.height, this->backgroundColor, this->highlighted);
+		this->renderScrollBarVertical(renderer, fillArea, textureSize.height, this->backgroundColor, this->highlighted);
 
 	if (showPagination)
-		this->renderPagination(renderer, background, this->backgroundColor);
+		this->renderPagination(renderer, fillArea, this->backgroundColor);
 }
 
 void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)

@@ -22,9 +22,11 @@ public:
 	void           Activate(const SDL_Point& mousePosition);
 	int            GetSelectedRow() const;
 	LSG_SortOrder  GetSortOrder();
+	SDL_Size       GetSize();
 	virtual bool   OnMouseClick(const SDL_Point& mousePosition) override;
 	void           RemoveItem(int row);
 	void           RemovePageItem(int row);
+	void           Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void   Render(SDL_Renderer* renderer) override;
 	bool           Select(int row);
 	void           SelectFirstRow();
@@ -47,6 +49,7 @@ protected:
 
 private:
 	void removeItem(int row, int lastRow);
+	void render(SDL_Renderer* renderer);
 	void setItem(int row, int lastRow, const std::string& item);
 	void setItems(bool sort = true);
 	void sort();

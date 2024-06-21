@@ -101,13 +101,37 @@ void LSG_Slider::OnMouseUp()
 	this->isSlideActive = false;
 }
 
-void LSG_Slider::Render(SDL_Renderer* renderer)
+void LSG_Slider::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
 
+	this->background.x = position.x;
+	this->background.y = position.y;
+
+	this->render(renderer);
+}
+
+void LSG_Slider::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_Slider::render(SDL_Renderer* renderer)
+{
+	if (!this->visible)
+		return;
+
+	auto minHeight  = LSG_Graphics::GetDPIScaled(LSG_Slider::MinHeight);
+	bool isVertical = this->IsVertical();
+
+	if (isVertical)
+		this->background.w = std::max(minHeight, this->background.w);
+	else
+		this->background.h = std::max(minHeight, this->background.h);
+
 	auto backgroundArea = SDL_Rect(this->background);
-	bool isVertical     = this->IsVertical();
 	auto thumbWidth     = std::max(this->thumbWidthDefault, this->thumbWidth);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
@@ -199,7 +223,7 @@ void LSG_Slider::SetColors()
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)
 {
-	auto background = LSG_UI::GetScrolledBackground(this->background, this->parent);
+	auto background = LSG_UI::GetScrolledBackground(this, this->parent);
 
 	if (this->IsVertical())
 		this->value = (double)((double)(background.y + background.h - mousePosition.y) / (double)background.h);

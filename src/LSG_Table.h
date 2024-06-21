@@ -19,11 +19,13 @@ public:
 	void         AddRow(const LSG_Strings& row);
 	void         AddRow(LibXml::xmlNode* node);
 	int          GetSortColumn();
+	SDL_Size     GetSize();
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	void         RemoveGroup(const std::string& group);
 	void         RemoveHeader();
 	void         RemoveRow(int row);
 	void         RemovePageRow(int row);
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetGroup(const LSG_TableGroup& group);
 	void         SetGroups(const LSG_TableGroups& groups);
@@ -40,6 +42,7 @@ private:
 	int          getColumnCount();
 	void         removeRow(int row, int start, int end);
 	void         removeRow();
+	void         render(SDL_Renderer* renderer);
 	void         renderHeader(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, const SDL_Size& size, int spacing, int rowHeight);
 	virtual void reset() override;
 	void         setRow(int row, int start, int end, const LSG_Strings& columns);

@@ -22,12 +22,13 @@ private:
 public:
     static LSG_Component*  AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent);
     static void            Close();
+    static SDL_Point       GetAlignedPosition(const SDL_Point& position, const LSG_UMapStrStr& attributes, const LSG_UmapStrSize& sizes, int size, const SDL_Size& maxSize, LSG_Component* component, LSG_Component* parent);
     static SDL_Rect        GetBackgroundArea();
     static std::string     GetColorFromTheme(const std::string& componentID, const std::string& xmlAttribute);
     static std::string     GetColorTheme();
     static LSG_Component*  GetComponent(const std::string& id);
     static LSG_Component*  GetComponent(const SDL_Point& mousePosition, bool skipModalChildren = false);
-    static SDL_Rect        GetScrolledBackground(const SDL_Rect& background, LSG_Component* parent);
+    static SDL_Rect        GetScrolledBackground(LSG_Component* component, LSG_Component* parent);
     static SDL_Point       GetScrolledPosition(const SDL_Point& position, LSG_Component* parent);
     static LibXml::xmlDoc* GetXmlDocument();
     static void            HighlightComponents(const SDL_Point& mousePosition);

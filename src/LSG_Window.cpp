@@ -52,8 +52,14 @@ SDL_Point LSG_Window::GetPosition()
 
 SDL_Size LSG_Window::GetSize()
 {
+	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
+
+	SDL_SetRenderTarget(LSG_Window::renderer, nullptr);
+
 	SDL_Size size = {};
 	SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
+
+	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
 	return size;
 }
@@ -76,6 +82,24 @@ SDL_FPoint LSG_Window::GetSizeScale()
 std::string LSG_Window::GetTitle()
 {
 	return SDL_GetWindowTitle(LSG_Window::window);
+}
+
+void LSG_Window::InitRenderTarget(SDL_Texture** renderTarget, const SDL_Size& textureSize)
+{
+	if (*renderTarget)
+	{
+		auto targetSize = LSG_Graphics::GetTextureSize(*renderTarget);
+
+		if ((textureSize.width != targetSize.width) || (textureSize.height != targetSize.height)) {
+			SDL_DestroyTexture(*renderTarget);
+			*renderTarget = nullptr;
+		}
+	}
+
+	if (!*renderTarget) {
+		auto format   = SDL_GetWindowPixelFormat(LSG_Window::window);
+		*renderTarget = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
+	}
 }
 
 bool LSG_Window::IsMaximized()
