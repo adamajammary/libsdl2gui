@@ -223,12 +223,10 @@ void LSG_Slider::SetColors()
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)
 {
-	auto background = LSG_UI::GetScrolledBackground(this, this->parent);
-
 	if (this->IsVertical())
-		this->value = (double)((double)(background.y + background.h - mousePosition.y) / (double)background.h);
+		this->value = (double)((double)(this->background.y + this->background.h - mousePosition.y) / (double)this->background.h);
 	else
-		this->value = (double)((double)(mousePosition.x - background.x) / (double)background.w);
+		this->value = (double)((double)(mousePosition.x - this->background.x) / (double)this->background.w);
 
 	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
 }

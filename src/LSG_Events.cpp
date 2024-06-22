@@ -169,7 +169,7 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 	LSG_Events::lastClickTime  = SDL_GetTicks();
 	LSG_Events::lastComponent  = component;
 
-	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component->GetParent());
+	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component);
 	bool enableMouseDown  = false;
 
 	if (component->IsSlider())
@@ -215,7 +215,7 @@ void LSG_Events::handleMouseLastDownEvent()
 	auto parent  = LSG_Events::lastComponent->GetParent();
 
 	auto lastPosition     = LSG_Events::getMousePosition(LSG_Events::lastEvent);
-	auto scrolledPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent->GetParent());
+	auto scrolledPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent);
 
 	if (LSG_Events::lastComponent->IsButton()) {
 		LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, LSG_Events::lastComponent->GetID());
@@ -249,18 +249,15 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 	if (!LSG_Events::lastComponent)
 		return;
 
-	bool isPanel = LSG_Events::lastComponent->IsPanel();
-	auto parent  = LSG_Events::lastComponent->GetParent();
-
-	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, parent);
+	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, LSG_Events::lastComponent);
 
 	auto lastPosition         = LSG_Events::getMousePosition(LSG_Events::lastEvent);
-	auto scrolledLastPosition = LSG_UI::GetScrolledPosition(lastPosition, parent);
+	auto scrolledLastPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent);
 
 	bool isHandled = false;
 
 	if (LSG_Events::lastComponent->IsSlider())
-		isHandled = static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseMove(mousePosition);
+		isHandled = static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseMove(scrolledPosition);
 	else if (LSG_Events::lastComponent->IsList())
 		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 	else if (LSG_Events::lastComponent->IsMenu())
@@ -269,6 +266,9 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 	else if (LSG_Events::lastComponent->IsTextLabel())
 		isHandled = static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+
+	bool isPanel = LSG_Events::lastComponent->IsPanel();
+	auto parent  = LSG_Events::lastComponent->GetParent();
 
 	if (!isHandled && (isPanel || (parent && parent->IsPanel())))
 		static_cast<LSG_Panel*>(isPanel ? LSG_Events::lastComponent : parent)->OnScrollMouseMove(mousePosition, lastPosition);
@@ -333,7 +333,7 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			bool isDoubleClick = (timeSinceLastClick2 < LSG_ConstClickTime::DoubleClick);
 			bool isRightClick  = (timeSinceLastClick >= LSG_ConstClickTime::RightClick);
 
-			auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component->GetParent());
+			auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component);
 
 			if ((event.type == SDL_FINGERUP) && isRightClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_RIGHT_CLICKED, component->GetID());
@@ -356,11 +356,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 
 	if (LSG_Events::lastComponent)
 	{
-		bool isPanel = LSG_Events::lastComponent->IsPanel();
-		auto parent  = LSG_Events::lastComponent->GetParent();
-
 		auto lastPosition     = LSG_Events::getMousePosition(LSG_Events::lastEvent);
-		auto scrolledPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent->GetParent());
+		auto scrolledPosition = LSG_UI::GetScrolledPosition(lastPosition, LSG_Events::lastComponent);
 
 		if (LSG_Events::lastComponent->IsSlider())
 			static_cast<LSG_Slider*>(LSG_Events::lastComponent)->OnMouseUp();
@@ -374,6 +371,9 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsButton())
 			static_cast<LSG_Button*>(LSG_Events::lastComponent)->OnMouseClick(scrolledPosition);
+
+		bool isPanel = LSG_Events::lastComponent->IsPanel();
+		auto parent  = LSG_Events::lastComponent->GetParent();
 
 		if (isPanel || (parent && parent->IsPanel()))
 			static_cast<LSG_Panel*>(isPanel ? LSG_Events::lastComponent : parent)->OnScrollMouseUp();

@@ -248,7 +248,7 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 		if ((component->IsMenuItem() || component->IsSubMenu()) && static_cast<LSG_MenuItem*>(component)->IsClosed())
 			continue;
 
-		auto background = LSG_UI::GetScrolledBackground(component, component->GetParent());
+		auto background = LSG_UI::GetScrolledBackground(component);
 
 		if ((component->GetLayer() > modalLayer) && SDL_PointInRect(&mousePosition, &background))
 			return component;
@@ -257,37 +257,59 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 	return nullptr;
 }
 
-SDL_Rect LSG_UI::GetScrolledBackground(LSG_Component* component, LSG_Component* parent)
+SDL_Rect LSG_UI::GetScrolledBackground(LSG_Component* component)
 {
 	if (!component)
-		return {};
+		return { -1, -1 };
 
-	SDL_Rect scrolled = component->background;
+	auto parent = component->GetParent();
 
 	if (parent && parent->IsPanel())
 	{
 		auto panel = static_cast<LSG_Panel*>(parent);
 
-		scrolled.x -= panel->GetScrollX();
-		scrolled.y -= panel->GetScrollY();
+		if (!panel->IsScroll())
+			return component->background;
+
+		SDL_Rect scrolledBackground = {
+			(component->background.x + 0 + parent->background.x + parent->margin - parent->padding - panel->GetScrollX()),
+			(component->background.y + 0 + parent->background.y + parent->margin - parent->padding - panel->GetScrollY()),
+			component->background.w,
+			component->background.h
+		};
+
+		if (!SDL_HasIntersection(&scrolledBackground, &parent->background))
+			return { -1, -1 };
+
+		return scrolledBackground;
 	}
 
-	return scrolled;
+	return component->background;
 }
 
-SDL_Point LSG_UI::GetScrolledPosition(const SDL_Point& position, LSG_Component* parent)
+SDL_Point LSG_UI::GetScrolledPosition(const SDL_Point& mousePosition, LSG_Component* component)
 {
-	SDL_Point scrolled = position;
+	if (!component)
+		return { -1, -1 };
+
+	auto parent = component->GetParent();
 
 	if (parent && parent->IsPanel())
 	{
 		auto panel = static_cast<LSG_Panel*>(parent);
 
-		scrolled.x += panel->GetScrollX();
-		scrolled.y += panel->GetScrollY();
+		if (!panel->IsScroll())
+			return mousePosition;
+
+		SDL_Point scrolledPosition = {
+			(mousePosition.x - parent->background.x - parent->margin + parent->padding + panel->GetScrollX()),
+			(mousePosition.y - parent->background.y - parent->margin + parent->padding + panel->GetScrollY())
+		};
+
+		return scrolledPosition;
 	}
 
-	return scrolled;
+	return mousePosition;
 }
 
 LibXml::xmlDoc* LSG_UI::GetXmlDocument()
@@ -332,7 +354,7 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			continue;
 		}
 
-		auto background = LSG_UI::GetScrolledBackground(component, component->GetParent());
+		auto background = LSG_UI::GetScrolledBackground(component);
 
 		component->highlighted = SDL_PointInRect(&mousePosition, &background);
 	}

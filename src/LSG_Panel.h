@@ -11,15 +11,18 @@ public:
 
 private:
 	SDL_Texture* renderTarget;
+	bool         scrollable;
 
 public:
 	SDL_Size     GetSize();
+	bool         IsScroll() const;
 	virtual void Render(SDL_Renderer* renderer) override;
 
 private:
-	void renderContent(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& textureSize);
-	void renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& size);
-	void renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& textureSize);
+	SDL_Size getSize();
+	void     renderContent(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize);
+	void     renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& maxSize);
+	void     renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize);
 };
 
 #endif

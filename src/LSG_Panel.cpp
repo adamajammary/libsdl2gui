@@ -4,6 +4,7 @@ LSG_Panel::LSG_Panel(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->renderTarget = nullptr;
+	this->scrollable   = false;
 }
 
 LSG_Panel::~LSG_Panel()
@@ -13,6 +14,18 @@ LSG_Panel::~LSG_Panel()
 }
 
 SDL_Size LSG_Panel::GetSize()
+{
+	auto size = this->getSize();
+
+	SDL_Size textureSize = {
+		std::max(this->background.w, size.width),
+		std::max(this->background.h, size.height)
+	};
+
+	return textureSize;
+}
+
+SDL_Size LSG_Panel::getSize()
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
@@ -52,28 +65,36 @@ SDL_Size LSG_Panel::GetSize()
 		visibleChildren++;
 	}
 
-	auto border2x     = (this->border  + this->border);
 	auto padding2x    = (this->padding + this->padding);
 	auto totalSpacing = (spacing * (visibleChildren - 1));
 
 	if (isVertical) {
-		totalSize.height += (totalSpacing + padding2x + border2x);
-		totalSize.width  += (padding2x + border2x);
+		totalSize.height += (totalSpacing + padding2x);
+		totalSize.width  += padding2x;
 	} else {
-		totalSize.width  += (totalSpacing + padding2x + border2x);
-		totalSize.height += (padding2x + border2x);
+		totalSize.width  += (totalSpacing + padding2x);
+		totalSize.height += padding2x;
 	}
 
-	SDL_Size textureSize = {
-		std::max(this->background.w, totalSize.width),
-		std::max(this->background.h, totalSize.height)
-	};
+	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	return textureSize;
+	if (this->showScrollY)
+		totalSize.width += scrollBarSize;
+
+	if (this->showScrollX)
+		totalSize.height += scrollBarSize;
+
+	return totalSize;
+}
+
+bool LSG_Panel::IsScroll() const
+{
+	return this->scrollable;
 }
 
 void LSG_Panel::Render(SDL_Renderer* renderer)
 {
+	this->scrollable  = false;
 	this->showScrollX = false;
 	this->showScrollY = false;
 
@@ -92,41 +113,49 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 	if (fillArea.h < LSG_ScrollBar::GetSize2x())
 		return;
 
-	auto textureSize = this->GetSize();
+	auto textureSize = this->getSize();
 
-	if ((textureSize.width <= fillArea.w) && (textureSize.height <= fillArea.h)) {
+	if ((textureSize.width <= this->background.w) && (textureSize.height <= this->background.h)) {
 		LSG_Component::Render(renderer);
 		return;
 	}
 
-	this->showScrollX = true;
-	this->showScrollY = true;
+	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	this->renderContentToTexture(renderer, textureSize);
+	this->scrollable  = true;
+	this->showScrollX = ((textureSize.width  + scrollBarSize) > this->background.w);
+	this->showScrollY = ((textureSize.height + scrollBarSize) > this->background.h);
 
-	this->renderContent(renderer, fillArea, textureSize);
+	SDL_Size maxSize = {
+		std::max(this->background.w, textureSize.width),
+		std::max(this->background.h, textureSize.height)
+	};
+
+	this->renderContentToTexture(renderer, maxSize);
+
+	this->renderContent(renderer, fillArea, maxSize);
 	this->renderBorder(renderer,  this->border, this->borderColor, this->background);
-	this->renderScroll(renderer,  fillArea, textureSize);
+	this->renderScroll(renderer,  fillArea, maxSize);
 }
 
-void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& textureSize)
+void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize)
 {
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
 	SDL_Rect destination = {
-		(background.x + this->padding),
-		(background.y + this->padding),
-		(background.w - scrollBarSize),
-		(background.h - scrollBarSize)
+		background.x,
+		background.y,
+		(background.w - (this->showScrollY ? scrollBarSize : 0)),
+		(background.h - (this->showScrollX ? scrollBarSize : 0))
 	};
 
 	SDL_Rect clip           = { 0, 0, destination.w, destination.h };
-	auto     clipWithOffset = this->getClipWithOffset(clip, textureSize);
+	auto     clipWithOffset = this->getClipWithOffset(clip, maxSize);
 
 	SDL_RenderCopy(renderer, this->renderTarget, &clipWithOffset, &destination);
 }
 
-void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size &textureSize)
+void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size & maxSize)
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
@@ -155,19 +184,19 @@ void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size &t
 		sizes[child->GetID()] = size;
 	}
 
-	LSG_Window::InitRenderTarget(&this->renderTarget, textureSize);
+	LSG_Window::InitRenderTarget(&this->renderTarget, maxSize);
 
 	SDL_SetRenderTarget(renderer, this->renderTarget);
 
-	SDL_Rect background  = { 0, 0, textureSize.width, textureSize.height };
-	SDL_Size totalSize   = { background.w, background.h };
+	SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
+	SDL_Size totalSize  = { background.w, background.h };
 
 	this->renderFill(renderer, 0, this->backgroundColor, background);
 
 	bool isVertical  = (orientation == "vertical");
 	auto contentSize = (isVertical ? background.h : background.w);
 
-	SDL_Point offsetPosition = {};
+	SDL_Point offsetPosition = { this->padding, this->padding };
 
 	for (auto child : this->children)
 	{
@@ -207,10 +236,16 @@ void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size &t
 	SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& textureSize)
+void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize)
 {
-	this->renderScrollBarHorizontal(renderer, background, textureSize.width,  this->backgroundColor, this->highlighted);
-	this->renderScrollBarVertical(renderer,   background, textureSize.height, this->backgroundColor, this->highlighted);
+	if (this->showScrollX)
+		this->renderScrollBarHorizontal(renderer, background, maxSize.width,  this->backgroundColor, this->highlighted);
+
+	if (this->showScrollY)
+		this->renderScrollBarVertical(renderer,   background, maxSize.height, this->backgroundColor, this->highlighted);
+
+	if (!this->showScrollX || !this->showScrollY)
+		return;
 
 	SDL_Rect bottomRight = {
 		(this->scrollBarX.x + this->scrollBarX.w),

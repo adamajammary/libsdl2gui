@@ -28,8 +28,8 @@ public:
     static std::string     GetColorTheme();
     static LSG_Component*  GetComponent(const std::string& id);
     static LSG_Component*  GetComponent(const SDL_Point& mousePosition, bool skipModalChildren = false);
-    static SDL_Rect        GetScrolledBackground(LSG_Component* component, LSG_Component* parent);
-    static SDL_Point       GetScrolledPosition(const SDL_Point& position, LSG_Component* parent);
+    static SDL_Rect        GetScrolledBackground(LSG_Component* component);
+    static SDL_Point       GetScrolledPosition(const SDL_Point& mousePosition, LSG_Component* component);
     static LibXml::xmlDoc* GetXmlDocument();
     static void            HighlightComponents(const SDL_Point& mousePosition);
     static bool            IsDarkMode();
