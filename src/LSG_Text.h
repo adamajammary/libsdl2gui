@@ -18,6 +18,7 @@ public:
 	static TTF_Font*           GetFontArial(int fontSize);
 	static std::string         GetFullPath(const std::string& path);
 	static LSG_TableRowCompare GetTableRowCompare(int column);
+	static uint16_t*           ToUTF16(const std::string& text);
 
 	template<typename... Args>
 	static std::string Format(const char* formatString, const Args&... args)
@@ -50,7 +51,7 @@ protected:
 	bool         hasChanged();
 
 private:
-	std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+	static std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
 };
 
 #endif

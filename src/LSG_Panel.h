@@ -14,7 +14,6 @@ private:
 	bool         scrollable;
 
 public:
-	SDL_Size     GetSize();
 	bool         IsScroll() const;
 	virtual void Render(SDL_Renderer* renderer) override;
 

@@ -545,15 +545,6 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	auto offsetY    = (component->background.y + border + padding);
 	auto maxX       = (component->background.w - border2x - padding2x);
 	auto maxY       = (component->background.h - border2x - padding2x);
-
-	if (component->IsPanel() && (scrollable == "true"))
-	{
-		auto maxSize = static_cast<LSG_Panel*>(component)->GetSize();
-
-		maxX = (maxSize.width  - border2x - padding2x);
-		maxY = (maxSize.height - border2x - padding2x);
-	}
-
 	auto remainingX = maxX;
 	auto remainingY = maxY;
 
@@ -689,14 +680,6 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	auto componentsX = 0;
 	auto componentsY = 0;
 
-	if (component->IsPanel() && (scrollable == "true"))
-	{
-		auto maxSize = static_cast<LSG_Panel*>(component)->GetSize();
-
-		sizeX = (maxSize.width  - border2x - padding2x);
-		sizeY = (maxSize.height - border2x - padding2x);
-	}
-
 	for (size_t i = 0; i < children.size(); i++)
 	{
 		auto child = children[i];
@@ -715,10 +698,33 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 		{
 			componentsX = 1;
 
-			if (height.empty() || child->IsImage()) {
+			if (height.empty() && child->IsTextLabel())
+			{
+				auto textSize = static_cast<LSG_TextLabel*>(child)->GetTextSize({ sizeX, sizeY });
+
+				sizeY              -= (textSize.height + childMargin2x);
+				child->background.h = LSG_Graphics::GetDPIScaled(textSize.height);
+
+				if (width.empty())
+					child->background.w = LSG_Graphics::GetDPIScaled(textSize.width);
+			}
+			else if (!height.empty() && child->IsImage())
+			{
+				auto imageSize = static_cast<LSG_Image*>(child)->GetImageSize();
+
+				sizeY              -= (imageSize.height + childMargin2x);
+				child->background.h = LSG_Graphics::GetDPIScaled(imageSize.height);
+
+				if (!width.empty())
+					child->background.w = LSG_Graphics::GetDPIScaled(imageSize.width);
+			}
+			else if (height.empty() || child->IsImage())
+			{
 				componentsY++;
 				sizeY -= childMargin2x;
-			} else {
+			}
+			else
+			{
 				sizeY -= (child->background.h + childMargin2x);
 			}
 
@@ -730,10 +736,33 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 		{
 			componentsY = 1;
 
-			if (width.empty() || child->IsImage()) {
+			if (width.empty() && child->IsTextLabel())
+			{
+				auto textSize = static_cast<LSG_TextLabel*>(child)->GetTextSize({ sizeX, sizeY });
+
+				sizeX              -= (textSize.width + childMargin2x);
+				child->background.w = LSG_Graphics::GetDPIScaled(textSize.width);
+
+				if (height.empty())
+					child->background.h = LSG_Graphics::GetDPIScaled(textSize.height);
+			}
+			else if (!width.empty() && child->IsImage())
+			{
+				auto imageSize = static_cast<LSG_Image*>(child)->GetImageSize();
+
+				sizeX              -= (imageSize.width + childMargin2x);
+				child->background.w = LSG_Graphics::GetDPIScaled(imageSize.width);
+
+				if (!height.empty())
+					child->background.h = LSG_Graphics::GetDPIScaled(imageSize.height);
+			}
+			else if (width.empty() || child->IsImage())
+			{
 				componentsX++;
 				sizeX -= childMargin2x;
-			} else {
+			}
+			else
+			{
 				sizeX -= (child->background.w + childMargin2x);
 			}
 

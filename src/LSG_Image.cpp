@@ -19,6 +19,11 @@ LSG_Image::LSG_Image(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 		this->size.height = LSG_Graphics::GetDPIScaled(std::atoi(height.c_str()));
 }
 
+SDL_Size LSG_Image::GetImageSize() const
+{
+	return this->size;
+}
+
 SDL_Size LSG_Image::GetSize()
 {
 	auto attributes  = this->GetXmlAttributes();

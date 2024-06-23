@@ -13,18 +13,6 @@ LSG_Panel::~LSG_Panel()
 		SDL_DestroyTexture(this->renderTarget);
 }
 
-SDL_Size LSG_Panel::GetSize()
-{
-	auto size = this->getSize();
-
-	SDL_Size textureSize = {
-		std::max(this->background.w, size.width),
-		std::max(this->background.h, size.height)
-	};
-
-	return textureSize;
-}
-
 SDL_Size LSG_Panel::getSize()
 {
 	auto attributes  = this->GetXmlAttributes();

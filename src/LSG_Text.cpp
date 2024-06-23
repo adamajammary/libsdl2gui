@@ -84,8 +84,6 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize)
 	if (text.empty())
 		return nullptr;
 
-	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
-
 	if (fontSize == 0)
 		fontSize = this->getFontSize();
 
@@ -93,16 +91,8 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize)
 
 	TTF_SetFontStyle(font, this->fontStyle);
 
-	#if defined _linux
-		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
-	#else
-		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
-	#endif
-
-	if (!textUTF16)
-		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", SDL_GetError()));
-
-	SDL_Surface* surface = nullptr;
+	SDL_Surface* surface   = nullptr;
+	auto         textUTF16 = LSG_Text::ToUTF16(text);
 
 	if (this->wrap)
 		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, this->textColor, 0);
@@ -144,4 +134,20 @@ std::string LSG_Text::replace(const std::string& text, const std::string& oldSub
 	}
 
 	return result;
+}
+
+uint16_t* LSG_Text::ToUTF16(const std::string& text)
+{
+	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
+
+	#if defined _linux
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
+	#else
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
+	#endif
+
+	if (!textUTF16)
+		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", SDL_GetError()));
+
+	return textUTF16;
 }

@@ -11,6 +11,7 @@ public:
 
 public:
 	SDL_Size     GetSize();
+	SDL_Size     GetTextSize(const SDL_Size& maxSize);
 	SDL_Size     GetTextureSize();
 	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void Render(SDL_Renderer* renderer) override;

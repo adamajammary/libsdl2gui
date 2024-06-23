@@ -25,6 +25,48 @@ SDL_Size LSG_TextLabel::GetSize()
 	return textureSize;
 }
 
+SDL_Size LSG_TextLabel::GetTextSize(const SDL_Size& maxSize)
+{
+
+	if (this->text.empty())
+		return maxSize;
+
+	auto fontSize = this->getFontSize();
+	auto font     = LSG_Text::GetFontArial(fontSize);
+
+	TTF_SetFontStyle(font, this->fontStyle);
+
+	SDL_Surface* surface   = nullptr;
+	auto         textUTF16 = LSG_Text::ToUTF16(this->text);
+
+	if (this->wrap)
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, this->textColor, 0);
+	else
+		surface = TTF_RenderUNICODE_Blended(font, textUTF16, this->textColor);
+
+	TTF_CloseFont(font);
+
+	if (!surface)
+		return maxSize;
+
+	auto scrollbarSize = LSG_ScrollBar::GetSize();
+
+	SDL_Size textSize = {
+		std::min(surface->w, maxSize.width),
+		std::min(surface->h, maxSize.height)
+	};
+
+	if (((surface->w + scrollbarSize) < maxSize.width) && (surface->h > maxSize.height))
+		textSize.width += scrollbarSize;
+
+	if (((surface->h + scrollbarSize) < maxSize.height) && (surface->w > maxSize.width))
+		textSize.width += scrollbarSize;
+
+	SDL_FreeSurface(surface);
+
+	return textSize;
+}
+
 SDL_Size LSG_TextLabel::GetTextureSize()
 {
 	return this->getTextureSize();

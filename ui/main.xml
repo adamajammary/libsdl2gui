@@ -8,7 +8,7 @@
       </panel>
     </modal>
 
-    <panel height="32">
+    <panel height="30">
       <panel>
         <menu font-size="15" title="Menu">
           <menu-sub title="Color Theme">
@@ -27,29 +27,31 @@
 
     <line />
 
-    <panel height="82" orientation="vertical">
-      <text font-size="18" halign="center">Color Theme</text>
+    <panel height="80" orientation="vertical">
+      <text font-size="18" height="30" halign="center">Color Theme</text>
 
-      <panel height="52" spacing="10" font-size="18">
-        <button id="ButtonIdColorThemeDark" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
-          <image file="img/dark-512.png" width="32" height="32" halign="right" />
+      <panel spacing="10" font-size="18">
+        <button id="ButtonIdColorThemeDark" halign="center" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
+          <image file="img/dark-512.png" width="48" height="48" />
           <text>Dark</text>
         </button>
 
-        <button id="ButtonIdColorThemeLight" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
-          <image file="img/light-512.png" width="32" height="32" halign="right" />
+        <button id="ButtonIdColorThemeLight" halign="center" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
+          <image file="img/light-512.png" width="48" height="48" />
           <text>Light</text>
         </button>
       </panel>
     </panel>
 
     <panel orientation="vertical">
-      <panel height="32" font-size="18" spacing="10">
-        <text bold="true">Text with wrapping</text>
+      <panel height="30" font-size="18" spacing="10">
+        <panel>
+          <text bold="true">Text with wrapping</text>
+        </panel>
 
         <panel spacing="5">
-          <text italic="true" width="40">List:</text>
-          <text id="ListRow" width="35" />
+          <text italic="true">List:</text>
+          <text id="ListRow" />
         </panel>
       </panel>
 
@@ -100,15 +102,15 @@ Euismod lacinia at quis risus.</text>
     </panel>
 
     <panel orientation="vertical">
-      <panel height="32" font-size="18" spacing="10">
+      <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
-          <text underline="true" width="55">Table:</text>
-          <text id="TableRow" width="35" />
+          <text underline="true">Table:</text>
+          <text id="TableRow" />
         </panel>
 
         <panel spacing="5">
-          <text strike-through="true" width="150">Table with groups:</text>
-          <text id="TableWithGroupsRow" width="35" />
+          <text strike-through="true">Table with groups:</text>
+          <text id="TableWithGroupsRow" />
         </panel>
       </panel>
 
@@ -189,15 +191,16 @@ Euismod lacinia at quis risus.</text>
       </panel>
     </panel>
 
-    <panel height="52" orientation="vertical">
-      <panel height="32" font-size="18" spacing="5">
-        <text halign="right">Slider:</text>
-        <text id="SliderValue">0.40</text>
+    <panel height="60" orientation="vertical">
+      <panel height="30" halign="center" font-size="18" spacing="5">
+        <text>Slider:</text>
+        <text id="SliderValue">0.5</text>
       </panel>
 
       <slider
         id="Slider"
-        value="0.40"
+        height="20"
+        value="0.5"
         fill-progress="true"
         progress-color="rgb(20, 130, 255)"
         thumb-color="rgb(128, 128, 128)"

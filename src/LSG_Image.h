@@ -16,6 +16,7 @@ private:
 	SDL_Size             size;
 
 public:
+	SDL_Size     GetImageSize() const;
 	SDL_Size     GetSize();
 	SDL_Size     GetTextureSize();
 	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
