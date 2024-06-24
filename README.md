@@ -748,7 +748,7 @@ using LSG_TableRows = std::vector<LSG_Strings>;
 void LSG_AddListItem(const std::string& id, const std::string& item)
 ```
 
-Adds a new item to the \<list\> component.
+Adds a new item to the list.
 
 Parameters
 
@@ -772,7 +772,7 @@ LSG_AddListItem("List", "My new list item");
 void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
 ```
 
-Adds a new item to the \<menu-sub\> component.
+Adds a new item to the sub-menu.
 
 Parameters
 
@@ -798,7 +798,7 @@ LSG_AddSubMenuItem("MenuIdColorThemes", "Light", "MenuIdColorThemeLight");
 void LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group);
 ```
 
-Adds a new group with rows to the \<table\> component.
+Adds a new group with rows to the table.
 
 Parameters
 
@@ -830,7 +830,7 @@ LSG_AddTableGroup("TableWithGroups", group);
 void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 ```
 
-Adds a new row to the \<table\> component.
+Adds a new row to the table.
 
 Parameters
 
@@ -885,7 +885,7 @@ Exceptions
 int LSG_GetLastPage(const std::string& id);
 ```
 
-Returns the last 0-based page index of the \<list\> or \<table\> component.
+Returns the last 0-based page index of the list or table.
 
 Parameters
 
@@ -902,7 +902,7 @@ Exceptions
 std::string LSG_GetListItem(const std::string& id, int row);
 ```
 
-Returns the item from the \<list\> component.
+Returns the item from the list.
 
 Parameters
 
@@ -920,7 +920,7 @@ Exceptions
 LSG_Strings LSG_GetListItems(const std::string& id);
 ```
 
-Returns all the items from the \<list\> component.
+Returns all the items from the list.
 
 Parameters
 
@@ -971,7 +971,7 @@ Exceptions
 int LSG_GetPage(const std::string& id);
 ```
 
-Returns the current 0-based page index of the \<list\> or \<table\> component.
+Returns the current 0-based page index of the list table.
 
 Parameters
 
@@ -988,7 +988,7 @@ Exceptions
 std::string LSG_GetPageListItem(const std::string& id, int row);
 ```
 
-Returns the item on the current page of the \<list\> component.
+Returns the item on the current page of the list.
 
 Parameters
 
@@ -1006,7 +1006,7 @@ Exceptions
 LSG_Strings LSG_GetPageListItems(const std::string& id);
 ```
 
-Returns the items on the current page of the \<list\> component.
+Returns the items on the current page of the list.
 
 Parameters
 
@@ -1023,7 +1023,7 @@ Exceptions
 LSG_TableRows LSG_GetPageTableGroups(const std::string& id);
 ```
 
-Returns the groups on the current page of the \<table\> component.
+Returns the groups on the current page of the table.
 
 Parameters
 
@@ -1040,7 +1040,7 @@ Exceptions
 LSG_Strings LSG_GetPageTableRow(const std::string& id, int row);
 ```
 
-Returns the columns on the current page of the \<table\> component.
+Returns the columns on the current page of the table.
 
 Parameters
 
@@ -1058,7 +1058,7 @@ Exceptions
 LSG_TableRows LSG_GetPageTableRows(const std::string& id);
 ```
 
-Returns the rows on the current page of the \<table\> component.
+Returns the rows on the current page of the table.
 
 Parameters
 
@@ -1092,7 +1092,7 @@ Exceptions
 double LSG_GetProgressValue(const std::string& id);
 ```
 
-Returns the value of the \<progress-bar\> component as a percent between 0 and 1.
+Returns the value of the progress bar as a percent between 0 and 1.
 
 Parameters
 
@@ -1109,7 +1109,7 @@ Exceptions
 int LSG_GetScrollHorizontal(const std::string& id);
 ```
 
-Returns the horizontal scroll offset/position of the \<list\>, \<panel\>, \<table\> or \<text\> component.
+Returns the horizontal scroll offset of the component.
 
 Parameters
 
@@ -1126,7 +1126,7 @@ Exceptions
 int LSG_GetScrollVertical(const std::string& id);
 ```
 
-Returns the vertical scroll offset/position of the \<list\>, \<panel\>, \<table\> or \<text\> component.
+Returns the vertical scroll offset of the component.
 
 Parameters
 
@@ -1143,7 +1143,7 @@ Exceptions
 int LSG_GetSelectedRow(const std::string& id);
 ```
 
-Returns the selected 0-based row index of the \<list\> or \<table\> component.
+Returns the selected 0-based row index of the list or table.
 
 Parameters
 
@@ -1177,7 +1177,7 @@ Exceptions
 double LSG_GetSliderValue(const std::string& id);
 ```
 
-Returns the value of the \<slider\> component as a percent between 0 and 1.
+Returns the value of the slider as a percent between 0 and 1.
 
 Parameters
 
@@ -1194,7 +1194,7 @@ Exceptions
 int LSG_GetSortColumn(const std::string& id);
 ```
 
-Returns the sort column index of the \<table\> component.
+Returns the sort column index of the table.
 
 Parameters
 
@@ -1211,7 +1211,7 @@ Exceptions
 LSG_SortOrder LSG_GetSortOrder(const std::string& id);
 ```
 
-Returns the sort order of the \<list\> or \<table\> component.
+Returns the sort order of the list or table.
 
 Parameters
 
@@ -1245,7 +1245,7 @@ Exceptions
 LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group);
 ```
 
-Returns the group from the \<table\> component.
+Returns the group from the table.
 
 Parameters
 
@@ -1263,7 +1263,7 @@ Exceptions
 LSG_TableRows LSG_GetTableGroups(const std::string& id);
 ```
 
-Returns all the groups from the \<table\> component.
+Returns all the groups from the table.
 
 Parameters
 
@@ -1280,7 +1280,7 @@ Exceptions
 LSG_Strings LSG_GetTableHeader(const std::string& id);
 ```
 
-Returns the header columns from the \<table\> component.
+Returns the header columns from the table.
 
 Parameters
 
@@ -1297,7 +1297,7 @@ Exceptions
 LSG_Strings LSG_GetTableRow(const std::string& id, int row);
 ```
 
-Returns the columns from the \<table\> component.
+Returns the columns from the table.
 
 Parameters
 
@@ -1315,7 +1315,7 @@ Exceptions
 LSG_TableRows LSG_GetTableRows(const std::string& id);
 ```
 
-Returns all the rows from the \<table\> component.
+Returns all the rows from the table.
 
 Parameters
 
@@ -1332,7 +1332,7 @@ Exceptions
 std::string LSG_GetText(const std::string& id);
 ```
 
-Returns the text value of the \<text\> component.
+Returns the text value of the component.
 
 Parameters
 
@@ -1349,7 +1349,7 @@ Exceptions
 std::string LSG_GetTitle(const std::string& id);
 ```
 
-Returns the header title of the \<modal\>, \<menu\> or \<menu-sub\> component.
+Returns the header title of the modal, menu or sub-menu.
 
 Parameters
 
@@ -1431,7 +1431,7 @@ Exceptions
 bool LSG_IsMenuItemSelected(const std::string& id);
 ```
 
-Returns true if the \<menu-item\> component is selected.
+Returns true if the menu item is selected.
 
 Parameters
 
@@ -1448,7 +1448,7 @@ Exceptions
 bool LSG_IsMenuOpen(const std::string& id);
 ```
 
-Returns true if the \<menu\> component is open.
+Returns true if the menu is open.
 
 Parameters
 
@@ -1598,7 +1598,7 @@ Cleans up allocated resources and closes the window.
 void LSG_RemoveListItem(const std::string& id, int row);
 ```
 
-Removes the item row from the \<list\> component.
+Removes the item row from the list.
 
 Parameters
 
@@ -1622,7 +1622,7 @@ LSG_RemoveListItem("List", 12);
 void LSG_RemoveMenuItem(const std::string& id);
 ```
 
-Removes the \<menu-item\> component.
+Removes the menu item.
 
 Parameters
 
@@ -1645,7 +1645,7 @@ LSG_RemoveMenuItem("MenuIdColorThemeDark");
 void LSG_RemovePageListItem(const std::string& id, int row);
 ```
 
-Removes the item on the current page of the \<list\> component.
+Removes the item on the current page of the list.
 
 Parameters
 
@@ -1669,7 +1669,7 @@ LSG_RemovePageListItem("List", 12);
 void LSG_RemovePageTableRow(const std::string& id, int row);
 ```
 
-Removes the row on the current page of the \<table\> component.
+Removes the row on the current page of the table.
 
 Parameters
 
@@ -1693,7 +1693,7 @@ LSG_RemoveTableRow("Table", 6);
 void LSG_RemoveTableHeader(const std::string& id);
 ```
 
-Removes the header columns from the \<table\> component.
+Removes the header columns from the table.
 
 Parameters
 
@@ -1716,7 +1716,7 @@ LSG_RemoveTableHeader("Table");
 void LSG_RemoveTableGroup(const std::string& id, const std::string& group);
 ```
 
-Removes the grouped rows from the \<table\> component.
+Removes the grouped rows from the table.
 
 Parameters
 
@@ -1740,7 +1740,7 @@ LSG_RemoveTableGroup("TableWithGroups", "Quis Hendrerit");
 void LSG_RemoveTableRow(const std::string& id, int row);
 ```
 
-Removes the row from the \<table\> component.
+Removes the row from the table.
 
 Parameters
 
@@ -1790,12 +1790,12 @@ std::string LSG_SaveFile();
 void LSG_ScrollHorizontal(const std::string& id, int scroll);
 ```
 
-Scrolls the \<list\>, \<panel\>, \<table\> or \<text\> component horizontally by the specified offset/position.
+Scrolls the component horizontally by the specified offset.
 
 Parameters
 
 - **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
-- **scroll** Horizontal scroll offset/position
+- **scroll** Horizontal scroll offset
 
 Exceptions
 
@@ -1808,12 +1808,12 @@ Exceptions
 void LSG_ScrollVertical(const std::string& id, int scroll);
 ```
 
-Scrolls the \<list\>, \<panel\>, \<table\> or \<text\> component vertically by the specified offset/position.
+Scrolls the component vertically by the specified offset.
 
 Parameters
 
 - **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
-- **scroll** Vertical scroll offset/position
+- **scroll** Vertical scroll offset
 
 Exceptions
 
@@ -1826,7 +1826,24 @@ Exceptions
 void LSG_ScrollToBottom(const std::string& id);
 ```
 
-Scrolls to the bottom of the \<list\>, \<panel\>, \<table\> or \<text\> component.
+Scrolls to the bottom of the component.
+
+Parameters
+
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToTop
+
+```cpp
+void LSG_ScrollToTop(const std::string& id);
+```
+
+Scrolls to the top of the component.
 
 Parameters
 
@@ -1843,7 +1860,7 @@ Exceptions
 void LSG_SelectRow(const std::string& id, int row);
 ```
 
-Selects the row in the \<list\> or \<table\> component.
+Selects the row in the list or table.
 
 Parameters
 
@@ -1867,7 +1884,7 @@ LSG_SelectRow("List", 2);
 void LSG_SelectRowByOffset(const std::string& id, int offset);
 ```
 
-Selects a row relative to the currently selected row in the \<list\> or \<table\> component.
+Selects a row relative to the currently selected row in the list or table.
 
 Parameters
 
@@ -2011,7 +2028,7 @@ LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
 void LSG_SetButtonSelected(const std::string& id, bool selected = true);
 ```
 
-Highlights the \<button\> as selected.
+Highlights the button as selected.
 
 Parameters
 
@@ -2126,7 +2143,7 @@ LSG_SetHeight("MenuIdMenu", 100);
 void LSG_SetImage(const std::string& id, const std::string& file, bool fill = false);
 ```
 
-Sets the file path of an \<image\> component.
+Sets the file path of an image.
 
 Parameters
 
@@ -2151,7 +2168,7 @@ LSG_SetImage("ImageIdColorThemeDark", "img/dark-24.png");
 void LSG_SetListItem(const std::string& id, int row, const std::string& item);
 ```
 
-Updates and overwrites the item in the \<list\> component.
+Updates and overwrites the item in the list.
 
 Parameters
 
@@ -2176,7 +2193,7 @@ LSG_SetListItem("List", 12, "My updated list item.");
 void LSG_SetListItems(const std::string& id, const LSG_Strings& items);
 ```
 
-Sets the items of the \<list\> component.
+Sets the items of the list.
 
 Parameters
 
@@ -2239,7 +2256,7 @@ LSG_SetMargin("Root", 5);
 void LSG_SetMenuItemSelected(const std::string& id, bool selected = true);
 ```
 
-Highlights the \<menu-item\> as selected.
+Highlights the menu item as selected.
 
 Parameters
 
@@ -2257,7 +2274,7 @@ Exceptions
 void LSG_SetMenuItemValue(const std::string& id, const std::string& value);
 ```
 
-Sets the text value of the \<menu-item\> component.
+Sets the text value of the menu-item.
 
 Parameters
 
@@ -2327,7 +2344,7 @@ LSG_SetPadding("Root", 10);
 void LSG_SetPage(const std::string& id, int page);
 ```
 
-Navigates to and sets the page of the \<list\> or \<table\> component.
+Navigates to and sets the page of the list or table.
 
 Parameters
 
@@ -2351,7 +2368,7 @@ LSG_SetPage("List", 0);
 void LSG_SetPageListItem(const std::string& id, int row, const std::string& item);
 ```
 
-Updates and overwrites the item on the current page of the \<list\> component.
+Updates and overwrites the item on the current page of the list.
 
 Parameters
 
@@ -2376,7 +2393,7 @@ LSG_SetPageListItem("List", 12, "My updated list item.");
 void LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
-Updates and overwrites the row columns on the current page of the \<table\> component.
+Updates and overwrites the row columns on the current page of the table.
 
 Parameters
 
@@ -2403,7 +2420,7 @@ LSG_SetPageTableRow("Table", 6, row);
 void LSG_SetProgressValue(const std::string& id, double percent);
 ```
 
-Sets the value of the \<progress-bar\> component as a percent between 0 and 1.
+Sets the value of the progress bar as a percent between 0 and 1.
 
 Parameters
 
@@ -2451,7 +2468,7 @@ LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
 void LSG_SetSliderValue(const std::string& id, double percent);
 ```
 
-Sets the value of the \<slider\> component as a percent between 0 and 1.
+Sets the value of the slider as a percent between 0 and 1.
 
 Parameters
 
@@ -2499,7 +2516,7 @@ LSG_SetSpacing("Root", 20);
 void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group);
 ```
 
-Sets the rows of the group in the \<table\> component.
+Sets the rows of the group in the table.
 
 Parameters
 
@@ -2531,7 +2548,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroup);
 void LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups);
 ```
 
-Sets the groups of the \<table\> component.
+Sets the groups of the table.
 
 Parameters
 
@@ -2572,7 +2589,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroups);
 void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 ```
 
-Sets the header columns of the \<table\> component.
+Sets the header columns of the table.
 
 Parameters
 
@@ -2601,7 +2618,7 @@ LSG_SetTableHeader("Table", tableHeader);
 void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
-Updates and overwrites the row columns in the \<table\> component.
+Updates and overwrites the row columns in the table.
 
 Parameters
 
@@ -2628,7 +2645,7 @@ LSG_SetTableRow("Table", 6, row);
 void LSG_SetTableRows(const std::string& id, const LSG_TableRows& rows);
 ```
 
-Sets the rows of the \<table\> component.
+Sets the rows of the table.
 
 Parameters
 
@@ -2661,7 +2678,7 @@ LSG_SetTableRows("Table", rows);
 void LSG_SetText(const std::string& id, const std::string& value);
 ```
 
-Sets the text value of the \<text\> component.
+Sets the text value of the text.
 
 Parameters
 
@@ -2709,7 +2726,7 @@ LSG_SetTextColor("TextIdColorTheme", SDL_Color(255, 0, 0, 255));
 void LSG_SetTitle(const std::string& id, const std::string& title);
 ```
 
-Sets the header title of the \<modal\>, \<menu\> or \<menu-sub\> component.
+Sets the header title of the modal, menu or sub-menu.
 
 Parameters
 

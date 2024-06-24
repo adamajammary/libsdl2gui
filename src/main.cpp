@@ -379,6 +379,8 @@ int LSG_GetScrollHorizontal(const std::string& id)
 
 	if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollX();
+	else if (component->IsPanel())
+		return static_cast<LSG_Panel*>(component)->GetScrollX();
 	else if (component->IsTable())
 		return static_cast<LSG_Table*>(component)->GetScrollX();
 	else if (component->IsTextLabel())
@@ -399,6 +401,8 @@ int LSG_GetScrollVertical(const std::string& id)
 
 	if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollY();
+	else if (component->IsPanel())
+		return static_cast<LSG_Panel*>(component)->GetScrollY();
 	else if (component->IsTable())
 		return static_cast<LSG_Table*>(component)->GetScrollY();
 	else if (component->IsTextLabel())
@@ -956,6 +960,8 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollHorizontal(scroll);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(scroll);
 	else if (component->IsTable())
 		static_cast<LSG_Table*>(component)->OnScrollHorizontal(scroll);
 	else if (component->IsTextLabel())
@@ -974,6 +980,8 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollVertical(scroll);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollVertical(scroll);
 	else if (component->IsTable())
 		static_cast<LSG_Table*>(component)->OnScrollVertical(scroll);
 	else if (component->IsTextLabel())
@@ -992,10 +1000,32 @@ void LSG_ScrollToBottom(const std::string& id)
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollEnd();
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollEnd();
 	else if (component->IsTable())
 		static_cast<LSG_Table*>(component)->OnScrollEnd();
 	else if (component->IsTextLabel())
 		static_cast<LSG_TextLabel*>(component)->OnScrollEnd();
+}
+
+void LSG_ScrollToTop(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsScrollable())
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
+
+	if (component->IsList())
+		static_cast<LSG_List*>(component)->OnScrollHome();
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollHome();
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->OnScrollHome();
+	else if (component->IsTextLabel())
+		static_cast<LSG_TextLabel*>(component)->OnScrollHome();
 }
 
 void LSG_SelectRow(const std::string& id, int row)
