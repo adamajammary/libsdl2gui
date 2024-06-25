@@ -1488,6 +1488,8 @@ void LSG_SetText(const std::string& id, const std::string& value)
 		throw std::invalid_argument(getErrorNoID("<text>", id));
 
 	static_cast<LSG_TextLabel*>(component)->SetText(value);
+
+	LSG_UI::LayoutParent(component);
 }
 
 void LSG_SetTextColor(const std::string& id, const SDL_Color& color)

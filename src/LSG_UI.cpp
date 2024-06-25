@@ -262,29 +262,24 @@ SDL_Rect LSG_UI::GetScrolledBackground(LSG_Component* component)
 	if (!component)
 		return { -1, -1 };
 
-	auto parent = component->GetParent();
+	auto scrollableParent = component->GetScrollableParent();
 
-	if (parent && parent->IsPanel())
-	{
-		auto panel = static_cast<LSG_Panel*>(parent);
+	if (!scrollableParent || (component->GetID() == scrollableParent->GetID()))
+		return component->background;
 
-		if (!panel->IsScroll())
-			return component->background;
+	auto panel = static_cast<LSG_Panel*>(scrollableParent);
 
-		SDL_Rect scrolledBackground = {
-			(component->background.x + 0 + parent->background.x + parent->margin - parent->padding - panel->GetScrollX()),
-			(component->background.y + 0 + parent->background.y + parent->margin - parent->padding - panel->GetScrollY()),
-			component->background.w,
-			component->background.h
-		};
+	SDL_Rect scrolledBackground = {
+		(component->background.x + panel->background.x + panel->margin - panel->padding - panel->GetScrollX()),
+		(component->background.y + panel->background.y + panel->margin - panel->padding - panel->GetScrollY()),
+		component->background.w,
+		component->background.h
+	};
 
-		if (!SDL_HasIntersection(&scrolledBackground, &parent->background))
-			return { -1, -1 };
+	if (!SDL_HasIntersection(&scrolledBackground, &panel->background))
+		return { -1, -1 };
 
-		return scrolledBackground;
-	}
-
-	return component->background;
+	return scrolledBackground;
 }
 
 SDL_Point LSG_UI::GetScrolledPosition(const SDL_Point& mousePosition, LSG_Component* component)
@@ -292,24 +287,19 @@ SDL_Point LSG_UI::GetScrolledPosition(const SDL_Point& mousePosition, LSG_Compon
 	if (!component)
 		return { -1, -1 };
 
-	auto parent = component->GetParent();
+	auto scrollableParent = component->GetScrollableParent();
 
-	if (parent && parent->IsPanel())
-	{
-		auto panel = static_cast<LSG_Panel*>(parent);
+	if (!scrollableParent || (component->GetID() == scrollableParent->GetID()))
+		return mousePosition;
 
-		if (!panel->IsScroll())
-			return mousePosition;
+	auto panel = static_cast<LSG_Panel*>(scrollableParent);
 
-		SDL_Point scrolledPosition = {
-			(mousePosition.x - parent->background.x - parent->margin + parent->padding + panel->GetScrollX()),
-			(mousePosition.y - parent->background.y - parent->margin + parent->padding + panel->GetScrollY())
-		};
+	SDL_Point scrolledPosition = {
+		(mousePosition.x - panel->background.x - panel->margin + panel->padding + panel->GetScrollX()),
+		(mousePosition.y - panel->background.y - panel->margin + panel->padding + panel->GetScrollY())
+	};
 
-		return scrolledPosition;
-	}
-
-	return mousePosition;
+	return scrolledPosition;
 }
 
 LibXml::xmlDoc* LSG_UI::GetXmlDocument()

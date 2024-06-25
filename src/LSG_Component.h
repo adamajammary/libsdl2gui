@@ -43,6 +43,7 @@ public:
 	std::string      GetID();
 	int              GetLayer() const;
 	LSG_Component*   GetParent();
+	LSG_Component*   GetScrollableParent();
 	int              GetSpacing();
 	std::string      GetXmlAttribute(const std::string& attribute);
 	LSG_UMapStrStr   GetXmlAttributes();

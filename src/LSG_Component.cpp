@@ -295,6 +295,14 @@ LibXml::xmlNode* LSG_Component::GetXmlNode()
 	return this->xmlNode;
 }
 
+LSG_Component* LSG_Component::GetScrollableParent()
+{
+	if (this->IsPanel() && static_cast<LSG_Panel*>(this)->IsScroll())
+		return this;
+
+	return (this->parent ? this->parent->GetScrollableParent() : nullptr);
+}
+
 bool LSG_Component::IsButton() const
 {
 	return (this->xmlNodeName == "button");
