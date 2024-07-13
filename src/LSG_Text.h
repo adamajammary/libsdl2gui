@@ -47,7 +47,7 @@ public:
 	#endif
 
 protected:
-	SDL_Texture* getTexture(const std::string& text, int fontSize = 0);
+	SDL_Texture* getTexture(const std::string& text, int fontSize = 0, SDL_Color* textColor = nullptr);
 	bool         hasChanged();
 
 private:

@@ -181,6 +181,16 @@ void LSG_Menu::Highlight(const SDL_Point& mousePosition)
 	this->highlightedNavBack   = this->isMouseOverNavBack(mousePosition);
 }
 
+bool LSG_Menu::IsHighlightedIconClose() const
+{
+	return this->highlightedIconClose;
+}
+
+bool LSG_Menu::IsHighlightedNavBack() const
+{
+	return this->highlightedNavBack;
+}
+
 bool LSG_Menu::isMouseOverIconClose(const SDL_Point& mousePosition)
 {
 	if (!this->visible || !this->isOpen)

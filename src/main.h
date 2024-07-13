@@ -95,6 +95,14 @@ enum LSG_ModalTexture
 	NR_OF_MODAL_TEXTURES
 };
 
+enum LSG_TextInputTexture
+{
+	LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR,
+	LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER,
+	LSG_TEXT_INPUT_TEXTURE_VALUE,
+	NR_OF_TEXT_INPUT_TEXTURES
+};
+
 enum LSG_TriangleOrientation
 {
 	LSG_TRIANGLE_ORIENTATION_LEFT,
@@ -134,6 +142,11 @@ public:
 
 		return ((a * FourthByte) + (b * ThirdByte) + (c * SecondByte) + (d * FirstByte));
 	}
+};
+
+struct LSG_Cursor
+{
+	static inline const int IBeamOffset = 3;
 };
 
 struct LSG_ConstDefaultColor
@@ -228,6 +241,7 @@ const char* LSG_GetBasePath();
 #include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"
 #include "LSG_Table.h"
+#include "LSG_TextInput.h"
 #include "LSG_TextLabel.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"

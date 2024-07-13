@@ -1,10 +1,11 @@
 #include "LSG_Events.h"
 
+bool           LSG_Events::isMouseDown    = false;
 uint32_t       LSG_Events::lastClickTime  = 0;
 uint32_t       LSG_Events::lastClickTime2 = 0;
 LSG_Component* LSG_Events::lastComponent  = nullptr;
 SDL_Event      LSG_Events::lastEvent      = {};
-bool           LSG_Events::isMouseDown    = false;
+LSG_Component* LSG_Events::textInput      = nullptr;
 
 SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 {
@@ -35,6 +36,52 @@ SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 
 void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 {
+	if (LSG_Events::textInput)
+	{
+		auto textInput = static_cast<LSG_TextInput*>(LSG_Events::textInput);
+
+		if (!textInput->enabled || !textInput->visible)
+			return;
+
+		if (event.keysym.mod & KMOD_CTRL)
+		{
+			switch (event.keysym.sym) {
+				case SDLK_a: textInput->SelectAll(); break;
+				case SDLK_c: textInput->Copy(); break;
+				case SDLK_v: textInput->Paste(); break;
+				default: break;
+			}
+
+			return;
+		}
+
+		if (event.keysym.mod & KMOD_SHIFT)
+		{
+			switch (event.keysym.sym) {
+				case SDLK_HOME:  textInput->SelectHome(); break;
+				case SDLK_END:   textInput->SelectEnd(); break;
+				case SDLK_LEFT:  textInput->SelectLeft(); break;
+				case SDLK_RIGHT: textInput->SelectRight(); break;
+				default: break;
+			}
+
+			return;
+		}
+
+		switch (event.keysym.sym) {
+			case SDLK_BACKSPACE: textInput->Remove(); break;
+			case SDLK_ESCAPE:    textInput->Stop(); break;
+			case SDLK_DELETE:    textInput->Delete(); break;
+			case SDLK_HOME:      textInput->MoveCursorHome(); break;
+			case SDLK_END:       textInput->MoveCursorEnd(); break;
+			case SDLK_LEFT:      textInput->MoveCursorLeft(); break;
+			case SDLK_RIGHT:     textInput->MoveCursorRight(); break;
+			default: break;
+		}
+
+		return;
+	}
+
 	auto component = LSG_UI::GetComponent(LSG_Window::GetMousePosition(), true);
 
 	if (!component || !component->enabled)
@@ -171,6 +218,12 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 	auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component);
 	bool enableMouseDown  = false;
 
+	auto timeSinceLastClick2 = (SDL_GetTicks() - LSG_Events::lastClickTime2);
+	bool isDoubleClick       = (timeSinceLastClick2 < LSG_ConstClickTime::DoubleClick);
+
+	if (LSG_Events::textInput && (LSG_Events::textInput->GetID() != component->GetID()))
+		static_cast<LSG_TextInput*>(LSG_Events::textInput)->Stop();
+
 	if (component->IsSlider())
 		enableMouseDown = static_cast<LSG_Slider*>(component)->OnMouseClickThumb(scrolledPosition);
 	else if (component->IsList())
@@ -179,6 +232,8 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 		enableMouseDown = static_cast<LSG_Menu*>(component)->OnScrollMouseClick(mousePosition);
 	else if (component->IsTable())
 		enableMouseDown = static_cast<LSG_Table*>(component)->OnScrollMouseClick(scrolledPosition);
+	else if (component->IsTextInput() && !isDoubleClick)
+		enableMouseDown = static_cast<LSG_TextInput*>(component)->OnMouseClick(mousePosition);
 	else if (component->IsTextLabel())
 		enableMouseDown = static_cast<LSG_TextLabel*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsButton())
@@ -261,6 +316,8 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 		isHandled = static_cast<LSG_Menu*>(LSG_Events::lastComponent)->OnScrollMouseMove(mousePosition, lastPosition);
 	else if (LSG_Events::lastComponent->IsTable())
 		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+	else if (LSG_Events::lastComponent->IsTextInput())
+		isHandled = static_cast<LSG_TextInput*>(LSG_Events::lastComponent)->OnMouseMove(mousePosition);
 	else if (LSG_Events::lastComponent->IsTextLabel())
 		isHandled = static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 
@@ -315,6 +372,14 @@ void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 
 void LSG_Events::handleMouseUp(const SDL_Event& event)
 {
+	auto timeSinceLastClick2 = (SDL_GetTicks() - LSG_Events::lastClickTime2);
+	auto timeSinceLastClick  = (SDL_GetTicks() - LSG_Events::lastClickTime);
+
+	bool isDoubleClick = (timeSinceLastClick2 < LSG_ConstClickTime::DoubleClick);
+	bool isRightClick  = (timeSinceLastClick >= LSG_ConstClickTime::RightClick);
+
+	LSG_Component* textInput = nullptr;
+
 	if (!LSG_Events::isMouseDown && LSG_Events::lastComponent)
 	{
 		auto mousePosition = LSG_Events::getMousePosition(event);
@@ -322,18 +387,14 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 
 		if (component && (component->GetID() == LSG_Events::lastComponent->GetID()))
 		{
-			auto timeSinceLastClick2 = (SDL_GetTicks() - LSG_Events::lastClickTime2);
-			auto timeSinceLastClick  = (SDL_GetTicks() - LSG_Events::lastClickTime);
-
-			bool isDoubleClick = (timeSinceLastClick2 < LSG_ConstClickTime::DoubleClick);
-			bool isRightClick  = (timeSinceLastClick >= LSG_ConstClickTime::RightClick);
-
 			auto scrolledPosition = LSG_UI::GetScrolledPosition(mousePosition, component);
 
 			if ((event.type == SDL_FINGERUP) && isRightClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_RIGHT_CLICKED, component->GetID());
 			else if (isDoubleClick && (component->IsList() || component->IsTable()))
 				static_cast<LSG_List*>(component)->Activate(scrolledPosition);
+			else if (isDoubleClick && component->IsTextInput())
+				static_cast<LSG_TextInput*>(component)->SelectWord(scrolledPosition);
 			else if (isDoubleClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
 			else if (component->IsList())
@@ -364,6 +425,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsTextLabel())
 			static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseUp();
+		else if (LSG_Events::lastComponent->IsTextInput())
+			textInput = LSG_Events::lastComponent;
 		else if (LSG_Events::lastComponent->IsButton())
 			static_cast<LSG_Button*>(LSG_Events::lastComponent)->OnMouseClick(scrolledPosition);
 
@@ -373,9 +436,13 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			static_cast<LSG_Panel*>(scrollableParent)->OnScrollMouseUp();
 	}
 
+	if (!textInput && LSG_Events::textInput && !isDoubleClick)
+		static_cast<LSG_TextInput*>(LSG_Events::textInput)->Stop();
+
 	LSG_Events::isMouseDown   = false;
 	LSG_Events::lastComponent = nullptr;
 	LSG_Events::lastEvent     = {};
+	LSG_Events::textInput     = textInput;
 
 	LSG_UI::UnhighlightComponents();
 }
@@ -395,6 +462,12 @@ void LSG_Events::handleSysWMEvent(const SDL_SysWMEvent& event)
 		default: break;
 	}
 	#endif
+}
+
+void LSG_Events::handleTextInput(const SDL_TextInputEvent& event)
+{
+	if (LSG_Events::textInput)
+		static_cast<LSG_TextInput*>(LSG_Events::textInput)->Input(event.text);
 }
 
 void LSG_Events::handleWindowEvent(const SDL_WindowEvent& event)
@@ -421,6 +494,7 @@ std::vector<SDL_Event> LSG_Events::Handle()
 			case SDL_QUIT:         LSG_Quit(); break;
 			case SDL_DISPLAYEVENT: LSG_UI::Layout(); break;
 			case SDL_KEYDOWN:      LSG_Events::handleKeyDownEvent(event.key); break;
+			case SDL_TEXTINPUT:    LSG_Events::handleTextInput(event.text); break;
 			case SDL_SYSWMEVENT:   LSG_Events::handleSysWMEvent(event.syswm); break;
 			case SDL_WINDOWEVENT:  LSG_Events::handleWindowEvent(event.window); break;
 			case SDL_MOUSEWHEEL:   LSG_Events::handleMouseScrollEvent(event.wheel); break;

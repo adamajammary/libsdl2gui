@@ -368,6 +368,11 @@ bool LSG_Component::IsTable() const
 	return (this->xmlNodeName == "table");
 }
 
+bool LSG_Component::IsTextInput() const
+{
+	return (this->xmlNodeName == "text-input");
+}
+
 bool LSG_Component::IsTextLabel() const
 {
 	return (this->xmlNodeName == "text");
@@ -453,12 +458,12 @@ void LSG_Component::renderBorder(SDL_Renderer* renderer, int border, const SDL_C
 	SDL_RenderFillRect(renderer, &borderArea);
 }
 
-void LSG_Component::renderDisabled(SDL_Renderer* renderer)
+void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
 {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer,     0, 0, 0, 64);
 
-	SDL_RenderFillRect(renderer, &background);
+	SDL_RenderFillRect(renderer, &this->background);
 }
 
 void LSG_Component::renderFill(SDL_Renderer* renderer)

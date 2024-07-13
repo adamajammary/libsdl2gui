@@ -812,6 +812,47 @@ namespace LSG_UnitTest
         }
     };
 
+    TEST_CLASS(TextInput)
+    {
+        TEST_METHOD(Clear)
+        {
+            try
+            {
+                SetValue();
+
+                auto value1 = LSG_GetTextInputValue("TextInput");
+
+                Assert::IsFalse(value1.empty());
+
+                LSG_ClearTextInput("TextInput");
+
+                auto value2 = LSG_GetTextInputValue("TextInput");
+
+                Assert::IsTrue(value2.empty());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetValue)
+        {
+            try
+            {
+                LSG_SetTextInputValue("TextInput", "New test value");
+
+                auto value = LSG_GetTextInputValue("TextInput");
+
+                Assert::AreEqual("New test value", value.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
 }
 
 #endif

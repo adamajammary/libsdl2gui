@@ -9,7 +9,7 @@
     </modal>
 
     <panel height="30">
-      <panel>
+      <panel width="40">
         <menu font-size="15" title="Menu">
           <menu-sub title="Color Theme">
             <menu-item id="MenuIdColorThemeDark">Dark</menu-item>
@@ -20,7 +20,11 @@
         </menu>
       </panel>
 
-      <panel halign="right">
+      <panel border-color="#000000" border="1">
+        <text-input id="TextInput" placeholder="Text Input" padding="5" background-color="#FFFFFF" text-color="#000000" />
+      </panel>
+
+      <panel width="155" halign="right">
         <text font-size="18">SDL2 GUI Library</text>
       </panel>
     </panel>

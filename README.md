@@ -539,6 +539,25 @@ underline="boolean"
 wrap="boolean"
 ```
 
+### \<text-input\>
+
+[color](#color) | [size](#size)
+
+```ini
+id="string"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+font-size="int" # default="14"
+padding="int"
+text-color="color"
+
+placeholder="string"
+value="string"
+```
+
 ### \<window\>
 
 [boolean](#boolean) | [file_path](#file_path)
@@ -849,6 +868,23 @@ LSG_Strings row = { "New row - Column A", "New row - Column B" };
 
 LSG_AddTableRow("Table", row);
 ```
+
+### LSG_ClearTextInput
+
+```cpp
+void LSG_ClearTextInput(const std::string& id);
+```
+
+Clears the text input value.
+
+Parameters
+
+- **id** \<text-input\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_GetBackgroundColor
 
@@ -1337,6 +1373,23 @@ Returns the text value of the component.
 Parameters
 
 - **id** \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTextInputValue
+
+```cpp
+std::string LSG_GetTextInputValue(const std::string& id);
+```
+
+Returns the text input value.
+
+Parameters
+
+- **id** \<text-input\> component ID
 
 Exceptions
 
@@ -2718,6 +2771,30 @@ Example
 
 ```cpp
 LSG_SetTextColor("TextIdColorTheme", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetTextInputValue
+
+```cpp
+void LSG_SetTextInputValue(const std::string& id, const std::string& value);
+```
+
+Sets the text input value.
+
+Parameters
+
+- **id** \<text-input\> component ID
+- **value** Text value
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTextInputValue("TextInput", "Initial text input value");
 ```
 
 ### LSG_SetTitle

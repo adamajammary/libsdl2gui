@@ -26,6 +26,8 @@ private:
 public:
 	void         Close();
 	void         Highlight(const SDL_Point& mousePosition);
+	bool         IsHighlightedIconClose() const;
+	bool         IsHighlightedNavBack() const;
 	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition);
 	bool         IsOpen() const;
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;

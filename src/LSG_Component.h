@@ -61,6 +61,7 @@ public:
 	bool             IsSlider() const;
 	bool             IsSubMenu() const;
 	bool             IsTable() const;
+	bool             IsTextInput() const;
 	bool             IsTextLabel() const;
 	bool             IsVertical() const;
 	void             RemoveChild(LSG_Component* child);
@@ -87,7 +88,7 @@ protected:
 	SDL_Size      getTextureSize();
 	std::string   getXmlColor(const std::string& xmlAttribute, bool recursive = true);
 	void          renderBorder(SDL_Renderer*    renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background);
-	void          renderDisabled(SDL_Renderer*  renderer);
+	void          renderDisabled(SDL_Renderer*  renderer) const;
 	void          renderFill(SDL_Renderer*      renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background);
 	void          renderHighlight(SDL_Renderer* renderer);
 	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background);

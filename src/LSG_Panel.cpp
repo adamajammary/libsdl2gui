@@ -41,6 +41,8 @@ SDL_Size LSG_Panel::GetSize()
 			childSize = static_cast<LSG_Panel*>(child)->GetSize();
 		else if (child->IsTable())
 			childSize = static_cast<LSG_Table*>(child)->GetSize();
+		else if (child->IsTextInput())
+			childSize = static_cast<LSG_TextInput*>(child)->GetSize();
 		else if (child->IsTextLabel())
 			childSize = static_cast<LSG_TextLabel*>(child)->GetSize();
 
@@ -198,6 +200,8 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, 
 			static_cast<LSG_Slider*>(child)->Render(renderer, renderPosition);
 		else if (child->IsTable())
 			static_cast<LSG_Table*>(child)->Render(renderer, renderPosition);
+		else if (child->IsTextInput())
+			static_cast<LSG_TextInput*>(child)->Render(renderer, renderPosition);
 		else if (child->IsTextLabel())
 			static_cast<LSG_TextLabel*>(child)->Render(renderer, renderPosition);
 

@@ -79,15 +79,14 @@ LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 //	return xmlText;
 //}
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize)
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, SDL_Color* textColor)
 {
 	if (text.empty())
 		return nullptr;
 
-	if (fontSize == 0)
-		fontSize = this->getFontSize();
-
-	auto font = LSG_Text::GetFontArial(fontSize);
+	auto color = (!textColor    ? this->textColor     : *textColor);
+	auto size  = (fontSize == 0 ? this->getFontSize() : fontSize);
+	auto font  = LSG_Text::GetFontArial(size);
 
 	TTF_SetFontStyle(font, this->fontStyle);
 
@@ -95,9 +94,9 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize)
 	auto         textUTF16 = LSG_Text::ToUTF16(text);
 
 	if (this->wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, this->textColor, 0);
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, color, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, textUTF16, this->textColor);
+		surface = TTF_RenderUNICODE_Blended(font, textUTF16, color);
 
 	TTF_CloseFont(font);
 	SDL_free(textUTF16);
@@ -109,8 +108,8 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize)
 
 	SDL_FreeSurface(surface);
 
-	this->lastFontSize  = fontSize;
-	this->lastTextColor = SDL_Color(this->textColor);
+	this->lastFontSize  = size;
+	this->lastTextColor = SDL_Color(color);
 
 	return texture;
 }

@@ -116,6 +116,8 @@ SDL_Renderer* init(const std::string& title, int width, int height)
 
 	auto renderer = LSG_Window::Open(title, width, height);
 
+	SDL_StopTextInput();
+
 	isRunning = true;
 
 	return renderer;
@@ -171,6 +173,19 @@ void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 		throw std::invalid_argument(getErrorNoID("<table>", id));
 
 	static_cast<LSG_Table*>(component)->AddRow(columns);
+}
+
+void LSG_ClearTextInput(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextInput())
+		throw std::invalid_argument(getErrorNoID("<text-input>", id));
+
+	static_cast<LSG_TextInput*>(component)->Clear();
 }
 
 SDL_Color LSG_GetBackgroundColor(const std::string& id)
@@ -569,6 +584,19 @@ std::string LSG_GetText(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<text>", id));
 
 	return component->text;
+}
+
+std::string LSG_GetTextInputValue(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextInput())
+		throw std::invalid_argument(getErrorNoID("<text-input>", id));
+
+	return static_cast<LSG_TextInput*>(component)->GetValue();
 }
 
 std::string LSG_GetTitle(const std::string& id)
@@ -1507,6 +1535,19 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	LSG_XML::SetAttribute(component->GetXmlNode(), "text-color", LSG_Graphics::ToXmlAttribute(color));
 
 	LSG_UI::SetText(component);
+}
+
+void LSG_SetTextInputValue(const std::string& id, const std::string& value)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextInput())
+		throw std::invalid_argument(getErrorNoID("<text-input>", id));
+
+	static_cast<LSG_TextInput*>(component)->SetValue(value);
 }
 
 void LSG_SetTitle(const std::string& id, const std::string& title)

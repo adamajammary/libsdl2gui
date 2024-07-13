@@ -129,6 +129,14 @@ DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const LSG_TableGroup
 DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 
 /**
+ * @brief Clears the text input value.
+ * @param id <text-input> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ClearTextInput(const std::string& id);
+
+/**
  * @returns the background color of the component
  * @param id Component ID
  * @throws invalid_argument
@@ -362,6 +370,14 @@ DLLEXPORT LSG_TableRows DLL LSG_GetTableRows(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetText(const std::string& id);
+
+/**
+ * @returns the text input value
+ * @param id <text-input> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetTextInputValue(const std::string& id);
 
 /**
  * @returns the header title of the modal, menu or sub-menu
@@ -916,6 +932,15 @@ DLLEXPORT void DLL LSG_SetText(const std::string& id, const std::string& value);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetTextColor(const std::string& id, const SDL_Color& color);
+
+/**
+ * @brief Sets the text input value.
+ * @param id    <text-input> component ID
+ * @param value Text value
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTextInputValue(const std::string& id, const std::string& value);
 
 /**
  * @brief Sets the header title of the modal, menu or sub-menu.

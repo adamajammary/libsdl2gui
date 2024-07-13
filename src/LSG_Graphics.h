@@ -37,7 +37,6 @@ public:
 private:
 	static std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, int paddingX, int paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static SDL_Texture*            getVector(const std::string& svg);
-
 };
 
 #endif

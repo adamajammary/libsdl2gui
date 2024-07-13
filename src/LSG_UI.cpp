@@ -77,6 +77,8 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		component = new LSG_ProgressBar(id, layer, node, name, parent);
 	else if (name == "slider")
 		component = new LSG_Slider(id, layer, node, name, parent);
+	else if (name == "text-input")
+		component = new LSG_TextInput(id, layer, node, name, parent);
 	else if (name == "text")
 		component = new LSG_TextLabel(id, layer, node, name, parent);
 
@@ -309,17 +311,22 @@ LibXml::xmlDoc* LSG_UI::GetXmlDocument()
 
 void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 {
-	if (!SDL_GetCursor())
+	auto activeCursor = SDL_GetCursor();
+
+	if (!activeCursor)
 		return;
 
-	bool isMenuOpen  = false;
-	int  menuScrollY = 0;
+	SDL_Cursor* cursor        = nullptr;
+	auto        defaultCursor = SDL_GetDefaultCursor();
+	bool        isMenuOpen    = false;
+	int         menuScrollY   = 0;
+
+	for (const auto& component : LSG_UI::componentsByLayer)
+		component.second->highlighted = false;
 
 	for (auto i = LSG_UI::componentsByLayer.rbegin(); i != LSG_UI::componentsByLayer.rend(); i++)
 	{
 		auto component = (*i).second;
-
-		component->highlighted = false;
 
 		if (!component->visible || !component->enabled)
 			continue;
@@ -337,8 +344,13 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 				isMenuOpen  = true;
 				menuScrollY = menu->GetScrollY();
 				break;
-			} else {
-				component->highlighted = menu->IsMouseOverIconOpen(mousePosition);
+			}
+
+			component->highlighted = menu->IsMouseOverIconOpen(mousePosition);
+
+			if (component->highlighted) {
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				break;
 			}
 
 			continue;
@@ -347,22 +359,66 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 		auto background = LSG_UI::GetScrolledBackground(component);
 
 		component->highlighted = SDL_PointInRect(&mousePosition, &background);
+
+		if (component->highlighted)
+		{
+			if (component->IsTextInput())
+			{
+				auto textInput = static_cast<LSG_TextInput*>(component);
+
+				textInput->Highlight(mousePosition);
+
+				if (textInput->IsHighlightedIconClear())
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+				else
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+			} else if (component->IsButton()) {
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+			}
+
+			break;
+		}
 	}
 
-	if (!isMenuOpen)
-		return;
-
-	for (auto& component : LSG_UI::componentsByLayer)
+	if (isMenuOpen)
 	{
-		auto background = SDL_Rect(component.second->background);
-		background.y   -= menuScrollY;
+		for (auto& component : LSG_UI::componentsByLayer)
+		{
+			auto background = SDL_Rect(component.second->background);
+			background.y   -= menuScrollY;
 
-		if (component.second->IsMenu())
-			static_cast<LSG_Menu*>(component.second)->Highlight(mousePosition);
-		else if (component.second->IsMenuItem() || component.second->IsSubMenu())
-			component.second->highlighted = SDL_PointInRect(&mousePosition, &background);
-		else
+			if (component.second->IsMenu())
+			{
+				auto menu = static_cast<LSG_Menu*>(component.second);
+
+				menu->Highlight(mousePosition);
+
+				if (menu->IsHighlightedIconClose() || menu->IsHighlightedNavBack())
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+
+				continue;
+			}
+
+			if (component.second->IsMenuItem() || component.second->IsSubMenu())
+			{
+				component.second->highlighted = SDL_PointInRect(&mousePosition, &background);
+
+				if (component.second->highlighted)
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+
+				continue;
+			}
+
 			component.second->highlighted = false;
+		}
+	}
+
+	if (cursor) {
+		if (activeCursor != cursor)
+			SDL_SetCursor(cursor);
+	} else {
+		if (activeCursor != defaultCursor)
+			SDL_SetCursor(defaultCursor);
 	}
 }
 
@@ -1020,6 +1076,8 @@ void LSG_UI::setTextLabels(LSG_Component* component)
 
 	if (component->IsTextLabel())
 		static_cast<LSG_TextLabel*>(component)->SetText();
+	else if (component->IsTextInput())
+		static_cast<LSG_TextInput*>(component)->SetText();
 
 	for (auto child : component->GetChildren())
 		LSG_UI::setTextLabels(child);
