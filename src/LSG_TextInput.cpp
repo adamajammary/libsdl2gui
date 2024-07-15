@@ -29,6 +29,8 @@ void LSG_TextInput::Clear()
 
 	this->setValue();
 	this->Stop();
+
+	this->sendEvent(LSG_EVENT_TEXT_INPUT_CLEARED);
 }
 
 void LSG_TextInput::Copy()
@@ -626,6 +628,16 @@ void LSG_TextInput::SelectWord(const SDL_Point& mousePosition)
 
 void LSG_TextInput::sendEvent(LSG_EventType type)
 {
+	if (!this->enabled)
+		return;
+
+	SDL_Event textInputEvent = {};
+
+	textInputEvent.type       = SDL_RegisterEvents(1);
+	textInputEvent.user.code  = (int)type;
+	textInputEvent.user.data1 = (void*)strdup(this->id.c_str());
+
+	SDL_PushEvent(&textInputEvent);
 }
 
 void LSG_TextInput::setCursor()
