@@ -372,13 +372,13 @@ void LSG_List::SetItems(const LSG_Strings& items)
 	this->scrollOffsetX = 0;
 	this->scrollOffsetY = 0;
 
-	this->Select(-1);
-
 	this->destroyTextures();
 
 	this->items = items;
 
 	this->setItems();
+
+	this->Select(!items.empty() ? 0 : -1);
 }
 
 void LSG_List::SetItems()

@@ -439,9 +439,15 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 
 void LSG_Table::SetRows(const LSG_TableRows& rows)
 {
+	this->page          = 0;
+	this->scrollOffsetX = 0;
+	this->scrollOffsetY = 0;
+
 	this->rows = rows;
 
 	this->reset();
+
+	this->Select(!rows.empty() ? 0 : -1);
 }
 
 void LSG_Table::SetRows()
