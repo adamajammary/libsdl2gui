@@ -1145,6 +1145,8 @@ void LSG_SetBorder(const std::string& id, int border)
 
 	component->border = border;
 
+	LSG_XML::SetAttribute(component->GetXmlNode(), "border", std::to_string(border));
+
 	LSG_UI::LayoutParent(component);
 }
 
