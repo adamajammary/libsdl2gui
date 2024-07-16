@@ -24,6 +24,7 @@ private:
 
 public:
 	void         Clear();
+	void         Complete();
 	void         Copy();
 	void         Delete();
 	SDL_Size     GetSize();

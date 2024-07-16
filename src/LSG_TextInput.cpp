@@ -33,6 +33,13 @@ void LSG_TextInput::Clear()
 	this->sendEvent(LSG_EVENT_TEXT_INPUT_CLEARED);
 }
 
+void LSG_TextInput::Complete()
+{
+	this->Stop();
+
+	this->sendEvent(LSG_EVENT_TEXT_INPUT_COMPLETED);
+}
+
 void LSG_TextInput::Copy()
 {
 	if (!this->active)

@@ -69,13 +69,14 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 		}
 
 		switch (event.keysym.sym) {
-			case SDLK_BACKSPACE: textInput->Remove(); break;
-			case SDLK_ESCAPE:    textInput->Stop(); break;
-			case SDLK_DELETE:    textInput->Delete(); break;
 			case SDLK_HOME:      textInput->MoveCursorHome(); break;
 			case SDLK_END:       textInput->MoveCursorEnd(); break;
 			case SDLK_LEFT:      textInput->MoveCursorLeft(); break;
 			case SDLK_RIGHT:     textInput->MoveCursorRight(); break;
+			case SDLK_BACKSPACE: textInput->Remove(); break;
+			case SDLK_DELETE:    textInput->Delete(); break;
+			case SDLK_ESCAPE:    textInput->Stop(); break;
+			case SDLK_RETURN: case SDLK_KP_ENTER: textInput->Complete(); break;
 			default: break;
 		}
 
