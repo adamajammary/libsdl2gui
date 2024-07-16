@@ -378,7 +378,7 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 	this->setItems();
 
-	this->Select(!items.empty() ? 0 : -1);
+	this->Select(!this->items.empty() ? 0 : -1);
 }
 
 void LSG_List::SetItems()
@@ -389,12 +389,6 @@ void LSG_List::SetItems()
 	this->destroyTextures();
 
 	this->setItems();
-}
-
-void LSG_List::Update()
-{
-	this->destroyTextures();
-	this->setItems(false);
 }
 
 void LSG_List::setItems(bool sort)
@@ -443,8 +437,9 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 	this->scrollOffsetX = 0;
 	this->scrollOffsetY = 0;
 
-	this->Select(-1);
 	this->reset();
+
+	this->Select(!this->items.empty() ? 0 : -1);
 }
 
 void LSG_List::sort()
@@ -453,4 +448,10 @@ void LSG_List::sort()
 		std::sort(this->items.rbegin(), this->items.rend());
 	else
 		std::sort(this->items.begin(), this->items.end());
+}
+
+void LSG_List::Update()
+{
+	this->destroyTextures();
+	this->setItems(false);
 }
