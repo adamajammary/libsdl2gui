@@ -235,6 +235,19 @@ std::string LSG_GetListItem(const std::string& id, int row)
 	return static_cast<LSG_List*>(component)->GetItem(row);
 }
 
+size_t LSG_GetListItemCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsList())
+		throw std::invalid_argument(getErrorNoID("<list>", id));
+
+	return static_cast<LSG_List*>(component)->GetRowCount();
+}
+
 LSG_Strings LSG_GetListItems(const std::string& id)
 {
 	if (!isRunning)
@@ -558,6 +571,19 @@ LSG_Strings LSG_GetTableRow(const std::string& id, int row)
 		throw std::invalid_argument(getErrorNoID("<table>", id));
 
 	return static_cast<LSG_Table*>(component)->GetRow(row);
+}
+
+size_t LSG_GetTableRowCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	return static_cast<LSG_Table*>(component)->GetRowCount();
 }
 
 LSG_TableRows LSG_GetTableRows(const std::string& id)

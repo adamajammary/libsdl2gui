@@ -169,6 +169,14 @@ DLLEXPORT int DLL LSG_GetLastPage(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
 
 /**
+ * @returns the number of items in the list
+ * @param id  <list> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetListItemCount(const std::string& id);
+
+/**
  * @returns all the items from the list
  * @param id <list> component ID
  * @throws invalid_argument
@@ -355,6 +363,14 @@ DLLEXPORT LSG_Strings DLL LSG_GetTableHeader(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT LSG_Strings DLL LSG_GetTableRow(const std::string& id, int row);
+
+/**
+ * @returns the number of rows in the table
+ * @param id  <table> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetTableRowCount(const std::string& id);
 
 /**
  * @returns all the rows from the table

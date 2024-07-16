@@ -105,7 +105,7 @@ LSG_Strings LSG_Pagination::GetItems()
 
 std::string LSG_Pagination::getLabel()
 {
-	auto rows  = this->getRowCount();
+	auto rows  = (int)this->GetRowCount();
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
 	auto end   = std::min(rows, (start + LSG_MAX_ROWS_PER_PAGE));
 	auto page  = (this->page + 1);
@@ -116,7 +116,7 @@ std::string LSG_Pagination::getLabel()
 
 int LSG_Pagination::GetLastPage()
 {
-	auto rows      = this->getRowCount();
+	auto rows      = (int)this->GetRowCount();
 	auto lastPage  = (rows / LSG_MAX_ROWS_PER_PAGE);
 	auto remainder = (rows % LSG_MAX_ROWS_PER_PAGE);
 
@@ -128,7 +128,7 @@ int LSG_Pagination::GetLastPage()
 
 int LSG_Pagination::getLastRow()
 {
-	auto rows  = this->getRowCount();
+	auto rows  = (int)this->GetRowCount();
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
 	auto end   = std::min(rows, (start + LSG_MAX_ROWS_PER_PAGE));
 
@@ -250,7 +250,7 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 
 LSG_Strings LSG_Pagination::GetRow(int row)
 {
-	return this->getRow(row, 0, this->getRowCount());
+	return this->getRow(row, 0, (int)this->GetRowCount());
 }
 
 LSG_Strings LSG_Pagination::getRow(int row, int start, int end)
@@ -280,17 +280,17 @@ LSG_Strings LSG_Pagination::getRow(int row, int start, int end)
 	return {};
 }
 
-int LSG_Pagination::getRowCount()
+size_t LSG_Pagination::GetRowCount()
 {
 	if (!this->items.empty())
-		return (int)this->items.size();
+		return this->items.size();
 
-	int rows = 0;
+	size_t rows = 0;
 
 	for (const auto& group : this->groups)
-		rows += (int)(1 + group.rows.size());
+		rows += (1 + group.rows.size());
 
-	rows += (int)this->rows.size();
+	rows += this->rows.size();
 
 	return rows;
 }
@@ -387,7 +387,7 @@ void LSG_Pagination::renderPagination(SDL_Renderer* renderer, const SDL_Rect& ba
 
 bool LSG_Pagination::showPagination()
 {
-	return (this->getRowCount() > LSG_MAX_ROWS_PER_PAGE);
+	return (this->GetRowCount() > LSG_MAX_ROWS_PER_PAGE);
 }
 
 void LSG_Pagination::updatePagination(const SDL_Rect& background)

@@ -951,6 +951,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetListItemCount
+
+```cpp
+size_t LSG_GetListItemCount(const std::string& id);
+```
+
+Returns the number of items in the list.
+
+Parameters
+
+- **id** \<list\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetListItems
 
 ```cpp
@@ -1340,6 +1357,23 @@ Parameters
 
 - **id** \<table\> component ID
 - **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTableRowCount
+
+```cpp
+size_t LSG_GetTableRowCount(const std::string& id);
+```
+
+Returns the number of rows in the table.
+
+Parameters
+
+- **id** \<table\> component ID
 
 Exceptions
 

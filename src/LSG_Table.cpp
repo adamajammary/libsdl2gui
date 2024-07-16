@@ -197,7 +197,7 @@ void LSG_Table::RemovePageRow(int row)
 
 void LSG_Table::RemoveRow(int row)
 {
-	this->removeRow(row, 0, this->getRowCount());
+	this->removeRow(row, 0, (int)this->GetRowCount());
 }
 
 void LSG_Table::removeRow(int row, int start, int end)
@@ -403,7 +403,7 @@ void LSG_Table::SetPageRow(int row, const LSG_Strings& columns)
 
 void LSG_Table::SetRow(int row, const LSG_Strings& columns)
 {
-	this->setRow(row, 0, this->getRowCount(), columns);
+	this->setRow(row, 0, (int)this->GetRowCount(), columns);
 }
 
 void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)

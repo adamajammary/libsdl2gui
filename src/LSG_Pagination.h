@@ -47,11 +47,11 @@ public:
 	LSG_Strings     GetPageRow(int row);
 	LSG_TableRows   GetPageRows();
 	LSG_Strings     GetRow(int row);
+	size_t          GetRowCount();
 	LSG_TableRows   GetRows();
 
 protected:
 	int  getLastRow();
-	int  getRowCount();
 	void initPagination(const SDL_Rect& background, const SDL_Color& backgroundColor);
 	bool isPageArrowClicked(const SDL_Point& mousePosition);
 	bool isPaginationClicked(const SDL_Point& mousePosition);
