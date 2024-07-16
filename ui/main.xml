@@ -21,7 +21,7 @@
       </panel>
 
       <panel border-color="#000000" border="1">
-        <text-input placeholder="Text Input" padding="5" background-color="#FFFFFF" text-color="#000000" />
+        <text-input id="TextInput" placeholder="Text Input" padding="5" background-color="#FFFFFF" text-color="#000000" />
       </panel>
 
       <panel width="155" halign="right">

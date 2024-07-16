@@ -684,8 +684,10 @@ void LSG_TextInput::setCursor()
 	
 void LSG_TextInput::setIconClear()
 {
-	if (this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR])
+	if (this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR]) {
 		SDL_DestroyTexture(this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR]);
+		this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR] = nullptr;
+	}
 
 	SDL_Size maxSize = { this->maxIconSize, this->maxIconSize };
 
@@ -695,8 +697,10 @@ void LSG_TextInput::setIconClear()
 
 void LSG_TextInput::setPlaceholder()
 {
-	if (this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER])
+	if (this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER]) {
 		SDL_DestroyTexture(this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER]);
+		this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = nullptr;
+	}
 
 	if (this->placeholder.empty())
 		return;
@@ -728,8 +732,10 @@ void LSG_TextInput::SetValue(const std::string& text)
 
 void LSG_TextInput::setValue()
 {
-	if (this->textures[LSG_TEXT_INPUT_TEXTURE_VALUE])
+	if (this->textures[LSG_TEXT_INPUT_TEXTURE_VALUE]) {
 		SDL_DestroyTexture(this->textures[LSG_TEXT_INPUT_TEXTURE_VALUE]);
+		this->textures[LSG_TEXT_INPUT_TEXTURE_VALUE] = nullptr;
+	}
 
 	if (!this->value.empty())
 		this->textures[LSG_TEXT_INPUT_TEXTURE_VALUE] = this->getTexture(this->value);
