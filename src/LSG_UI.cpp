@@ -331,9 +331,11 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 		if (!component->visible || !component->enabled)
 			continue;
 
-		if (component->IsModal()) {
-			static_cast<LSG_Modal*>(component)->Highlight(mousePosition);
-			return;
+		if (component->IsModal())
+		{
+			if (static_cast<LSG_Modal*>(component)->Highlight(mousePosition))
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+			break;
 		}
 
 		if (component->IsMenu())

@@ -20,15 +20,16 @@ private:
 	static const int TitleFontSize = 18;
 
 private:
-	bool      hideCloseIcon;
-	SDL_Point mousePosition;
+	bool hideCloseIcon;
+	bool highlightedChild;
+	bool highlightedCloseIcon;
 
 public:
 	static bool IsModalChild(LSG_Component* component);
 
 public:
 	bool         CloseOnMouseClick(const SDL_Point& mousePosition);
-	void         Highlight(const SDL_Point& mousePosition);
+	bool         Highlight(const SDL_Point& mousePosition);
 	void         Layout();
 	bool         OnKeyDown(const SDL_KeyboardEvent& event);
 	virtual void Render(SDL_Renderer* renderer) override;
@@ -37,6 +38,7 @@ public:
 private:
 	SDL_Rect getCloseIcon();
 	void     highlight(LSG_Component* component, const SDL_Point& mousePosition);
+	bool     isMouseOverIconClose(const SDL_Point& mousePosition);
 	void     renderHeader(SDL_Renderer* renderer);
 	void     renderHeaderCloseIcon(SDL_Renderer* renderer);
 	void     renderHeaderLine(SDL_Renderer* renderer);

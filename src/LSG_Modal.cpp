@@ -3,9 +3,10 @@
 LSG_Modal::LSG_Modal(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->hideCloseIcon = false;
-	this->mousePosition = {};
-	this->visible       = false;
+	this->hideCloseIcon        = false;
+	this->highlightedChild     = false;
+	this->highlightedCloseIcon = false;
+	this->visible              = false;
 
 	this->Layout();
 }
@@ -44,11 +45,14 @@ SDL_Rect LSG_Modal::getCloseIcon()
 	return closeIcon;
 }
 
-void LSG_Modal::Highlight(const SDL_Point& mousePosition)
+bool LSG_Modal::Highlight(const SDL_Point& mousePosition)
 {
+	this->highlightedCloseIcon = this->isMouseOverIconClose(mousePosition);
+	this->highlightedChild     = false;
+
 	this->highlight(this, mousePosition);
 
-	this->mousePosition = mousePosition;
+	return (this->highlightedCloseIcon || this->highlightedChild);
 }
 
 void LSG_Modal::highlight(LSG_Component* component, const SDL_Point& mousePosition)
@@ -57,7 +61,12 @@ void LSG_Modal::highlight(LSG_Component* component, const SDL_Point& mousePositi
 		return;
 
 	if (component->visible && component->enabled)
+	{
 		component->highlighted = SDL_PointInRect(&mousePosition, &component->background);
+
+		if (component->highlighted && component->IsButton())
+			this->highlightedChild = true;
+	}
 
 	for (auto child : component->GetChildren())
 		this->highlight(child, mousePosition);
@@ -72,6 +81,16 @@ bool LSG_Modal::IsModalChild(LSG_Component* component)
 		return true;
 
 	return LSG_Modal::IsModalChild(component->GetParent());
+}
+
+bool LSG_Modal::isMouseOverIconClose(const SDL_Point& mousePosition)
+{
+	if (!this->enabled || !this->visible || this->hideCloseIcon)
+		return false;
+
+	auto iconClose = this->getCloseIcon();
+
+	return SDL_PointInRect(&mousePosition, &iconClose);
 }
 
 void LSG_Modal::Layout()
@@ -131,7 +150,7 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer)
 
 	SDL_RenderCopy(renderer, this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE], nullptr, &closeIcon);
 
-	if (SDL_PointInRect(&this->mousePosition, &closeIcon))
+	if (this->highlightedCloseIcon)
 		this->renderHighlight(renderer, closeIcon);
 }
 
