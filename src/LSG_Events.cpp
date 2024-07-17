@@ -135,6 +135,35 @@ void LSG_Events::handleKeyDownEvent(const SDL_KeyboardEvent& event)
 	{
 		auto list = static_cast<LSG_List*>(component);
 
+		if (event.keysym.mod & KMOD_CTRL)
+		{
+			switch (event.keysym.sym) {
+				case SDLK_a:     list->SelectAll(); break;
+				case SDLK_LEFT:  list->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
+				case SDLK_RIGHT: list->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
+				case SDLK_UP:    list->OnScrollVertical(-LSG_ScrollBar::Unit); break;
+				case SDLK_DOWN:  list->OnScrollVertical(LSG_ScrollBar::Unit); break;
+				default: break;
+			}
+
+			return;
+		}
+
+		if (event.keysym.mod & KMOD_SHIFT)
+		{
+			switch (event.keysym.sym) {
+				case SDLK_HOME:     list->SelectFirstRowShift(); break;
+				case SDLK_END:      list->SelectLastRowShift(); break;
+				case SDLK_UP:       list->SelectRow(-1, true); break;
+				case SDLK_DOWN:     list->SelectRow(1,  true); break;
+				case SDLK_PAGEUP:   list->SelectRow(-LSG_List::UnitPage, true); break;
+				case SDLK_PAGEDOWN: list->SelectRow(LSG_List::UnitPage,  true); break;
+				default: break;
+			}
+
+			return;
+		}
+
 		switch (event.keysym.sym) {
 			case SDLK_LEFT:     list->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
 			case SDLK_RIGHT:    list->OnScrollHorizontal(LSG_ScrollBar::Unit); break;

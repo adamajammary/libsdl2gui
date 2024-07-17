@@ -3,9 +3,9 @@
 LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->orientation = LSG_ConstOrientation::Vertical;
-	this->row         = -1;
-	this->wrap        = true;
+	this->orientation  = LSG_ConstOrientation::Vertical;
+	this->selectedRows = {};
+	this->wrap         = true;
 }
 
 void LSG_List::Activate()
@@ -41,9 +41,9 @@ int LSG_List::getRowHeight()
 	return 0;
 }
 
-int LSG_List::GetSelectedRow() const
+std::vector<int> LSG_List::GetSelectedRows() const
 {
-	return this->row;
+	return this->selectedRows;
 }
 
 LSG_SortOrder LSG_List::GetSortOrder()
@@ -86,14 +86,35 @@ bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 		return true;
 	}
 
-	auto background = this->getFillArea(this->background, this->border);
-	auto positionY  = (mousePosition.y - background.y + this->scrollOffsetY);
 	auto rowHeight  = this->getRowHeight();
 
 	if (rowHeight < 1)
 		return false;
 
-	this->Select(positionY / rowHeight);
+	auto background = this->getFillArea(this->background, this->border);
+	auto positionY  = (mousePosition.y - background.y + this->scrollOffsetY);
+	auto clickedRow = (positionY / rowHeight);
+	auto keyState   = SDL_GetKeyboardState(nullptr);
+
+	if (keyState[SDL_SCANCODE_LCTRL] || keyState[SDL_SCANCODE_RCTRL])
+	{
+		auto rowIter = std::find(this->selectedRows.begin(), this->selectedRows.end(), clickedRow);
+
+		if (rowIter == this->selectedRows.end()) {
+			this->selectedRows.push_back(clickedRow);
+			this->sendEvent(LSG_EVENT_ROW_SELECTED);
+		} else {
+			this->selectedRows.erase(rowIter);
+			this->sendEvent(LSG_EVENT_ROW_UNSELECTED);
+		}
+	}
+	else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
+	{
+		if (!this->selectedRows.empty())
+			this->Select(this->selectedRows[0], clickedRow);
+	} else {
+		this->Select(clickedRow);
+	}
 
 	return true;
 }
@@ -121,7 +142,7 @@ void LSG_List::removeItem(int row, int lastRow)
 		this->scrollOffsetY = 0;
 
 		this->Select(-1);
-	} else if (this->row > lastRow) {
+	} else if (!this->selectedRows.empty() && this->selectedRows[0] > lastRow) {
 		this->SelectLastRow();
 	}
 }
@@ -212,37 +233,39 @@ void LSG_List::render(SDL_Renderer* renderer)
 
 void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)
 {
-	if (this->row < 0)
+	if (this->selectedRows.empty())
 		return;
-
-	auto header = (!this->header.empty() ? rowHeight : 0);
-
-	auto scrollSize  = LSG_ScrollBar::GetSize();
-	auto scrollWidth = (this->showScrollY ? scrollSize : 0);
-
-	SDL_Rect row = background;
-
-	row.y += (header + (this->row * rowHeight) - this->scrollOffsetY);
-	row.w -= scrollWidth;
-	row.h  = rowHeight;
-
-	auto topOffset    = ((row.y + rowHeight) - background.y);
-	auto bottomOffset = ((background.y + background.h) - row.y);
-
-	if ((topOffset <= 0) || (bottomOffset <= 0))
-		return;
-
-	if (topOffset < rowHeight) {
-		row.y += (row.h - topOffset);
-		row.h  = topOffset;
-	} else if (bottomOffset < rowHeight) {
-		row.h = bottomOffset;
-	}
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 64);
 
-	SDL_RenderFillRect(renderer, &row);
+	auto header = (!this->header.empty() ? rowHeight : 0);
+	auto rowY   = (background.y + header - this->scrollOffsetY);
+
+	SDL_Rect row = background;
+
+	row.w -= (this->showScrollY ? LSG_ScrollBar::GetSize() : 0);
+
+	for (auto selectedRow : this->selectedRows)
+	{
+		row.y = (rowY + (selectedRow * rowHeight));
+		row.h = rowHeight;
+
+		auto offsetTop    = ((row.y + rowHeight) - background.y);
+		auto offsetBottom = ((background.y + background.h) - row.y);
+
+		if ((offsetTop <= 0) || (offsetBottom <= 0))
+			continue;
+
+		if (offsetTop < rowHeight) {
+			row.y += (row.h - offsetTop);
+			row.h  = offsetTop;
+		} else if (offsetBottom < rowHeight) {
+			row.h = offsetBottom;
+		}
+
+		SDL_RenderFillRect(renderer, &row);
+	}
 }
 
 void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)
@@ -281,46 +304,122 @@ bool LSG_List::Select(int row)
 	if (!this->enabled || (row > this->getLastRow()))
 		return false;
 
-	this->row = row;
+	this->selectedRows = { row };
 
 	this->sendEvent(row < 0 ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
 
 	return true;
 }
 
+bool LSG_List::Select(int start, int end)
+{
+	if (!this->enabled)
+		return false;
+
+	this->selectedRows.clear();
+
+	if ((start < 0) || (end < 0))
+		return false;
+
+	if (end < start) {
+		for (int i = start; i >= end; i--)
+			this->selectedRows.push_back(i);
+	} else {
+		for (int i = start; i <= end; i++)
+			this->selectedRows.push_back(i);
+	}
+
+	this->sendEvent(this->selectedRows.empty() ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
+
+	return true;
+}
+
+bool LSG_List::Select(const std::vector<int>& rows)
+{
+	if (!this->enabled)
+		return false;
+
+	this->selectedRows.clear();
+
+	auto lastRow = this->getLastRow();
+
+	for (auto row : rows)
+	{
+		auto rowIter = std::find(this->selectedRows.begin(), this->selectedRows.end(), row);
+
+		if ((row >= 0) && (row <= lastRow) && (rowIter == this->selectedRows.end()))
+			this->selectedRows.push_back(row);
+	}
+
+	this->sendEvent(this->selectedRows.empty() ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
+
+	return true;
+}
+
+void LSG_List::SelectAll()
+{
+	if (!this->enabled || this->isEmpty())
+		return;
+
+	this->Select(0, this->getLastRow());
+	this->OnScrollHome();
+}
+
 void LSG_List::SelectFirstRow()
 {
-	if (!this->enabled || (this->items.empty() && this->groups.empty() && this->rows.empty()))
+	if (!this->enabled || this->isEmpty())
 		return;
 
 	this->Select(0);
 	this->OnScrollHome();
 }
 
+void LSG_List::SelectFirstRowShift()
+{
+	if (!this->enabled || this->selectedRows.empty() || this->isEmpty())
+		return;
+
+	this->Select(this->selectedRows[0], 0);
+	this->OnScrollHome();
+}
+
 void LSG_List::SelectLastRow()
 {
-	if (!this->enabled || (this->items.empty() && this->groups.empty() && this->rows.empty()))
+	if (!this->enabled || this->isEmpty())
 		return;
 
 	this->Select(this->getLastRow());
 	this->OnScrollEnd();
 }
 
-void LSG_List::SelectRow(int offset)
+void LSG_List::SelectLastRowShift()
 {
-	if (!this->enabled || (this->items.empty() && this->groups.empty() && this->rows.empty()))
+	if (!this->enabled || this->selectedRows.empty() || this->isEmpty())
 		return;
 
-	auto nextRow = (this->row + offset);
+	this->Select(this->selectedRows[0], this->getLastRow());
+	this->OnScrollEnd();
+}
 
-	this->Select(std::max(0, std::min(this->getLastRow(), nextRow)));
+void LSG_List::SelectRow(int offset, bool multiSelect)
+{
+	if (!this->enabled || this->selectedRows.empty() || this->isEmpty())
+		return;
+
+	auto selectedRow = (!multiSelect ? this->selectedRows[0] : this->selectedRows[this->selectedRows.size() - 1]);
+	auto nextRow     = std::max(0, std::min(this->getLastRow(), (selectedRow + offset)));
+
+	if (!multiSelect)
+		this->Select(nextRow);
+	else
+		this->Select(this->selectedRows[0], nextRow);
 
 	if (!this->showScrollY)
 		return;
 
 	auto background    = this->getFillArea(this->background, this->border);
 	auto rowHeight     = this->getRowHeight();
-	auto rowY          = (background.y + (this->row * rowHeight));
+	auto rowY          = (background.y + (selectedRow * rowHeight));
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 	auto pagination    = (this->showPagination() ? scrollBarSize : 0);
 	auto scrollX       = (this->showScrollX ? scrollBarSize : 0);
@@ -343,7 +442,7 @@ void LSG_List::sendEvent(LSG_EventType type)
 	listEvent.type       = SDL_RegisterEvents(1);
 	listEvent.user.code  = (int)type;
 	listEvent.user.data1 = (void*)strdup(this->id.c_str());
-	listEvent.user.data2 = new int(this->row);
+	listEvent.user.data2 = new std::vector(this->selectedRows);
 
 	SDL_PushEvent(&listEvent);
 }

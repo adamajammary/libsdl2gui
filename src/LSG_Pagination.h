@@ -53,6 +53,7 @@ public:
 protected:
 	int  getLastRow();
 	void initPagination(const SDL_Rect& background, const SDL_Color& backgroundColor);
+	bool isEmpty();
 	bool isPageArrowClicked(const SDL_Point& mousePosition);
 	bool isPaginationClicked(const SDL_Point& mousePosition);
 	bool navigate(int page);

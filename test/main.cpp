@@ -36,9 +36,14 @@ static void handleIdEvent(const std::string& id)
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
 }
 
-static void handleRowEvent(const std::string& id, int row)
+static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
 {
-    auto rowText = (row >= 0 ? std::to_string(row) : "");
+    std::string rowText = (!rows.empty() ? std::to_string(rows[0]) : "");
+
+    for (size_t i = 1; i < rows.size(); i++) {
+        if (rows[i] >= 0)
+            rowText.append("," + std::to_string(rows[i]));
+    }
 
     if (id == "List")
         LSG_SetText("ListRow", rowText);
@@ -60,7 +65,7 @@ static void handleUserEvent(const SDL_UserEvent& event)
         break;
     case LSG_EVENT_ROW_SELECTED:
     case LSG_EVENT_ROW_UNSELECTED:
-        handleRowEvent(id, *static_cast<int*>(event.data2));
+        handleRowEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
         if (std::string(id) == "Slider")

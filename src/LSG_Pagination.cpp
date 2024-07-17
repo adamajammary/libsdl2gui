@@ -318,6 +318,11 @@ void LSG_Pagination::initPagination(const SDL_Rect& background, const SDL_Color&
 	this->textureLabel = this->getPaginationTexture(this->getLabel(), color);
 }
 
+bool LSG_Pagination::isEmpty()
+{
+	return (this->items.empty() && this->groups.empty() && this->rows.empty());
+}
+
 bool LSG_Pagination::isPageArrowClicked(const SDL_Point& mousePosition)
 {
 	if (SDL_PointInRect(&mousePosition, &this->arrowHome))

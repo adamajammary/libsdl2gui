@@ -439,7 +439,7 @@ int LSG_GetScrollVertical(const std::string& id)
 	return 0;
 }
 
-int LSG_GetSelectedRow(const std::string& id)
+std::vector<int> LSG_GetSelectedRows(const std::string& id)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -449,7 +449,7 @@ int LSG_GetSelectedRow(const std::string& id)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	return static_cast<LSG_List*>(component)->GetSelectedRow();
+	return static_cast<LSG_List*>(component)->GetSelectedRows();
 }
 
 SDL_Size LSG_GetSize(const std::string& id)
@@ -1092,10 +1092,7 @@ void LSG_SelectRow(const std::string& id, int row)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	if (component->IsList())
-		static_cast<LSG_List*>(component)->Select(row);
-	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->Select(row);
+	static_cast<LSG_List*>(component)->Select(row);
 }
 
 void LSG_SelectRowByOffset(const std::string& id, int offset)
@@ -1108,10 +1105,20 @@ void LSG_SelectRowByOffset(const std::string& id, int offset)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	if (component->IsList())
-		static_cast<LSG_List*>(component)->SelectRow(offset);
-	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->SelectRow(offset);
+	static_cast<LSG_List*>(component)->SelectRow(offset);
+}
+
+void LSG_SelectRows(const std::string& id, const std::vector<int>& rows)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
+
+	static_cast<LSG_List*>(component)->Select(rows);
 }
 
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)

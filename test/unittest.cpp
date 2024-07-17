@@ -167,6 +167,38 @@ namespace LSG_UnitTest
             }
         }
 
+        TEST_METHOD(SelectRow)
+        {
+            try
+            {
+                SetItems();
+
+                auto rows1 = LSG_GetSelectedRows("List");
+
+                Assert::AreEqual(1, (int)rows1.size());
+                Assert::AreEqual(0, (int)rows1[0]);
+
+                LSG_SelectRow("List", 1);
+
+                auto rows2 = LSG_GetSelectedRows("List");
+
+                Assert::AreEqual(1, (int)rows2.size());
+                Assert::AreEqual(1, (int)rows2[0]);
+
+                LSG_SelectRows("List", { -1, 1, 3, 100 });
+
+                auto rows3 = LSG_GetSelectedRows("List");
+
+                Assert::AreEqual(2, (int)rows3.size());
+                Assert::AreEqual(1, (int)rows3[0]);
+                Assert::AreEqual(3, (int)rows3[1]);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
         TEST_METHOD(SetItem)
         {
             try

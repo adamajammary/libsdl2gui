@@ -248,11 +248,11 @@ void myapp_handleEvents(const std::vector<SDL_Event>& events)
 ```cpp
 void myapp_handleUserEvent(const SDL_UserEvent& event)
 {
-  LSG_EventType type = (LSG_EventType)event.code;
-  const char*   id   = static_cast<const char*>(event.data1);
+  auto type = (LSG_EventType)event.code;
+  auto id   = static_cast<const char*>(event.data1);
 
   if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
-    int rowIndex = *static_cast<int*>(event.data2); // 0-based row index (-1 for unselected)
+    int rows = *static_cast<std::vector<int>*>(event.data2); // 0-based row indices (-1 for unselected)
   else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
     double sliderValue = *static_cast<double*>(event.data2); // Percent-based slider value: [0.0, 1.0]
   else if (type == LSG_EVENT_COMPONENT_KEY_ENTERED)
@@ -1195,10 +1195,10 @@ Exceptions
 ### LSG_GetSelectedRow
 
 ```cpp
-int LSG_GetSelectedRow(const std::string& id);
+std::vector<int> LSG_GetSelectedRows(const std::string& id);
 ```
 
-Returns the selected 0-based row index of the list or table.
+Returns the selected 0-based row indices (-1 for unselected) of the list or table.
 
 Parameters
 
@@ -1954,7 +1954,7 @@ Selects the row in the list or table.
 Parameters
 
 - **id** \<list\> or \<table\> component ID
-- **row** 0-based row index
+- **row** 0-based row index (-1 for unselected)
 
 Exceptions
 
@@ -1989,6 +1989,30 @@ Example
 
 ```cpp
 LSG_SelectRowByOffset("List", -2);
+```
+
+### LSG_SelectRows
+
+```cpp
+void LSG_SelectRows(const std::string& id, const std::vector<int>& rows);
+```
+
+Selects the rows in the list or table.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **rows** 0-based row indices
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectRows("List", { 1, 2 });
 ```
 
 ### LSG_SetAlignmentHorizontal

@@ -120,12 +120,13 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 		return true;
 	}
 
-	auto background = this->getFillArea(this->background, this->border);
-	auto positionY  = (mousePosition.y - background.y);
-	auto rowHeight  = this->getRowHeight();
+	auto rowHeight = this->getRowHeight();
 
 	if (rowHeight < 1)
 		return false;
+
+	auto background = this->getFillArea(this->background, this->border);
+	auto positionY  = (mousePosition.y - background.y);
 
 	if (!this->header.empty() && ((positionY / rowHeight) == 0))
 	{
@@ -156,10 +157,29 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 		return true;
 	}
 
-	auto header = (!this->header.empty() ? 1 : 0);
-	auto row    = (((positionY + this->scrollOffsetY) / rowHeight) - header);
+	auto header     = (!this->header.empty() ? 1 : 0);
+	auto clickedRow = (((positionY + this->scrollOffsetY) / rowHeight) - header);
+	auto keyState   = SDL_GetKeyboardState(nullptr);
 
-	this->Select(row);
+	if (keyState[SDL_SCANCODE_LCTRL] || keyState[SDL_SCANCODE_RCTRL])
+	{
+		auto rowIter = std::find(this->selectedRows.begin(), this->selectedRows.end(), clickedRow);
+
+		if (rowIter == this->selectedRows.end()) {
+			this->selectedRows.push_back(clickedRow);
+			this->sendEvent(LSG_EVENT_ROW_SELECTED);
+		} else {
+			this->selectedRows.erase(rowIter);
+			this->sendEvent(LSG_EVENT_ROW_UNSELECTED);
+		}
+	}
+	else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
+	{
+		if (!this->selectedRows.empty())
+			this->Select(this->selectedRows[0], clickedRow);
+	} else {
+		this->Select(clickedRow);
+	}
 
 	return true;
 }
@@ -244,7 +264,7 @@ void LSG_Table::removeRow()
 		this->scrollOffsetY = 0;
 
 		this->Select(-1);
-	} else if (this->row > lastRow) {
+	} else if (!this->selectedRows.empty() && this->selectedRows[0] > lastRow) {
 		this->SelectLastRow();
 	}
 }

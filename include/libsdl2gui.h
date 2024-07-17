@@ -284,12 +284,12 @@ DLLEXPORT int DLL LSG_GetScrollHorizontal(const std::string& id);
 DLLEXPORT int DLL LSG_GetScrollVertical(const std::string& id);
 
 /**
- * @returns the selected 0-based row index of the list or table
+ * @returns the selected 0-based row indices (-1 for unselected) of the list or table
  * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT int DLL LSG_GetSelectedRow(const std::string& id);
+DLLEXPORT std::vector<int> DLL LSG_GetSelectedRows(const std::string& id);
 
 /**
  * @returns the component size
@@ -645,7 +645,7 @@ DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
 /**
  * @brief Selects the row in the list or table.
  * @param id  <list> or <table> component ID
- * @param row 0-based row index
+ * @param row 0-based row index (-1 for unselected)
  * @throws invalid_argument
  * @throws runtime_error
  */
@@ -659,6 +659,15 @@ DLLEXPORT void DLL LSG_SelectRow(const std::string& id, int row);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SelectRowByOffset(const std::string& id, int offset);
+
+/**
+ * @brief Selects the rows in the list or table.
+ * @param id   <list> or <table> component ID
+ * @param rows 0-based row indices
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectRows(const std::string& id, const std::vector<int>& rows);
 
 /**
  * @brief Sets the horizontal alignment of child components in containers like <panel> and <button>, or alignment of textured components like <image> and <text> relative to available space in their background component.
