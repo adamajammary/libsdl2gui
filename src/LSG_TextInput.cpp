@@ -67,8 +67,16 @@ void LSG_TextInput::Delete()
 		size_t characterWidth = (character < 0 ? 2 : 1);
 
 		this->value.erase(this->cursorPosition, characterWidth);
-	} else {
+	}
+	else if (this->highlightedTextLength > 0)
+	{
 		this->value.erase(this->cursorPosition, this->highlightedTextLength);
+	}
+	else if (this->highlightedTextLength < 0)
+	{
+		this->value.erase((this->cursorPosition + this->highlightedTextLength), std::abs(this->highlightedTextLength));
+
+		this->cursorPosition += this->highlightedTextLength;
 	}
 
 	this->highlightedTextLength = 0;
@@ -359,8 +367,16 @@ void LSG_TextInput::Remove()
 		this->value.erase((this->cursorPosition - characterWidth), characterWidth);
 
 		this->cursorPosition -= characterWidth;
-	} else {
+	}
+	else if (this->highlightedTextLength > 0)
+	{
 		this->value.erase(this->cursorPosition, this->highlightedTextLength);
+	}
+	else if (this->highlightedTextLength < 0)
+	{
+		this->value.erase((this->cursorPosition + this->highlightedTextLength), std::abs(this->highlightedTextLength));
+
+		this->cursorPosition += this->highlightedTextLength;
 	}
 
 	this->highlightedTextLength = 0;
