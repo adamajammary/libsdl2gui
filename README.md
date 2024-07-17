@@ -252,7 +252,7 @@ void myapp_handleUserEvent(const SDL_UserEvent& event)
   auto id   = static_cast<const char*>(event.data1);
 
   if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
-    int rows = *static_cast<std::vector<int>*>(event.data2); // 0-based row indices (-1 for unselected)
+    auto& rows = *static_cast<std::vector<int>*>(event.data2); // 0-based row indices (-1 for unselected)
   else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
     double sliderValue = *static_cast<double*>(event.data2); // Percent-based slider value: [0.0, 1.0]
   else if (type == LSG_EVENT_COMPONENT_KEY_ENTERED)
