@@ -10,8 +10,11 @@ public:
 	~LSG_Table() {}
 
 public:
-	static const int ColumnSpacing = 10;
+	static const int ColumnSpacing = 20;
 	static const int LayerOffset   = 100000000;
+
+private:
+	std::vector<SDL_Texture*> headerTextures;
 
 public:
 	void         AddGroup(const LSG_TableGroup& group);
@@ -39,6 +42,7 @@ public:
 	void         Update();
 
 private:
+	virtual void destroyTextures() override;
 	int          getColumnCount();
 	void         removeRow(int row, int start, int end);
 	void         removeRow();

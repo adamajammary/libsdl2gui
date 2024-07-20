@@ -78,7 +78,7 @@ public:
 	void             SetVisible(bool visible);
 
 protected:
-	void          destroyTextures();
+	virtual void  destroyTextures();
 	LSG_Alignment getAlignment();
 	SDL_Rect      getArea(const SDL_Rect& background);
 	SDL_Rect      getFillArea(const SDL_Rect& background, int border);
@@ -93,7 +93,6 @@ protected:
 	void          renderHighlight(SDL_Renderer* renderer);
 	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background);
 	void          renderTexture(SDL_Renderer*   renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
-	void          renderTextures(SDL_Renderer*  renderer, const std::vector<SDL_Texture*>& textures, int maxWidth, int spacing, SDL_Rect& clip, SDL_Rect& destination);
 
 private:
 	void renderBorder(SDL_Renderer* renderer);

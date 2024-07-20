@@ -122,8 +122,8 @@ Euismod lacinia at quis risus.</text>
         <panel id="PanelIdTable" padding="10" border="1">
           <table id="Table" row-border="true" sort="ascending" sort-column="0">
             <table-header>
-              <table-column>DOLOR</table-column>
-              <table-column>MAGNA</table-column>
+              <table-column>Dolor</table-column>
+              <table-column>Magna</table-column>
             </table-header>
 
             <table-row>
@@ -156,8 +156,8 @@ Euismod lacinia at quis risus.</text>
         <panel id="PanelIdTableWithGroups" padding="10" border="1">
           <table id="TableWithGroups" sort="ascending" sort-column="0">
             <table-header>
-              <table-column>DOLOR</table-column>
-              <table-column>MAGNA</table-column>
+              <table-column>Dolor</table-column>
+              <table-column>Magna</table-column>
             </table-header>
 
             <table-group group="Vestibulum">

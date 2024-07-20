@@ -724,7 +724,7 @@ void LSG_TextInput::setPlaceholder()
 	auto textColor = SDL_Color(this->textColor);
 	textColor.a    = (uint8_t)((double)textColor.a * 0.8);
 
-	this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = this->getTexture(this->placeholder, 0, &textColor);
+	this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = this->getTexture(this->placeholder, 0, -1, &textColor);
 }
 
 void LSG_TextInput::SetText()

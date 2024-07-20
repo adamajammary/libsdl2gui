@@ -60,6 +60,20 @@ void LSG_Table::AddRow(LibXml::xmlNode* node)
 	this->AddRow(row);
 }
 
+void LSG_Table::destroyTextures()
+{
+	LSG_Component::destroyTextures();
+
+	for (auto texture : this->headerTextures) {
+		if (texture) {
+			SDL_DestroyTexture(texture);
+			texture = nullptr;
+		}
+	}
+
+	this->headerTextures.clear();
+}
+
 int LSG_Table::getColumnCount()
 {
 	auto columns = (int)this->header.size();
@@ -352,7 +366,6 @@ void LSG_Table::render(SDL_Renderer* renderer)
 void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, const SDL_Size& size, int spacing, int rowHeight)
 {
 	auto     color  = LSG_Graphics::GetOffsetColor(this->backgroundColor, 30);
-	SDL_Rect clip   = { this->scrollOffsetX, 0, std::min(size.width, background.w), rowHeight };
 	auto     dest   = LSG_Graphics::GetDestinationAligned(background, size, alignment);
 	SDL_Rect header = { dest.x, dest.y, background.w, rowHeight };
 		
@@ -360,7 +373,39 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
 	SDL_RenderFillRect(renderer, &header);
 
-	this->renderTextures(renderer, this->textures, background.w, spacing, clip, dest);
+	SDL_Rect clip = {};
+
+	clip.h = rowHeight;
+	dest.h = clip.h;
+
+	auto offsetX        = this->scrollOffsetX;
+	auto remainingWidth = background.w;
+
+	for (size_t i = 0; i < this->headerTextures.size(); i++)
+	{
+		auto columnSize  = LSG_Graphics::GetTextureSize(this->textures[i]);
+		auto textureSize = LSG_Graphics::GetTextureSize(this->headerTextures[i]);
+
+		clip.x = std::max(0, offsetX);
+		clip.w = std::max(0, std::min((textureSize.width - clip.x), remainingWidth));
+
+		dest.w = clip.w;
+
+		auto columnWidth = std::max(0, std::min((columnSize.width - clip.x), remainingWidth));
+		auto clipWidth   = (columnWidth + spacing);
+		auto sizeWidth   = columnSize.width;
+
+		if (columnWidth > 0) {
+			SDL_RenderCopy(renderer, this->headerTextures[i], &clip, &dest);
+		} else {
+			clipWidth  = std::max((spacing - (clip.x - columnSize.width)), 0);
+			sizeWidth += (spacing - clipWidth);
+		}
+
+		dest.x         += clipWidth;
+		remainingWidth -= clipWidth;
+		offsetX        -= sizeWidth;
+	}
 }
 
 void LSG_Table::reset()
@@ -476,7 +521,6 @@ void LSG_Table::SetRows()
 		return;
 
 	this->destroyTextures();
-
 	this->setRows();
 }
 
@@ -515,6 +559,8 @@ void LSG_Table::setRows(bool sort)
 			}
 
 			columns[i].append("\n");
+
+			this->headerTextures.push_back(this->getTexture(columns[i], 0, TTF_STYLE_BOLD));
 		}
 	}
 

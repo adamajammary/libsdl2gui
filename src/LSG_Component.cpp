@@ -76,11 +76,10 @@ void LSG_Component::destroyTextures()
 		this->texture = nullptr;
 	}
 
-	for (auto texture : this->textures)
-	{
+	for (auto texture : this->textures) {
 		if (texture) {
 			SDL_DestroyTexture(texture);
-			this->texture = nullptr;
+			texture = nullptr;
 		}
 	}
 
@@ -502,31 +501,6 @@ void LSG_Component::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgr
 	auto     dest = LSG_Graphics::GetDestinationAligned(background, size, alignment);
 
 	SDL_RenderCopy(renderer, texture, &clip, &dest);
-}
-
-void LSG_Component::renderTextures(SDL_Renderer* renderer, const std::vector<SDL_Texture*>& textures, int maxWidth, int spacing, SDL_Rect& clip, SDL_Rect& destination)
-{
-	auto offsetX        = clip.x;
-	auto remainingWidth = maxWidth;
-
-	for (auto texture : textures)
-	{
-		auto size = LSG_Graphics::GetTextureSize(texture);
-
-		clip.x = std::max(0, offsetX);
-		clip.w = std::max(0, std::min((size.width - clip.x), remainingWidth));
-
-		destination.w = clip.w;
-		destination.h = clip.h;
-
-		SDL_RenderCopy(renderer, texture, &clip, &destination);
-
-		auto width = (clip.w + spacing);
-
-		destination.x  += width;
-		remainingWidth -= width;
-		offsetX        -= size.width;
-	}
 }
 
 void LSG_Component::SetAlignmentHorizontal(LSG_HAlign alignment)

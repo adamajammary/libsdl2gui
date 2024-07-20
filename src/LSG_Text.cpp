@@ -79,16 +79,18 @@ LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 //	return xmlText;
 //}
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, SDL_Color* textColor)
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
 {
 	if (text.empty())
 		return nullptr;
 
-	auto color = (!textColor    ? this->textColor     : *textColor);
-	auto size  = (fontSize == 0 ? this->getFontSize() : fontSize);
-	auto font  = LSG_Text::GetFontArial(size);
+	auto color = (!textColor     ? this->textColor     : *textColor);
+	auto size  = (fontSize  == 0 ? this->getFontSize() : fontSize);
+	auto style = (fontStyle < 0  ? this->fontStyle     : fontStyle);
 
-	TTF_SetFontStyle(font, this->fontStyle);
+	auto font = LSG_Text::GetFontArial(size);
+
+	TTF_SetFontStyle(font, style);
 
 	SDL_Surface* surface   = nullptr;
 	auto         textUTF16 = LSG_Text::ToUTF16(text);

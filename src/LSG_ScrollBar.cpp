@@ -316,6 +316,9 @@ void LSG_ScrollBar::renderScrollableTextures(SDL_Renderer* renderer, const SDL_R
 	auto backgroundArea = this->getScrollableBackground(fillArea, border, size);
 	auto clip           = this->getScrollableClip(backgroundArea, size);
 	auto destination    = LSG_Graphics::GetDestinationAligned(backgroundArea, size, alignment);
+
+	destination.h = clip.h;
+
 	auto offsetX        = this->scrollOffsetX;
 	auto remainingWidth = backgroundArea.w;
 
@@ -327,15 +330,20 @@ void LSG_ScrollBar::renderScrollableTextures(SDL_Renderer* renderer, const SDL_R
 		clip.w = std::max(0, std::min((size.width - clip.x), remainingWidth));
 
 		destination.w = clip.w;
-		destination.h = clip.h;
 
-		SDL_RenderCopy(renderer, texture, &clip, &destination);
+		auto clipWidth = (clip.w + spacing);
+		auto sizeWidth = size.width;
 
-		auto width = (clip.w + spacing);
+		if (clip.w > 0) {
+			SDL_RenderCopy(renderer, texture, &clip, &destination);
+		} else {
+			clipWidth  = std::max((spacing - (clip.x - size.width)), 0);
+			sizeWidth += (spacing - clipWidth);
+		}
 
-		destination.x  += width;
-		remainingWidth -= width;
-		offsetX        -= size.width;
+		destination.x  += clipWidth;
+		remainingWidth -= clipWidth;
+		offsetX        -= sizeWidth;
 	}
 }
 
