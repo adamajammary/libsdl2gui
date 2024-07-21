@@ -120,7 +120,7 @@ Euismod lacinia at quis risus.</text>
 
       <panel spacing="10">
         <panel id="PanelIdTable" padding="10" border="1">
-          <table id="Table" row-border="true" sort="ascending" sort-column="0">
+          <table id="Table" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
             <table-header>
               <table-column>Dolor</table-column>
               <table-column>Magna</table-column>

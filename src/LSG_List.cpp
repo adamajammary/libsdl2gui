@@ -205,7 +205,7 @@ void LSG_List::render(SDL_Renderer* renderer)
 	auto rowHeight       = this->getRowHeight();
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	bool showPagination  = this->showPagination();
-	bool showRowBorder   = (this->GetXmlAttribute("row-border") == "true");
+	bool showRowBorder   = (this->GetXmlAttribute("show-row-border") == "true");
 	auto textureSize     = this->getTextureSize();
 
 	if (fillArea.h < scrollBarSize2x)
@@ -236,8 +236,10 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 	if (this->selectedRows.empty())
 		return;
 
+	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
+
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 64);
+	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 64);
 
 	auto header = (!this->header.empty() ? rowHeight : 0);
 	auto rowY   = (background.y + header - this->scrollOffsetY);
@@ -273,8 +275,10 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroun
 	if (rowHeight < 1)
 		return;
 
+	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
+
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 64);
+	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 64);
 
 	auto scrollOffsetY = (this->showScrollY ? (this->scrollOffsetY % rowHeight) : 0);
 	auto scrollSize    = LSG_ScrollBar::GetSize();

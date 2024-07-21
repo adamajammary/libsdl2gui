@@ -17,6 +17,11 @@ public:
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static LSG_ImageOrientation    GetImageOrientation(const std::string& imageFile);
+	static SDL_Color               GetInverseColor(const SDL_Color& color);
+	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
+	static SDL_Texture*            GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize);
+	static SDL_Size                GetTextureSize(SDL_Texture* texture);
+	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static SDL_Texture*            GetVectorBack(const SDL_Color& color,  const SDL_Size& size);
 	static SDL_Texture*            GetVectorClose(const SDL_Color& color, const SDL_Size& size);
 	static SDL_Texture*            GetVectorMenu(const SDL_Color& color,  const SDL_Size& size);
@@ -25,11 +30,6 @@ public:
 	static SDL_Texture*            GetVectorPageEnd(const SDL_Color& color, const SDL_Size& size);
 	static SDL_Texture*            GetVectorPageNext(const SDL_Color& color, const SDL_Size& size);
 	static SDL_Texture*            GetVectorPageStart(const SDL_Color& color, const SDL_Size& size);
-	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
-	static SDL_Texture*            GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize);
-	static SDL_Size                GetTextureSize(SDL_Texture* texture);
-	static SDL_Size                GetTextureSize(std::vector<SDL_Texture*> textures, LSG_Orientation orientation);
-	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
 	static SDL_Color               ToSdlColor(const std::string& color);
 	static std::string             ToXmlAttribute(const SDL_Color& color);

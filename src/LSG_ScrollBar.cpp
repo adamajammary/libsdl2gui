@@ -311,42 +311,6 @@ void LSG_ScrollBar::renderScrollableTexture(SDL_Renderer* renderer, const SDL_Re
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
 }
 
-void LSG_ScrollBar::renderScrollableTextures(SDL_Renderer* renderer, const SDL_Rect& fillArea, int border, const LSG_Alignment& alignment, const std::vector<SDL_Texture*>& textures, const SDL_Size& size, int spacing)
-{
-	auto backgroundArea = this->getScrollableBackground(fillArea, border, size);
-	auto clip           = this->getScrollableClip(backgroundArea, size);
-	auto destination    = LSG_Graphics::GetDestinationAligned(backgroundArea, size, alignment);
-
-	destination.h = clip.h;
-
-	auto offsetX        = this->scrollOffsetX;
-	auto remainingWidth = backgroundArea.w;
-
-	for (auto texture : textures)
-	{
-		auto size = LSG_Graphics::GetTextureSize(texture);
-
-		clip.x = std::max(0, offsetX);
-		clip.w = std::max(0, std::min((size.width - clip.x), remainingWidth));
-
-		destination.w = clip.w;
-
-		auto clipWidth = (clip.w + spacing);
-		auto sizeWidth = size.width;
-
-		if (clip.w > 0) {
-			SDL_RenderCopy(renderer, texture, &clip, &destination);
-		} else {
-			clipWidth  = std::max((spacing - (clip.x - size.width)), 0);
-			sizeWidth += (spacing - clipWidth);
-		}
-
-		destination.x  += clipWidth;
-		remainingWidth -= clipWidth;
-		offsetX        -= sizeWidth;
-	}
-}
-
 void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_Rect& background, int maxWidth, const SDL_Color& backgroundColor, bool highlighted)
 {
 	auto scrollBarSize   = LSG_ScrollBar::GetSize();

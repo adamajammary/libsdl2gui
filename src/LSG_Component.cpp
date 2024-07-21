@@ -487,10 +487,11 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer)
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background)
 {
-	auto fillArea = this->getFillArea(background, this->border);
+	auto fillArea  = this->getFillArea(background, this->border);
+	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 32);
+	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 32);
 
 	SDL_RenderFillRect(renderer, &fillArea);
 }

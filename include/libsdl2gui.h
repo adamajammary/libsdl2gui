@@ -916,7 +916,7 @@ DLLEXPORT void DLL LSG_SetTableGroups(const std::string& id, const LSG_TableGrou
 
 /**
  * @brief Sets the header columns of the table.
- * @param id    <table> component ID
+ * @param id     <table> component ID
  * @param header Table header columns
  * @throws invalid_argument
  * @throws runtime_error
@@ -1035,6 +1035,15 @@ DLLEXPORT void DLL LSG_SetWindowSize(int width, int height);
 DLLEXPORT void DLL LSG_SetWindowTitle(const std::string& title);
 
 /**
+ * @brief Shows or hides the border/rule between columns.
+ * @param id   <table> component ID
+ * @param show true to show or false to hide
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ShowColumnBorder(const std::string& id, bool show = true);
+
+/**
  * @brief Shows a modal dialog with an error icon and the error message.
  * @param message Error message
  */
@@ -1042,6 +1051,7 @@ DLLEXPORT void DLL LSG_ShowError(const std::string& message);
 
 /**
  * @brief Shows or hides the border/rule between rows.
+ * @param id   <list> or <table> component ID
  * @param show true to show or false to hide
  * @throws invalid_argument
  * @throws runtime_error

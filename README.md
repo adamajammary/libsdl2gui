@@ -363,7 +363,7 @@ height="size"
 background-color="color"
 border="int"
 border-color="color"
-row-border="boolean"
+show-row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -506,7 +506,8 @@ height="size"
 background-color="color"
 border="int"
 border-color="color"
-row-border="boolean"
+show-column-border="boolean"
+show-row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -3045,6 +3046,24 @@ Example
 LSG_SetWindowTitle("New Window");
 ```
 
+### LSG_ShowColumnBorder
+
+```cpp
+void LSG_ShowColumnBorder(const std::string& id, bool show = true);
+```
+
+Shows or hides the border/rule between columns.
+
+Parameters
+
+- **id** \<table\> component ID
+- **show** true to show or false to hide
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_ShowError
 
 ```cpp
@@ -3067,7 +3086,7 @@ Shows or hides the border/rule between rows.
 
 Parameters
 
-- **id** \<list\> or  \<table\> component ID
+- **id** \<list\> or \<table\> component ID
 - **show** true to show or false to hide
 
 Exceptions

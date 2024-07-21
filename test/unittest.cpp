@@ -293,8 +293,8 @@ namespace LSG_UnitTest
 
                 Assert::AreEqual(2, (int)header.size());
 
-                Assert::AreEqual("DOLOR", header[0].c_str());
-                Assert::AreEqual("MAGNA", header[1].c_str());
+                Assert::AreEqual("Dolor", header[0].c_str());
+                Assert::AreEqual("Magna", header[1].c_str());
             }
             catch (const std::exception& e)
             {

@@ -1675,6 +1675,19 @@ void LSG_SetWindowTitle(const std::string& title)
 	LSG_Window::SetTitle(title);
 }
 
+void LSG_ShowColumnBorder(const std::string& id, bool show)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "show-column-border", (show ? "true" : "false"));
+}
+
 void LSG_ShowError(const std::string& message)
 {
 	LSG_Window::ShowMessage(message);
@@ -1690,7 +1703,7 @@ void LSG_ShowRowBorder(const std::string& id, bool show)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	LSG_XML::SetAttribute(component->GetXmlNode(), "row-border", (show ? "true" : "false"));
+	LSG_XML::SetAttribute(component->GetXmlNode(), "show-row-border", (show ? "true" : "false"));
 }
 
 void LSG_SortList(const std::string& id, LSG_SortOrder sortOrder)
