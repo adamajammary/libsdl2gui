@@ -466,7 +466,7 @@ void LSG_List::setItem(int row, int lastRow, const std::string& item)
 	this->items[row] = item;
 
 	this->destroyTextures();
-	this->setItems();
+	this->setItems(false);
 }
 
 void LSG_List::SetItems(const LSG_Strings& items)
@@ -490,7 +490,6 @@ void LSG_List::SetItems()
 		return;
 
 	this->destroyTextures();
-
 	this->setItems();
 }
 

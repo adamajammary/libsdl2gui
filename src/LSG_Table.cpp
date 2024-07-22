@@ -560,7 +560,8 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 
 		pageRow = columns;
 
-		this->reset();
+		this->destroyTextures();
+		this->setRows(false);
 
 		return;
 	}
