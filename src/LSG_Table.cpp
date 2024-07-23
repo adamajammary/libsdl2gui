@@ -311,7 +311,7 @@ void LSG_Table::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	auto columnSpacing = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
 	auto textureSize   = this->getTextureSize();
 
-	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
+	textureSize.width += (columnSpacing * (int)this->textures.size());
 
 	SDL_Size size = {};
 
@@ -350,7 +350,7 @@ void LSG_Table::render(SDL_Renderer* renderer)
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	auto textureSize     = this->getTextureSize();
 
-	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
+	textureSize.width += (columnSpacing * (int)this->textures.size());
 
 	if (fillArea.h < scrollBarSize2x)
 		return;
@@ -387,7 +387,17 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 	auto columnSize = LSG_Graphics::GetTextureSize(this->textures[column]);
 	auto headerSize = LSG_Graphics::GetTextureSize(this->headerTextures[column]);
 
-	clip.x = std::max(0, offsetX);
+	auto spacingHalf = (spacing / 2);
+
+	if ((column == 0) && (offsetX <= spacingHalf)) {
+		clip.x         = 0;
+		destination.x -= offsetX;
+	} else if (column == 0) {
+		clip.x         = std::max(0, (offsetX - spacingHalf));
+		destination.x -= spacingHalf;
+	} else {
+		clip.x = std::max(0, (offsetX - spacingHalf));
+	}
 
 	if (header)
 		clip.w = std::max(0, std::min((headerSize.width - clip.x), width));
@@ -433,6 +443,8 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 	auto remainingWidth = header.w;
 	auto spacingHalf    = (spacing / 2);
 
+	destination.x += spacingHalf;
+
 	bool showColumnBorder = (this->GetXmlAttribute("show-column-border") == "true");
 
 	if (showColumnBorder)
@@ -467,6 +479,9 @@ void LSG_Table::renderRows(SDL_Renderer* renderer, const SDL_Rect& fillArea, con
 
 	auto offsetX        = this->scrollOffsetX;
 	auto remainingWidth = background.w;
+	auto spacingHalf    = (spacing / 2);
+
+	destination.x += spacingHalf;
 
 	for (size_t i = 0; i < this->textures.size(); i++)
 		this->renderColumn(renderer, i, clip, destination, spacing, offsetX, remainingWidth, false);
