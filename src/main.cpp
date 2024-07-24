@@ -521,6 +521,19 @@ int LSG_GetSpacing(const std::string& id)
 	return component->GetSpacing();
 }
 
+int LSG_GetTableColumnWidth(const std::string& id, int column)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	return static_cast<LSG_Table*>(component)->GetColumnWidth(column);
+}
+
 LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group)
 {
 	if (!isRunning)
@@ -1473,6 +1486,19 @@ void LSG_SetSpacing(const std::string& id, int spacing)
 	component->SetSpacing(spacing);
 
 	LSG_UI::LayoutParent(component);
+}
+
+void LSG_SetTableColumnWidth(const std::string& id, int column, int width)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	static_cast<LSG_Table*>(component)->SetColumnWidth(column, width);
 }
 
 void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group)

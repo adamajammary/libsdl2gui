@@ -3,6 +3,8 @@
 LSG_Table::LSG_Table(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_List(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->resizeColumn      = -1;
+	this->resizeColumnWidth = 0;
 }
 
 void LSG_Table::AddGroup(const LSG_TableGroup& group)
@@ -89,6 +91,30 @@ int LSG_Table::getColumnCount()
 	return columns;
 }
 
+int LSG_Table::getMaxColumnWidth(size_t column)
+{
+	auto columnSize  = LSG_Graphics::GetTextureSize(this->textures[column]);
+	auto headerSize  = LSG_Graphics::GetTextureSize(this->headerTextures[column]);
+	auto columnWidth = std::max(columnSize.width, headerSize.width);
+
+	return columnWidth;
+}
+
+int LSG_Table::getMinColumnWidth()
+{
+	auto minWidth = (LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing) * 2);
+
+	return minWidth;
+}
+
+int LSG_Table::GetColumnWidth(int column)
+{
+	if ((column < 0) || (column >= (int)this->columnWidths.size()))
+		return 0;
+
+	return this->columnWidths[column];
+}
+
 int LSG_Table::GetSortColumn()
 {
 	auto sortColumn = this->GetXmlAttribute("sort-column");
@@ -129,13 +155,51 @@ SDL_Size LSG_Table::getTextureSize()
 	for (size_t i = 0; i < this->textures.size(); i++)
 	{
 		auto columnSize = LSG_Graphics::GetTextureSize(this->textures[i]);
-		auto headerSize = LSG_Graphics::GetTextureSize(this->headerTextures[i]);
+		auto headerSize = (!this->header.empty() ? LSG_Graphics::GetTextureSize(this->headerTextures[i]) : SDL_Size());
+		auto maxWidth   = std::max(columnSize.width, headerSize.width);
 
 		size.height = std::max(columnSize.height, size.height);
-		size.width += std::max(columnSize.width,  headerSize.width);
+		size.width += (this->columnWidths[i] > 0 ? this->columnWidths[i] : maxWidth);
 	}
 
 	return size;
+}
+
+bool LSG_Table::IsMouseOverColumnBorder(const SDL_Point& mousePosition)
+{
+	if (!this->visible || !this->enabled || this->header.empty())
+		return false;
+
+	auto background = this->getFillArea(this->background, this->border);
+	auto rowHeight  = this->getRowHeight();
+
+	if ((mousePosition.y < background.y) || (mousePosition.y > (background.y + rowHeight)))
+		return false;
+
+	auto positionX   = (mousePosition.x - background.x + this->scrollOffsetX);
+	auto spacing     = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto spacingHalf = (spacing / 2);
+
+	int startX = 0;
+
+	for (size_t i = 0; i < this->headerTextures.size(); i++)
+	{
+		auto maxWidth = this->getMaxColumnWidth(i);
+		auto width    = (this->columnWidths[i] > 0 ? this->columnWidths[i] : maxWidth);
+		auto endX     = (startX + width + spacing);
+
+		if ((positionX >= (endX - spacingHalf)) && (positionX <= (endX + spacingHalf)) && (i < (this->headerTextures.size() - 1)))
+		{
+			this->resizeColumn      = (int)i;
+			this->resizeColumnWidth = width;
+
+			return true;
+		}
+
+		startX = endX;
+	}
+
+	return false;
 }
 
 bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
@@ -163,22 +227,23 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 
 	if (!this->header.empty() && ((positionY / rowHeight) == 0))
 	{
-		int  column      = 0;
-		auto positionX   = (mousePosition.x - background.x + this->scrollOffsetX);
-		auto spacingHalf = (LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing) / 2);
-		auto startX      = 0;
+		auto positionX = (mousePosition.x - background.x + this->scrollOffsetX);
+		auto spacing   = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
 
-		for (const auto& texture : this->textures)
+		int column = 0, startX = 0;
+
+		for (size_t i = 0; i < this->headerTextures.size(); i++)
 		{
-			auto size = LSG_Graphics::GetTextureSize(texture);
-			auto endX = (startX + size.width + spacingHalf);
+			auto maxWidth = this->getMaxColumnWidth(i);
+			auto width    = (this->columnWidths[i] > 0 ? this->columnWidths[i] : maxWidth);
+			auto endX     = (startX + width + spacing);
 
 			if ((positionX >= startX) && (positionX <= endX))
 				break;
 
-			startX = (endX + spacingHalf);
+			startX = endX;
 
-			if (column < (int)(this->textures.size() - 1))
+			if (column < (int)(this->headerTextures.size() - 1))
 				column++;
 		}
 
@@ -215,6 +280,29 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	}
 
 	return true;
+}
+
+bool LSG_Table::OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
+{
+	if (!LSG_Events::IsMouseDown() || (this->resizeColumn < 0) || (this->resizeColumn >= (int)this->columnWidths.size()))
+		return false;
+
+	auto maxWidth = this->getMaxColumnWidth((size_t)this->resizeColumn);
+	auto minWidth = this->getMinColumnWidth();
+	auto newWidth = (this->resizeColumnWidth + (mousePosition.x - lastEventPosition.x));
+
+	this->columnWidths[this->resizeColumn] = std::max(std::min(newWidth, maxWidth), minWidth);
+
+	return true;
+}
+
+void LSG_Table::OnMouseUp(bool resetWidth)
+{
+	if (resetWidth && (this->resizeColumn >= 0) && (this->resizeColumn < (int)this->columnWidths.size()))
+		this->columnWidths[this->resizeColumn] = 0;
+
+	this->resizeColumn      = -1;
+	this->resizeColumnWidth = 0;
 }
 
 void LSG_Table::RemoveHeader()
@@ -385,7 +473,7 @@ void LSG_Table::render(SDL_Renderer* renderer)
 void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& clip, SDL_Rect& destination, int spacing, int& offsetX, int& width, bool header)
 {
 	auto columnSize = LSG_Graphics::GetTextureSize(this->textures[column]);
-	auto headerSize = LSG_Graphics::GetTextureSize(this->headerTextures[column]);
+	auto headerSize = (!this->header.empty() ? LSG_Graphics::GetTextureSize(this->headerTextures[column]) : SDL_Size());
 
 	auto spacingHalf = (spacing / 2);
 
@@ -393,21 +481,25 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 		clip.x         = 0;
 		destination.x -= offsetX;
 	} else if (column == 0) {
-		clip.x         = std::max(0, (offsetX - spacingHalf));
+		clip.x         = std::max((offsetX - spacingHalf), 0);
 		destination.x -= spacingHalf;
 	} else {
-		clip.x = std::max(0, (offsetX - spacingHalf));
+		clip.x = std::max((offsetX - spacingHalf), 0);
 	}
 
+	auto maxSizeWidth   = std::max(columnSize.width, headerSize.width);
+	auto maxColumnWidth = (this->columnWidths[column] > 0 ? this->columnWidths[column] : maxSizeWidth);
+	auto spacingOffset  = (this->scrollOffsetX < spacingHalf ? (spacingHalf - this->scrollOffsetX) : 0);
+
 	if (header)
-		clip.w = std::max(0, std::min((headerSize.width - clip.x), width));
+		clip.w = std::max(std::min((std::min(headerSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
 	else
-		clip.w = std::max(0, std::min((columnSize.width - clip.x), width));
+		clip.w = std::max(std::min((std::min(columnSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
 
 	destination.w = clip.w;
 
-	auto sizeWidth   = std::max(columnSize.width, headerSize.width);
-	auto columnWidth = std::max(0, std::min((sizeWidth - clip.x), width));
+	auto sizeWidth   = std::min(maxSizeWidth, maxColumnWidth);
+	auto columnWidth = std::max(std::min((sizeWidth - clip.x), width), 0);
 	auto clipWidth   = (columnWidth + spacing);
 	auto texture     = (header ? this->headerTextures[column] : this->textures[column]);
 
@@ -440,32 +532,28 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 	destination.h = clip.h;
 
 	auto offsetX        = this->scrollOffsetX;
-	auto remainingWidth = header.w;
+	auto scrollSize     = (this->showScrollY ? LSG_ScrollBar::GetSize() : 0);
+	auto remainingWidth = (header.w - scrollSize);
 	auto spacingHalf    = (spacing / 2);
 
 	destination.x += spacingHalf;
 
 	bool showColumnBorder = (this->GetXmlAttribute("show-column-border") == "true");
+	auto borderColor      = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
-	if (showColumnBorder)
-	{
-		auto borderColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
-
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, 64);
-	}
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, 64);
 
 	for (size_t i = 0; i < this->headerTextures.size(); i++)
 	{
 		this->renderColumn(renderer, i, clip, destination, spacing, offsetX, remainingWidth, true);
 
-		if (!showColumnBorder)
-			continue;
+		auto borderX      = (destination.x - spacingHalf);
+		auto borderHeight = (showColumnBorder ? background.h : header.h);
+		auto maxWidth     = (header.x + header.w - scrollSize);
 
-		auto borderX = (destination.x - spacingHalf);
-
-		if ((borderX >= header.x) && (i < (this->headerTextures.size() - 1)))
-			SDL_RenderDrawLine(renderer, borderX, (header.y + 1), borderX, (header.y + background.h - 2));
+		if ((borderX >= header.x) && (borderX < maxWidth) && (i < (this->headerTextures.size() - 1)))
+			SDL_RenderDrawLine(renderer, borderX, header.y, borderX, (header.y + borderHeight - 1));
 	}
 }
 
@@ -491,6 +579,17 @@ void LSG_Table::reset()
 {
 	this->destroyTextures();
 	this->SetRows();
+}
+
+void LSG_Table::SetColumnWidth(int column, int width)
+{
+	if ((column < 0) || (column >= (int)this->columnWidths.size()))
+		return;
+
+	auto maxWidth = this->getMaxColumnWidth((size_t)column);
+	auto minWidth = this->getMinColumnWidth();
+
+	this->columnWidths[column] = std::max(std::min(width, maxWidth), minWidth);
 }
 
 void LSG_Table::SetGroup(const LSG_TableGroup& group)
@@ -680,6 +779,14 @@ void LSG_Table::setRows(bool sort)
 
 	for (const auto& column : columns)
 		this->textures.push_back(this->getTexture(column));
+
+	if (this->columnWidths.size() != this->textures.size())
+		this->columnWidths.resize(this->textures.size());
+
+	for (size_t i = 0; i < this->columnWidths.size(); i++) {
+		if (this->columnWidths[i] > 0)
+			this->columnWidths[i] = std::min(this->columnWidths[i], this->getMaxColumnWidth(i));
+	}
 }
 
 void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)

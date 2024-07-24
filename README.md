@@ -672,6 +672,7 @@ enum LSG_EventType {
   LSG_EVENT_ROW_SELECTED,
   LSG_EVENT_ROW_UNSELECTED,
   LSG_EVENT_SLIDER_VALUE_CHANGED,
+  LSG_EVENT_TABLE_COLUMN_RESIZED,
   LSG_EVENT_TEXT_INPUT_CLEARED,
   LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
 };
@@ -1289,6 +1290,24 @@ Returns the spacing between child components.
 Parameters
 
 - **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTableColumnWidth
+
+```cpp
+int LSG_GetTableColumnWidth(const std::string& id, int column);
+```
+
+Returns the width of the table column.
+
+Parameters
+
+- **id** \<table\> component ID
+- **column** 0-based column index
 
 Exceptions
 
@@ -2622,6 +2641,31 @@ Example
 
 ```cpp
 LSG_SetSpacing("Root", 20);
+```
+
+### LSG_SetTableColumnWidth
+
+```cpp
+void LSG_SetTableColumnWidth(const std::string& id, int column, int width);
+```
+
+Sets the width of the table column.
+
+Parameters
+
+- **id** \<table\> component ID
+- **column** 0-based column index
+- **width** Width in pixels
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTableColumnWidth("Table", 0, 25);
 ```
 
 ### LSG_SetTableGroup

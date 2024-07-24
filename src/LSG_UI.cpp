@@ -374,7 +374,14 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 				else
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
-			} else if (component->IsButton()) {
+			}
+			else if (component->IsTable())
+			{
+				if (static_cast<LSG_Table*>(component)->IsMouseOverColumnBorder(mousePosition))
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+			}
+			else if (component->IsButton())
+			{
 				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 			}
 

@@ -43,6 +43,7 @@ enum LSG_EventType
 	LSG_EVENT_ROW_SELECTED,
 	LSG_EVENT_ROW_UNSELECTED,
 	LSG_EVENT_SLIDER_VALUE_CHANGED,
+	LSG_EVENT_TABLE_COLUMN_RESIZED,
 	LSG_EVENT_TEXT_INPUT_CLEARED,
 	LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
 };
@@ -330,6 +331,15 @@ DLLEXPORT LSG_SortOrder DLL LSG_GetSortOrder(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetSpacing(const std::string& id);
+
+/**
+ * @returns the width of the table column
+ * @param id     <table> component ID
+ * @param column 0-based column index
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetTableColumnWidth(const std::string& id, int column);
 
 /**
  * @returns the group from the table
@@ -895,6 +905,16 @@ DLLEXPORT void DLL LSG_SetSliderValue(const std::string& id, double percent);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetSpacing(const std::string& id, int spacing);
+
+/**
+ * @brief Sets the width of the table column.
+ * @param id     <table> component ID
+ * @param column 0-based column index
+ * @param width  Width in pixels
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTableColumnWidth(const std::string& id, int column, int width);
 
 /**
  * @brief Sets the rows of the group in the table.

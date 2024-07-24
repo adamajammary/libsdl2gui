@@ -10,6 +10,7 @@ private:
 	~LSG_Events() {}
 
 private:
+	static bool           isColumnResize;
 	static bool           isMouseDown;
 	static uint32_t       lastClickTime;
 	static uint32_t       lastClickTime2;

@@ -14,22 +14,30 @@ public:
 	static const int LayerOffset   = 100000000;
 
 private:
+	std::vector<int>          columnWidths;
 	std::vector<SDL_Texture*> headerTextures;
+	int                       resizeColumn;
+	int                       resizeColumnWidth;
 
 public:
 	void         AddGroup(const LSG_TableGroup& group);
 	void         AddGroup(LibXml::xmlNode* node);
 	void         AddRow(const LSG_Strings& row);
 	void         AddRow(LibXml::xmlNode* node);
+	int          GetColumnWidth(int column);
 	int          GetSortColumn();
 	SDL_Size     GetSize();
+	bool         IsMouseOverColumnBorder(const SDL_Point& mousePosition);
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	bool         OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
+	void         OnMouseUp(bool resetWidth);
 	void         RemoveGroup(const std::string& group);
 	void         RemoveHeader();
 	void         RemoveRow(int row);
 	void         RemovePageRow(int row);
 	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void Render(SDL_Renderer* renderer) override;
+	void         SetColumnWidth(int column, int width);
 	void         SetGroup(const LSG_TableGroup& group);
 	void         SetGroups(const LSG_TableGroups& groups);
 	void         SetHeader(const LSG_Strings& header);
@@ -44,6 +52,8 @@ public:
 private:
 	virtual void destroyTextures() override;
 	int          getColumnCount();
+	int          getMaxColumnWidth(size_t column);
+	int          getMinColumnWidth();
 	SDL_Size     getTextureSize();
 	void         removeRow(int row, int start, int end);
 	void         removeRow();

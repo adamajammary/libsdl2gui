@@ -1,5 +1,6 @@
 #include "LSG_Events.h"
 
+bool           LSG_Events::isColumnResize = false;
 bool           LSG_Events::isMouseDown    = false;
 uint32_t       LSG_Events::lastClickTime  = 0;
 uint32_t       LSG_Events::lastClickTime2 = 0;
@@ -260,14 +261,24 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 		enableMouseDown = static_cast<LSG_List*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsMenu())
 		enableMouseDown = static_cast<LSG_Menu*>(component)->OnScrollMouseClick(mousePosition);
-	else if (component->IsTable())
-		enableMouseDown = static_cast<LSG_Table*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsTextInput() && !isDoubleClick)
 		enableMouseDown = static_cast<LSG_TextInput*>(component)->OnMouseClick(mousePosition);
 	else if (component->IsTextLabel())
 		enableMouseDown = static_cast<LSG_TextLabel*>(component)->OnScrollMouseClick(scrolledPosition);
 	else if (component->IsButton())
 		enableMouseDown = true;
+
+	if (!enableMouseDown && component->IsTable())
+	{
+		auto table = static_cast<LSG_Table*>(component);
+
+		LSG_Events::isColumnResize = table->IsMouseOverColumnBorder(scrolledPosition);
+
+		if (!LSG_Events::isColumnResize)
+			enableMouseDown = table->OnScrollMouseClick(scrolledPosition);
+		else
+			enableMouseDown = true;
+	}
 
 	if (!enableMouseDown)
 	{
@@ -283,7 +294,9 @@ void LSG_Events::handleMouseDownEvent(const SDL_Event& event)
 	LSG_Events::isMouseDown = true;
 	LSG_Events::lastEvent   = event;
 
-	if (component->IsScrollable())
+	if (LSG_Events::isColumnResize)
+		LSG_Events::sendEvent(LSG_EVENT_TABLE_COLUMN_RESIZED, component->GetID());
+	else if (component->IsScrollable())
 		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
 	else if (component->IsButton())
 		LSG_Events::sendEvent(LSG_EVENT_BUTTON_PRESSED, component->GetID());
@@ -313,9 +326,12 @@ void LSG_Events::handleMouseLastDownEvent()
 	else if (LSG_Events::lastComponent->IsTextLabel())
 		isHandled = static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseDown(scrolledPosition);
 
+	if (isHandled)
+		return;
+
 	auto scrollableParent = LSG_Events::lastComponent->GetScrollableParent();
 
-	if (!isHandled && scrollableParent)
+	if (scrollableParent)
 		static_cast<LSG_Panel*>(scrollableParent)->OnScrollMouseDown(lastPosition);
 }
 
@@ -344,19 +360,32 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 		isHandled = static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 	else if (LSG_Events::lastComponent->IsMenu())
 		isHandled = static_cast<LSG_Menu*>(LSG_Events::lastComponent)->OnScrollMouseMove(mousePosition, lastPosition);
-	else if (LSG_Events::lastComponent->IsTable())
-		isHandled = static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 	else if (LSG_Events::lastComponent->IsTextInput())
 		isHandled = static_cast<LSG_TextInput*>(LSG_Events::lastComponent)->OnMouseMove(mousePosition);
 	else if (LSG_Events::lastComponent->IsTextLabel())
 		isHandled = static_cast<LSG_TextLabel*>(LSG_Events::lastComponent)->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
 
-	auto scrollableParent = LSG_Events::lastComponent->GetScrollableParent();
+	if (!isHandled && LSG_Events::lastComponent->IsTable())
+	{
+		auto table = static_cast<LSG_Table*>(LSG_Events::lastComponent);
 
-	if (!isHandled && scrollableParent)
-		static_cast<LSG_Panel*>(scrollableParent)->OnScrollMouseMove(mousePosition, lastPosition);
+		if (LSG_Events::isColumnResize)
+			isHandled = table->OnMouseMove(scrolledPosition, scrolledLastPosition);
+		else
+			isHandled = table->OnScrollMouseMove(scrolledPosition, scrolledLastPosition);
+	}
 
-	if (LSG_Events::lastComponent->IsScrollable())
+	if (!isHandled)
+	{
+		auto scrollableParent = LSG_Events::lastComponent->GetScrollableParent();
+
+		if (scrollableParent)
+			static_cast<LSG_Panel*>(scrollableParent)->OnScrollMouseMove(mousePosition, lastPosition);
+	}
+
+	if (LSG_Events::isColumnResize)
+		LSG_Events::sendEvent(LSG_EVENT_TABLE_COLUMN_RESIZED, LSG_Events::lastComponent->GetID());
+	else if (LSG_Events::lastComponent->IsScrollable())
 		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, LSG_Events::lastComponent->GetID());
 }
 
@@ -451,6 +480,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			static_cast<LSG_List*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsMenu())
 			static_cast<LSG_Menu*>(LSG_Events::lastComponent)->OnScrollMouseUp();
+		else if (LSG_Events::lastComponent->IsTable() && LSG_Events::isColumnResize)
+			static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnMouseUp(isDoubleClick);
 		else if (LSG_Events::lastComponent->IsTable())
 			static_cast<LSG_Table*>(LSG_Events::lastComponent)->OnScrollMouseUp();
 		else if (LSG_Events::lastComponent->IsTextLabel())
@@ -469,10 +500,11 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 	if (!textInput && LSG_Events::textInput && !isDoubleClick)
 		static_cast<LSG_TextInput*>(LSG_Events::textInput)->Stop();
 
-	LSG_Events::isMouseDown   = false;
-	LSG_Events::lastComponent = nullptr;
-	LSG_Events::lastEvent     = {};
-	LSG_Events::textInput     = textInput;
+	LSG_Events::isColumnResize = false;
+	LSG_Events::isMouseDown    = false;
+	LSG_Events::lastComponent  = nullptr;
+	LSG_Events::lastEvent      = {};
+	LSG_Events::textInput      = textInput;
 
 	LSG_UI::UnhighlightComponents();
 }
