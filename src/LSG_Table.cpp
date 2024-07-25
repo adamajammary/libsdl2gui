@@ -589,7 +589,7 @@ void LSG_Table::SetColumnWidth(int column, int width)
 	auto maxWidth = this->getMaxColumnWidth((size_t)column);
 	auto minWidth = this->getMinColumnWidth();
 
-	this->columnWidths[column] = std::max(std::min(width, maxWidth), minWidth);
+	this->columnWidths[column] = (width != 0 ? std::max(std::min(width, maxWidth), minWidth) : 0);
 }
 
 void LSG_Table::SetGroup(const LSG_TableGroup& group)
