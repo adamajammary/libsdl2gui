@@ -396,6 +396,9 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			auto background = SDL_Rect(component.second->background);
 			background.y   -= menuScrollY;
 
+			if (!component.second->visible || !component.second->enabled)
+				continue;
+
 			if (component.second->IsMenu())
 			{
 				auto menu = static_cast<LSG_Menu*>(component.second);
