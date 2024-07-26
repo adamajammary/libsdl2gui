@@ -806,6 +806,15 @@ DLLEXPORT void DLL LSG_SetListItems(const std::string& id, const LSG_Strings& it
 DLLEXPORT void DLL LSG_SetMargin(const std::string& id, int margin);
 
 /**
+ * @brief Sets the icon of the menu-item.
+ * @param id        <menu-item> component ID
+ * @param imageFile Image file path
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile);
+
+/**
  * @brief Highlights the menu item as selected.
  * @param id       <menu-item> component ID
  * @param selected true to select or false to unselect

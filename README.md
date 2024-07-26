@@ -2383,6 +2383,30 @@ Example
 LSG_SetMargin("Root", 5);
 ```
 
+### LSG_SetMenuItemIcon
+
+```cpp
+void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile);
+```
+
+Sets the icon of the menu-item.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+- **imageFile** Image file path
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetMenuItemIcon("MenuIdAbout", "img/info-white-16.png");
+```
+
 ### LSG_SetMenuItemSelected
 
 ```cpp

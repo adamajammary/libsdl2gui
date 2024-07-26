@@ -93,18 +93,18 @@ void LSG_MenuItem::renderIcon(SDL_Renderer* renderer)
 	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
 	SDL_Rect destination = {
-		(this->background.x + padding),
+		this->background.x,
 		this->background.y,
 		std::min(size.width,  maxSize),
 		std::min(size.height, maxSize)
 	};
 
+	destination.x += ((this->background.h - destination.w) / 2);
 	destination.y += ((this->background.h - destination.h) / 2);
 
 	SDL_Point center = { (destination.w / 2), (destination.h / 2) };
 
 	SDL_RenderCopyEx(renderer, icon, nullptr, &destination, this->iconOrientation.rotation, &center, this->iconOrientation.flip);
-
 }
 
 void LSG_MenuItem::renderSelected(SDL_Renderer* renderer)

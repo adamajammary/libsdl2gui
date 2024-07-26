@@ -1331,6 +1331,19 @@ void LSG_SetMargin(const std::string& id, int margin)
 	LSG_UI::LayoutParent(component);
 }
 
+void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "icon", imageFile);
+}
+
 void LSG_SetMenuItemSelected(const std::string& id, bool selected)
 {
 	if (!isRunning)
