@@ -496,7 +496,7 @@ void LSG_Menu::setMenuOpened()
 	}
 
 	if (!navTitle.empty())
-		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle);
+		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle, 0, TTF_STYLE_BOLD, nullptr);
 
 	SDL_Size closeIconSize = { this->background.h, this->background.h };
 

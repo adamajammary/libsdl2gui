@@ -116,6 +116,18 @@ void LSG_UI::Close()
 	LibXml::xmlCleanupParser();
 }
 
+void LSG_UI::closeMenu(LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsMenu())
+		static_cast<LSG_Menu*>(component)->Close();
+
+	for (auto child : component->GetChildren())
+		LSG_UI::closeMenu(child);
+}
+
 SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& position, const LSG_UMapStrStr& attributes, const LSG_UmapStrSize& sizes, int size, const SDL_Size& maxSize, LSG_Component* component, LSG_Component* parent)
 {
 	if (attributes.empty() || !component || !sizes.contains(component->GetID()) || !parent)
@@ -710,6 +722,8 @@ void LSG_UI::LayoutRoot()
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
 	LSG_UI::layoutModal(LSG_UI::root);
+
+	LSG_UI::closeMenu(LSG_UI::root);
 }
 
 void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& children)

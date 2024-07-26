@@ -1342,6 +1342,8 @@ void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile)
 		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "icon", imageFile);
+
+	static_cast<LSG_MenuItem*>(component)->SetMenuItem(component->background);
 }
 
 void LSG_SetMenuItemSelected(const std::string& id, bool selected)

@@ -47,6 +47,22 @@ static void handleIdEvent(const std::string& id)
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
 }
 
+static void handleKeyEvent(const SDL_KeyboardEvent& event)
+{
+    // https://wiki.libsdl.org/SDL2/SDL_Keymod
+
+    auto key     = event.keysym.sym;
+    bool isCtrl  = (event.keysym.mod & KMOD_CTRL);
+    bool isShift = (event.keysym.mod & KMOD_SHIFT);
+
+    if (isCtrl && (key == SDLK_d))
+        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+    else if (isCtrl && (key == SDLK_l))
+        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+    else if (isShift && (key == SDLK_F1))
+        LSG_SetVisible("ModalIdAbout", true);
+}
+
 static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
 {
     std::string rowText = (!rows.empty() ? std::to_string(rows[0]) : "");
@@ -111,6 +127,8 @@ static void handleEvents(const std::vector<SDL_Event>& events)
     {
         if ((event.type == SDL_QUIT) || ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE)))
             LSG_Quit();
+        else if (event.type == SDL_KEYUP)
+            handleKeyEvent(event.key);
         else if (event.type >= SDL_USEREVENT)
             handleUserEvent(event.user);
     }

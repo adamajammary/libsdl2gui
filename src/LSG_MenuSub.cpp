@@ -33,22 +33,28 @@ int LSG_MenuSub::getMaxHeightArrow()
 
 void LSG_MenuSub::Render(SDL_Renderer* renderer)
 {
-	if (!this->visible || (this->textures.size() < NR_OF_MENU_ITEM_TEXTURES))
+	if (!this->visible || (this->textures.size() < NR_OF_SUB_MENU_TEXTURES))
 		return;
 
-	LSG_MenuItem::Render(renderer);
+	if (!this->enabled)
+		this->renderDisabled(renderer);
+
+	this->renderText(renderer, this->textures[LSG_SUB_MENU_TEXTURE_TEXT]);
+
+	if (this->enabled && this->highlighted)
+		this->renderHighlight(renderer, this->background);
 
 	this->renderArrow(renderer);
 }
 
 void LSG_MenuSub::renderArrow(SDL_Renderer* renderer)
 {
-	auto arrow = this->textures[LSG_MENU_ITEM_TEXTURE_ARROW];
+	auto texture = this->textures[LSG_SUB_MENU_TEXTURE_ARROW];
 
-	if (!arrow)
+	if (!texture)
 		return;
 
-	auto size = LSG_Graphics::GetTextureSize(arrow);
+	auto size = LSG_Graphics::GetTextureSize(texture);
 
 	SDL_Rect destination = {
 		(this->background.x + this->background.w - size.width),
@@ -57,20 +63,24 @@ void LSG_MenuSub::renderArrow(SDL_Renderer* renderer)
 		size.height
 	};
 
-	SDL_RenderCopy(renderer, arrow, nullptr, &destination);
+	SDL_RenderCopy(renderer, texture, nullptr, &destination);
 }
 
 void LSG_MenuSub::SetSubMenu(const SDL_Rect& background)
 {
-	LSG_MenuItem::SetMenuItem(background);
+	this->background = background;
+
+	this->destroyTextures();
+
+	this->textures.resize(NR_OF_SUB_MENU_TEXTURES);
 
 	auto xmlText = LSG_XML::GetAttribute(this->xmlNode, "title");
 
 	if (!xmlText.empty())
-		this->textures[LSG_MENU_ITEM_TEXTURE_TEXT] = this->getTexture(xmlText);
+		this->textures[LSG_SUB_MENU_TEXTURE_TEXT] = this->getTexture(xmlText);
 
 	auto     maxSize = this->getMaxHeightArrow();
 	SDL_Size size    = { maxSize, maxSize };
 
-	this->textures[LSG_MENU_ITEM_TEXTURE_ARROW] = LSG_Graphics::GetVectorNext(this->textColor, size);
+	this->textures[LSG_SUB_MENU_TEXTURE_ARROW] = LSG_Graphics::GetVectorNext(this->textColor, size);
 }

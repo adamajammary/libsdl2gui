@@ -12,11 +12,11 @@
       <panel width="40">
         <menu font-size="15" title="Menu">
           <menu-sub title="Color Theme">
-            <menu-item id="MenuIdColorThemeDark"  icon="img/dark-white-16.png">Dark</menu-item>
-            <menu-item id="MenuIdColorThemeLight" icon="img/light-white-16.png">Light</menu-item>
+            <menu-item id="MenuIdColorThemeDark"  icon="img/dark-white-16.png"  key="Ctrl+D">Dark</menu-item>
+            <menu-item id="MenuIdColorThemeLight" icon="img/light-white-16.png" key="Ctrl+L">Light</menu-item>
           </menu-sub>
 
-          <menu-item id="MenuIdAbout" icon="img/info-white-16.png">About</menu-item>
+          <menu-item id="MenuIdAbout" icon="img/info-white-16.png" key="Shift+F1">About</menu-item>
         </menu>
       </panel>
 

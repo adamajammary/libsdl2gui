@@ -303,6 +303,7 @@ Triggers [LSG_EVENT_BUTTON_CLICKED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 orientation="orientation"
@@ -358,6 +359,7 @@ Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#ha
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 background-color="color"
@@ -381,6 +383,7 @@ Triggers [LSG_EVENT_MENU_SELECTED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 background-color="color"
@@ -391,7 +394,33 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+
 title="string"
+```
+
+### \<menu-sub\>
+
+[boolean](#boolean)
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+
+title="string"
+```
+
+### \<menu-item\>
+
+[boolean](#boolean) | [file_path](#file_path)
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+
+icon="file_path"
+key="string"
 ```
 
 ### \<modal\>
@@ -453,6 +482,7 @@ scrollable="boolean"
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 background-color="color"
@@ -474,6 +504,7 @@ Triggers [LSG_EVENT_SLIDER_VALUE_CHANGED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 orientation="orientation"
@@ -501,6 +532,7 @@ Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#ha
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 background-color="color"

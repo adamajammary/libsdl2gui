@@ -48,6 +48,7 @@ public:
     static void            UnhighlightComponents();
 
 private:
+    static void closeMenu(LSG_Component* component);
     static void layoutFixed(LSG_Component* component, bool skipModal = true);
     static void layoutModal(LSG_Component* component);
     static void layoutRelative(LSG_Component* component, bool skipModal = true);
