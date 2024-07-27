@@ -384,18 +384,15 @@ Triggers [LSG_EVENT_MENU_SELECTED](#handle-events) event.
 id="string"
 enabled="boolean"
 visible="boolean"
-width="size"
-height="size"
 background-color="color"
-border="int"
-border-color="color"
-margin="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
+padding="int"
 font-size="int" # default="14"
 text-color="color"
 
 title="string"
+width="size"
 ```
 
 ### \<menu-sub\>

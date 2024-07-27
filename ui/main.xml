@@ -16,6 +16,8 @@
             <menu-item id="MenuIdColorThemeLight" icon="img/light-white-16.png" key="Ctrl+L">Light</menu-item>
           </menu-sub>
 
+          <line />
+
           <menu-item id="MenuIdAbout" icon="img/info-white-16.png" key="Shift+F1">About</menu-item>
         </menu>
       </panel>

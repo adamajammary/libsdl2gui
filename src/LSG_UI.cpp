@@ -626,6 +626,12 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 		if (!child->visible || child->IsModal())
 			continue;
 
+		if (child->IsMenu()) {
+			child->background.x = offsetX;
+			child->background.y = offsetY;
+			return;
+		}
+
 		auto childMargin   = child->margin;
 		auto childMargin2x = (childMargin * 2);
 
@@ -758,6 +764,12 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 
 		if (!child->visible || child->IsModal())
 			continue;
+
+		if (child->IsMenu()) {
+			child->background.w = sizeX;
+			child->background.h = sizeY;
+			return;
+		}
 
 		auto childAttribs  = child->GetXmlAttributes();
 		auto width         = (childAttribs.contains("width")  ? childAttribs["width"]  : "");
