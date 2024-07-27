@@ -423,7 +423,9 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 				continue;
 			}
 
-			if (component.second->IsMenuItem() || component.second->IsSubMenu())
+			bool isMenuItem = (component.second->IsMenuItem() || component.second->IsSubMenu());
+
+			if (isMenuItem && !static_cast<LSG_MenuItem*>(component.second)->IsClosed())
 			{
 				component.second->highlighted = SDL_PointInRect(&mousePosition, &background);
 
