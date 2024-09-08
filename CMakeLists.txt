@@ -50,7 +50,7 @@ if (WIN32)
 else()
     set(LIB_PREP "lib")
 
-    set(LIBS      "-lSDL2 -lSDL2_image -lSDL2_ttf -lxml2")
+    set(LIBS      "-lSDL2" "-lSDL2_image" "-lSDL2_ttf" "-lxml2")
     set(TEST_LIBS "-lSDL2")
 endif()
 
@@ -76,7 +76,7 @@ elseif (IOS)
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 
     set(OS_LIBS      "-framework UIKit")
-    set(OS_TEST_LIBS "-framework AudioToolbox -framework AVFoundation -framework CoreBluetooth -framework CoreFoundation -framework CoreGraphics -framework CoreHaptics -framework CoreMotion -framework CoreServices -framework Foundation -framework GameController -framework ImageIO -framework Metal -framework OpenGLES -framework QuartzCore -framework UIKit")
+    set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")
 
@@ -87,7 +87,7 @@ elseif (APPLE)
     set(DLL_EXT "dylib")
     set(OUT_DIR "$<CONFIG>")
 
-    set(OS_LIBS "-framework AppKit -framework Foundation")
+    set(OS_LIBS "-framework AppKit" "-framework Foundation")
 elseif (WIN32)
     set(OS "_windows")
 
@@ -103,8 +103,8 @@ else()
     set(DLL_EXT "so")
     set(OUT_DIR ".")
 
-    set(OS_INCS "/usr/include/gtk-3.0" "/usr/include/pango-1.0" "/usr/include/glib-2.0" "/usr/lib/x86_64-linux-gnu/glib-2.0/include" "/usr/include/harfbuzz" "/usr/include/freetype2" "/usr/include/libpng16" "/usr/include/libmount" "/usr/include/blkid" "/usr/include/fribidi" "/usr/include/cairo" "/usr/include/pixman-1" "/usr/include/gdk-pixbuf-2.0" "/usr/include/x86_64-linux-gnu" "/usr/include/gio-unix-2.0" "/usr/include/atk-1.0" "/usr/include/at-spi2-atk/2.0" "/usr/include/at-spi-2.0" "/usr/include/dbus-1.0" "/usr/lib/x86_64-linux-gnu/dbus-1.0/include")
-    set(OS_LIBS "-lgtk-3 -lgdk-3 -lz -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0")
+    execute_process(COMMAND pkg-config --cflags gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --libs   gtk+-3.0 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 file(GLOB INC_H "${SRC_DIR}/include/*.h")
@@ -130,6 +130,8 @@ target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMA
 target_include_directories(sdl2gui PRIVATE ${INCS} ${OS_INCS})
 target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
 target_link_libraries(sdl2gui      PRIVATE ${LIBS} ${OS_LIBS})
+
+set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS ${OS_CFLAGS})
 
 if (OS STREQUAL "_macosx")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @rpath/SDL2_image.dylib  @rpath/libSDL2_image.dylib ${CFG_DIR}libsdl2gui.dylib)
