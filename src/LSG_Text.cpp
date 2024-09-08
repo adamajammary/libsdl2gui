@@ -20,7 +20,7 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
 		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
-		auto FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
+		auto FONT_PATH = "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf";
 	#elif defined  _macosx
 		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
