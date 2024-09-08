@@ -10,10 +10,10 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.30.1](https://www.libsdl.org/release/SDL2-2.30.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://www.libsdl.org/) | [2.30.7](https://www.libsdl.org/release/SDL2-2.30.7.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.2](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.12.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[libXML2](https://github.com/GNOME/libxml2) | [2.13.3](https://github.com/GNOME/libxml2/archive/refs/tags/v2.13.3.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
@@ -34,7 +34,7 @@ libsdlgui uses modern [C++20](https://en.cppreference.com/w/cpp/compiler_support
 Compiler | Version
 -------- | -------
 CLANG | 14
-GCC | 13
+GCC | 12
 MSVC | 2019
 
 ## How to build
