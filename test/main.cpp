@@ -106,7 +106,14 @@ static void handleUserEvent(const SDL_UserEvent& event)
         free(event.data1);
 
     if (event.data2)
-        delete event.data2;
+    {
+        if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
+            delete static_cast<std::vector<int>*>(event.data2);
+        else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
+            delete static_cast<double*>(event.data2);
+        else if (type == LSG_EVENT_COMPONENT_KEY_ENTERED)
+            delete static_cast<SDL_Keycode*>(event.data2);
+    }
 }
 
 #if defined _android || defined _ios
