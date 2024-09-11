@@ -91,7 +91,6 @@ void LSG_MenuItem::renderIcon(SDL_Renderer* renderer)
 
 	auto maxSize = this->getMaxHeightIcon();
 	auto size    = LSG_Graphics::GetTextureSize(texture);
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
 	SDL_Rect destination = {
 		this->background.x,

@@ -27,13 +27,13 @@ static void setColorTheme(const std::string& menuItemId, const std::string& colo
     LSG_SetMenuItemSelected(menuItemId, true);
 
     if (menuItemId == "MenuIdColorThemeDark") {
-        LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-white-16.png");
-        LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-white-16.png");
-        LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-white-16.png");
+        LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-white-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-white-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-white-512.png");
     } else {
-        LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-black-16.png");
-        LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-black-16.png");
-        LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-black-16.png");
+        LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-black-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-black-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-black-512.png");
     }
 }
 

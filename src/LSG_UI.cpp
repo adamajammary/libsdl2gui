@@ -789,20 +789,20 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 				auto textSize = static_cast<LSG_TextLabel*>(child)->GetTextSize({ sizeX, sizeY });
 
 				sizeY              -= (textSize.height + childMargin2x);
-				child->background.h = LSG_Graphics::GetDPIScaled(textSize.height);
+				child->background.h = textSize.height;
 
 				if (width.empty())
-					child->background.w = LSG_Graphics::GetDPIScaled(textSize.width);
+					child->background.w = textSize.width;
 			}
 			else if (!height.empty() && child->IsImage())
 			{
 				auto imageSize = static_cast<LSG_Image*>(child)->GetImageSize();
 
 				sizeY              -= (imageSize.height + childMargin2x);
-				child->background.h = LSG_Graphics::GetDPIScaled(imageSize.height);
+				child->background.h = imageSize.height;
 
 				if (!width.empty())
-					child->background.w = LSG_Graphics::GetDPIScaled(imageSize.width);
+					child->background.w = imageSize.width;
 			}
 			else if (height.empty() || child->IsImage())
 			{
@@ -827,20 +827,20 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 				auto textSize = static_cast<LSG_TextLabel*>(child)->GetTextSize({ sizeX, sizeY });
 
 				sizeX              -= (textSize.width + childMargin2x);
-				child->background.w = LSG_Graphics::GetDPIScaled(textSize.width);
+				child->background.w = textSize.width;
 
 				if (height.empty())
-					child->background.h = LSG_Graphics::GetDPIScaled(textSize.height);
+					child->background.h = textSize.height;
 			}
 			else if (!width.empty() && child->IsImage())
 			{
 				auto imageSize = static_cast<LSG_Image*>(child)->GetImageSize();
 
 				sizeX              -= (imageSize.width + childMargin2x);
-				child->background.w = LSG_Graphics::GetDPIScaled(imageSize.width);
+				child->background.w = imageSize.width;
 
 				if (!height.empty())
-					child->background.h = LSG_Graphics::GetDPIScaled(imageSize.height);
+					child->background.h = imageSize.height;
 			}
 			else if (width.empty() || child->IsImage())
 			{

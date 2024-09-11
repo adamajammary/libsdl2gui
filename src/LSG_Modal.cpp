@@ -281,16 +281,16 @@ void LSG_Modal::setSize(const LSG_UMapStrStr& attributes, const SDL_Rect& parent
 	auto minHeight = (attributes.contains("min-height") ? attributes.at("min-height") : "");
 
 	if (!maxWidth.empty())
-		this->background.w = std::min(std::atoi(maxWidth.c_str()), this->background.w);
+		this->background.w = std::min(LSG_Graphics::GetDPIScaled(std::atoi(maxWidth.c_str())), this->background.w);
 
 	if (!maxHeight.empty())
-		this->background.h = std::min(std::atoi(maxHeight.c_str()), this->background.h);
+		this->background.h = std::min(LSG_Graphics::GetDPIScaled(std::atoi(maxHeight.c_str())), this->background.h);
 
 	if (!minWidth.empty())
-		this->background.w = std::max(std::atoi(minWidth.c_str()), this->background.w);
+		this->background.w = std::max(LSG_Graphics::GetDPIScaled(std::atoi(minWidth.c_str())), this->background.w);
 
 	if (!minHeight.empty())
-		this->background.h = std::max(std::atoi(minHeight.c_str()), this->background.h);
+		this->background.h = std::max(LSG_Graphics::GetDPIScaled(std::atoi(minHeight.c_str())), this->background.h);
 }
 
 void LSG_Modal::setTextures(const std::string& title)
@@ -299,16 +299,13 @@ void LSG_Modal::setTextures(const std::string& title)
 
 	this->textures.resize(NR_OF_MODAL_TEXTURES);
 
-	SDL_Size closeIconSize = { LSG_Modal::CloseIconSize, LSG_Modal::CloseIconSize };
+	auto     iconSizeScaled = LSG_Graphics::GetDPIScaled(LSG_Modal::CloseIconSize);
+	SDL_Size closeIconSize  = { iconSizeScaled, iconSizeScaled };
 
 	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVectorClose(this->textColor, closeIconSize);
 
-	if (title.empty())
-		return;
-	
-	auto fontSize = LSG_Graphics::GetDPIScaled(LSG_Modal::TitleFontSize);
-
-	this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, fontSize);
+	if (!title.empty())
+		this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, LSG_Modal::TitleFontSize);
 }
 
 void LSG_Modal::Update()

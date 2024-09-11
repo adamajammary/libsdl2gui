@@ -27,7 +27,6 @@ SDL_Size LSG_TextLabel::GetSize()
 
 SDL_Size LSG_TextLabel::GetTextSize(const SDL_Size& maxSize)
 {
-
 	if (this->text.empty())
 		return maxSize;
 
