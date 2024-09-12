@@ -28,10 +28,10 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 
 		if (std::filesystem::exists(DEJAVU_SANS))
 			FONT_PATH = DEJAVU_SANS;
-		else if (std::filesystem::exists(FREE_SANS))
-			FONT_PATH = FREE_SANS;
-		else
+		else if (std::filesystem::exists(LIBERATION_SANS))
 			FONT_PATH = LIBERATION_SANS;
+		else
+			FONT_PATH = FREE_SANS;
 	#elif defined  _macosx
 		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
