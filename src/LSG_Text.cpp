@@ -20,7 +20,18 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
 		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
-		auto FONT_PATH = "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf";
+		auto DEJAVU_SANS     = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+		auto FREE_SANS       = "/usr/share/fonts/truetype/freefont/FreeSans.ttf";
+		auto LIBERATION_SANS = "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf";
+
+		const char* FONT_PATH;
+
+		if (std::filesystem::exists(DEJAVU_SANS))
+			FONT_PATH = DEJAVU_SANS;
+		else if (std::filesystem::exists(FREE_SANS))
+			FONT_PATH = FREE_SANS;
+		else
+			FONT_PATH = LIBERATION_SANS;
 	#elif defined  _macosx
 		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows

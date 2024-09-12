@@ -4,6 +4,7 @@
 #include <algorithm> // min/max(x)
 #include <cstdio>    // snprintf(x)
 #include <cstring>   // strtok(x)
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <map>
