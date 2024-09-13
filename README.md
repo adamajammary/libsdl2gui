@@ -40,6 +40,7 @@ MSVC | 2019
 ## How to build
 
 1. Build the [third-party libraries](#3rd-party-libraries) and place the them in a common directory.
+   - You will also need [patchelf](https://github.com/NixOS/patchelf) if you are building on **Linux**.
 1. Make sure you have [cmake](https://cmake.org/download/) installed.
 1. Open a command prompt or terminal.
 1. Create a **build** directory and enter it.
