@@ -269,13 +269,15 @@ endif()
 if (OS STREQUAL "_linux")
     add_custom_target(testsdl2gui_rpath ALL DEPENDS testsdl2gui)
 
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2-2.0.so.0       \\\$$ORIGIN/libSDL2.so       ${DIST_DIR}/bin/libsdl2gui.so)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2_image-2.0.so.0 \\\$$ORIGIN/libSDL2_image.so ${DIST_DIR}/bin/libsdl2gui.so)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2_ttf-2.0.so.0   \\\$$ORIGIN/libSDL2_ttf.so   ${DIST_DIR}/bin/libsdl2gui.so)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libxml2.so.2           \\\$$ORIGIN/libxml2.so       ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2-2.0.so.0       libSDL2.so       ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2_image-2.0.so.0 libSDL2_image.so ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2_ttf-2.0.so.0   libSDL2_ttf.so   ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libxml2.so.2           libxml2.so       ${DIST_DIR}/bin/libsdl2gui.so)
 
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libsdl2gui.so    \\\$$ORIGIN/libsdl2gui.so ${DIST_DIR}/bin/testsdl2gui)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2-2.0.so.0 \\\$$ORIGIN/libSDL2.so    ${DIST_DIR}/bin/testsdl2gui)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2-2.0.so.0 libSDL2.so ${DIST_DIR}/bin/testsdl2gui)
+
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --set-rpath '\$$ORIGIN' ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --set-rpath '\$$ORIGIN' ${DIST_DIR}/bin/testsdl2gui)
 elseif (OS STREQUAL "_macosx")
     add_custom_target(testsdl2gui_rpath ALL DEPENDS testsdl2gui)
 
