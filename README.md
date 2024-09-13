@@ -34,7 +34,7 @@ libsdlgui uses modern [C++20](https://en.cppreference.com/w/cpp/compiler_support
 Compiler | Version
 -------- | -------
 CLANG | 14
-GCC | 12
+GCC | 11.4
 MSVC | 2019
 
 ## How to build
