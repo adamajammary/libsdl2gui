@@ -116,7 +116,7 @@ std::string LSG_XML::GetValue(LibXml::xmlNode* node)
 
 LibXml::xmlDoc* LSG_XML::Open(const std::string& xmlFile)
 {
-	return LibXml::xmlParseFile(xmlFile.c_str());
+	return LibXml::xmlReadFile(xmlFile.c_str(), nullptr, 0);
 }
 
 void LSG_XML::RemoveChildNodes(LibXml::xmlNode* xmlNode)
@@ -124,7 +124,7 @@ void LSG_XML::RemoveChildNodes(LibXml::xmlNode* xmlNode)
 	if (!xmlNode)
 		return;
 
-	auto xmlChildNode = xmlNode->xmlChildrenNode;
+	auto xmlChildNode = xmlNode->children;
 
 	while (xmlChildNode) {
 		LSG_XML::RemoveNode(xmlChildNode);

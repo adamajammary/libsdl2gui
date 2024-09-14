@@ -10,10 +10,10 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.30.1](https://www.libsdl.org/release/SDL2-2.30.1.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://www.libsdl.org/) | [2.30.7](https://www.libsdl.org/release/SDL2-2.30.7.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.2](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.12.5](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.5.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[libXML2](https://github.com/GNOME/libxml2) | [2.12.9](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.9.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
@@ -34,12 +34,13 @@ libsdlgui uses modern [C++20](https://en.cppreference.com/w/cpp/compiler_support
 Compiler | Version
 -------- | -------
 CLANG | 14
-GCC | 13
+GCC | 11.4
 MSVC | 2019
 
 ## How to build
 
-1. Build the third-party libraries and place the them in a common directory.
+1. Build the [third-party libraries](#3rd-party-libraries) and place the them in a common directory.
+   - You will also need [patchelf](https://github.com/NixOS/patchelf) if you are building on **Linux**.
 1. Make sure you have [cmake](https://cmake.org/download/) installed.
 1. Open a command prompt or terminal.
 1. Create a **build** directory and enter it.
@@ -248,13 +249,28 @@ void myapp_handleEvents(const std::vector<SDL_Event>& events)
 ```cpp
 void myapp_handleUserEvent(const SDL_UserEvent& event)
 {
-  LSG_EventType type = (LSG_EventType)event.code;
-  const char*   id   = static_cast<const char*>(event.data1);
+  auto type = (LSG_EventType)event.code;
+  auto id   = static_cast<const char*>(event.data1);
 
   if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
-    int rowIndex = *static_cast<int*>(event.data2); // 0-based row index (-1 for unselected)
+    auto& rows = *static_cast<std::vector<int>*>(event.data2); // 0-based row indices (-1 for unselected)
   else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
     double sliderValue = *static_cast<double*>(event.data2); // Percent-based slider value: [0.0, 1.0]
+  else if (type == LSG_EVENT_COMPONENT_KEY_ENTERED)
+    SDL_Keycode key = *static_cast<SDL_Keycode*>(event.data2); // SDL key code (SDLK_ESCAPE, SDLK_0, SDLK_a, ...)
+
+  if (event.data1)
+    free(event.data1);
+
+  if (event.data2)
+  {
+    if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
+      delete static_cast<std::vector<int>*>(event.data2);
+    else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
+      delete static_cast<double*>(event.data2);
+    else if (type == LSG_EVENT_COMPONENT_KEY_ENTERED)
+      delete static_cast<SDL_Keycode*>(event.data2);
+  }
 }
 ```
 
@@ -295,6 +311,7 @@ Triggers [LSG_EVENT_BUTTON_CLICKED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 orientation="orientation"
@@ -350,12 +367,13 @@ Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#ha
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 background-color="color"
 border="int"
 border-color="color"
-row-border="boolean"
+show-row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -373,21 +391,73 @@ Triggers [LSG_EVENT_MENU_SELECTED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
+background-color="color"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+padding="int"
+font-size="int" # default="14"
+text-color="color"
+
+title="string"
+width="size"
+```
+
+### \<menu-sub\>
+
+[boolean](#boolean)
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+
+title="string"
+```
+
+### \<menu-item\>
+
+[boolean](#boolean) | [file_path](#file_path)
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+
+icon="file_path"
+key="string"
+```
+
+### \<modal\>
+
+[alignment](#alignment) | [color](#color) | [orientation](#orientation) | [size](#size)
+
+```ini
+id="string"
 width="size"
 height="size"
+orientation="orientation"
 background-color="color"
 border="int"
 border-color="color"
-margin="int"
+padding="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
+spacing="int"
 font-size="int" # default="14"
 text-color="color"
+title="string"
+
+hide-close-icon="boolean"
+max-width="int"
+max-height="int"
+min-width="int"
+min-height="int"
 ```
 
 ### \<panel\>
 
-[alignment](#alignment) | [color](#color) | [orientation](#orientation) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
 
 Triggers [LSG_EVENT_COMPONENT_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_DOUBLE_CLICKED](#handle-events) and [LSG_EVENT_COMPONENT_RIGHT_CLICKED](#handle-events) events.
 
@@ -406,6 +476,28 @@ valign="alignment_vertical"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
+
+scrollable="boolean"
+```
+
+### \<progress-bar\>
+
+[boolean](#boolean) | [color](#color) | [percent](#percent) | [size](#size)
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+margin="int"
+padding="int"
+
+value="percent"
+progress-color="color"
 ```
 
 ### \<slider\>
@@ -417,8 +509,9 @@ Triggers [LSG_EVENT_SLIDER_VALUE_CHANGED](#handle-events) event.
 ```ini
 id="string"
 enabled="boolean"
-width="size" # minimum="20" (vertical)
-height="size" # minimum="20" (horizontal)
+visible="boolean"
+width="size"
+height="size"
 orientation="orientation"
 background-color="color"
 border="int"
@@ -444,12 +537,14 @@ Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#ha
 ```ini
 id="string"
 enabled="boolean"
+visible="boolean"
 width="size"
 height="size"
 background-color="color"
 border="int"
 border-color="color"
-row-border="boolean"
+show-column-border="boolean"
+show-row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -482,6 +577,25 @@ underline="boolean"
 wrap="boolean"
 ```
 
+### \<text-input\>
+
+[color](#color) | [size](#size)
+
+```ini
+id="string"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+font-size="int" # default="14"
+padding="int"
+text-color="color"
+
+placeholder="string"
+value="string"
+```
+
 ### \<window\>
 
 [boolean](#boolean) | [file_path](#file_path)
@@ -490,7 +604,7 @@ wrap="boolean"
 title="string"
 width="int"
 height="int"
-min-width="int" # default="400"
+min-width="int"  # default="400"
 min-height="int" # default="400"
 x="int"
 y="int"
@@ -584,6 +698,7 @@ Slider.thumb-border-color=#000000
 ```cpp
 enum LSG_EventType {
   LSG_EVENT_BUTTON_CLICKED,
+  LSG_EVENT_BUTTON_PRESSED,
   LSG_EVENT_COMPONENT_CLICKED,
   LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
   LSG_EVENT_COMPONENT_RIGHT_CLICKED,
@@ -593,7 +708,10 @@ enum LSG_EventType {
   LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
   LSG_EVENT_ROW_SELECTED,
   LSG_EVENT_ROW_UNSELECTED,
-  LSG_EVENT_SLIDER_VALUE_CHANGED
+  LSG_EVENT_SLIDER_VALUE_CHANGED,
+  LSG_EVENT_TABLE_COLUMN_RESIZED,
+  LSG_EVENT_TEXT_INPUT_CLEARED,
+  LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
 };
 ```
 
@@ -647,10 +765,10 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
-### LSG_TableGroupRows
+### LSG_TableGroup
 
 ```cpp
-struct LSG_TableGroupRows
+struct LSG_TableGroup
 {
   std::string   group;
   LSG_TableRows rows;
@@ -675,7 +793,7 @@ using LSG_Strings = std::vector<std::string>;
 ### LSG_TableGroups
 
 ```cpp
-using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
+using LSG_TableGroups = std::vector<LSG_TableGroup>;
 ```
 
 ### LSG_TableRows
@@ -690,7 +808,7 @@ using LSG_TableRows = std::vector<LSG_Strings>;
 void LSG_AddListItem(const std::string& id, const std::string& item)
 ```
 
-Adds a new item to the \<list\> component.
+Adds a new item to the list.
 
 Parameters
 
@@ -714,7 +832,7 @@ LSG_AddListItem("List", "My new list item");
 void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
 ```
 
-Adds a new item to the \<menu-sub\> component.
+Adds a new item to the sub-menu.
 
 Parameters
 
@@ -737,10 +855,10 @@ LSG_AddSubMenuItem("MenuIdColorThemes", "Light", "MenuIdColorThemeLight");
 ### LSG_AddTableGroup
 
 ```cpp
-void LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+void LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group);
 ```
 
-Adds a new group with rows to the \<table\> component.
+Adds a new group with rows to the table.
 
 Parameters
 
@@ -755,7 +873,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableGroupRows group = {
+LSG_TableGroup group = {
   .group = "New Group",
   .rows = {
     { "New row 1 - Column A", "My new row 1 - Column B" },
@@ -772,7 +890,7 @@ LSG_AddTableGroup("TableWithGroups", group);
 void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
 ```
 
-Adds a new row to the \<table\> component.
+Adds a new row to the table.
 
 Parameters
 
@@ -791,6 +909,23 @@ LSG_Strings row = { "New row - Column A", "New row - Column B" };
 
 LSG_AddTableRow("Table", row);
 ```
+
+### LSG_ClearTextInput
+
+```cpp
+void LSG_ClearTextInput(const std::string& id);
+```
+
+Clears the text input value.
+
+Parameters
+
+- **id** \<text-input\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_GetBackgroundColor
 
@@ -827,7 +962,7 @@ Exceptions
 int LSG_GetLastPage(const std::string& id);
 ```
 
-Returns the last 0-based page index of the \<list\> or \<table\> component.
+Returns the last 0-based page index of the list or table.
 
 Parameters
 
@@ -844,12 +979,29 @@ Exceptions
 std::string LSG_GetListItem(const std::string& id, int row);
 ```
 
-Returns the item from the \<list\> component.
+Returns the item from the list.
 
 Parameters
 
 - **id** \<list\> component ID
 - **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetListItemCount
+
+```cpp
+size_t LSG_GetListItemCount(const std::string& id);
+```
+
+Returns the number of items in the list.
+
+Parameters
+
+- **id** \<list\> component ID
 
 Exceptions
 
@@ -862,11 +1014,45 @@ Exceptions
 LSG_Strings LSG_GetListItems(const std::string& id);
 ```
 
-Returns all the items from the \<list\> component.
+Returns all the items from the list.
 
 Parameters
 
 - **id** \<list\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetMargin
+
+```cpp
+int LSG_GetMargin(const std::string& id);
+```
+
+Returns the margin around a component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetPadding
+
+```cpp
+int LSG_GetPadding(const std::string& id);
+```
+
+Returns the padding inside a component.
+
+Parameters
+
+- **id** Component ID
 
 Exceptions
 
@@ -879,7 +1065,7 @@ Exceptions
 int LSG_GetPage(const std::string& id);
 ```
 
-Returns the current 0-based page index of the \<list\> or \<table\> component.
+Returns the current 0-based page index of the list table.
 
 Parameters
 
@@ -896,7 +1082,7 @@ Exceptions
 std::string LSG_GetPageListItem(const std::string& id, int row);
 ```
 
-Returns the item on the current page of the \<list\> component.
+Returns the item on the current page of the list.
 
 Parameters
 
@@ -914,7 +1100,7 @@ Exceptions
 LSG_Strings LSG_GetPageListItems(const std::string& id);
 ```
 
-Returns the items on the current page of the \<list\> component.
+Returns the items on the current page of the list.
 
 Parameters
 
@@ -931,7 +1117,7 @@ Exceptions
 LSG_TableRows LSG_GetPageTableGroups(const std::string& id);
 ```
 
-Returns the groups on the current page of the \<table\> component.
+Returns the groups on the current page of the table.
 
 Parameters
 
@@ -948,7 +1134,7 @@ Exceptions
 LSG_Strings LSG_GetPageTableRow(const std::string& id, int row);
 ```
 
-Returns the columns on the current page of the \<table\> component.
+Returns the columns on the current page of the table.
 
 Parameters
 
@@ -966,7 +1152,7 @@ Exceptions
 LSG_TableRows LSG_GetPageTableRows(const std::string& id);
 ```
 
-Returns the rows on the current page of the \<table\> component.
+Returns the rows on the current page of the table.
 
 Parameters
 
@@ -994,17 +1180,34 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetProgressValue
+
+```cpp
+double LSG_GetProgressValue(const std::string& id);
+```
+
+Returns the value of the progress bar as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<progress-bar\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetScrollHorizontal
 
 ```cpp
 int LSG_GetScrollHorizontal(const std::string& id);
 ```
 
-Returns the horizontal scroll offset/position of the \<list\>, \<table\> or \<text\> component.
+Returns the horizontal scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 
 Exceptions
 
@@ -1017,11 +1220,11 @@ Exceptions
 int LSG_GetScrollVertical(const std::string& id);
 ```
 
-Returns the vertical scroll offset/position of the \<list\>, \<table\> or \<text\> component.
+Returns the vertical scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 
 Exceptions
 
@@ -1031,10 +1234,10 @@ Exceptions
 ### LSG_GetSelectedRow
 
 ```cpp
-int LSG_GetSelectedRow(const std::string& id);
+std::vector<int> LSG_GetSelectedRows(const std::string& id);
 ```
 
-Returns the selected 0-based row index of the \<list\> or \<table\> component.
+Returns the selected 0-based row indices (-1 for unselected) of the list or table.
 
 Parameters
 
@@ -1068,7 +1271,7 @@ Exceptions
 double LSG_GetSliderValue(const std::string& id);
 ```
 
-Returns the value of the \<slider\> component as a percent between 0 and 1.
+Returns the value of the slider as a percent between 0 and 1.
 
 Parameters
 
@@ -1085,7 +1288,7 @@ Exceptions
 int LSG_GetSortColumn(const std::string& id);
 ```
 
-Returns the sort column index of the \<table\> component.
+Returns the sort column index of the table.
 
 Parameters
 
@@ -1102,7 +1305,7 @@ Exceptions
 LSG_SortOrder LSG_GetSortOrder(const std::string& id);
 ```
 
-Returns the sort order of the \<list\> or \<table\> component.
+Returns the sort order of the list or table.
 
 Parameters
 
@@ -1113,13 +1316,48 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetSpacing
+
+```cpp
+int LSG_GetSpacing(const std::string& id);
+```
+
+Returns the spacing between child components.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTableColumnWidth
+
+```cpp
+int LSG_GetTableColumnWidth(const std::string& id, int column);
+```
+
+Returns the width of the table column.
+
+Parameters
+
+- **id** \<table\> component ID
+- **column** 0-based column index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetTableGroup
 
 ```cpp
-LSG_TableGroupRows LSG_GetTableGroup(const std::string& id, const std::string& group);
+LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group);
 ```
 
-Returns the group from the \<table\> component.
+Returns the group from the table.
 
 Parameters
 
@@ -1137,7 +1375,7 @@ Exceptions
 LSG_TableRows LSG_GetTableGroups(const std::string& id);
 ```
 
-Returns all the groups from the \<table\> component.
+Returns all the groups from the table.
 
 Parameters
 
@@ -1154,7 +1392,7 @@ Exceptions
 LSG_Strings LSG_GetTableHeader(const std::string& id);
 ```
 
-Returns the header columns from the \<table\> component.
+Returns the header columns from the table.
 
 Parameters
 
@@ -1171,12 +1409,29 @@ Exceptions
 LSG_Strings LSG_GetTableRow(const std::string& id, int row);
 ```
 
-Returns the columns from the \<table\> component.
+Returns the columns from the table.
 
 Parameters
 
 - **id** \<table\> component ID
 - **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTableRowCount
+
+```cpp
+size_t LSG_GetTableRowCount(const std::string& id);
+```
+
+Returns the number of rows in the table.
+
+Parameters
+
+- **id** \<table\> component ID
 
 Exceptions
 
@@ -1189,7 +1444,7 @@ Exceptions
 LSG_TableRows LSG_GetTableRows(const std::string& id);
 ```
 
-Returns all the rows from the \<table\> component.
+Returns all the rows from the table.
 
 Parameters
 
@@ -1206,11 +1461,45 @@ Exceptions
 std::string LSG_GetText(const std::string& id);
 ```
 
-Returns the text value of the \<text\> component.
+Returns the text value of the component.
 
 Parameters
 
 - **id** \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTextInputValue
+
+```cpp
+std::string LSG_GetTextInputValue(const std::string& id);
+```
+
+Returns the text input value.
+
+Parameters
+
+- **id** \<text-input\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTitle
+
+```cpp
+std::string LSG_GetTitle(const std::string& id);
+```
+
+Returns the header title of the modal, menu or sub-menu.
+
+Parameters
+
+- **id** \<modal\>, \<menu\> or \<menu-sub\> component ID
 
 Exceptions
 
@@ -1265,13 +1554,47 @@ Exceptions
 
 - runtime_error
 
+### LSG_IsEnabled
+
+```cpp
+bool LSG_IsEnabled(const std::string& id);
+```
+
+Returns true if the component is enabled.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_IsMenuItemSelected
+
+```cpp
+bool LSG_IsMenuItemSelected(const std::string& id);
+```
+
+Returns true if the menu item is selected.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_IsMenuOpen
 
 ```cpp
 bool LSG_IsMenuOpen(const std::string& id);
 ```
 
-Returns true if the \<menu\> component is open.
+Returns true if the menu is open.
 
 Parameters
 
@@ -1421,7 +1744,7 @@ Cleans up allocated resources and closes the window.
 void LSG_RemoveListItem(const std::string& id, int row);
 ```
 
-Removes the item row from the \<list\> component.
+Removes the item row from the list.
 
 Parameters
 
@@ -1445,7 +1768,7 @@ LSG_RemoveListItem("List", 12);
 void LSG_RemoveMenuItem(const std::string& id);
 ```
 
-Removes the \<menu-item\> component.
+Removes the menu item.
 
 Parameters
 
@@ -1468,7 +1791,7 @@ LSG_RemoveMenuItem("MenuIdColorThemeDark");
 void LSG_RemovePageListItem(const std::string& id, int row);
 ```
 
-Removes the item on the current page of the \<list\> component.
+Removes the item on the current page of the list.
 
 Parameters
 
@@ -1492,7 +1815,7 @@ LSG_RemovePageListItem("List", 12);
 void LSG_RemovePageTableRow(const std::string& id, int row);
 ```
 
-Removes the row on the current page of the \<table\> component.
+Removes the row on the current page of the table.
 
 Parameters
 
@@ -1516,7 +1839,7 @@ LSG_RemoveTableRow("Table", 6);
 void LSG_RemoveTableHeader(const std::string& id);
 ```
 
-Removes the header columns from the \<table\> component.
+Removes the header columns from the table.
 
 Parameters
 
@@ -1539,7 +1862,7 @@ LSG_RemoveTableHeader("Table");
 void LSG_RemoveTableGroup(const std::string& id, const std::string& group);
 ```
 
-Removes the grouped rows from the \<table\> component.
+Removes the grouped rows from the table.
 
 Parameters
 
@@ -1563,7 +1886,7 @@ LSG_RemoveTableGroup("TableWithGroups", "Quis Hendrerit");
 void LSG_RemoveTableRow(const std::string& id, int row);
 ```
 
-Removes the row from the \<table\> component.
+Removes the row from the table.
 
 Parameters
 
@@ -1613,12 +1936,12 @@ std::string LSG_SaveFile();
 void LSG_ScrollHorizontal(const std::string& id, int scroll);
 ```
 
-Scrolls the \<list\>, \<table\> or \<text\> component horizontally by the specified offset/position.
+Scrolls the component horizontally by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
-- **scroll** Horizontal scroll offset/position
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **scroll** Horizontal scroll offset
 
 Exceptions
 
@@ -1631,12 +1954,12 @@ Exceptions
 void LSG_ScrollVertical(const std::string& id, int scroll);
 ```
 
-Scrolls the \<list\>, \<table\> or \<text\> component vertically by the specified offset/position.
+Scrolls the component vertically by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
-- **scroll** Vertical scroll offset/position
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **scroll** Vertical scroll offset
 
 Exceptions
 
@@ -1649,11 +1972,28 @@ Exceptions
 void LSG_ScrollToBottom(const std::string& id);
 ```
 
-Scrolls to the bottom of the \<list\>, \<table\> or \<text\> component.
+Scrolls to the bottom of the component.
 
 Parameters
 
-- **id** \<list\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToTop
+
+```cpp
+void LSG_ScrollToTop(const std::string& id);
+```
+
+Scrolls to the top of the component.
+
+Parameters
+
+- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
 
 Exceptions
 
@@ -1666,12 +2006,12 @@ Exceptions
 void LSG_SelectRow(const std::string& id, int row);
 ```
 
-Selects the row in the \<list\> or \<table\> component.
+Selects the row in the list or table.
 
 Parameters
 
 - **id** \<list\> or \<table\> component ID
-- **row** 0-based row index
+- **row** 0-based row index (-1 for unselected)
 
 Exceptions
 
@@ -1690,7 +2030,7 @@ LSG_SelectRow("List", 2);
 void LSG_SelectRowByOffset(const std::string& id, int offset);
 ```
 
-Selects a row relative to the currently selected row in the \<list\> or \<table\> component.
+Selects a row relative to the currently selected row in the list or table.
 
 Parameters
 
@@ -1706,6 +2046,30 @@ Example
 
 ```cpp
 LSG_SelectRowByOffset("List", -2);
+```
+
+### LSG_SelectRows
+
+```cpp
+void LSG_SelectRows(const std::string& id, const std::vector<int>& rows);
+```
+
+Selects the rows in the list or table.
+
+Parameters
+
+- **id** \<list\> or \<table\> component ID
+- **rows** 0-based row indices
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectRows("List", { 1, 2 });
 ```
 
 ### LSG_SetAlignmentHorizontal
@@ -1834,7 +2198,7 @@ LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
 void LSG_SetButtonSelected(const std::string& id, bool selected = true);
 ```
 
-Highlights the \<button\> as selected.
+Highlights the button as selected.
 
 Parameters
 
@@ -1949,7 +2313,7 @@ LSG_SetHeight("MenuIdMenu", 100);
 void LSG_SetImage(const std::string& id, const std::string& file, bool fill = false);
 ```
 
-Sets the file path of an \<image\> component.
+Sets the file path of an image.
 
 Parameters
 
@@ -1974,7 +2338,7 @@ LSG_SetImage("ImageIdColorThemeDark", "img/dark-24.png");
 void LSG_SetListItem(const std::string& id, int row, const std::string& item);
 ```
 
-Updates and overwrites the item in the \<list\> component.
+Updates and overwrites the item in the list.
 
 Parameters
 
@@ -1999,7 +2363,7 @@ LSG_SetListItem("List", 12, "My updated list item.");
 void LSG_SetListItems(const std::string& id, const LSG_Strings& items);
 ```
 
-Sets the items of the \<list\> component.
+Sets the items of the list.
 
 Parameters
 
@@ -2056,13 +2420,37 @@ Example
 LSG_SetMargin("Root", 5);
 ```
 
+### LSG_SetMenuItemIcon
+
+```cpp
+void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile);
+```
+
+Sets the icon of the menu-item.
+
+Parameters
+
+- **id** \<menu-item\> component ID
+- **imageFile** Image file path
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetMenuItemIcon("MenuIdAbout", "img/info-white-16.png");
+```
+
 ### LSG_SetMenuItemSelected
 
 ```cpp
 void LSG_SetMenuItemSelected(const std::string& id, bool selected = true);
 ```
 
-Highlights the \<menu-item\> as selected.
+Highlights the menu item as selected.
 
 Parameters
 
@@ -2080,7 +2468,7 @@ Exceptions
 void LSG_SetMenuItemValue(const std::string& id, const std::string& value);
 ```
 
-Sets the text value of the \<menu-item\> component.
+Sets the text value of the menu-item.
 
 Parameters
 
@@ -2150,7 +2538,7 @@ LSG_SetPadding("Root", 10);
 void LSG_SetPage(const std::string& id, int page);
 ```
 
-Navigates to and sets the page of the \<list\> or \<table\> component.
+Navigates to and sets the page of the list or table.
 
 Parameters
 
@@ -2174,7 +2562,7 @@ LSG_SetPage("List", 0);
 void LSG_SetPageListItem(const std::string& id, int row, const std::string& item);
 ```
 
-Updates and overwrites the item on the current page of the \<list\> component.
+Updates and overwrites the item on the current page of the list.
 
 Parameters
 
@@ -2199,7 +2587,7 @@ LSG_SetPageListItem("List", 12, "My updated list item.");
 void LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
-Updates and overwrites the row columns on the current page of the \<table\> component.
+Updates and overwrites the row columns on the current page of the table.
 
 Parameters
 
@@ -2218,6 +2606,30 @@ Example
 LSG_Strings row = { "Updated Row", "My updated table row" };
 
 LSG_SetPageTableRow("Table", 6, row);
+```
+
+### LSG_SetProgressValue
+
+```cpp
+void LSG_SetProgressValue(const std::string& id, double percent);
+```
+
+Sets the value of the progress bar as a percent between 0 and 1.
+
+Parameters
+
+- **id** \<progress-bar\> component ID
+- **percent** [0.0-1.0]
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetProgressValue("ProgressBar", 0.5);
 ```
 
 ### LSG_SetSize
@@ -2250,7 +2662,7 @@ LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
 void LSG_SetSliderValue(const std::string& id, double percent);
 ```
 
-Sets the value of the \<slider\> component as a percent between 0 and 1.
+Sets the value of the slider as a percent between 0 and 1.
 
 Parameters
 
@@ -2292,13 +2704,38 @@ Example
 LSG_SetSpacing("Root", 20);
 ```
 
+### LSG_SetTableColumnWidth
+
+```cpp
+void LSG_SetTableColumnWidth(const std::string& id, int column, int width);
+```
+
+Sets the width of the table column.
+
+Parameters
+
+- **id** \<table\> component ID
+- **column** 0-based column index
+- **width** Width in pixels
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTableColumnWidth("Table", 0, 25);
+```
+
 ### LSG_SetTableGroup
 
 ```cpp
-void LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group);
 ```
 
-Sets the rows of the group in the \<table\> component.
+Sets the rows of the group in the table.
 
 Parameters
 
@@ -2313,7 +2750,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_TableGroupRows tableGroup = {
+LSG_TableGroup tableGroup = {
     "Quis Hendrerit", {
       { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
       { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
@@ -2330,7 +2767,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroup);
 void LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups);
 ```
 
-Sets the groups of the \<table\> component.
+Sets the groups of the table.
 
 Parameters
 
@@ -2371,7 +2808,7 @@ LSG_SetTableGroups("TableWithGroups", tableGroups);
 void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 ```
 
-Sets the header columns of the \<table\> component.
+Sets the header columns of the table.
 
 Parameters
 
@@ -2400,7 +2837,7 @@ LSG_SetTableHeader("Table", tableHeader);
 void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 ```
 
-Updates and overwrites the row columns in the \<table\> component.
+Updates and overwrites the row columns in the table.
 
 Parameters
 
@@ -2427,7 +2864,7 @@ LSG_SetTableRow("Table", 6, row);
 void LSG_SetTableRows(const std::string& id, const LSG_TableRows& rows);
 ```
 
-Sets the rows of the \<table\> component.
+Sets the rows of the table.
 
 Parameters
 
@@ -2460,7 +2897,7 @@ LSG_SetTableRows("Table", rows);
 void LSG_SetText(const std::string& id, const std::string& value);
 ```
 
-Sets the text value of the \<text\> component.
+Sets the text value of the text.
 
 Parameters
 
@@ -2500,6 +2937,54 @@ Example
 
 ```cpp
 LSG_SetTextColor("TextIdColorTheme", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetTextInputValue
+
+```cpp
+void LSG_SetTextInputValue(const std::string& id, const std::string& value);
+```
+
+Sets the text input value.
+
+Parameters
+
+- **id** \<text-input\> component ID
+- **value** Text value
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTextInputValue("TextInput", "Initial text input value");
+```
+
+### LSG_SetTitle
+
+```cpp
+void LSG_SetTitle(const std::string& id, const std::string& title);
+```
+
+Sets the header title of the modal, menu or sub-menu.
+
+Parameters
+
+- **id** \<modal\>, \<menu\> or \<menu-sub\> component ID
+- **title** Header title
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
 ```
 
 ### LSG_SetVisible
@@ -2666,6 +3151,24 @@ Example
 LSG_SetWindowTitle("New Window");
 ```
 
+### LSG_ShowColumnBorder
+
+```cpp
+void LSG_ShowColumnBorder(const std::string& id, bool show = true);
+```
+
+Shows or hides the border/rule between columns.
+
+Parameters
+
+- **id** \<table\> component ID
+- **show** true to show or false to hide
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_ShowError
 
 ```cpp
@@ -2688,7 +3191,7 @@ Shows or hides the border/rule between rows.
 
 Parameters
 
-- **id** \<list\> or  \<table\> component ID
+- **id** \<list\> or \<table\> component ID
 - **show** true to show or false to hide
 
 Exceptions

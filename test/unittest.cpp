@@ -167,6 +167,38 @@ namespace LSG_UnitTest
             }
         }
 
+        TEST_METHOD(SelectRow)
+        {
+            try
+            {
+                SetItems();
+
+                auto rows1 = LSG_GetSelectedRows("List");
+
+                Assert::AreEqual(1, (int)rows1.size());
+                Assert::AreEqual(0, (int)rows1[0]);
+
+                LSG_SelectRow("List", 1);
+
+                auto rows2 = LSG_GetSelectedRows("List");
+
+                Assert::AreEqual(1, (int)rows2.size());
+                Assert::AreEqual(1, (int)rows2[0]);
+
+                LSG_SelectRows("List", { -1, 1, 3, 100 });
+
+                auto rows3 = LSG_GetSelectedRows("List");
+
+                Assert::AreEqual(2, (int)rows3.size());
+                Assert::AreEqual(1, (int)rows3[0]);
+                Assert::AreEqual(3, (int)rows3[1]);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
         TEST_METHOD(SetItem)
         {
             try
@@ -261,8 +293,8 @@ namespace LSG_UnitTest
 
                 Assert::AreEqual(2, (int)header.size());
 
-                Assert::AreEqual("DOLOR", header[0].c_str());
-                Assert::AreEqual("MAGNA", header[1].c_str());
+                Assert::AreEqual("Dolor", header[0].c_str());
+                Assert::AreEqual("Magna", header[1].c_str());
             }
             catch (const std::exception& e)
             {
@@ -315,7 +347,7 @@ namespace LSG_UnitTest
             {
                 for (int i = 0; i < 20; i++)
                 {
-                    LSG_TableGroupRows newGroup = { .group = ("My new group " + std::to_string(i)), .rows = {} };
+                    LSG_TableGroup newGroup = { .group = ("My new group " + std::to_string(i)) };
 
                     for (int j = 0; j < 10; j++)
                         newGroup.rows.push_back({ ("My new group row " + std::to_string(j) + " - Column A"), ("My new group row " + std::to_string(j) + " - Column B") });
@@ -463,7 +495,7 @@ namespace LSG_UnitTest
 
                 for (int i = 0; i < 20; i++)
                 {
-                    LSG_TableGroupRows newGroup = { .group = ("My new group " + std::to_string(i)), .rows = {} };
+                    LSG_TableGroup newGroup = { .group = ("My new group " + std::to_string(i)) };
 
                     for (int j = 0; j < 10; j++)
                         newGroup.rows.push_back({ ("My new group row " + std::to_string(j) + " - Column A"), ("My new group row " + std::to_string(j) + " - Column B") });
@@ -804,6 +836,47 @@ namespace LSG_UnitTest
                 auto text = LSG_GetText("TextWrap");
 
                 Assert::AreEqual("New test value\nwith wrap.", text.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
+    TEST_CLASS(TextInput)
+    {
+        TEST_METHOD(Clear)
+        {
+            try
+            {
+                SetValue();
+
+                auto value1 = LSG_GetTextInputValue("TextInput");
+
+                Assert::IsFalse(value1.empty());
+
+                LSG_ClearTextInput("TextInput");
+
+                auto value2 = LSG_GetTextInputValue("TextInput");
+
+                Assert::IsTrue(value2.empty());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetValue)
+        {
+            try
+            {
+                LSG_SetTextInputValue("TextInput", "New test value");
+
+                auto value = LSG_GetTextInputValue("TextInput");
+
+                Assert::AreEqual("New test value", value.c_str());
             }
             catch (const std::exception& e)
             {

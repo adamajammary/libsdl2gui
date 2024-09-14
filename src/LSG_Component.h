@@ -43,6 +43,8 @@ public:
 	std::string      GetID();
 	int              GetLayer() const;
 	LSG_Component*   GetParent();
+	LSG_Component*   GetScrollableParent();
+	int              GetSpacing();
 	std::string      GetXmlAttribute(const std::string& attribute);
 	LSG_UMapStrStr   GetXmlAttributes();
 	LibXml::xmlNode* GetXmlNode();
@@ -50,17 +52,16 @@ public:
 	bool             IsImage() const;
 	bool             IsLine() const;
 	bool             IsList() const;
-	bool             IsListItem() const;
 	bool             IsMenu() const;
 	bool             IsMenuItem() const;
+	bool             IsModal() const;
+	bool             IsPanel() const;
+	bool             IsProgressBar() const;
 	bool             IsScrollable() const;
 	bool             IsSlider() const;
 	bool             IsSubMenu() const;
 	bool             IsTable() const;
-	bool             IsTableColumn() const;
-	bool             IsTableGroup() const;
-	bool             IsTableHeader() const;
-	bool             IsTableRow() const;
+	bool             IsTextInput() const;
 	bool             IsTextLabel() const;
 	bool             IsVertical() const;
 	void             RemoveChild(LSG_Component* child);
@@ -74,29 +75,29 @@ public:
 	void             SetSizeFixed();
 	void             SetSizePercent(LSG_Component* parent);
 	void             SetSpacing(int spacing);
+	void             SetVisible(bool visible);
 
 protected:
-	void            destroyTextures();
-	LSG_Alignment   getAlignment();
-	SDL_Rect        getArea();
-	SDL_Rect        getFillArea(const SDL_Rect& area, int border);
-	int             getFontSize();
-	int             getFontStyle();
-	int             getTextureHeight();
-	SDL_Size        getTextureSize();
-	std::string     getXmlColor(const std::string& xmlAttribute, bool recursive = true);
-	void            renderBorder(SDL_Renderer*    renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background);
-	virtual void    renderDisabled(SDL_Renderer*  renderer);
-	void            renderFill(SDL_Renderer*      renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background);
-	void            renderHighlight(SDL_Renderer* renderer);
-	void            renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background);
-	void            renderTexture(SDL_Renderer*   renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
-	void            renderTextures(SDL_Renderer*  renderer, const std::vector<SDL_Texture*>& textures, int maxWidth, int spacing, SDL_Rect& clip, SDL_Rect& destination);
+	virtual void  destroyTextures();
+	LSG_Alignment getAlignment();
+	SDL_Rect      getArea(const SDL_Rect& background);
+	SDL_Rect      getFillArea(const SDL_Rect& background, int border);
+	int           getFontSize();
+	int           getFontStyle();
+	int           getTextureHeight();
+	SDL_Size      getTextureSize();
+	std::string   getXmlColor(const std::string& xmlAttribute, bool recursive = true);
+	void          renderBorder(SDL_Renderer*    renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background);
+	void          renderDisabled(SDL_Renderer*  renderer) const;
+	void          renderFill(SDL_Renderer*      renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background);
+	void          renderHighlight(SDL_Renderer* renderer);
+	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background);
+	void          renderTexture(SDL_Renderer*   renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
 
 private:
 	void renderBorder(SDL_Renderer* renderer);
 	void renderFill(SDL_Renderer* renderer);
-
+	void setSizePercent(const SDL_Rect& parentBackground);
 };
 
 #endif

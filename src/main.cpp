@@ -87,7 +87,7 @@ SDL_Renderer* init(const std::string& title, int width, int height)
 	#elif defined _linux
 		SDL_setenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN", "0", 1);
 
-		if ((std::getenv("DISPLAY") == NULL) || (strlen(std::getenv("DISPLAY")) == 0))
+		if (!std::getenv("DISPLAY"))
 			SDL_setenv("DISPLAY", ":0", 1);
 	#elif defined _windows
 		#if (WINVER >= 0x0605)
@@ -115,6 +115,8 @@ SDL_Renderer* init(const std::string& title, int width, int height)
 		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_ttf: %s", TTF_GetError()));
 
 	auto renderer = LSG_Window::Open(title, width, height);
+
+	SDL_StopTextInput();
 
 	isRunning = true;
 
@@ -147,7 +149,7 @@ void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const st
 	static_cast<LSG_MenuSub*>(component)->AddItem(item, itemId);
 }
 
-void LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group)
+void LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -171,6 +173,19 @@ void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 		throw std::invalid_argument(getErrorNoID("<table>", id));
 
 	static_cast<LSG_Table*>(component)->AddRow(columns);
+}
+
+void LSG_ClearTextInput(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextInput())
+		throw std::invalid_argument(getErrorNoID("<text-input>", id));
+
+	static_cast<LSG_TextInput*>(component)->Clear();
 }
 
 SDL_Color LSG_GetBackgroundColor(const std::string& id)
@@ -220,6 +235,19 @@ std::string LSG_GetListItem(const std::string& id, int row)
 	return static_cast<LSG_List*>(component)->GetItem(row);
 }
 
+size_t LSG_GetListItemCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsList())
+		throw std::invalid_argument(getErrorNoID("<list>", id));
+
+	return static_cast<LSG_List*>(component)->GetRowCount();
+}
+
 LSG_Strings LSG_GetListItems(const std::string& id)
 {
 	if (!isRunning)
@@ -231,6 +259,32 @@ LSG_Strings LSG_GetListItems(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<list>", id));
 
 	return static_cast<LSG_List*>(component)->GetItems();
+}
+
+int LSG_GetMargin(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->margin;
+}
+
+int LSG_GetPadding(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->padding;
 }
 
 int LSG_GetPage(const std::string& id)
@@ -326,6 +380,21 @@ SDL_Point LSG_GetPosition(const std::string& id)
 	return position;
 }
 
+double LSG_GetProgressValue(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsProgressBar())
+		throw std::invalid_argument(getErrorNoID("<progress-bar>", id));
+
+	auto value = static_cast<LSG_ProgressBar*>(component)->GetValue();
+
+	return value;
+}
+
 int LSG_GetScrollHorizontal(const std::string& id)
 {
 	if (!isRunning)
@@ -334,10 +403,12 @@ int LSG_GetScrollHorizontal(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollX();
+	else if (component->IsPanel())
+		return static_cast<LSG_Panel*>(component)->GetScrollX();
 	else if (component->IsTable())
 		return static_cast<LSG_Table*>(component)->GetScrollX();
 	else if (component->IsTextLabel())
@@ -354,10 +425,12 @@ int LSG_GetScrollVertical(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollY();
+	else if (component->IsPanel())
+		return static_cast<LSG_Panel*>(component)->GetScrollY();
 	else if (component->IsTable())
 		return static_cast<LSG_Table*>(component)->GetScrollY();
 	else if (component->IsTextLabel())
@@ -366,7 +439,7 @@ int LSG_GetScrollVertical(const std::string& id)
 	return 0;
 }
 
-int LSG_GetSelectedRow(const std::string& id)
+std::vector<int> LSG_GetSelectedRows(const std::string& id)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -376,7 +449,7 @@ int LSG_GetSelectedRow(const std::string& id)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	return static_cast<LSG_List*>(component)->GetSelectedRow();
+	return static_cast<LSG_List*>(component)->GetSelectedRows();
 }
 
 SDL_Size LSG_GetSize(const std::string& id)
@@ -435,7 +508,33 @@ LSG_SortOrder LSG_GetSortOrder(const std::string& id)
 	return static_cast<LSG_List*>(component)->GetSortOrder();
 }
 
-LSG_TableGroupRows LSG_GetTableGroup(const std::string& id, const std::string& group)
+int LSG_GetSpacing(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetSpacing();
+}
+
+int LSG_GetTableColumnWidth(const std::string& id, int column)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	return static_cast<LSG_Table*>(component)->GetColumnWidth(column);
+}
+
+LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -487,6 +586,19 @@ LSG_Strings LSG_GetTableRow(const std::string& id, int row)
 	return static_cast<LSG_Table*>(component)->GetRow(row);
 }
 
+size_t LSG_GetTableRowCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	return static_cast<LSG_Table*>(component)->GetRowCount();
+}
+
 LSG_TableRows LSG_GetTableRows(const std::string& id)
 {
 	if (!isRunning)
@@ -511,6 +623,32 @@ std::string LSG_GetText(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<text>", id));
 
 	return component->text;
+}
+
+std::string LSG_GetTextInputValue(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextInput())
+		throw std::invalid_argument(getErrorNoID("<text-input>", id));
+
+	return static_cast<LSG_TextInput*>(component)->GetValue();
+}
+
+std::string LSG_GetTitle(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsModal() && !component->IsMenu() && !component->IsSubMenu()))
+		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
+
+	return LSG_XML::GetAttribute(component->GetXmlNode(), "title");
 }
 
 SDL_Size LSG_GetWindowMinimumSize()
@@ -543,6 +681,32 @@ std::string LSG_GetWindowTitle()
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
 	return LSG_Window::GetTitle();
+}
+
+bool LSG_IsEnabled(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->enabled;
+}
+
+bool LSG_IsMenuItemSelected(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
+
+	return static_cast<LSG_MenuItem*>(component)->IsSelected();
 }
 
 bool LSG_IsMenuOpen(const std::string& id)
@@ -858,11 +1022,13 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 
 	auto component = LSG_UI::GetComponent(id);
 
-	if (!component || (!component->IsList() && !component->IsTable() && !component->IsTextLabel()))
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+	if (!component || (!component->IsScrollable()))
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollHorizontal(scroll);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(scroll);
 	else if (component->IsTable())
 		static_cast<LSG_Table*>(component)->OnScrollHorizontal(scroll);
 	else if (component->IsTextLabel())
@@ -877,10 +1043,12 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollVertical(scroll);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollVertical(scroll);
 	else if (component->IsTable())
 		static_cast<LSG_Table*>(component)->OnScrollVertical(scroll);
 	else if (component->IsTextLabel())
@@ -895,14 +1063,36 @@ void LSG_ScrollToBottom(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <table> or <text>", id));
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
 
 	if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollEnd();
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollEnd();
 	else if (component->IsTable())
 		static_cast<LSG_Table*>(component)->OnScrollEnd();
 	else if (component->IsTextLabel())
 		static_cast<LSG_TextLabel*>(component)->OnScrollEnd();
+}
+
+void LSG_ScrollToTop(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsScrollable())
+		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text>", id));
+
+	if (component->IsList())
+		static_cast<LSG_List*>(component)->OnScrollHome();
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->OnScrollHome();
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->OnScrollHome();
+	else if (component->IsTextLabel())
+		static_cast<LSG_TextLabel*>(component)->OnScrollHome();
 }
 
 void LSG_SelectRow(const std::string& id, int row)
@@ -915,10 +1105,7 @@ void LSG_SelectRow(const std::string& id, int row)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	if (component->IsList())
-		static_cast<LSG_List*>(component)->Select(row);
-	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->Select(row);
+	static_cast<LSG_List*>(component)->Select(row);
 }
 
 void LSG_SelectRowByOffset(const std::string& id, int offset)
@@ -931,10 +1118,20 @@ void LSG_SelectRowByOffset(const std::string& id, int offset)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	if (component->IsList())
-		static_cast<LSG_List*>(component)->SelectRow(offset);
-	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->SelectRow(offset);
+	static_cast<LSG_List*>(component)->SelectRow(offset);
+}
+
+void LSG_SelectRows(const std::string& id, const std::vector<int>& rows)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsList() && !component->IsTable()))
+		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
+
+	static_cast<LSG_List*>(component)->Select(rows);
 }
 
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)
@@ -993,6 +1190,8 @@ void LSG_SetBorder(const std::string& id, int border)
 		throw std::invalid_argument(getErrorNoID("", id));
 
 	component->border = border;
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "border", std::to_string(border));
 
 	LSG_UI::LayoutParent(component);
 }
@@ -1132,6 +1331,21 @@ void LSG_SetMargin(const std::string& id, int margin)
 	LSG_UI::LayoutParent(component);
 }
 
+void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenuItem())
+		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "icon", imageFile);
+
+	static_cast<LSG_MenuItem*>(component)->SetMenuItem(component->background);
+}
+
 void LSG_SetMenuItemSelected(const std::string& id, bool selected)
 {
 	if (!isRunning)
@@ -1232,6 +1446,19 @@ void LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& colu
 	static_cast<LSG_Table*>(component)->SetPageRow(row, columns);
 }
 
+void LSG_SetProgressValue(const std::string& id, double percent)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsProgressBar())
+		throw std::invalid_argument(getErrorNoID("<progress-bar>", id));
+
+	static_cast<LSG_ProgressBar*>(component)->SetValue(percent);
+}
+
 void LSG_SetSize(const std::string& id, const SDL_Size& size)
 {
 	if (!isRunning)
@@ -1276,7 +1503,20 @@ void LSG_SetSpacing(const std::string& id, int spacing)
 	LSG_UI::LayoutParent(component);
 }
 
-void LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group)
+void LSG_SetTableColumnWidth(const std::string& id, int column, int width)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	static_cast<LSG_Table*>(component)->SetColumnWidth(column, width);
+}
+
+void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1352,6 +1592,8 @@ void LSG_SetText(const std::string& id, const std::string& value)
 		throw std::invalid_argument(getErrorNoID("<text>", id));
 
 	static_cast<LSG_TextLabel*>(component)->SetText(value);
+
+	LSG_UI::LayoutParent(component);
 }
 
 void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
@@ -1371,6 +1613,39 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	LSG_UI::SetText(component);
 }
 
+void LSG_SetTextInputValue(const std::string& id, const std::string& value)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTextInput())
+		throw std::invalid_argument(getErrorNoID("<text-input>", id));
+
+	static_cast<LSG_TextInput*>(component)->SetValue(value);
+}
+
+void LSG_SetTitle(const std::string& id, const std::string& title)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsModal() && !component->IsMenu() && !component->IsSubMenu()))
+		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "title", title);
+
+	if (component->IsModal())
+		static_cast<LSG_Modal*>(component)->Update();
+	else if (component->IsMenu())
+		static_cast<LSG_Menu*>(component)->SetMenu();
+	else if (component->IsSubMenu())
+		static_cast<LSG_MenuSub*>(component)->SetSubMenu(component->background);
+}
+
 void LSG_SetVisible(const std::string& id, bool visible)
 {
 	if (!isRunning)
@@ -1381,7 +1656,7 @@ void LSG_SetVisible(const std::string& id, bool visible)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->visible = visible;
+	component->SetVisible(visible);
 
 	LSG_UI::LayoutRoot();
 }
@@ -1441,6 +1716,19 @@ void LSG_SetWindowTitle(const std::string& title)
 	LSG_Window::SetTitle(title);
 }
 
+void LSG_ShowColumnBorder(const std::string& id, bool show)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTable())
+		throw std::invalid_argument(getErrorNoID("<table>", id));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "show-column-border", (show ? "true" : "false"));
+}
+
 void LSG_ShowError(const std::string& message)
 {
 	LSG_Window::ShowMessage(message);
@@ -1456,7 +1744,7 @@ void LSG_ShowRowBorder(const std::string& id, bool show)
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
-	LSG_XML::SetAttribute(component->GetXmlNode(), "row-border", (show ? "true" : "false"));
+	LSG_XML::SetAttribute(component->GetXmlNode(), "show-row-border", (show ? "true" : "false"));
 }
 
 void LSG_SortList(const std::string& id, LSG_SortOrder sortOrder)
@@ -1487,6 +1775,8 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 
 SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
+	LibXml::xmlInitParser();
+
 	if (!basePath)
 		initBasePath();
 
@@ -1503,6 +1793,10 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile)
 
 	if ((minWidth > 0) && (minHeight > 0))
 		LSG_SetWindowMinimumSize(minWidth, minHeight);
+	else if (minWidth > 0)
+		LSG_SetWindowMinimumSize(minWidth, LSG_Window::MinSize);
+	else if (minHeight > 0)
+		LSG_SetWindowMinimumSize(LSG_Window::MinSize, minHeight);
 
 	auto x = (windowAttribs.contains("x") ? std::atoi(windowAttribs["x"].c_str()) : 0);
 	auto y = (windowAttribs.contains("y") ? std::atoi(windowAttribs["y"].c_str()) : 0);
@@ -1525,6 +1819,8 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile)
 #if defined _windows && defined _DEBUG
 void LSG_StartTest(const std::string& xmlFile, const std::string& workingDir)
 {
+	LibXml::xmlInitParser();
+
 	if (!basePath)
 		basePath = (char*)workingDir.c_str();
 

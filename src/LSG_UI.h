@@ -22,11 +22,14 @@ private:
 public:
     static LSG_Component*  AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent);
     static void            Close();
+    static SDL_Point       GetAlignedPosition(const SDL_Point& position, const LSG_UMapStrStr& attributes, const LSG_UmapStrSize& sizes, int size, const SDL_Size& maxSize, LSG_Component* component, LSG_Component* parent);
     static SDL_Rect        GetBackgroundArea();
     static std::string     GetColorFromTheme(const std::string& componentID, const std::string& xmlAttribute);
     static std::string     GetColorTheme();
     static LSG_Component*  GetComponent(const std::string& id);
-    static LSG_Component*  GetComponent(const SDL_Point& mousePosition);
+    static LSG_Component*  GetComponent(const SDL_Point& mousePosition, bool skipModalChildren = false);
+    static SDL_Rect        GetScrolledBackground(LSG_Component* component);
+    static SDL_Point       GetScrolledPosition(const SDL_Point& mousePosition, LSG_Component* component);
     static LibXml::xmlDoc* GetXmlDocument();
     static void            HighlightComponents(const SDL_Point& mousePosition);
     static bool            IsDarkMode();
@@ -45,19 +48,21 @@ public:
     static void            UnhighlightComponents();
 
 private:
-    static void layoutFixed(LSG_Component* component);
-    static void layoutRelative(LSG_Component* component);
+    static void closeMenu(LSG_Component* component);
+    static void layoutFixed(LSG_Component* component, bool skipModal = true);
+    static void layoutModal(LSG_Component* component);
+    static void layoutRelative(LSG_Component* component, bool skipModal = true);
     static void layoutPositionAlign(LSG_Component* component, const LSG_Components& children);
     static void layoutSizeBlank(LSG_Component* component, const LSG_Components& children);
     static void loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent);
     static void renderMenu(SDL_Renderer* renderer, LSG_Component* component);
+    static void renderModal(SDL_Renderer* renderer, LSG_Component* component);
     static void resetSize(LSG_Component* component);
     static void setImages(LSG_Component* component);
     static void setListItems(LSG_Component* component, bool sort = true);
     static void setMenu(LSG_Component* component);
     static void setTableRows(LSG_Component* component, bool sort = true);
     static void setTextLabels(LSG_Component* component);
-
 };
 
 #endif

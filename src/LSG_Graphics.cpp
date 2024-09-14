@@ -32,7 +32,7 @@ SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size
 
 		if (size.height > newSize.height)
 			size.height = (size.height >> 1);
-	} while ((size.width > newSize.width) || (size.height > newSize.height));
+	} while (((size.width > newSize.width) || (size.height > newSize.height)) && (size.width > 0) && (size.height > 0));
 
 	return size;
 }
@@ -239,16 +239,31 @@ LSG_ImageOrientation LSG_Graphics::GetImageOrientation(const std::string& imageF
 	return orientation;
 }
 
+SDL_Color LSG_Graphics::GetInverseColor(const SDL_Color& color)
+{
+	const int MAX = 255;
+
+	SDL_Color inverseColor = {
+		(uint8_t)(MAX - color.r),
+		(uint8_t)(MAX - color.g),
+		(uint8_t)(MAX - color.b),
+		color.a
+	};
+
+	return inverseColor;
+}
+
 SDL_Color LSG_Graphics::GetOffsetColor(const SDL_Color& color, int offset)
 {
 	const int DEFAULT = (255 - offset);
 	const int MAX     = (DEFAULT - offset);
 
-	auto r = (uint8_t)(color.r < MAX ? (color.r + offset) : DEFAULT);
-	auto g = (uint8_t)(color.g < MAX ? (color.g + offset) : DEFAULT);
-	auto b = (uint8_t)(color.b < MAX ? (color.b + offset) : DEFAULT);
-
-	SDL_Color offsetColor = { r, g, b, 255 };
+	SDL_Color offsetColor = {
+		(uint8_t)(color.r < MAX ? (color.r + offset) : DEFAULT),
+		(uint8_t)(color.g < MAX ? (color.g + offset) : DEFAULT),
+		(uint8_t)(color.b < MAX ? (color.b + offset) : DEFAULT),
+		color.a
+	};
 
 	return offsetColor;
 }
@@ -258,7 +273,7 @@ SDL_Color LSG_Graphics::GetOffsetColor(const SDL_Color& color, int offset)
  */
 SDL_Texture* LSG_Graphics::GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize)
 {
-	if (imageFile.empty())
+	if (imageFile.empty() || (newSize.width < 1) || (newSize.height < 1))
 		return nullptr;
 
 	auto filePath = LSG_Text::GetFullPath(imageFile);
@@ -354,37 +369,19 @@ SDL_Size LSG_Graphics::GetTextureSize(SDL_Texture* texture)
 	return textureSize;
 }
 
-SDL_Size LSG_Graphics::GetTextureSize(std::vector<SDL_Texture*> textures, LSG_Orientation orientation)
-{
-	if (textures.empty())
-		return {};
-
-	SDL_Size totalSize = { 0, 0 };
-
-	for (auto texture : textures)
-	{
-		SDL_Size size = {};
-		SDL_QueryTexture(texture, nullptr, nullptr, &size.width, &size.height);
-
-		if (orientation == LSG_ORIENTATION_VERTICAL) {
-			totalSize.width   = std::max(size.width, totalSize.width);
-			totalSize.height += size.height;
-		} else {
-			totalSize.height = std::max(size.height, totalSize.height);
-			totalSize.width += size.width;
-		}
-	}
-
-	return totalSize;
-}
-
 SDL_Color LSG_Graphics::GetThumbColor(const SDL_Color& backgroundColor)
 {
-	auto r = (uint8_t)std::max(50, std::min(200, (255 - backgroundColor.r)));
-	auto g = (uint8_t)std::max(50, std::min(200, (255 - backgroundColor.g)));
-	auto b = (uint8_t)std::max(50, std::min(200, (255 - backgroundColor.b)));
+	uint8_t MIN = 50;
+	uint8_t MAX = 200;
 
-	SDL_Color thumbColor = { r, g, b, 255 };
+	auto inverseColor = LSG_Graphics::GetInverseColor(backgroundColor);
+
+	SDL_Color thumbColor = {
+		(uint8_t)std::max(MIN, std::min(MAX, inverseColor.r)),
+		(uint8_t)std::max(MIN, std::min(MAX, inverseColor.g)),
+		(uint8_t)std::max(MIN, std::min(MAX, inverseColor.b)),
+		255
+	};
 
 	return thumbColor;
 }

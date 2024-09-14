@@ -15,10 +15,10 @@ protected:
 	bool      wrap;
 
 public:
-	static TTF_Font*             GetFontArial(int fontSize);
-	static std::string           GetFullPath(const std::string& path);
-	static LSG_ComponentsCompare GetRowCompare(int column);
-	static bool                  GetXmlValueCompare(LSG_Component* c1, LSG_Component* c2);
+	static TTF_Font*           GetFontArial(int fontSize);
+	static std::string         GetFullPath(const std::string& path);
+	static LSG_TableRowCompare GetTableRowCompare(int column);
+	static uint16_t*           ToUTF16(const std::string& text);
 
 	template<typename... Args>
 	static std::string Format(const char* formatString, const Args&... args)
@@ -47,9 +47,11 @@ public:
 	#endif
 
 protected:
-	SDL_Texture* getTexture(const std::string& text);
+	SDL_Texture* getTexture(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
 	bool         hasChanged();
 
+private:
+	static std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
 };
 
 #endif

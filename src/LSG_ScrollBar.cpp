@@ -22,12 +22,45 @@ LSG_ScrollBar::LSG_ScrollBar()
 	this->showScrollY              = false;
 }
 
-SDL_Rect LSG_ScrollBar::getScrollableBackground(const SDL_Rect& background, const SDL_Size& textureSize, int scrollBarSize)
+SDL_Rect LSG_ScrollBar::getClipWithOffset(const SDL_Rect& clip, const SDL_Size& textureSize)
 {
-	SDL_Rect backgroundArea = background;
+	SDL_Rect offsetClip = clip;
 
-	bool showScrollY = (textureSize.height > (background.h + scrollBarSize));
-	bool showScrollX = (textureSize.width  > (background.w + scrollBarSize));
+	if (this->showScrollX)
+	{
+		auto maxScrollOffsetX = (textureSize.width - offsetClip.w);
+
+		if (this->scrollOffsetX > maxScrollOffsetX)
+			this->scrollOffsetX = maxScrollOffsetX;
+
+		offsetClip.x += this->scrollOffsetX;
+	} else {
+		this->scrollOffsetX = 0;
+	}
+
+	if (this->showScrollY)
+	{
+		auto maxScrollOffsetY = (textureSize.height - offsetClip.h);
+
+		if (this->scrollOffsetY > maxScrollOffsetY)
+			this->scrollOffsetY = maxScrollOffsetY;
+
+		offsetClip.y += this->scrollOffsetY;
+	} else {
+		this->scrollOffsetY = 0;
+	}
+
+	return offsetClip;
+}
+
+SDL_Rect LSG_ScrollBar::getScrollableBackground(const SDL_Rect& fillArea, int border, const SDL_Size& textureSize)
+{
+	SDL_Rect backgroundArea = fillArea;
+	auto     border2x       = (border + border);
+	auto     scrollBarSize  = LSG_ScrollBar::GetSize();
+
+	bool showScrollY = (textureSize.height > (backgroundArea.h + border2x + scrollBarSize));
+	bool showScrollX = (textureSize.width  > (backgroundArea.w + border2x + scrollBarSize));
 
 	if (showScrollY)
 		backgroundArea.w -= scrollBarSize;
@@ -35,8 +68,8 @@ SDL_Rect LSG_ScrollBar::getScrollableBackground(const SDL_Rect& background, cons
 	if (showScrollX)
 		backgroundArea.h -= scrollBarSize;
 
-	this->showScrollY = (textureSize.height > backgroundArea.h);
-	this->showScrollX = (textureSize.width  > backgroundArea.w);
+	this->showScrollY = (textureSize.height > (backgroundArea.h + border2x));
+	this->showScrollX = (textureSize.width  > (backgroundArea.w + border2x));
 
 	if (this->showScrollY && !showScrollY)
 		backgroundArea.w -= scrollBarSize;
@@ -56,31 +89,7 @@ SDL_Rect LSG_ScrollBar::getScrollableClip(const SDL_Rect& background, const SDL_
 		std::min(textureSize.height, background.h)
 	};
 
-	if (this->showScrollX)
-	{
-		auto maxScrollOffsetX = (textureSize.width - clip.w);
-
-		if (this->scrollOffsetX > maxScrollOffsetX)
-			this->scrollOffsetX = maxScrollOffsetX;
-
-		clip.x += this->scrollOffsetX;
-	} else {
-		this->scrollOffsetX = 0;
-	}
-
-	if (this->showScrollY)
-	{
-		auto maxScrollOffsetY = (textureSize.height - clip.h);
-
-		if (this->scrollOffsetY > maxScrollOffsetY)
-			this->scrollOffsetY = maxScrollOffsetY;
-
-		clip.y += this->scrollOffsetY;
-	} else {
-		this->scrollOffsetY = 0;
-	}
-
-	return clip;
+	return this->getClipWithOffset(clip, textureSize);
 }
 
 int LSG_ScrollBar::GetScrollX() const
@@ -103,16 +112,20 @@ int LSG_ScrollBar::GetSize2x()
 	return LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Size2x);
 }
 
-void LSG_ScrollBar::OnScrollHome()
+bool LSG_ScrollBar::OnScrollHome()
 {
 	this->scrollOffsetY = 0;
 	this->scrollOffsetX = 0;
+
+	return (this->showScrollX || this->showScrollY);
 }
 
-void LSG_ScrollBar::OnScrollEnd()
+bool LSG_ScrollBar::OnScrollEnd()
 {
 	this->scrollOffsetY = LSG_ConstTexture::MaxSize;
 	this->scrollOffsetX = 0;
+
+	return (this->showScrollX || this->showScrollY);
 }
 
 bool LSG_ScrollBar::OnScrollMouseClick(const SDL_Point& mousePosition)
@@ -177,52 +190,56 @@ bool LSG_ScrollBar::OnScrollMouseClick(const SDL_Point& mousePosition)
 	return false;
 }
 
-void LSG_ScrollBar::OnScrollMouseDown(const SDL_Point& mousePosition)
+bool LSG_ScrollBar::OnScrollMouseDown(const SDL_Point& mousePosition)
 {
 	if (!LSG_Events::IsMouseDown())
-		return;
+		return false;
 
 	if (!this->isSlideActiveY && this->showScrollY && SDL_PointInRect(&mousePosition, &this->scrollBarY))
 	{
 		if (SDL_PointInRect(&mousePosition, &this->scrollArrowUp))
-			this->OnScrollVertical(-LSG_ScrollBar::Unit);
+			return this->OnScrollVertical(-LSG_ScrollBar::Unit);
 		else if (SDL_PointInRect(&mousePosition, &this->scrollArrowDown))
-			this->OnScrollVertical(LSG_ScrollBar::Unit);
+			return this->OnScrollVertical(LSG_ScrollBar::Unit);
 
 		if (SDL_RectEmpty(&this->scrollThumbY))
-			return;
+			return false;
 
 		if (mousePosition.y < this->scrollThumbY.y)
-			this->OnScrollVertical(-LSG_ScrollBar::UnitPage);
+			return this->OnScrollVertical(-LSG_ScrollBar::UnitPage);
 		else if (mousePosition.y > (this->scrollThumbY.y + this->scrollThumbY.h))
-			this->OnScrollVertical(LSG_ScrollBar::UnitPage);
+			return this->OnScrollVertical(LSG_ScrollBar::UnitPage);
 	}
 	else if (!this->isSlideActiveX && this->showScrollX && SDL_PointInRect(&mousePosition, &this->scrollBarX))
 	{
 		if (SDL_PointInRect(&mousePosition, &this->scrollArrowLeft))
-			this->OnScrollHorizontal(-LSG_ScrollBar::Unit);
+			return this->OnScrollHorizontal(-LSG_ScrollBar::Unit);
 		else if (SDL_PointInRect(&mousePosition, &this->scrollArrowRight))
-			this->OnScrollHorizontal(LSG_ScrollBar::Unit);
+			return this->OnScrollHorizontal(LSG_ScrollBar::Unit);
 
 		if (SDL_RectEmpty(&this->scrollThumbX))
-			return;
+			return false;
 
 		if (mousePosition.x < this->scrollThumbX.x)
-			this->OnScrollHorizontal(-LSG_ScrollBar::UnitPage);
+			return this->OnScrollHorizontal(-LSG_ScrollBar::UnitPage);
 		else if (mousePosition.x > (this->scrollThumbX.x + this->scrollThumbX.w))
-			this->OnScrollHorizontal(LSG_ScrollBar::UnitPage);
+			return this->OnScrollHorizontal(LSG_ScrollBar::UnitPage);
 	}
+
+	return false;
 }
 
-void LSG_ScrollBar::OnScrollMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
+bool LSG_ScrollBar::OnScrollMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
 {
 	if (!LSG_Events::IsMouseDown())
-		return;
+		return false;
 
 	if (this->isSlideActiveY && this->showScrollY)
-		this->onScrollSlideVertical(mousePosition, lastEventPosition);
+		return this->onScrollSlideVertical(mousePosition, lastEventPosition);
 	else if (this->isSlideActiveX && this->showScrollX)
-		this->onScrollSlideHorizontal(mousePosition, lastEventPosition);
+		return this->onScrollSlideHorizontal(mousePosition, lastEventPosition);
+
+	return false;
 }
 
 void LSG_ScrollBar::OnScrollMouseUp()
@@ -231,26 +248,30 @@ void LSG_ScrollBar::OnScrollMouseUp()
 	this->isSlideActiveY = false;
 }
 
-void LSG_ScrollBar::OnScrollHorizontal(int offset)
+bool LSG_ScrollBar::OnScrollHorizontal(int offset)
 {
 	this->scrollOffsetX += offset;
 
 	if (this->scrollOffsetX < 0)
 		this->scrollOffsetX = 0;
+
+	return this->showScrollX;
 }
 
-void LSG_ScrollBar::OnScrollVertical(int offset)
+bool LSG_ScrollBar::OnScrollVertical(int offset)
 {
 	this->scrollOffsetY += offset;
 
 	if (this->scrollOffsetY < 0)
 		this->scrollOffsetY = 0;
+
+	return this->showScrollY;
 }
 
-void LSG_ScrollBar::onScrollSlideHorizontal(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
+bool LSG_ScrollBar::onScrollSlideHorizontal(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
 {
 	if (!this->showScrollX)
-		return;
+		return false;
 
 	auto clipFactor = (1 / this->clipFactorX);
 	auto mouseDiff  = (mousePosition.x - lastEventPosition.x);
@@ -260,12 +281,14 @@ void LSG_ScrollBar::onScrollSlideHorizontal(const SDL_Point& mousePosition, cons
 
 	if (this->scrollOffsetX < 0)
 		this->scrollOffsetX = 0;
+
+	return true;
 }
 
-void LSG_ScrollBar::onScrollSlideVertical(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
+bool LSG_ScrollBar::onScrollSlideVertical(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
 {
 	if (!this->showScrollY)
-		return;
+		return false;
 
 	auto clipFactor = (1 / this->clipFactorY);
 	auto mouseDiff  = (mousePosition.y - lastEventPosition.y);
@@ -275,45 +298,17 @@ void LSG_ScrollBar::onScrollSlideVertical(const SDL_Point& mousePosition, const 
 
 	if (this->scrollOffsetY < 0)
 		this->scrollOffsetY = 0;
+
+	return true;
 }
 
-void LSG_ScrollBar::renderScrollableTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
+void LSG_ScrollBar::renderScrollableTexture(SDL_Renderer* renderer, const SDL_Rect& fillArea, int border, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
 {
-	auto scrollBarSize  = LSG_ScrollBar::GetSize();
-	auto backgroundArea = this->getScrollableBackground(background, size, scrollBarSize);
+	auto backgroundArea = this->getScrollableBackground(fillArea, border, size);
 	auto clip           = this->getScrollableClip(backgroundArea, size);
 	auto destination    = LSG_Graphics::GetDestinationAligned(backgroundArea, size, alignment);
 
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
-}
-
-void LSG_ScrollBar::renderScrollableTextures(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, const std::vector<SDL_Texture*>& textures, const SDL_Size& size, int spacing)
-{
-	auto scrollBarSize  = LSG_ScrollBar::GetSize();
-	auto backgroundArea = this->getScrollableBackground(background, size, scrollBarSize);
-	auto clip           = this->getScrollableClip(backgroundArea, size);
-	auto destination    = LSG_Graphics::GetDestinationAligned(backgroundArea, size, alignment);
-	auto offsetX        = this->scrollOffsetX;
-	auto remainingWidth = backgroundArea.w;
-
-	for (auto texture : textures)
-	{
-		auto size = LSG_Graphics::GetTextureSize(texture);
-
-		clip.x = std::max(0, offsetX);
-		clip.w = std::max(0, std::min((size.width - clip.x), remainingWidth));
-
-		destination.w = clip.w;
-		destination.h = clip.h;
-
-		SDL_RenderCopy(renderer, texture, &clip, &destination);
-
-		auto width = (clip.w + spacing);
-
-		destination.x  += width;
-		remainingWidth -= width;
-		offsetX        -= size.width;
-	}
 }
 
 void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_Rect& background, int maxWidth, const SDL_Color& backgroundColor, bool highlighted)

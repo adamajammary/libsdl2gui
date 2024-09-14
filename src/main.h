@@ -4,6 +4,7 @@
 #include <algorithm> // min/max(x)
 #include <cstdio>    // snprintf(x)
 #include <cstring>   // strtok(x)
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <map>
@@ -62,20 +63,20 @@ namespace LibXml {
 
 class LSG_Component;
 
-using LSG_Components        = std::vector<LSG_Component*>;
-using LSG_ComponentsCompare = std::function<bool(LSG_Component* i1, LSG_Component* i2)>;
-using LSG_MapIntComponent   = std::map<int, LSG_Component*>;
-using LSG_UMapIntComponent  = std::unordered_map<int, LSG_Component*>;
-using LSG_UMapStrStr        = std::unordered_map<std::string, std::string>;
-using LSG_UMapStrComponent  = std::unordered_map<std::string, LSG_Component*>;
-using LSG_XmlNodes          = std::vector<LibXml::xmlNode*>;
+using LSG_Components       = std::vector<LSG_Component*>;
+using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
+using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
+using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
+using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
+using LSG_UmapStrSize      = std::unordered_map<std::string, SDL_Size>;
+using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
 
 enum LSG_MenuTexture
 {
 	LSG_MENU_TEXTURE_ICON_CLOSE,
 	LSG_MENU_TEXTURE_ICON_OPEN,
 	LSG_MENU_TEXTURE_NAV_BACK,
-	LSG_MENU_TEXTURE_NAV_TITLE,
+	LSG_MENU_TEXTURE_TITLE,
 	NR_OF_MENU_TEXTURES
 };
 
@@ -83,9 +84,31 @@ enum LSG_MenuItemTexture
 {
 	LSG_MENU_ITEM_TEXTURE_ICON,
 	LSG_MENU_ITEM_TEXTURE_TEXT,
-	LSG_MENU_ITEM_TEXTURE_ARROW,
+	LSG_MENU_ITEM_TEXTURE_KEY,
 	LSG_MENU_ITEM_TEXTURE_SELECTED,
 	NR_OF_MENU_ITEM_TEXTURES
+};
+
+enum LSG_MenuSubTexture
+{
+	LSG_SUB_MENU_TEXTURE_TEXT,
+	LSG_SUB_MENU_TEXTURE_ARROW,
+	NR_OF_SUB_MENU_TEXTURES
+};
+
+enum LSG_ModalTexture
+{
+	LSG_MODAL_TEXTURE_ICON_CLOSE,
+	LSG_MODAL_TEXTURE_TITLE,
+	NR_OF_MODAL_TEXTURES
+};
+
+enum LSG_TextInputTexture
+{
+	LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR,
+	LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER,
+	LSG_TEXT_INPUT_TEXTURE_VALUE,
+	NR_OF_TEXT_INPUT_TEXTURES
 };
 
 enum LSG_TriangleOrientation
@@ -127,6 +150,11 @@ public:
 
 		return ((a * FourthByte) + (b * ThirdByte) + (c * SecondByte) + (d * FirstByte));
 	}
+};
+
+struct LSG_Cursor
+{
+	static inline const int IBeamOffset = 3;
 };
 
 struct LSG_ConstDefaultColor
@@ -213,16 +241,15 @@ const char* LSG_GetBasePath();
 #include "LSG_Image.h"
 #include "LSG_Line.h"
 #include "LSG_List.h"
-#include "LSG_ListItem.h"
 #include "LSG_Menu.h"
 #include "LSG_MenuItem.h"
 #include "LSG_MenuSub.h"
+#include "LSG_Modal.h"
+#include "LSG_Panel.h"
+#include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"
 #include "LSG_Table.h"
-#include "LSG_TableColumn.h"
-#include "LSG_TableGroup.h"
-#include "LSG_TableHeader.h"
-#include "LSG_TableRow.h"
+#include "LSG_TextInput.h"
 #include "LSG_TextLabel.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"

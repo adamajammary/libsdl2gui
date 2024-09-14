@@ -10,8 +10,11 @@ public:
 	~LSG_Line() {}
 
 public:
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void Render(SDL_Renderer* renderer) override;
 
+private:
+	void render(SDL_Renderer* renderer);
 };
 
 #endif

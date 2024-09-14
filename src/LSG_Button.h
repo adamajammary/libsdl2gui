@@ -16,13 +16,15 @@ private:
 	bool selected;
 
 public:
+	SDL_Size     GetSize();
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetSelected(bool selected = true);
 
 private:
+	void         render(SDL_Renderer* renderer);
 	virtual void sendEvent(LSG_EventType type) override;
-
 };
 
 #endif

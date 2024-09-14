@@ -20,7 +20,9 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
 		auto FONT_PATH = fullPath.c_str();
 	#elif defined _linux
-		auto FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
+		auto NOTO_SANS_CJK = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
+		auto DEJAVU_SANS   = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+		auto FONT_PATH     = (std::filesystem::exists(NOTO_SANS_CJK) ? NOTO_SANS_CJK : DEJAVU_SANS);
 	#elif defined  _macosx
 		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
 	#elif defined _windows
@@ -44,29 +46,24 @@ std::string LSG_Text::GetFullPath(const std::string& path)
 	#endif
 }
 
-LSG_ComponentsCompare LSG_Text::GetRowCompare(int column)
+LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 {
-	auto compare = [column](LSG_Component* i1, LSG_Component* i2)
+	auto rowCompare = [column](const LSG_Strings& r1, const LSG_Strings& r2)
 	{
-		if ((column < 0) || (column >= (int)i1->GetChildCount()) || (column >= (int)i2->GetChildCount()))
+		if ((column < 0) || (column >= (int)r1.size()) || (column >= (int)r2.size()))
 			return false;
 
-		return LSG_Text::GetXmlValueCompare(i1->GetChild(column), i2->GetChild(column));
+		return std::lexicographical_compare(
+			r1[column].begin(), r1[column].end(),
+			r2[column].begin(), r2[column].end(),
+			[](char c1, char c2) {
+				return (std::tolower(c1) < std::tolower(c2));
+			}
+		);
 	};
 
-	return compare;
+	return rowCompare;
 }
-
-bool LSG_Text::GetXmlValueCompare(LSG_Component* i1, LSG_Component* i2)
-{
-	return std::lexicographical_compare(
-		i1->text.begin(), i1->text.end(),
-		i2->text.begin(), i2->text.end(),
-		[](const char& c1, const char& c2) {
-			return std::tolower(c1) < std::tolower(c2);
-		}
-	);
-};
 
 //std::string LSG_TextLabel::getText(const std::string& text)
 //{
@@ -84,31 +81,26 @@ bool LSG_Text::GetXmlValueCompare(LSG_Component* i1, LSG_Component* i2)
 //	return xmlText;
 //}
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text)
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
 {
 	if (text.empty())
 		return nullptr;
 
-	auto fontSize = this->getFontSize();
-	auto font     = LSG_Text::GetFontArial(fontSize);
+	auto color = (!textColor     ? this->textColor     : *textColor);
+	auto size  = (fontSize  == 0 ? this->getFontSize() : fontSize);
+	auto style = (fontStyle < 0  ? this->fontStyle     : fontStyle);
 
-	TTF_SetFontStyle(font, this->fontStyle);
+	auto font = LSG_Text::GetFontArial(size);
 
-	#if defined _linux
-		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
-	#else
-		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", text.c_str(), SDL_strlen(text.c_str()) + 1);
-	#endif
+	TTF_SetFontStyle(font, style);
 
-	if (!textUTF16)
-		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", SDL_GetError()));
-
-	SDL_Surface* surface = nullptr;
+	SDL_Surface* surface   = nullptr;
+	auto         textUTF16 = LSG_Text::ToUTF16(text);
 
 	if (this->wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, this->textColor, 0);
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, color, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, textUTF16, this->textColor);
+		surface = TTF_RenderUNICODE_Blended(font, textUTF16, color);
 
 	TTF_CloseFont(font);
 	SDL_free(textUTF16);
@@ -120,8 +112,8 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text)
 
 	SDL_FreeSurface(surface);
 
-	this->lastFontSize  = fontSize;
-	this->lastTextColor = SDL_Color(this->textColor);
+	this->lastFontSize  = size;
+	this->lastTextColor = SDL_Color(color);
 
 	return texture;
 }
@@ -132,4 +124,33 @@ bool LSG_Text::hasChanged()
 	bool isFontSizeChanged = (this->getFontSize() != this->lastFontSize);
 
 	return (isColorChanged || isFontSizeChanged);
+}
+
+std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
+{
+	auto result        = std::string(text);
+	auto matchPosition = result.find(oldSubstring);
+
+	while (matchPosition != std::string::npos) {
+		result        = result.replace(matchPosition, oldSubstring.size(), newSubstring);
+		matchPosition = result.find(oldSubstring, (matchPosition + newSubstring.size()));
+	}
+
+	return result;
+}
+
+uint16_t* LSG_Text::ToUTF16(const std::string& text)
+{
+	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
+
+	#if defined _linux
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
+	#else
+		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
+	#endif
+
+	if (!textUTF16)
+		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", SDL_GetError()));
+
+	return textUTF16;
 }

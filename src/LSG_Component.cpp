@@ -14,7 +14,6 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	this->parent          = parent;
 	this->textColor       = {};
 	this->texture         = nullptr;
-	this->visible         = true;
 	this->xmlNode         = xmlNode;
 	this->xmlNodeName     = xmlNodeName;
 
@@ -23,10 +22,12 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	auto attributes  = LSG_XML::GetAttributes(this->xmlNode);
 	auto enabled     = (attributes.contains("enabled")     ? attributes["enabled"]     : "true");
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
+	auto visible     = (attributes.contains("visible")     ? attributes["visible"]     : "true");
 
 	this->enabled     = (enabled == "true");
 	this->fontStyle   = this->getFontStyle();
 	this->orientation = orientation;
+	this->visible     = (visible == "true");
 
 	if (this->parent)
 		this->parent->children.push_back(this);
@@ -49,8 +50,6 @@ LSG_Component::~LSG_Component()
 			delete static_cast<LSG_Line*>(child);
 		else if (child->IsList())
 			delete static_cast<LSG_List*>(child);
-		else if (child->IsListItem())
-			delete static_cast<LSG_ListItem*>(child);
 		else if (child->IsMenu())
 			delete static_cast<LSG_Menu*>(child);
 		else if (child->IsMenuItem())
@@ -61,14 +60,6 @@ LSG_Component::~LSG_Component()
 			delete static_cast<LSG_Slider*>(child);
 		else if (child->IsTable())
 			delete static_cast<LSG_Table*>(child);
-		else if (child->IsTableColumn())
-			delete static_cast<LSG_TableColumn*>(child);
-		else if (child->IsTableGroup())
-			delete static_cast<LSG_TableGroup*>(child);
-		else if (child->IsTableHeader())
-			delete static_cast<LSG_TableHeader*>(child);
-		else if (child->IsTableRow())
-			delete static_cast<LSG_TableRow*>(child);
 		else if (child->IsTextLabel())
 			delete static_cast<LSG_TextLabel*>(child);
 		else
@@ -85,11 +76,10 @@ void LSG_Component::destroyTextures()
 		this->texture = nullptr;
 	}
 
-	for (auto texture : this->textures)
-	{
+	for (auto texture : this->textures) {
 		if (texture) {
 			SDL_DestroyTexture(texture);
-			this->texture = nullptr;
+			texture = nullptr;
 		}
 	}
 
@@ -125,13 +115,13 @@ LSG_Alignment LSG_Component::getAlignment()
 	return alignment;
 }
 
-SDL_Rect LSG_Component::getArea()
+SDL_Rect LSG_Component::getArea(const SDL_Rect& background)
 {
-	SDL_Rect area = this->background;
+	SDL_Rect area = background;
 
 	if (this->border > 0)
 	{
-		auto border2x = (this->border * 2);
+		auto border2x = (this->border + this->border);
 
 		area.x += this->border;
 		area.y += this->border;
@@ -141,7 +131,7 @@ SDL_Rect LSG_Component::getArea()
 
 	if (this->parent && (this->parent->padding > 0))
 	{
-		auto padding2x = (this->parent->padding * 2);
+		auto padding2x = (this->parent->padding + this->parent->padding);
 
 		area.x += this->parent->padding;
 		area.y += this->parent->padding;
@@ -170,13 +160,13 @@ LSG_Components LSG_Component::GetChildren()
 	return this->children;
 }
 
-SDL_Rect LSG_Component::getFillArea(const SDL_Rect& area, int border)
+SDL_Rect LSG_Component::getFillArea(const SDL_Rect& background, int border)
 {
-	SDL_Rect fillArea = SDL_Rect(area);
+	SDL_Rect fillArea = background;
 
 	if (border > 0)
 	{
-		auto border2x = (border * 2);
+		auto border2x = (border + border);
 
 		fillArea.x += border;
 		fillArea.y += border;
@@ -245,6 +235,13 @@ LSG_Component* LSG_Component::GetParent()
 	return this->parent;
 }
 
+int LSG_Component::GetSpacing()
+{
+	auto spacing = LSG_XML::GetAttribute(this->xmlNode, "spacing");
+
+	return (!spacing.empty() ? std::atoi(spacing.c_str()) : 0);
+}
+
 int LSG_Component::getTextureHeight()
 {
 	if (this->texture)
@@ -297,6 +294,14 @@ LibXml::xmlNode* LSG_Component::GetXmlNode()
 	return this->xmlNode;
 }
 
+LSG_Component* LSG_Component::GetScrollableParent()
+{
+	if (this->IsPanel() && static_cast<LSG_Panel*>(this)->IsScroll())
+		return this;
+
+	return (this->parent ? this->parent->GetScrollableParent() : nullptr);
+}
+
 bool LSG_Component::IsButton() const
 {
 	return (this->xmlNodeName == "button");
@@ -317,11 +322,6 @@ bool LSG_Component::IsList() const
 	return (this->xmlNodeName == "list");
 }
 
-bool LSG_Component::IsListItem() const
-{
-	return (this->xmlNodeName == "list-item");
-}
-
 bool LSG_Component::IsMenu() const
 {
 	return (this->xmlNodeName == "menu");
@@ -332,9 +332,24 @@ bool LSG_Component::IsMenuItem() const
 	return (this->xmlNodeName == "menu-item");
 }
 
+bool LSG_Component::IsModal() const
+{
+	return (this->xmlNodeName == "modal");
+}
+
+bool LSG_Component::IsPanel() const
+{
+	return (this->xmlNodeName == "panel");
+}
+
+bool LSG_Component::IsProgressBar() const
+{
+	return (this->xmlNodeName == "progress-bar");
+}
+
 bool LSG_Component::IsScrollable() const
 {
-	return (this->IsList() || this->IsTable() || this->IsTextLabel());
+	return (this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel());
 }
 
 bool LSG_Component::IsSlider() const
@@ -352,24 +367,9 @@ bool LSG_Component::IsTable() const
 	return (this->xmlNodeName == "table");
 }
 
-bool LSG_Component::IsTableColumn() const
+bool LSG_Component::IsTextInput() const
 {
-	return (this->xmlNodeName == "table-column");
-}
-
-bool LSG_Component::IsTableGroup() const
-{
-	return (this->xmlNodeName == "table-group");
-}
-
-bool LSG_Component::IsTableHeader() const
-{
-	return (this->xmlNodeName == "table-header");
-}
-
-bool LSG_Component::IsTableRow() const
-{
-	return (this->xmlNodeName == "table-row");
+	return (this->xmlNodeName == "text-input");
 }
 
 bool LSG_Component::IsTextLabel() const
@@ -408,7 +408,7 @@ void LSG_Component::Render(SDL_Renderer* renderer)
 	this->renderBorder(renderer);
 
 	for (auto child : this->children) {
-		if (!child->IsMenu())
+		if (!child->IsMenu() && !child->IsModal())
 			child->Render(renderer);
 	}
 
@@ -457,10 +457,10 @@ void LSG_Component::renderBorder(SDL_Renderer* renderer, int border, const SDL_C
 	SDL_RenderFillRect(renderer, &borderArea);
 }
 
-void LSG_Component::renderDisabled(SDL_Renderer* renderer)
+void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
 {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 64);
+	SDL_SetRenderDrawColor(renderer,     0, 0, 0, 64);
 
 	SDL_RenderFillRect(renderer, &this->background);
 }
@@ -487,10 +487,11 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer)
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background)
 {
-	auto fillArea = this->getFillArea(background, this->border);
+	auto fillArea  = this->getFillArea(background, this->border);
+	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, (255 - this->backgroundColor.r), (255 - this->backgroundColor.g), (255 - this->backgroundColor.b), 32);
+	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 32);
 
 	SDL_RenderFillRect(renderer, &fillArea);
 }
@@ -501,31 +502,6 @@ void LSG_Component::renderTexture(SDL_Renderer* renderer, const SDL_Rect& backgr
 	auto     dest = LSG_Graphics::GetDestinationAligned(background, size, alignment);
 
 	SDL_RenderCopy(renderer, texture, &clip, &dest);
-}
-
-void LSG_Component::renderTextures(SDL_Renderer* renderer, const std::vector<SDL_Texture*>& textures, int maxWidth, int spacing, SDL_Rect& clip, SDL_Rect& destination)
-{
-	auto offsetX        = clip.x;
-	auto remainingWidth = maxWidth;
-
-	for (auto texture : textures)
-	{
-		auto size = LSG_Graphics::GetTextureSize(texture);
-
-		clip.x = std::max(0, offsetX);
-		clip.w = std::max(0, std::min((size.width - clip.x), remainingWidth));
-
-		destination.w = clip.w;
-		destination.h = clip.h;
-
-		SDL_RenderCopy(renderer, texture, &clip, &destination);
-
-		auto width = (clip.w + spacing);
-
-		destination.x  += width;
-		remainingWidth -= width;
-		offsetX        -= size.width;
-	}
 }
 
 void LSG_Component::SetAlignmentHorizontal(LSG_HAlign alignment)
@@ -660,6 +636,11 @@ void LSG_Component::SetSizePercent(LSG_Component* parent)
 		parentBackground.h -= parentBorder2x;
 	}
 
+	this->setSizePercent(parentBackground);
+}
+
+void LSG_Component::setSizePercent(const SDL_Rect& parentBackground)
+{
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
 	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
@@ -681,4 +662,12 @@ void LSG_Component::SetSizePercent(LSG_Component* parent)
 void LSG_Component::SetSpacing(int spacing)
 {
 	LSG_XML::SetAttribute(this->xmlNode, "spacing", std::to_string(spacing));
+}
+
+void LSG_Component::SetVisible(bool visible)
+{
+	this->visible = visible;
+
+	for (auto child : this->GetChildren())
+		child->SetVisible(visible);
 }

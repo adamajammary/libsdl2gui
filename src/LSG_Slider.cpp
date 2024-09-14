@@ -81,10 +81,14 @@ bool LSG_Slider::OnMouseClickThumb(const SDL_Point& mousePosition)
 	return false;
 }
 
-void LSG_Slider::OnMouseMove(const SDL_Point& mousePosition)
+bool LSG_Slider::OnMouseMove(const SDL_Point& mousePosition)
 {
-	if (LSG_Events::IsMouseDown() && this->isSlideActive)
-		this->setValue(mousePosition);
+	if (!LSG_Events::IsMouseDown() || !this->isSlideActive)
+		return false;
+
+	this->setValue(mousePosition);
+
+	return true;
 }
 
 void LSG_Slider::OnMouseScroll(int offset)
@@ -97,13 +101,37 @@ void LSG_Slider::OnMouseUp()
 	this->isSlideActive = false;
 }
 
-void LSG_Slider::Render(SDL_Renderer* renderer)
+void LSG_Slider::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
 		return;
 
+	this->background.x = position.x;
+	this->background.y = position.y;
+
+	this->render(renderer);
+}
+
+void LSG_Slider::Render(SDL_Renderer* renderer)
+{
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_Slider::render(SDL_Renderer* renderer)
+{
+	if (!this->visible)
+		return;
+
+	auto minHeight  = LSG_Graphics::GetDPIScaled(LSG_Slider::MinHeight);
+	bool isVertical = this->IsVertical();
+
+	if (isVertical)
+		this->background.w = std::max(minHeight, this->background.w);
+	else
+		this->background.h = std::max(minHeight, this->background.h);
+
 	auto backgroundArea = SDL_Rect(this->background);
-	bool isVertical     = this->IsVertical();
 	auto thumbWidth     = std::max(this->thumbWidthDefault, this->thumbWidth);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
@@ -121,12 +149,8 @@ void LSG_Slider::Render(SDL_Renderer* renderer)
 
 	auto fillArea = this->getFillArea(backgroundArea, this->border);
 
-	SDL_SetRenderDrawBlendMode(renderer, this->backgroundColor.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, this->backgroundColor.r, this->backgroundColor.g, this->backgroundColor.b, this->backgroundColor.a);
-
-	SDL_RenderFillRect(renderer, &fillArea);
-
-	this->renderBorder(renderer, this->border, this->borderColor, backgroundArea);
+	this->renderFill(renderer,   this->border, this->backgroundColor, backgroundArea);
+	this->renderBorder(renderer, this->border, this->borderColor,     backgroundArea);
 
 	auto progressValue = (int)((double)(isVertical ? backgroundArea.h : backgroundArea.w) * this->value);
 
@@ -141,10 +165,7 @@ void LSG_Slider::Render(SDL_Renderer* renderer)
 			progressArea.w = progressValue;
 		}
 
-		SDL_SetRenderDrawBlendMode(renderer, this->progressColor.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-		SDL_SetRenderDrawColor(renderer, this->progressColor.r, this->progressColor.g, this->progressColor.b, this->progressColor.a);
-
-		SDL_RenderFillRect(renderer, &progressArea);
+		this->renderFill(renderer, 0, this->progressColor, progressArea);
 	}
 
 	this->thumb = SDL_Rect(backgroundArea);
@@ -161,11 +182,7 @@ void LSG_Slider::Render(SDL_Renderer* renderer)
 		this->thumb.h  = this->background.h;
 	}
 
-	SDL_SetRenderDrawBlendMode(renderer, this->thumbColor.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, this->thumbColor.r, this->thumbColor.g, this->thumbColor.b, this->thumbColor.a);
-
-	SDL_RenderFillRect(renderer, &this->thumb);
-
+	this->renderFill(renderer,   this->thumbBorder, this->thumbColor,       this->thumb);
 	this->renderBorder(renderer, this->thumbBorder, this->thumbBorderColor, this->thumb);
 
 	if (!this->enabled)
@@ -184,7 +201,7 @@ void LSG_Slider::sendEvent(LSG_EventType type)
 	sliderEvent.type       = SDL_RegisterEvents(1);
 	sliderEvent.user.code  = (int)type;
 	sliderEvent.user.data1 = (void*)strdup(this->id.c_str());
-	sliderEvent.user.data2 = (void*)&this->value;
+	sliderEvent.user.data2 = new double(this->value);
 
 	SDL_PushEvent(&sliderEvent);
 }

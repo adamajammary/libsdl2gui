@@ -5,9 +5,9 @@ android {
 
   defaultConfig {
     applicationId "com.libsdl2gui.test"
-    compileSdk 33
-    minSdkVersion 29
-    targetSdkVersion 33
+    compileSdk 34
+    minSdkVersion 19
+    targetSdkVersion 34
     versionCode 1
     versionName "1.0.0"
   }

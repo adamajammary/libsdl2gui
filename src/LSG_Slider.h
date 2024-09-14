@@ -16,6 +16,7 @@ private:
 
 private:
 	static const int DefaultThumbWidth = 10;
+	static const int MinHeight         = 20;
 
 private:
 	bool        fillProgress;
@@ -34,18 +35,19 @@ public:
 	double       GetValue() const;
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	bool         OnMouseClickThumb(const SDL_Point& mousePosition);
-	void         OnMouseMove(const SDL_Point& mousePosition);
+	bool         OnMouseMove(const SDL_Point& mousePosition);
 	void         OnMouseScroll(int offset);
 	void         OnMouseUp();
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void Render(SDL_Renderer* renderer) override;
 	virtual void SetColors() override;
 	void         SetValue(double value);
 
 private:
+	void         render(SDL_Renderer* renderer);
 	virtual void sendEvent(LSG_EventType type) override;
 	void         setValue(const SDL_Point& mousePosition);
 	void         setValue(int offset);
-
 };
 
 #endif

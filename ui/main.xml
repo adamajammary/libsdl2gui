@@ -2,48 +2,62 @@
 
 <window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
   <panel id="Root" orientation="vertical" padding="10" spacing="10">
-    <panel height="32">
-      <panel>
-        <menu font-size="15">
-          <menu-sub label="Color Theme">
-            <menu-item id="MenuIdColorThemeDark">Dark</menu-item>
-            <menu-item id="MenuIdColorThemeLight">Light</menu-item>
+    <modal id="ModalIdAbout" title="SDL2 GUI Library" width="65%" min-width="380" max-width="500" height="150" border="1">
+      <panel halign="center" valign="middle" padding="10">
+        <text wrap="true">libsdl2gui is a free cross-platform user interface library using SDL2.\n\n(c) 2021 Adam A. Jammary (Jammary Studio)</text>
+      </panel>
+    </modal>
+
+    <panel height="30">
+      <panel width="50" valign="middle">
+        <menu font-size="15" title="Menu">
+          <menu-sub title="Color Theme">
+            <menu-item id="MenuIdColorThemeDark"  icon="img/dark-white-512.png"  key="Ctrl+D">Dark</menu-item>
+            <menu-item id="MenuIdColorThemeLight" icon="img/light-white-512.png" key="Ctrl+L">Light</menu-item>
           </menu-sub>
-          
-          <menu-item id="MenuIdAbout">About</menu-item>
+
+          <line />
+
+          <menu-item id="MenuIdAbout" icon="img/info-white-512.png" key="Shift+F1">About</menu-item>
         </menu>
       </panel>
 
-      <panel halign="right">
+      <panel border-color="#000000" border="1">
+        <text-input id="TextInput" placeholder="Text Input" padding="5" background-color="#FFFFFF" text-color="#000000" />
+      </panel>
+
+      <panel width="165" halign="right" valign="middle">
         <text font-size="18">SDL2 GUI Library</text>
       </panel>
     </panel>
 
     <line />
 
-    <panel height="82" orientation="vertical">
-      <text font-size="18" halign="center">Color Theme</text>
+    <panel height="80" orientation="vertical">
+      <text font-size="18" height="30" halign="center">Color Theme</text>
 
-      <panel height="52" spacing="10" font-size="18">
-        <button id="ButtonIdColorThemeDark" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
-          <image file="img/dark-512.png" width="32" height="32" halign="right"></image>
-          <text valign="middle">Dark</text>
+      <panel spacing="10" font-size="18">
+        <button id="ButtonIdColorThemeDark" halign="center" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
+          <image file="img/dark-512.png" width="48" height="48" />
+          <text>Dark</text>
         </button>
 
-        <button id="ButtonIdColorThemeLight" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
-          <image file="img/light-512.png" width="32" height="32" halign="right"></image>
-          <text valign="middle">Light</text>
+        <button id="ButtonIdColorThemeLight" halign="center" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
+          <image file="img/light-512.png" width="48" height="48" />
+          <text>Light</text>
         </button>
       </panel>
     </panel>
 
     <panel orientation="vertical">
-      <panel height="32" font-size="18" spacing="10">
-        <text bold="true">Text with wrapping</text>
+      <panel height="30" font-size="18" spacing="10">
+        <panel>
+          <text bold="true">Text with wrapping</text>
+        </panel>
 
         <panel spacing="5">
-          <text italic="true" width="40">List:</text>
-          <text id="ListRow" width="35"></text>
+          <text italic="true">List:</text>
+          <text id="ListRow" />
         </panel>
       </panel>
 
@@ -94,24 +108,24 @@ Euismod lacinia at quis risus.</text>
     </panel>
 
     <panel orientation="vertical">
-      <panel height="32" font-size="18" spacing="10">
+      <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
-          <text underline="true" width="55">Table:</text>
-          <text id="TableRow" width="35"></text>
+          <text underline="true">Table:</text>
+          <text id="TableRow" />
         </panel>
 
         <panel spacing="5">
-          <text strike-through="true" width="150">Table with groups:</text>
-          <text id="TableWithGroupsRow" width="35"></text>
+          <text strike-through="true">Table with groups:</text>
+          <text id="TableWithGroupsRow" />
         </panel>
       </panel>
 
       <panel spacing="10">
         <panel id="PanelIdTable" padding="10" border="1">
-          <table id="Table" row-border="true" sort="ascending" sort-column="0">
+          <table id="Table" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
             <table-header>
-              <table-column>DOLOR</table-column>
-              <table-column>MAGNA</table-column>
+              <table-column>Dolor</table-column>
+              <table-column>Magna</table-column>
             </table-header>
 
             <table-row>
@@ -144,8 +158,8 @@ Euismod lacinia at quis risus.</text>
         <panel id="PanelIdTableWithGroups" padding="10" border="1">
           <table id="TableWithGroups" sort="ascending" sort-column="0">
             <table-header>
-              <table-column>DOLOR</table-column>
-              <table-column>MAGNA</table-column>
+              <table-column>Dolor</table-column>
+              <table-column>Magna</table-column>
             </table-header>
 
             <table-group group="Vestibulum">
@@ -183,21 +197,23 @@ Euismod lacinia at quis risus.</text>
       </panel>
     </panel>
 
-    <panel height="52" orientation="vertical">
-      <panel height="32" font-size="18" spacing="5">
-        <text halign="right">Slider:</text>
-        <text id="SliderValue">0.40</text>
+    <panel height="60" orientation="vertical">
+      <panel height="30" halign="center" font-size="18" spacing="5">
+        <text>Slider:</text>
+        <text id="SliderValue">0.5</text>
       </panel>
 
       <slider
-        value="0.40"
+        id="Slider"
+        height="20"
+        value="0.5"
         fill-progress="true"
         progress-color="rgb(20, 130, 255)"
         thumb-color="rgb(128, 128, 128)"
         thumb-border-color="#000000"
         thumb-width="20"
-        background-color="rgb(192, 192, 192)">
-      </slider>
+        background-color="rgb(192, 192, 192)"
+      />
     </panel>
   </panel>
 </window>

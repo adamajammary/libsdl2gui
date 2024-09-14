@@ -23,29 +23,54 @@ static std::string TextFormat(const char* formatString, const Args&... args)
 static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile)
 {
     LSG_SetColorTheme(colorThemeFile);
+
     LSG_SetMenuItemSelected(menuItemId, true);
-}
 
-static void showAbout()
-{
-    auto about = "libsdl2gui is a free cross-platform user interface library using SDL2.\n\n(c) 2021 Adam A. Jammary (Jammary Studio)";
-
-    SDL_ShowSimpleMessageBox(0, "About", about, nullptr);
+    if (menuItemId == "MenuIdColorThemeDark") {
+        LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-white-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-white-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-white-512.png");
+    } else {
+        LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-black-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-black-512.png");
+        LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-black-512.png");
+    }
 }
 
 static void handleIdEvent(const std::string& id)
 {
     if (id == "MenuIdAbout")
-        showAbout();
+        LSG_SetVisible("ModalIdAbout", true);
     else if ((id == "ButtonIdColorThemeDark") || (id == "MenuIdColorThemeDark"))
         setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
     else if ((id == "ButtonIdColorThemeLight") || (id == "MenuIdColorThemeLight"))
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
 }
 
-static void handleRowEvent(const std::string& id, int row)
+static void handleKeyEvent(const SDL_KeyboardEvent& event)
 {
-    auto rowText = (row >= 0 ? std::to_string(row) : "");
+    // https://wiki.libsdl.org/SDL2/SDL_Keymod
+
+    auto key     = event.keysym.sym;
+    bool isCtrl  = (event.keysym.mod & KMOD_CTRL);
+    bool isShift = (event.keysym.mod & KMOD_SHIFT);
+
+    if (isCtrl && (key == SDLK_d))
+        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+    else if (isCtrl && (key == SDLK_l))
+        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+    else if (isShift && (key == SDLK_F1))
+        LSG_SetVisible("ModalIdAbout", true);
+}
+
+static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
+{
+    std::string rowText = (!rows.empty() ? std::to_string(rows[0]) : "");
+
+    for (size_t i = 1; i < rows.size(); i++) {
+        if (rows[i] >= 0)
+            rowText.append("," + std::to_string(rows[i]));
+    }
 
     if (id == "List")
         LSG_SetText("ListRow", rowText);
@@ -67,13 +92,27 @@ static void handleUserEvent(const SDL_UserEvent& event)
         break;
     case LSG_EVENT_ROW_SELECTED:
     case LSG_EVENT_ROW_UNSELECTED:
-        handleRowEvent(id, *static_cast<int*>(event.data2));
+        handleRowEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
-        LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
+        if (std::string(id) == "Slider")
+            LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
         break;
     default:
         break;
+    }
+
+    if (event.data1)
+        free(event.data1);
+
+    if (event.data2)
+    {
+        if ((type == LSG_EVENT_ROW_ACTIVATED) || (type == LSG_EVENT_ROW_SELECTED) || (type == LSG_EVENT_ROW_UNSELECTED))
+            delete static_cast<std::vector<int>*>(event.data2);
+        else if (type == LSG_EVENT_SLIDER_VALUE_CHANGED)
+            delete static_cast<double*>(event.data2);
+        else if (type == LSG_EVENT_COMPONENT_KEY_ENTERED)
+            delete static_cast<SDL_Keycode*>(event.data2);
     }
 }
 
@@ -95,6 +134,8 @@ static void handleEvents(const std::vector<SDL_Event>& events)
     {
         if ((event.type == SDL_QUIT) || ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE)))
             LSG_Quit();
+        else if (event.type == SDL_KEYUP)
+            handleKeyEvent(event.key);
         else if (event.type >= SDL_USEREVENT)
             handleUserEvent(event.user);
     }
@@ -142,7 +183,7 @@ int SDL_main(int argc, char* argv[])
             if (!LSG_IsPreferredDarkMode())
                 setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
             else
-                setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+                setColorTheme("MenuIdColorThemeDark",  "ui/dark.colortheme");
         }
 
         std::vector<SDL_Event> events;

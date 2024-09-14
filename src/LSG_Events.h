@@ -10,11 +10,13 @@ private:
 	~LSG_Events() {}
 
 private:
+	static bool           isColumnResize;
 	static bool           isMouseDown;
 	static uint32_t       lastClickTime;
 	static uint32_t       lastClickTime2;
 	static LSG_Component* lastComponent;
 	static SDL_Event      lastEvent;
+	static LSG_Component* textInput;
 
 public:
 	static bool                   IsMouseDown();
@@ -29,8 +31,9 @@ private:
 	static void      handleMouseScrollEvent(const SDL_MouseWheelEvent& event);
 	static void      handleMouseUp(const SDL_Event& event);
 	static void      handleSysWMEvent(const SDL_SysWMEvent& event);
+	static void      handleTextInput(const SDL_TextInputEvent& event);
 	static void      handleWindowEvent(const SDL_WindowEvent& event);
-	static void      sendEvent(LSG_EventType type, const std::string& id);
+	static void      sendEvent(LSG_EventType type, const std::string& id, SDL_Keycode key = SDLK_UNKNOWN);
 
 };
 

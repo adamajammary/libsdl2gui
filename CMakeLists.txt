@@ -50,7 +50,7 @@ if (WIN32)
 else()
     set(LIB_PREP "lib")
 
-    set(LIBS      "-lSDL2 -lSDL2_image -lSDL2_ttf -lxml2")
+    set(LIBS      "-lSDL2" "-lSDL2_image" "-lSDL2_ttf" "-lxml2")
     set(TEST_LIBS "-lSDL2")
 endif()
 
@@ -76,7 +76,7 @@ elseif (IOS)
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 
     set(OS_LIBS      "-framework UIKit")
-    set(OS_TEST_LIBS "-framework AudioToolbox -framework AVFoundation -framework CoreBluetooth -framework CoreFoundation -framework CoreGraphics -framework CoreHaptics -framework CoreMotion -framework CoreServices -framework Foundation -framework GameController -framework ImageIO -framework Metal -framework OpenGLES -framework QuartzCore -framework UIKit")
+    set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")
 
@@ -87,7 +87,7 @@ elseif (APPLE)
     set(DLL_EXT "dylib")
     set(OUT_DIR "$<CONFIG>")
 
-    set(OS_LIBS "-framework AppKit -framework Foundation")
+    set(OS_LIBS "-framework AppKit" "-framework Foundation")
 elseif (WIN32)
     set(OS "_windows")
 
@@ -103,8 +103,8 @@ else()
     set(DLL_EXT "so")
     set(OUT_DIR ".")
 
-    set(OS_INCS "/usr/include/gtk-3.0" "/usr/include/pango-1.0" "/usr/include/glib-2.0" "/usr/lib/x86_64-linux-gnu/glib-2.0/include" "/usr/include/harfbuzz" "/usr/include/freetype2" "/usr/include/libpng16" "/usr/include/libmount" "/usr/include/blkid" "/usr/include/fribidi" "/usr/include/cairo" "/usr/include/pixman-1" "/usr/include/gdk-pixbuf-2.0" "/usr/include/x86_64-linux-gnu" "/usr/include/gio-unix-2.0" "/usr/include/atk-1.0" "/usr/include/at-spi2-atk/2.0" "/usr/include/at-spi-2.0" "/usr/include/dbus-1.0" "/usr/lib/x86_64-linux-gnu/dbus-1.0/include")
-    set(OS_LIBS "-lgtk-3 -lgdk-3 -lz -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0")
+    execute_process(COMMAND pkg-config --cflags gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --libs   gtk+-3.0 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 file(GLOB INC_H "${SRC_DIR}/include/*.h")
@@ -131,11 +131,7 @@ target_include_directories(sdl2gui PRIVATE ${INCS} ${OS_INCS})
 target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
 target_link_libraries(sdl2gui      PRIVATE ${LIBS} ${OS_LIBS})
 
-if (OS STREQUAL "_macosx")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @rpath/SDL2_image.dylib  @rpath/libSDL2_image.dylib ${CFG_DIR}libsdl2gui.dylib)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change @rpath/SDL2_ttf.dylib    @rpath/libSDL2_ttf.dylib   ${CFG_DIR}libsdl2gui.dylib)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.dylib       ${CFG_DIR}libsdl2gui.dylib)
-endif()
+set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS ${OS_CFLAGS})
 
 if (WIN32)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if exist \"${DIST_DIR}\" rmdir /s /q \"${DIST_DIR}\")
@@ -145,6 +141,7 @@ if (WIN32)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"     mkdir \"${DIST_DIR}/lib\")
 
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.lib ${DIST_DIR}/lib/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll ${DIST_DIR}/lib/)
 else()
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND rm -rf \"${DIST_DIR}\")
 
@@ -216,15 +213,15 @@ if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/img ${OUT_DIR}/src/main/assets/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${SRC_DIR}/ui  ${OUT_DIR}/src/main/assets/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mkdir -p \"${OUT_DIR}/libs/arm64-v8a\")
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND mkdir -p \"${OUT_DIR}/libs/${ANDROID_ABI}\")
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/arm64-v8a/libmain.so)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/${ANDROID_ABI}/libmain.so)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${OUT_DIR}/libs/arm64-v8a/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${OUT_DIR}/libs/arm64-v8a/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${OUT_DIR}/libs/arm64-v8a/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${OUT_DIR}/libs/arm64-v8a/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew --stop)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew assembleDebug WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/android)
@@ -267,6 +264,30 @@ else()
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img          ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/ui           ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f  ${DIST_DIR}/bin/*.${DLL_EXT} ${OUT_DIR}/)
+endif()
+
+if (OS STREQUAL "_linux")
+    add_custom_target(testsdl2gui_rpath ALL DEPENDS testsdl2gui)
+
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2-2.0.so.0       libSDL2.so       ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2_image-2.0.so.0 libSDL2_image.so ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2_ttf-2.0.so.0   libSDL2_ttf.so   ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libxml2.so.2           libxml2.so       ${DIST_DIR}/bin/libsdl2gui.so)
+
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --replace-needed libSDL2-2.0.so.0 libSDL2.so ${DIST_DIR}/bin/testsdl2gui)
+
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --set-rpath '\$$ORIGIN' ${DIST_DIR}/bin/libsdl2gui.so)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --set-rpath '\$$ORIGIN' ${DIST_DIR}/bin/testsdl2gui)
+elseif (OS STREQUAL "_macosx")
+    add_custom_target(testsdl2gui_rpath ALL DEPENDS testsdl2gui)
+
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/libSDL2.dylib    @executable_path/libSDL2.dylib       ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/SDL2_image.dylib @executable_path/libSDL2_image.dylib ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/SDL2_ttf.dylib   @executable_path/libSDL2_ttf.dylib   ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/libxml2.2.dylib  @executable_path/libxml2.dylib       ${DIST_DIR}/bin/libsdl2gui.dylib)
+
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/libsdl2gui.dylib @executable_path/libsdl2gui.dylib ${DIST_DIR}/bin/testsdl2gui)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/libSDL2.dylib    @executable_path/libSDL2.dylib    ${DIST_DIR}/bin/testsdl2gui)
 endif()
 
 # install

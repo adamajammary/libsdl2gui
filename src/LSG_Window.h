@@ -9,7 +9,7 @@ private:
     LSG_Window()  {}
     ~LSG_Window() {}
 
-private:
+public:
     static const int MinSize = 400;
 
 private:
@@ -32,6 +32,7 @@ public:
     static SDL_Size      GetSize();
     static SDL_FPoint    GetSizeScale();
     static std::string   GetTitle();
+    static void          InitRenderTarget(SDL_Texture** renderTarget, const SDL_Size& textureSize);
     static bool          IsMaximized();
     static SDL_Renderer* Open(const std::string& title, int width, int height);
     static void          Present();

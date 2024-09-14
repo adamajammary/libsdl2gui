@@ -32,6 +32,7 @@ extern "C" {
 enum LSG_EventType
 {
 	LSG_EVENT_BUTTON_CLICKED,
+	LSG_EVENT_BUTTON_PRESSED,
 	LSG_EVENT_COMPONENT_CLICKED,
 	LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
 	LSG_EVENT_COMPONENT_RIGHT_CLICKED,
@@ -41,7 +42,10 @@ enum LSG_EventType
 	LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_ROW_SELECTED,
 	LSG_EVENT_ROW_UNSELECTED,
-	LSG_EVENT_SLIDER_VALUE_CHANGED
+	LSG_EVENT_SLIDER_VALUE_CHANGED,
+	LSG_EVENT_TABLE_COLUMN_RESIZED,
+	LSG_EVENT_TEXT_INPUT_CLEARED,
+	LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
 };
 
 enum LSG_HAlign
@@ -82,16 +86,16 @@ struct SDL_Size
 using LSG_Strings   = std::vector<std::string>;
 using LSG_TableRows = std::vector<LSG_Strings>;
 
-struct LSG_TableGroupRows
+struct LSG_TableGroup
 {
 	std::string   group;
 	LSG_TableRows rows;
 };
 
-using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
+using LSG_TableGroups = std::vector<LSG_TableGroup>;
 
 /**
- * @brief Adds a new item to the <list> component.
+ * @brief Adds a new item to the list.
  * @param id   <list> component ID
  * @param item List item
  * @throws invalid_argument
@@ -100,7 +104,7 @@ using LSG_TableGroups = std::vector<LSG_TableGroupRows>;
 DLLEXPORT void DLL LSG_AddListItem(const std::string& id, const std::string& item);
 
 /**
- * @brief Adds a new item to the <menu-sub> component.
+ * @brief Adds a new item to the sub-menu.
  * @param id     <menu-sub> component ID
  * @param item   <menu-item> value
  * @param itemId <menu-item> component ID
@@ -110,22 +114,30 @@ DLLEXPORT void DLL LSG_AddListItem(const std::string& id, const std::string& ite
 DLLEXPORT void DLL LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId);
 
 /**
- * @brief Adds a new group with rows to the <table> component.
+ * @brief Adds a new group with rows to the table.
  * @param id    <table> component ID
  * @param group Table group and rows
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group);
 
 /**
- * @brief Adds a new row to the <table> component.
+ * @brief Adds a new row to the table.
  * @param id      <table> component ID
  * @param columns Table row columns
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
+
+/**
+ * @brief Clears the text input value.
+ * @param id <text-input> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ClearTextInput(const std::string& id);
 
 /**
  * @returns the background color of the component
@@ -142,7 +154,7 @@ DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetColorTheme();
 
 /**
- * @returns the last 0-based page index of the <list> or <table> component
+ * @returns the last 0-based page index of the list or table
  * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -150,7 +162,7 @@ DLLEXPORT std::string DLL LSG_GetColorTheme();
 DLLEXPORT int DLL LSG_GetLastPage(const std::string& id);
 
 /**
- * @returns the item from the <list> component
+ * @returns the item from the list
  * @param id  <list> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -159,7 +171,15 @@ DLLEXPORT int DLL LSG_GetLastPage(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
 
 /**
- * @returns all the items from the <list> component
+ * @returns the number of items in the list
+ * @param id  <list> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetListItemCount(const std::string& id);
+
+/**
+ * @returns all the items from the list
  * @param id <list> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -167,7 +187,23 @@ DLLEXPORT std::string DLL LSG_GetListItem(const std::string& id, int row);
 DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 
 /**
- * @returns the current 0-based page index of the <list> or <table> component
+ * @returns the margin around a component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetMargin(const std::string& id);
+
+/**
+ * @returns the padding inside a component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetPadding(const std::string& id);
+
+/**
+ * @returns the current 0-based page index of the list or table
  * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -175,7 +211,7 @@ DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 DLLEXPORT int DLL LSG_GetPage(const std::string& id);
 
 /**
- * @returns the item on the current page of the <list> component
+ * @returns the item on the current page of the list
  * @param id  <list> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -184,7 +220,7 @@ DLLEXPORT int DLL LSG_GetPage(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetPageListItem(const std::string& id, int row);
 
 /**
- * @returns the items on the current page of the <list> component
+ * @returns the items on the current page of the list
  * @param id <list> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -192,7 +228,7 @@ DLLEXPORT std::string DLL LSG_GetPageListItem(const std::string& id, int row);
 DLLEXPORT LSG_Strings DLL LSG_GetPageListItems(const std::string& id);
 
 /**
- * @returns the groups on the current page of the <table> component
+ * @returns the groups on the current page of the table
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -200,7 +236,7 @@ DLLEXPORT LSG_Strings DLL LSG_GetPageListItems(const std::string& id);
 DLLEXPORT LSG_TableGroups DLL LSG_GetPageTableGroups(const std::string& id);
 
 /**
- * @returns the columns on the current page of the <table> component
+ * @returns the columns on the current page of the table
  * @param id  <table> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -209,7 +245,7 @@ DLLEXPORT LSG_TableGroups DLL LSG_GetPageTableGroups(const std::string& id);
 DLLEXPORT LSG_Strings DLL LSG_GetPageTableRow(const std::string& id, int row);
 
 /**
- * @returns the rows on the current page of the <table> component
+ * @returns the rows on the current page of the table
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -225,28 +261,36 @@ DLLEXPORT LSG_TableRows DLL LSG_GetPageTableRows(const std::string& id);
 DLLEXPORT SDL_Point DLL LSG_GetPosition(const std::string& id);
 
 /**
- * @returns the horizontal scroll offset/position of the <list>, <table> or <text> component
- * @param id <list>, <table> or <text> component ID
+ * @returns the value of the progress bar as a percent between 0 and 1
+ * @param id <progress-bar> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT double DLL LSG_GetProgressValue(const std::string& id);
+
+/**
+ * @returns the horizontal scroll offset of the component
+ * @param id <list>, <panel>, <table> or <text> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetScrollHorizontal(const std::string& id);
 
 /**
- * @returns the vertical scroll offset/position of the <list>, <table> or <text> component
- * @param id <list>, <table> or <text> component ID
+ * @returns the vertical scroll offset of the component
+ * @param id <list>, <panel>, <table> or <text> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetScrollVertical(const std::string& id);
 
 /**
- * @returns the selected 0-based row index of the <list> or <table> component
+ * @returns the selected 0-based row indices (-1 for unselected) of the list or table
  * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT int DLL LSG_GetSelectedRow(const std::string& id);
+DLLEXPORT std::vector<int> DLL LSG_GetSelectedRows(const std::string& id);
 
 /**
  * @returns the component size
@@ -257,7 +301,7 @@ DLLEXPORT int DLL LSG_GetSelectedRow(const std::string& id);
 DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
 
 /**
- * @returns the value of the <slider> component as a percent between 0 and 1
+ * @returns the value of the slider as a percent between 0 and 1
  * @param id <slider> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -265,7 +309,7 @@ DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
 DLLEXPORT double DLL LSG_GetSliderValue(const std::string& id);
 
 /**
- * @returns the sort column index of the <table> component
+ * @returns the sort column index of the table
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -273,7 +317,7 @@ DLLEXPORT double DLL LSG_GetSliderValue(const std::string& id);
 DLLEXPORT int DLL LSG_GetSortColumn(const std::string& id);
 
 /**
- * @returns the sort order of the <list> or <table> component
+ * @returns the sort order of the list or table
  * @param id <list> or <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -281,16 +325,33 @@ DLLEXPORT int DLL LSG_GetSortColumn(const std::string& id);
 DLLEXPORT LSG_SortOrder DLL LSG_GetSortOrder(const std::string& id);
 
 /**
- * @returns the group from the <table> component
+ * @returns the spacing between child components
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetSpacing(const std::string& id);
+
+/**
+ * @returns the width of the table column
+ * @param id     <table> component ID
+ * @param column 0-based column index
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetTableColumnWidth(const std::string& id, int column);
+
+/**
+ * @returns the group from the table
  * @param id    <table> component ID
  * @param group The group name
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT LSG_TableGroupRows DLL LSG_GetTableGroup(const std::string& id, const std::string& group);
+DLLEXPORT LSG_TableGroup DLL LSG_GetTableGroup(const std::string& id, const std::string& group);
 
 /**
- * @returns all the groups from the <table> component
+ * @returns all the groups from the table
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -298,7 +359,7 @@ DLLEXPORT LSG_TableGroupRows DLL LSG_GetTableGroup(const std::string& id, const 
 DLLEXPORT LSG_TableGroups DLL LSG_GetTableGroups(const std::string& id);
 
 /**
- * @returns the header columns from the <table> component
+ * @returns the header columns from the table
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -306,7 +367,7 @@ DLLEXPORT LSG_TableGroups DLL LSG_GetTableGroups(const std::string& id);
 DLLEXPORT LSG_Strings DLL LSG_GetTableHeader(const std::string& id);
 
 /**
- * @returns the columns from the <table> component
+ * @returns the columns from the table
  * @param id  <table> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -315,7 +376,15 @@ DLLEXPORT LSG_Strings DLL LSG_GetTableHeader(const std::string& id);
 DLLEXPORT LSG_Strings DLL LSG_GetTableRow(const std::string& id, int row);
 
 /**
- * @returns all the rows from the <table> component
+ * @returns the number of rows in the table
+ * @param id  <table> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetTableRowCount(const std::string& id);
+
+/**
+ * @returns all the rows from the table
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -323,12 +392,28 @@ DLLEXPORT LSG_Strings DLL LSG_GetTableRow(const std::string& id, int row);
 DLLEXPORT LSG_TableRows DLL LSG_GetTableRows(const std::string& id);
 
 /**
- * @returns the text value of the <text> component
+ * @returns the text value of the component
  * @param id <text> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetText(const std::string& id);
+
+/**
+ * @returns the text input value
+ * @param id <text-input> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetTextInputValue(const std::string& id);
+
+/**
+ * @returns the header title of the modal, menu or sub-menu
+ * @param id <modal>, <menu> or <menu-sub> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetTitle(const std::string& id);
 
 /**
  * @returns the minimum window size
@@ -355,7 +440,23 @@ DLLEXPORT SDL_Size DLL LSG_GetWindowSize();
 DLLEXPORT std::string DLL LSG_GetWindowTitle();
 
 /**
- * @returns true if the <menu> component is open
+ * @returns true if the component is enabled
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT bool DLL LSG_IsEnabled(const std::string& id);
+
+/**
+ * @returns true if the menu item is selected
+ * @param id <menu-item> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT bool DLL LSG_IsMenuItemSelected(const std::string& id);
+
+/**
+ * @returns true if the menu is open
  * @param id <menu> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -439,7 +540,7 @@ DLLEXPORT void DLL LSG_Present();
 DLLEXPORT void DLL LSG_Quit();
 
 /**
- * @brief Removes the item from the <list> component.
+ * @brief Removes the item from the list.
  * @param id  <list> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -448,7 +549,7 @@ DLLEXPORT void DLL LSG_Quit();
 DLLEXPORT void DLL LSG_RemoveListItem(const std::string& id, int row);
 
 /**
- * @brief Removes the <menu-item> component.
+ * @brief Removes the menu item.
  * @param id  <menu-item> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -456,7 +557,7 @@ DLLEXPORT void DLL LSG_RemoveListItem(const std::string& id, int row);
 DLLEXPORT void DLL LSG_RemoveMenuItem(const std::string& id);
 
 /**
- * @brief Removes the item on the current page of the <list> component.
+ * @brief Removes the item on the current page of the list.
  * @param id  <list> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -465,7 +566,7 @@ DLLEXPORT void DLL LSG_RemoveMenuItem(const std::string& id);
 DLLEXPORT void DLL LSG_RemovePageListItem(const std::string& id, int row);
 
 /**
- * @brief Removes the row on the current page of the <table> component.
+ * @brief Removes the row on the current page of the table.
  * @param id  <table> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -474,7 +575,7 @@ DLLEXPORT void DLL LSG_RemovePageListItem(const std::string& id, int row);
 DLLEXPORT void DLL LSG_RemovePageTableRow(const std::string& id, int row);
 
 /**
- * @brief Removes the header columns from the <table> component.
+ * @brief Removes the header columns from the table.
  * @param id <table> component ID
  * @throws invalid_argument
  * @throws runtime_error
@@ -482,7 +583,7 @@ DLLEXPORT void DLL LSG_RemovePageTableRow(const std::string& id, int row);
 DLLEXPORT void DLL LSG_RemoveTableHeader(const std::string& id);
 
 /**
- * @brief Removes the grouped rows from the <table> component.
+ * @brief Removes the grouped rows from the table.
  * @param id    <table> component ID
  * @param group Table group name
  * @throws invalid_argument
@@ -491,7 +592,7 @@ DLLEXPORT void DLL LSG_RemoveTableHeader(const std::string& id);
 DLLEXPORT void DLL LSG_RemoveTableGroup(const std::string& id, const std::string& group);
 
 /**
- * @brief Removes the row from the <table> component.
+ * @brief Removes the row from the table.
  * @param id  <table> component ID
  * @param row 0-based row index
  * @throws invalid_argument
@@ -518,48 +619,65 @@ DLLEXPORT std::string DLL LSG_SaveFile();
 #endif
 
 /**
- * @brief Scrolls the <list>, <table> or <text> component horizontally by the specified offset/position.
- * @param id     <list>, <table> or <text> component ID
- * @param scroll Horizontal scroll offset/position
+ * @brief Scrolls the component horizontally by the specified offset.
+ * @param id     <list>, <panel>, <table> or <text> component ID
+ * @param scroll Horizontal scroll offset
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_ScrollHorizontal(const std::string& id, int scroll);
 
 /**
- * @brief Scrolls the <list>, <table> or <text> component vertically by the specified offset/position.
- * @param id     <list>, <table> or <text> component ID
- * @param scroll Vertical scroll offset/position
+ * @brief Scrolls the component vertically by the specified offset.
+ * @param id     <list>, <panel>, <table> or <text> component ID
+ * @param scroll Vertical scroll offset
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_ScrollVertical(const std::string& id, int scroll);
 
 /**
- * @brief Scrolls to the bottom of the <list>, <table> or <text> component.
- * @param id <list>, <table> or <text> component ID
+ * @brief Scrolls to the bottom of the component.
+ * @param id <list>, <panel>, <table> or <text> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
 
 /**
- * @brief Selects the row in the <list> or <table> component.
+ * @brief Scrolls to the top of the component.
+ * @param id <list>, <panel>, <table> or <text> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
+
+/**
+ * @brief Selects the row in the list or table.
  * @param id  <list> or <table> component ID
- * @param row 0-based row index
+ * @param row 0-based row index (-1 for unselected)
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SelectRow(const std::string& id, int row);
 
 /**
- * @brief Selects a row relative to the currently selected row in the <list> or <table> component.
+ * @brief Selects a row relative to the currently selected row in the list or table.
  * @param id     <list> or <table> component ID
  * @param offset 0-based offset from current row index
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SelectRowByOffset(const std::string& id, int offset);
+
+/**
+ * @brief Selects the rows in the list or table.
+ * @param id   <list> or <table> component ID
+ * @param rows 0-based row indices
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectRows(const std::string& id, const std::vector<int>& rows);
 
 /**
  * @brief Sets the horizontal alignment of child components in containers like <panel> and <button>, or alignment of textured components like <image> and <text> relative to available space in their background component.
@@ -607,7 +725,7 @@ DLLEXPORT void DLL LSG_SetBorder(const std::string& id, int border);
 DLLEXPORT void DLL LSG_SetBorderColor(const std::string& id, const SDL_Color& color);
 
 /**
- * @brief Highlights the <button> as selected.
+ * @brief Highlights the button as selected.
  * @param id       <button> component ID
  * @param selected true to select or false to unselect
  * @throws invalid_argument
@@ -650,7 +768,7 @@ DLLEXPORT void DLL LSG_SetFontSize(const std::string& id, int size);
 DLLEXPORT void DLL LSG_SetHeight(const std::string& id, int height);
 
 /**
- * @brief Sets the file path of an <image> component.
+ * @brief Sets the file path of an image.
  * @param id   <image> component ID
  * @param file Image file path
  * @param fill Scale the image to fill the entire background
@@ -660,7 +778,7 @@ DLLEXPORT void DLL LSG_SetHeight(const std::string& id, int height);
 DLLEXPORT void DLL LSG_SetImage(const std::string& id, const std::string& file, bool fill = false);
 
 /**
- * @brief Updates and overwrites the item in the <list> component.
+ * @brief Updates and overwrites the item in the list.
  * @param id   <list> component ID
  * @param row  0-based row index
  * @param item New list item value
@@ -670,7 +788,7 @@ DLLEXPORT void DLL LSG_SetImage(const std::string& id, const std::string& file, 
 DLLEXPORT void DLL LSG_SetListItem(const std::string& id, int row, const std::string& item);
 
 /**
- * @brief Sets the items of the <list> component.
+ * @brief Sets the items of the list.
  * @param id    <list> component ID
  * @param items List items
  * @throws invalid_argument
@@ -688,7 +806,16 @@ DLLEXPORT void DLL LSG_SetListItems(const std::string& id, const LSG_Strings& it
 DLLEXPORT void DLL LSG_SetMargin(const std::string& id, int margin);
 
 /**
- * @brief Highlights the <menu-item> as selected.
+ * @brief Sets the icon of the menu-item.
+ * @param id        <menu-item> component ID
+ * @param imageFile Image file path
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile);
+
+/**
+ * @brief Highlights the menu item as selected.
  * @param id       <menu-item> component ID
  * @param selected true to select or false to unselect
  * @throws invalid_argument
@@ -697,7 +824,7 @@ DLLEXPORT void DLL LSG_SetMargin(const std::string& id, int margin);
 DLLEXPORT void DLL LSG_SetMenuItemSelected(const std::string& id, bool selected = true);
 
 /**
- * @brief Sets the text value of the <menu-item> component.
+ * @brief Sets the text value of the menu item.
  * @param id    <menu-item> component ID
  * @param value Text value
  * @throws invalid_argument
@@ -724,7 +851,7 @@ DLLEXPORT void DLL LSG_SetOrientation(const std::string& id, LSG_Orientation ori
 DLLEXPORT void DLL LSG_SetPadding(const std::string& id, int padding);
 
 /**
- * @brief Navigates to and sets the page of the <list> or <table> component.
+ * @brief Navigates to and sets the page of the list or table.
  * @param id   <list> or <table> component ID
  * @param page 0-based page index
  * @throws invalid_argument
@@ -733,7 +860,7 @@ DLLEXPORT void DLL LSG_SetPadding(const std::string& id, int padding);
 DLLEXPORT void DLL LSG_SetPage(const std::string& id, int page);
 
 /**
- * @brief Updates and overwrites the item on the current page of the <list> component.
+ * @brief Updates and overwrites the item on the current page of the list.
  * @param id   <list> component ID
  * @param row  0-based row index
  * @param item New list item value
@@ -743,7 +870,7 @@ DLLEXPORT void DLL LSG_SetPage(const std::string& id, int page);
 DLLEXPORT void DLL LSG_SetPageListItem(const std::string& id, int row, const std::string& item);
 
 /**
- * @brief Updates and overwrites the row columns on the current page of the <table> component.
+ * @brief Updates and overwrites the row columns on the current page of the table.
  * @param id      <table> component ID
  * @param row     0-based row index
  * @param columns New row columns
@@ -751,6 +878,15 @@ DLLEXPORT void DLL LSG_SetPageListItem(const std::string& id, int row, const std
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
+
+/**
+ * @brief Sets the value of the progress bar as a percent between 0 and 1.
+ * @param id      <progress-bar> component ID
+ * @param percent [0.0-1.0]
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetProgressValue(const std::string& id, double percent);
 
 /**
  * @brief Sets the size of a component.
@@ -762,7 +898,7 @@ DLLEXPORT void DLL LSG_SetPageTableRow(const std::string& id, int row, const LSG
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size);
 
 /**
- * @brief Sets the value of the <slider> component as a percent between 0 and 1.
+ * @brief Sets the value of the slider as a percent between 0 and 1.
  * @param id      <slider> component ID
  * @param percent [0.0-1.0]
  * @throws invalid_argument
@@ -780,16 +916,26 @@ DLLEXPORT void DLL LSG_SetSliderValue(const std::string& id, double percent);
 DLLEXPORT void DLL LSG_SetSpacing(const std::string& id, int spacing);
 
 /**
- * @brief Sets the rows of the group in the <table> component.
+ * @brief Sets the width of the table column.
+ * @param id     <table> component ID
+ * @param column 0-based column index
+ * @param width  Width in pixels
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTableColumnWidth(const std::string& id, int column, int width);
+
+/**
+ * @brief Sets the rows of the group in the table.
  * @param id    <table> component ID
  * @param group The group to update
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetTableGroup(const std::string& id, const LSG_TableGroupRows& group);
+DLLEXPORT void DLL LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group);
 
 /**
- * @brief Sets the groups of the <table> component.
+ * @brief Sets the groups of the table.
  * @param id     <table> component ID
  * @param groups Groups with rows
  * @throws invalid_argument
@@ -798,8 +944,8 @@ DLLEXPORT void DLL LSG_SetTableGroup(const std::string& id, const LSG_TableGroup
 DLLEXPORT void DLL LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups);
 
 /**
- * @brief Sets the header columns of the <table> component.
- * @param id    <table> component ID
+ * @brief Sets the header columns of the table.
+ * @param id     <table> component ID
  * @param header Table header columns
  * @throws invalid_argument
  * @throws runtime_error
@@ -807,7 +953,7 @@ DLLEXPORT void DLL LSG_SetTableGroups(const std::string& id, const LSG_TableGrou
 DLLEXPORT void DLL LSG_SetTableHeader(const std::string& id, const LSG_Strings& header);
 
 /**
- * @brief Updates and overwrites the row columns in the <table> component.
+ * @brief Updates and overwrites the row columns in the table.
  * @param id      <table> component ID
  * @param row     0-based row index
  * @param columns New row columns
@@ -817,7 +963,7 @@ DLLEXPORT void DLL LSG_SetTableHeader(const std::string& id, const LSG_Strings& 
 DLLEXPORT void DLL LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns);
 
 /**
- * @brief Sets the rows of the <table> component.
+ * @brief Sets the rows of the table.
  * @param id   <table> component ID
  * @param rows Table rows
  * @throws invalid_argument
@@ -826,7 +972,7 @@ DLLEXPORT void DLL LSG_SetTableRow(const std::string& id, int row, const LSG_Str
 DLLEXPORT void DLL LSG_SetTableRows(const std::string& id, const LSG_TableRows& rows);
 
 /**
- * @brief Sets the text value of the <text> component.
+ * @brief Sets the text value of the text.
  * @param id    <text> component ID
  * @param value Text value
  * @throws invalid_argument
@@ -842,6 +988,24 @@ DLLEXPORT void DLL LSG_SetText(const std::string& id, const std::string& value);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetTextColor(const std::string& id, const SDL_Color& color);
+
+/**
+ * @brief Sets the text input value.
+ * @param id    <text-input> component ID
+ * @param value Text value
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTextInputValue(const std::string& id, const std::string& value);
+
+/**
+ * @brief Sets the header title of the modal, menu or sub-menu.
+ * @param id    <modal>, <menu> or <menu-sub> component ID
+ * @param title Header title
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTitle(const std::string& id, const std::string& title);
 
 /**
  * @brief Shows or hides the component.
@@ -900,6 +1064,15 @@ DLLEXPORT void DLL LSG_SetWindowSize(int width, int height);
 DLLEXPORT void DLL LSG_SetWindowTitle(const std::string& title);
 
 /**
+ * @brief Shows or hides the border/rule between columns.
+ * @param id   <table> component ID
+ * @param show true to show or false to hide
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ShowColumnBorder(const std::string& id, bool show = true);
+
+/**
  * @brief Shows a modal dialog with an error icon and the error message.
  * @param message Error message
  */
@@ -907,6 +1080,7 @@ DLLEXPORT void DLL LSG_ShowError(const std::string& message);
 
 /**
  * @brief Shows or hides the border/rule between rows.
+ * @param id   <list> or <table> component ID
  * @param show true to show or false to hide
  * @throws invalid_argument
  * @throws runtime_error
