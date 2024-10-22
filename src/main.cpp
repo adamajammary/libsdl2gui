@@ -1845,18 +1845,6 @@ void LSG_StartTest(const std::string& xmlFile, const std::string& workingDir)
 #if defined _windows
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
-    switch (reason) {
-        case DLL_PROCESS_ATTACH: // Initialize once for each new process. Return FALSE to fail DLL load.
-			break;
-        case DLL_PROCESS_DETACH:
-            //if (reserved == nullptr) // do not do cleanup if process termination scenario
-			break;
-        case DLL_THREAD_ATTACH: // Do thread-specific initialization.
-            break;
-        case DLL_THREAD_DETACH: // Do thread-specific cleanup.
-			break;
-    }
-
     return TRUE;
 }
 #else
