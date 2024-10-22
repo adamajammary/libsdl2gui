@@ -19,8 +19,8 @@ Library | Version | License
 
 Platform | Header | Package
 -------- | ------ | -------
-Android | android/asset_manager_jni.h | Android NDK
-Android | sys/stat.h | Android NDK
+Android | android/asset_manager_jni.h | [Android NDK](https://developer.android.com/ndk/downloads)
+Android | sys/stat.h | [Android NDK](https://developer.android.com/ndk/downloads)
 iOS | UIKit/UIKit.h | UIKit Framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
@@ -195,7 +195,7 @@ try {
   }
 
   LSG_Quit();
-} catch (const std::exception &e) {
+} catch (const std::exception& e) {
   LSG_ShowError(e.what());
   LSG_Quit();
 }
