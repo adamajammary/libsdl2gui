@@ -10,9 +10,9 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.30.7](https://www.libsdl.org/release/SDL2-2.30.7.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.2](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
+[SDL2](https://github.com/libsdl-org/SDL) | [2.30.9](https://github.com/libsdl-org/SDL/releases/download/release-2.30.9/SDL2-2.30.9.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
+[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.2](https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-2.8.2.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_image#Zlib-1-ov-file)
+[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.22.0](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
 [libXML2](https://github.com/GNOME/libxml2) | [2.12.9](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.9.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
@@ -65,11 +65,12 @@ Make sure the correct Android SDK path is set as either
 
 ```bash
 cmake .. -G "Unix Makefiles" \
+-D ANDROID_ABI="arm64-v8a" \
+-D ANDROID_NDK="/path/to/ANDROID_NDK" \
+-D ANDROID_PLATFORM="android-29" \
+-D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_SYSTEM_NAME="Android" \
 -D CMAKE_TOOLCHAIN_FILE="/path/to/ANDROID_NDK/build/cmake/android.toolchain.cmake" \
--D ANDROID_NDK="/path/to/ANDROID_NDK" \
--D ANDROID_ABI="arm64-v8a" \
--D ANDROID_PLATFORM="android-29" \
 -D EXT_LIB_DIR="/path/to/libs"
 
 make
@@ -107,10 +108,11 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
--D CMAKE_SYSTEM_NAME="iOS" \
+-D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_OSX_ARCHITECTURES="arm64" \
 -D CMAKE_OSX_DEPLOYMENT_TARGET="12.5" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
+-D CMAKE_SYSTEM_NAME="iOS" \
 -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
 -D EXT_LIB_DIR="/path/to/libs" \
 -D IOS_SDK="iphoneos"
@@ -144,6 +146,7 @@ You can get the macOS SDK path with the following command: `xcrun --sdk macosx -
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
+-D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_OSX_ARCHITECTURES="x86_64" \
 -D CMAKE_OSX_DEPLOYMENT_TARGET="12.6" \
 -D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
@@ -157,7 +160,9 @@ xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -project sdl2gui.xcodeproj -configura
 ### Linux
 
 ```bash
-cmake .. -G "Unix Makefiles" -D EXT_LIB_DIR="/path/to/libs"
+cmake .. -G "Unix Makefiles" \
+-D CMAKE_BUILD_TYPE=Release \
+-D EXT_LIB_DIR="/path/to/libs"
 
 make
 ```
@@ -167,7 +172,9 @@ make
 ### Windows
 
 ```bash
-cmake .. -G "Visual Studio 17 2022" -D EXT_LIB_DIR="/path/to/libs"
+cmake .. -G "Visual Studio 17 2022" \
+-D CMAKE_BUILD_TYPE=Release \
+-D EXT_LIB_DIR="/path/to/libs"
 
 devenv.com sdl2gui.sln -build "Release|x64"
 ```
