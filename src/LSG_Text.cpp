@@ -150,7 +150,7 @@ uint16_t* LSG_Text::ToUTF16(const std::string& text)
 	#endif
 
 	if (!textUTF16)
-		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", SDL_GetError()));
+		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text '%s'", formattedText.c_str()));
 
 	return textUTF16;
 }
