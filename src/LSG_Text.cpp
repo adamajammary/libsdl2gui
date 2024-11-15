@@ -143,7 +143,7 @@ uint16_t* LSG_Text::ToUTF16(const std::string& text)
 {
 	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
 
-	#if defined _android || defined _linux
+	#if defined _linux
 		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
 	#else
 		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", formattedText.c_str(), formattedText.size() + 1);
