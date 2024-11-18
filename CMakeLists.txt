@@ -98,7 +98,7 @@ elseif (APPLE)
     set(DLL_EXT "dylib")
     set(OUT_DIR "$<CONFIG>")
 
-    set(OS_LIBS "-framework AppKit" "-framework Foundation")
+    set(OS_LIBS "-framework AppKit" "-framework Foundation" "-framework UniformTypeIdentifiers")
 elseif (WIN32)
     set(OS "_windows")
 
