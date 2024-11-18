@@ -757,7 +757,7 @@ bool LSG_IsWindowMaximized()
 }
 
 #if defined _windows
-std::string LSG_OpenFile(const std::wstring& filter)
+std::string LSG_OpenFile(const wchar_t* filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -781,7 +781,7 @@ std::string LSG_OpenFile(const std::vector<std::string>& filters)
 #endif
 
 #if defined _windows
-std::vector<std::string> LSG_OpenFiles(const std::wstring& filter)
+std::vector<std::string> LSG_OpenFiles(const wchar_t* filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -992,7 +992,7 @@ std::vector<SDL_Event> LSG_Run()
 }
 
 #if defined _windows
-std::string LSG_SaveFile(const std::wstring& filter)
+std::string LSG_SaveFile(const wchar_t* filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);

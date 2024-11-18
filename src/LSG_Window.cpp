@@ -281,7 +281,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _windows
-std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, const std::wstring& filter)
+std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, const wchar_t* filter)
 {
 	const int MAX_FILE_PATH = 2048;
 
@@ -295,14 +295,15 @@ std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, con
 	browseDialog.lpstrFile[0] = '\0';
 	browseDialog.nMaxFile     = sizeof(selectedPath);
 	browseDialog.Flags        = (OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
-	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
 	browseDialog.nFilterIndex = 1;
 
 	if (allowMultipleSelection)
 		browseDialog.Flags |= OFN_ALLOWMULTISELECT;
 
-	if (!filter.empty())
-		browseDialog.lpstrFilter = filter.c_str();
+	if (filter && (std::wcslen(filter) > 0))
+		browseDialog.lpstrFilter = filter;
+	else
+		browseDialog.lpstrFilter = L"All Files (*)\0*.*\0\0";
 
 	if (!GetOpenFileNameW(&browseDialog))
 		return {};
@@ -339,14 +340,14 @@ std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, con
 #endif
 
 #if defined _windows
-std::wstring LSG_Window::OpenFile(const std::wstring& filter)
+std::wstring LSG_Window::OpenFile(const wchar_t* filter)
 {
 	auto files = LSG_Window::openFiles(false, filter);
 
 	return (!files.empty() ? files[0] : L"");
 }
 
-std::vector<std::wstring> LSG_Window::OpenFiles(const std::wstring& filter)
+std::vector<std::wstring> LSG_Window::OpenFiles(const wchar_t* filter)
 {
 	return LSG_Window::openFiles(true, filter);
 }
@@ -546,7 +547,7 @@ std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
 	return filePath;
 }
 #elif defined _windows
-std::wstring LSG_Window::SaveFile(const std::wstring& filter)
+std::wstring LSG_Window::SaveFile(const wchar_t* filter)
 {
 	OPENFILENAMEW browseDialog           = {};
 	wchar_t       selectedPath[MAX_PATH] = {};
@@ -558,11 +559,12 @@ std::wstring LSG_Window::SaveFile(const std::wstring& filter)
 	browseDialog.lpstrFile[0] = '\0';
 	browseDialog.nMaxFile     = sizeof(selectedPath);
 	browseDialog.Flags        = (OFN_CREATEPROMPT | OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
-	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
 	browseDialog.nFilterIndex = 1;
 
-	if (!filter.empty())
-		browseDialog.lpstrFilter = filter.c_str();
+	if (filter && (std::wcslen(filter) > 0))
+		browseDialog.lpstrFilter = filter;
+	else
+		browseDialog.lpstrFilter = L"All Files (*)\0*.*\0\0";
 
 	if (!GetSaveFileNameW(&browseDialog))
 		return L"";

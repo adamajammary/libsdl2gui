@@ -4,6 +4,7 @@
 #include <algorithm> // min/max(x)
 #include <cstdio>    // snprintf(x)
 #include <cstring>   // strlen(x), strtok(x)
+#include <cwchar>    // wcslen(x)
 #include <filesystem>
 #include <fstream>
 #include <functional>
