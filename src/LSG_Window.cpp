@@ -245,7 +245,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 		auto types = [NSMutableArray arrayWithCapacity: (NSUInteger)filters.size()];
 
 		for (const auto& filter : filters)
-			[types addObject: [UTType typeWithFilenameExtension: [NSString initWithUTF8String: filter.c_str()]]];
+			[types addObject: [UTType typeWithFilenameExtension: [NSString stringWithFormat: @"%s", filter.c_str()]]];
 
 		[panel setAllowedContentTypes: types];
 	}
@@ -519,7 +519,7 @@ std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
 		auto types = [NSMutableArray arrayWithCapacity: (NSUInteger)filters.size()];
 
 		for (const auto& filter : filters)
-			[types addObject: [UTType typeWithFilenameExtension: [NSString initWithUTF8String: filter.c_str()]]];
+			[types addObject: [UTType typeWithFilenameExtension: [NSString stringWithFormat: @"%s", filter.c_str()]]];
 
 		[panel setAllowedContentTypes: types];
 	}
