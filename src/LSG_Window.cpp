@@ -162,7 +162,7 @@ void LSG_Window::OpenTest()
 #endif
 
 #if defined _linux
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::string& filter)
+std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
@@ -181,14 +181,15 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 		nullptr
 	);
 
-	auto fileFilter = gtk_file_filter_new();
+	if (!filters.empty())
+	{
+		auto fileFilter = gtk_file_filter_new();
 
-	if (!filter.empty())
-		gtk_file_filter_add_pattern(fileFilter, filter.c_str());
-	else
-		gtk_file_filter_add_pattern(fileFilter, "*");
+		for (const auto& filter : filters)
+			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
-	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+	}
 
 	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
 
@@ -228,18 +229,28 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _macosx
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::string& filter)
+std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters)
 {
-	NSOpenPanel* panel = [NSOpenPanel openPanel];
+	auto panel = [NSOpenPanel openPanel];
 
 	if (!panel)
 		return {};
 
 	[panel setAllowsMultipleSelection: (allowMultipleSelection ? YES : NO)];
-	[panel setCanChooseDirectories: (openFolder ? YES : NO)];
-	[panel setCanChooseFiles: (openFolder ? NO : YES)];
+	[panel setCanChooseDirectories:    (openFolder ? YES : NO)];
+	[panel setCanChooseFiles:          (openFolder ? NO : YES)];
 
-	if ([panel runModal] != NSOKButton)
+	if (!filters.empty())
+	{
+		auto types = [NSMutableArray arrayWithCapacity: (NSUInteger)filters.size()];
+
+		for (const auto& filter : filters)
+			[types addObject: [UTType typeWithFilenameExtension: [NSString initWithUTF8String: filter.c_str()]]];
+
+		[panel setAllowedContentTypes: types];
+	}
+
+	if ([panel runModal] != NSModalResponseOK)
 		return {};
 
 	const int MAX_FILE_PATH = 260;
@@ -248,7 +259,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 
 	for (id url in [panel URLs])
 	{
-		CFURLRef selectedURL = (CFURLRef)url;
+		auto selectedURL = (CFURLRef)url;
 
 		if (!selectedURL)
 			continue;
@@ -405,28 +416,28 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 	return LSG_Window::openFolders(true);
 }
 #elif defined _linux || defined _macosx
-std::string LSG_Window::OpenFile(const std::string& filter)
+std::string LSG_Window::OpenFile(const std::vector<std::string>& filters)
 {
-	auto files = LSG_Window::openFiles(false, false, filter);
+	auto files = LSG_Window::openFiles(false, false, filters);
 
 	return (!files.empty() ? files[0] : "");
 }
 
-std::vector<std::string> LSG_Window::OpenFiles(const std::string& filter)
+std::vector<std::string> LSG_Window::OpenFiles(const std::vector<std::string>& filters)
 {
-	return LSG_Window::openFiles(false, true, filter);
+	return LSG_Window::openFiles(false, true, filters);
 }
 
 std::string LSG_Window::OpenFolder()
 {
-	auto folders = LSG_Window::openFiles(true, false, "");
+	auto folders = LSG_Window::openFiles(true, false, {});
 
 	return (!folders.empty() ? folders[0] : "");
 }
 
 std::vector<std::string> LSG_Window::OpenFolders()
 {
-	return LSG_Window::openFiles(true, true, "");
+	return LSG_Window::openFiles(true, true, {});
 }
 #endif
 
@@ -445,7 +456,7 @@ void LSG_Window::Render()
 }
 
 #if defined _linux
-std::string LSG_Window::SaveFile(const std::string& filter)
+std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
@@ -464,14 +475,15 @@ std::string LSG_Window::SaveFile(const std::string& filter)
 		nullptr
 	);
 
-	auto fileFilter = gtk_file_filter_new();
+	if (!filters.empty())
+	{
+		auto fileFilter = gtk_file_filter_new();
 
-	if (!filter.empty())
-		gtk_file_filter_add_pattern(fileFilter, filter.c_str());
-	else
-		gtk_file_filter_add_pattern(fileFilter, "*");
+		for (const auto& filter : filters)
+			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
-	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+	}
 
 	std::string filePath = "";
 
@@ -495,14 +507,24 @@ std::string LSG_Window::SaveFile(const std::string& filter)
 	return filePath;
 }
 #elif defined _macosx
-std::string LSG_Window::SaveFile(const std::string& filter)
+std::string LSG_Window::SaveFile(std::vector<std::string>& filters)
 {
 	NSSavePanel* panel = [NSSavePanel savePanel];
 
 	if (!panel)
 		return "";
 
-	if ([panel runModal] != NSOKButton)
+	if (!filters.empty())
+	{
+		auto types = [NSMutableArray arrayWithCapacity: (NSUInteger)filters.size()];
+
+		for (const auto& filter : filters)
+			[types addObject: [UTType typeWithFilenameExtension: [NSString initWithUTF8String: filter.c_str()]]];
+
+		[panel setAllowedContentTypes: types];
+	}
+
+	if ([panel runModal] != NSModalResponseOK)
 		return "";
 
 	CFURLRef selectedURL = (CFURLRef)[panel URL];

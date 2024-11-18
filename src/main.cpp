@@ -771,12 +771,12 @@ std::string LSG_OpenFile(const std::wstring& filter)
 	return filePath;
 }
 #elif defined _linux || defined _macosx
-std::string LSG_OpenFile(const std::string& filter)
+std::string LSG_OpenFile(const std::vector<std::string>& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::OpenFile(filter);
+	return LSG_Window::OpenFile(filters);
 }
 #endif
 
@@ -802,12 +802,12 @@ std::vector<std::string> LSG_OpenFiles(const std::wstring& filter)
 	return filePaths;
 }
 #elif defined _linux || defined _macosx
-std::vector<std::string> LSG_OpenFiles(const std::string& filter)
+std::vector<std::string> LSG_OpenFiles(const std::vector<std::string>& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::OpenFiles(filter);
+	return LSG_Window::OpenFiles(filters);
 }
 #endif
 
@@ -1006,12 +1006,12 @@ std::string LSG_SaveFile(const std::wstring& filter)
 	return filePath;
 }
 #elif defined _linux || defined _macosx
-std::string LSG_SaveFile(const std::string& filter)
+std::string LSG_SaveFile(const std::vector<std::string>& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::SaveFile(filter);
+	return LSG_Window::SaveFile(filters);
 }
 #endif
 

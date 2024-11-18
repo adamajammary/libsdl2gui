@@ -20,7 +20,7 @@ private:
         static std::vector<std::wstring> openFiles(bool allowMultipleSelection, const std::wstring& filter);
         static std::vector<std::wstring> openFolders(bool allowMultipleSelection);
     #elif defined _linux || defined _macosx
-        static std::vector<std::string> openFiles(bool openFolder, bool allowMultipleSelection, const std::string& filter);
+        static std::vector<std::string> openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters);
     #endif
 
 public:
@@ -53,11 +53,11 @@ public:
         static std::vector<std::wstring> OpenFolders();
         static std::wstring              SaveFile(const std::wstring& filter);
     #elif defined _linux || defined _macosx
-        static std::string              OpenFile(const std::string& filter);
-        static std::vector<std::string> OpenFiles(const std::string& filter);
+        static std::string              OpenFile(const std::vector<std::string>& filters);
+        static std::vector<std::string> OpenFiles(const std::vector<std::string>& filters);
         static std::string              OpenFolder();
         static std::vector<std::string> OpenFolders();
-        static std::string              SaveFile(const std::string& filter);
+        static std::string              SaveFile(const std::vector<std::string>& filters);
     #endif
 
     #if defined _windows && defined _DEBUG
