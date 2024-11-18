@@ -757,7 +757,7 @@ bool LSG_IsWindowMaximized()
 }
 
 #if defined _windows
-std::string LSG_OpenFile(const wchar_t* filter)
+std::string LSG_OpenFile(const std::wstring& filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -771,17 +771,17 @@ std::string LSG_OpenFile(const wchar_t* filter)
 	return filePath;
 }
 #elif defined _linux || defined _macosx
-std::string LSG_OpenFile()
+std::string LSG_OpenFile(const std::string& filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::OpenFile();
+	return LSG_Window::OpenFile(filter);
 }
 #endif
 
 #if defined _windows
-std::vector<std::string> LSG_OpenFiles(const wchar_t* filter)
+std::vector<std::string> LSG_OpenFiles(const std::wstring& filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -802,12 +802,12 @@ std::vector<std::string> LSG_OpenFiles(const wchar_t* filter)
 	return filePaths;
 }
 #elif defined _linux || defined _macosx
-std::vector<std::string> LSG_OpenFiles()
+std::vector<std::string> LSG_OpenFiles(const std::string& filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::OpenFiles();
+	return LSG_Window::OpenFiles(filter);
 }
 #endif
 
@@ -992,7 +992,7 @@ std::vector<SDL_Event> LSG_Run()
 }
 
 #if defined _windows
-std::string LSG_SaveFile(const wchar_t* filter)
+std::string LSG_SaveFile(const std::wstring& filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1006,12 +1006,12 @@ std::string LSG_SaveFile(const wchar_t* filter)
 	return filePath;
 }
 #elif defined _linux || defined _macosx
-std::string LSG_SaveFile()
+std::string LSG_SaveFile(const std::string& filter)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::OpenFile();
+	return LSG_Window::SaveFile(filter);
 }
 #endif
 

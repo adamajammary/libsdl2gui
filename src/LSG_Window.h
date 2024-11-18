@@ -17,10 +17,10 @@ private:
     static SDL_Window*   window;
 
     #if defined _windows
-        static std::vector<std::wstring> openFiles(const wchar_t* filter, bool allowMultipleSelection = false);
-        static std::vector<std::wstring> openFolders(bool allowMultipleSelection = false);
+        static std::vector<std::wstring> openFiles(bool allowMultipleSelection, const std::wstring& filter);
+        static std::vector<std::wstring> openFolders(bool allowMultipleSelection);
     #elif defined _linux || defined _macosx
-        static std::vector<std::string> openFiles(bool openFolder = false, bool allowMultipleSelection = false);
+        static std::vector<std::string> openFiles(bool openFolder, bool allowMultipleSelection, const std::string& filter);
     #endif
 
 public:
@@ -47,17 +47,17 @@ public:
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
 
     #if defined _windows
-        static std::wstring              OpenFile(const wchar_t*  filter = nullptr);
-        static std::vector<std::wstring> OpenFiles(const wchar_t* filter = nullptr);
+        static std::wstring              OpenFile(const std::wstring& filter);
+        static std::vector<std::wstring> OpenFiles(const std::wstring& filter);
         static std::wstring              OpenFolder();
         static std::vector<std::wstring> OpenFolders();
-        static std::wstring              SaveFile(const wchar_t* filter = nullptr);
+        static std::wstring              SaveFile(const std::wstring& filter);
     #elif defined _linux || defined _macosx
-        static std::string              OpenFile();
-        static std::vector<std::string> OpenFiles();
+        static std::string              OpenFile(const std::string& filter);
+        static std::vector<std::string> OpenFiles(const std::string& filter);
         static std::string              OpenFolder();
         static std::vector<std::string> OpenFolders();
-        static std::string              SaveFile();
+        static std::string              SaveFile(const std::string& filter);
     #endif
 
     #if defined _windows && defined _DEBUG

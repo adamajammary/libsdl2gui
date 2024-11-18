@@ -162,15 +162,15 @@ void LSG_Window::OpenTest()
 #endif
 
 #if defined _linux
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection)
+std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::string& filter)
 {
-	if (strlen(std::getenv("DISPLAY")) == 0)
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
 		return {};
 
-	GtkWidget* dialog = gtk_file_chooser_dialog_new(
+	auto dialog = gtk_file_chooser_dialog_new(
 		(openFolder ? "Select a folder" : "Select a file"),
 		nullptr,
 		(openFolder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN),
@@ -187,6 +187,15 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
+		auto fileFilter = gtk_file_filter_new();
+
+		if (!filter.empty())
+			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+		else
+			gtk_file_filter_add_pattern(fileFilter, "*");
+
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+
 		GSList* paths = nullptr;
 
 		for (paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog)); paths != nullptr; paths = paths->next)
@@ -219,7 +228,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _macosx
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection)
+std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::string& filter)
 {
 	NSOpenPanel* panel = [NSOpenPanel openPanel];
 
@@ -261,7 +270,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _windows
-std::vector<std::wstring> LSG_Window::openFiles(const wchar_t* filter, bool allowMultipleSelection)
+std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, const std::wstring& filter)
 {
 	const int MAX_FILE_PATH = 2048;
 
@@ -281,8 +290,8 @@ std::vector<std::wstring> LSG_Window::openFiles(const wchar_t* filter, bool allo
 	if (allowMultipleSelection)
 		browseDialog.Flags |= OFN_ALLOWMULTISELECT;
 
-	if (filter && (wcslen(filter) > 0))
-		browseDialog.lpstrFilter = filter;
+	if (!filter.empty())
+		browseDialog.lpstrFilter = filter.c_str();
 
 	if (!GetOpenFileNameW(&browseDialog))
 		return {};
@@ -319,16 +328,16 @@ std::vector<std::wstring> LSG_Window::openFiles(const wchar_t* filter, bool allo
 #endif
 
 #if defined _windows
-std::wstring LSG_Window::OpenFile(const wchar_t* filter)
+std::wstring LSG_Window::OpenFile(const std::wstring& filter)
 {
-	auto files = LSG_Window::openFiles(filter);
+	auto files = LSG_Window::openFiles(false, filter);
 
 	return (!files.empty() ? files[0] : L"");
 }
 
-std::vector<std::wstring> LSG_Window::OpenFiles(const wchar_t* filter)
+std::vector<std::wstring> LSG_Window::OpenFiles(const std::wstring& filter)
 {
-	return LSG_Window::openFiles(filter, true);
+	return LSG_Window::openFiles(true, filter);
 }
 
 std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
@@ -386,7 +395,7 @@ std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
 
 std::wstring LSG_Window::OpenFolder()
 {
-	auto folders = LSG_Window::openFolders();
+	auto folders = LSG_Window::openFolders(false);
 
 	return (!folders.empty() ? folders[0] : L"");
 }
@@ -396,28 +405,28 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 	return LSG_Window::openFolders(true);
 }
 #elif defined _linux || defined _macosx
-std::string LSG_Window::OpenFile()
+std::string LSG_Window::OpenFile(const std::string& filter)
 {
-	auto files = LSG_Window::openFiles();
+	auto files = LSG_Window::openFiles(false, false, filter);
 
 	return (!files.empty() ? files[0] : "");
 }
 
-std::vector<std::string> LSG_Window::OpenFiles()
+std::vector<std::string> LSG_Window::OpenFiles(const std::string& filter)
 {
-	return LSG_Window::openFiles(false, true);
+	return LSG_Window::openFiles(false, true, filter);
 }
 
 std::string LSG_Window::OpenFolder()
 {
-	auto folders = LSG_Window::openFiles(true);
+	auto folders = LSG_Window::openFiles(true, false, "");
 
 	return (!folders.empty() ? folders[0] : "");
 }
 
 std::vector<std::string> LSG_Window::OpenFolders()
 {
-	return LSG_Window::openFiles(true, true);
+	return LSG_Window::openFiles(true, true, "");
 }
 #endif
 
@@ -436,15 +445,15 @@ void LSG_Window::Render()
 }
 
 #if defined _linux
-std::string LSG_Window::SaveFile()
+std::string LSG_Window::SaveFile(const std::string& filter)
 {
-	if (strlen(std::getenv("DISPLAY")) == 0)
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
 		return "";
 
-	GtkWidget* dialog = gtk_file_chooser_dialog_new(
+	auto dialog = gtk_file_chooser_dialog_new(
 		"Save File",
 		nullptr,
 		GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -459,7 +468,16 @@ std::string LSG_Window::SaveFile()
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
-		gchar* selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		auto fileFilter = gtk_file_filter_new();
+
+		if (!filter.empty())
+			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+		else
+			gtk_file_filter_add_pattern(fileFilter, "*");
+
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+
+		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
 		filePath = std::string(selectedPath);
 
@@ -477,7 +495,7 @@ std::string LSG_Window::SaveFile()
 	return filePath;
 }
 #elif defined _macosx
-std::string LSG_Window::SaveFile()
+std::string LSG_Window::SaveFile(const std::string& filter)
 {
 	NSSavePanel* panel = [NSSavePanel savePanel];
 
@@ -506,7 +524,7 @@ std::string LSG_Window::SaveFile()
 	return filePath;
 }
 #elif defined _windows
-std::wstring LSG_Window::SaveFile(const wchar_t* filter)
+std::wstring LSG_Window::SaveFile(const std::wstring& filter)
 {
 	OPENFILENAMEW browseDialog           = {};
 	wchar_t       selectedPath[MAX_PATH] = {};
@@ -521,8 +539,8 @@ std::wstring LSG_Window::SaveFile(const wchar_t* filter)
 	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
 	browseDialog.nFilterIndex = 1;
 
-	if (filter && (wcslen(filter) > 0))
-		browseDialog.lpstrFilter = filter;
+	if (!filter.empty())
+		browseDialog.lpstrFilter = filter.c_str();
 
 	if (!GetSaveFileNameW(&browseDialog))
 		return L"";

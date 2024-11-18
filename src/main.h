@@ -3,7 +3,7 @@
 
 #include <algorithm> // min/max(x)
 #include <cstdio>    // snprintf(x)
-#include <cstring>   // strtok(x)
+#include <cstring>   // strlen(x), strtok(x)
 #include <filesystem>
 #include <fstream>
 #include <functional>
