@@ -1664,7 +1664,7 @@ Exceptions
 
 ### LSG_OpenFile
 
-> Only supported on Windows, Linux and MacOS.
+> Only supported on Windows, Linux and macOS.
 
 Displays an Open File dialog where you can select a single file.
 
@@ -1680,7 +1680,7 @@ Exceptions
 
 ### LSG_OpenFiles
 
-> Only supported on Windows, Linux and MacOS.
+> Only supported on Windows, Linux and macOS.
 
 Displays an Open File dialog where you can select multiple files.
 
