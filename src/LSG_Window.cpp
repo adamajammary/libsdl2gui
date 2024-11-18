@@ -181,21 +181,21 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 		nullptr
 	);
 
+	auto fileFilter = gtk_file_filter_new();
+
+	if (!filter.empty())
+		gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+	else
+		gtk_file_filter_add_pattern(fileFilter, "*");
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+
 	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
 
 	std::vector<std::string> filePaths;
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
-		auto fileFilter = gtk_file_filter_new();
-
-		if (!filter.empty())
-			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
-		else
-			gtk_file_filter_add_pattern(fileFilter, "*");
-
-		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-
 		GSList* paths = nullptr;
 
 		for (paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog)); paths != nullptr; paths = paths->next)
@@ -464,19 +464,19 @@ std::string LSG_Window::SaveFile(const std::string& filter)
 		nullptr
 	);
 
+	auto fileFilter = gtk_file_filter_new();
+
+	if (!filter.empty())
+		gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+	else
+		gtk_file_filter_add_pattern(fileFilter, "*");
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+
 	std::string filePath = "";
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
-		auto fileFilter = gtk_file_filter_new();
-
-		if (!filter.empty())
-			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
-		else
-			gtk_file_filter_add_pattern(fileFilter, "*");
-
-		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-
 		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
 		filePath = std::string(selectedPath);
