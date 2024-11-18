@@ -507,7 +507,7 @@ std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
 	return filePath;
 }
 #elif defined _macosx
-std::string LSG_Window::SaveFile(std::vector<std::string>& filters)
+std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
 {
 	NSSavePanel* panel = [NSSavePanel savePanel];
 
