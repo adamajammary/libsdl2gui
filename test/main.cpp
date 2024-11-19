@@ -189,7 +189,7 @@ int SDL_main(int argc, char* argv[])
         // TODO: remove
         #if defined _android
             auto f = LSG_OpenFile();
-            LSG_Window::ShowMessage(f, SDL_MESSAGEBOX_INFORMATION);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Opened File", f.c_str(), NULL);
         #endif
 
         std::vector<SDL_Event> events;
