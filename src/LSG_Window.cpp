@@ -440,6 +440,27 @@ std::vector<std::string> LSG_Window::OpenFolders()
 {
 	return LSG_Window::openFiles(true, true, {});
 }
+#elif defined _android
+std::string LSG_Window::OpenFile()
+{
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	auto jniOpenFile    = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFile", "()V");
+
+	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFile);
+
+	while (jniEnvironment->GetStaticBooleanField(jniActivity, "IsOpeningFile"))
+		SDL_Delay(10);
+
+	auto jniOpenedFile = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, "OpenedFile");
+	auto jniFileUTF8   = jniEnvironment->GetStringUTFChars(jniOpenedFile, NULL);
+	auto selectedFile  = std::string(jniFileUTF8);
+
+	jniEnvironment->ReleaseStringUTFChars(jniOpenedFile, jniFileUTF8);
+	jniEnvironment->DeleteLocalRef(jniActivity);
+
+	return selectedFile;
+}
 #endif
 
 void LSG_Window::Present()

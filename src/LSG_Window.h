@@ -58,12 +58,13 @@ public:
         static std::string              OpenFolder();
         static std::vector<std::string> OpenFolders();
         static std::string              SaveFile(const std::vector<std::string>& filters);
+    #elif defined _android
+        static std::string OpenFile();
     #endif
 
     #if defined _windows && defined _DEBUG
         static void OpenTest();
     #endif
-
 };
 
 #endif

@@ -2,14 +2,29 @@
 
 package com.libsdl2gui.lib;
 
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Size;
 
 import org.libsdl.app.SDLActivity;
 
 public class Sdl2GuiActivity extends SDLActivity
 {
+	public static int REQUEST_CODE_OPEN_FILE   = 1000;
+	public static int REQUEST_CODE_OPEN_FOLDER = 2000;
+
+	public static boolean IsOpeningFile = false;
+	public static String  OpenedFile    = null;
+
+	public static boolean IsOpeningFolder = false;
+	public static String  OpenedFolder    = null;
+
 	public static boolean IsAutoRotate()
 	{
 		ContentResolver contentResolver = mSingleton.getContentResolver();
@@ -26,4 +41,45 @@ public class Sdl2GuiActivity extends SDLActivity
 
 		return (nightMask == Configuration.UI_MODE_NIGHT_YES);
 	}
+
+	public static void OpenFile()
+	{
+		OpenedFile    = null;
+		IsOpeningFile = true;
+
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FILE);
+	}
+
+	public static void OpenFolder()
+	{
+		OpenedFolder    = null;
+		IsOpeningFolder = true;
+
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FOLDER);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
+	{
+		switch (requestCode) {
+		case REQUEST_CODE_OPEN_FILE:
+			OpenedFile    = (resultData != null ? resultData.getData().getPath() : null);
+			IsOpeningFile = false;
+			break;
+		case REQUEST_CODE_OPEN_FOLDER:
+			OpenedFolder    = (resultData != null ? resultData.getData().getPath() : null);
+			IsOpeningFolder = false;
+			break;
+		default:
+			break;
+		}
+	}	
 }

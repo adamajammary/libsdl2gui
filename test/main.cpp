@@ -186,6 +186,12 @@ int SDL_main(int argc, char* argv[])
                 setColorTheme("MenuIdColorThemeDark",  "ui/dark.colortheme");
         }
 
+        // TODO: remove
+        #if defined _android
+            auto f = LSG_OpenFile();
+            LSG_Window::ShowMessage(f, SDL_MESSAGEBOX_INFORMATION);
+        #endif
+
         std::vector<SDL_Event> events;
 
         while (LSG_IsRunning())

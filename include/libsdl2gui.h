@@ -497,6 +497,8 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
 DLLEXPORT std::string DLL LSG_OpenFile(const wchar_t* filter = nullptr); // https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members
 #elif defined _linux || defined _macosx
 DLLEXPORT std::string DLL LSG_OpenFile(const std::vector<std::string>& filters = {}); // https://gnome.pages.gitlab.gnome.org/gtk/gtk3/class.FileFilter.html
+#elif defined _android
+DLLEXPORT std::string DLL LSG_OpenFile();
 #endif
 
 /**

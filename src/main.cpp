@@ -778,6 +778,14 @@ std::string LSG_OpenFile(const std::vector<std::string>& filters)
 
 	return LSG_Window::OpenFile(filters);
 }
+#elif defined _android
+std::string LSG_OpenFile()
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	return LSG_Window::OpenFile();
+}
 #endif
 
 #if defined _windows
