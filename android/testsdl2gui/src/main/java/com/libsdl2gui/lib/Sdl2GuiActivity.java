@@ -16,8 +16,8 @@ import org.libsdl.app.SDLActivity;
 
 public class Sdl2GuiActivity extends SDLActivity
 {
-	public static int REQUEST_CODE_OPEN_FILE   = 1000;
-	public static int REQUEST_CODE_OPEN_FOLDER = 2000;
+	public static final int REQUEST_CODE_OPEN_FILE   = 1000;
+	public static final int REQUEST_CODE_OPEN_FOLDER = 2000;
 
 	public static boolean IsOpeningFile = false;
 	public static String  OpenedFile    = null;
