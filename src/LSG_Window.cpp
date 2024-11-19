@@ -446,7 +446,7 @@ std::string LSG_Window::OpenFile()
 	auto jniEnvironment   = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity      = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
 	auto jniIsOpeningFile = jniEnvironment->GetStaticFieldID(jniActivity,  "IsOpeningFile", "Z");
-	auto jniOpenedFile    = jniEnvironment->GetStaticFieldID(jniActivity,  "OpenedFile",    "java/lang/String");
+	auto jniOpenedFile    = jniEnvironment->GetStaticFieldID(jniActivity,  "OpenedFile",    "Ljava/lang/String;");
 	auto jniOpenFile      = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFile",      "()V");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFile);

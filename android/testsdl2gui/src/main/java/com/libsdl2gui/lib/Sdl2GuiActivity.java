@@ -2,15 +2,10 @@
 
 package com.libsdl2gui.lib;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.os.Build;
-import android.provider.MediaStore;
 import android.provider.Settings;
-import android.util.Size;
 
 import org.libsdl.app.SDLActivity;
 
@@ -50,6 +45,7 @@ public class Sdl2GuiActivity extends SDLActivity
 		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
 		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("*/*");
 
 		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FILE);
 	}
