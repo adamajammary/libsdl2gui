@@ -4,21 +4,28 @@ package com.libsdl2gui.lib;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.Manifest;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.Settings;
 
 import org.libsdl.app.SDLActivity;
 
 public class Sdl2GuiActivity extends SDLActivity
 {
-	public static final int REQUEST_CODE_OPEN_FILE   = 1000;
-	public static final int REQUEST_CODE_OPEN_FOLDER = 2000;
+	private static final int REQUEST_CODE_OPEN_FILE     = 1000;
+	private static final int REQUEST_CODE_OPEN_FOLDER   = 2000;
+	private static final int REQUEST_CODE_SAVE_FILE     = 3000;
+	private static final int REQUEST_CODE_READ_STORAGE  = 4000;
+	private static final int REQUEST_CODE_WRITE_STORAGE = 5000;
 
-	public static boolean IsOpeningFile = false;
-	public static String  OpenedFile    = null;
+	public static String  ContentPath      = null;
+	public static boolean IsPickingContent = false;
 
-	public static boolean IsOpeningFolder = false;
-	public static String  OpenedFolder    = null;
+	private static Uri contentUri = null;
 
 	public static boolean IsAutoRotate()
 	{
@@ -39,8 +46,7 @@ public class Sdl2GuiActivity extends SDLActivity
 
 	public static void OpenFile()
 	{
-		OpenedFile    = null;
-		IsOpeningFile = true;
+		IsPickingContent = true;
 
 		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
@@ -52,30 +58,63 @@ public class Sdl2GuiActivity extends SDLActivity
 
 	public static void OpenFolder()
 	{
-		OpenedFolder    = null;
-		IsOpeningFolder = true;
+		IsPickingContent = true;
 
 		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-
 		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FOLDER);
+	}
+
+	public static void SaveFile()
+	{
+		IsPickingContent = true;
+
+		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("*/*");
+
+		mSingleton.startActivityForResult(intent, REQUEST_CODE_SAVE_FILE);
+	}
+
+	private static void handleContentRequest()
+	{
+		String   docAuth    = contentUri.getAuthority();
+		String   docId      = DocumentsContract.getDocumentId(contentUri);
+		String[] docProps   = docId.split(":");
+		String   docPath    = docProps[1];
+		String   docType    = docProps[0];
+		String   docsDir    = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+		String   storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+		boolean  isHomeDocs = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
+		String   storage    = (isHomeDocs ? docsDir : storageDir);
+
+		ContentPath      = (storage + "/" + docPath);;
+		IsPickingContent = false;
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
 	{
-		switch (requestCode) {
-		case REQUEST_CODE_OPEN_FILE:
-			OpenedFile    = (resultData != null ? resultData.getData().getPath() : null);
-			IsOpeningFile = false;
-			break;
-		case REQUEST_CODE_OPEN_FOLDER:
-			OpenedFolder    = (resultData != null ? resultData.getData().getPath() : null);
-			IsOpeningFolder = false;
-			break;
-		default:
-			break;
-		}
-	}	
+		contentUri = resultData.getData();
+
+		boolean isRequestRead  = ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));
+		boolean isRequestWrite = (requestCode == REQUEST_CODE_SAVE_FILE);
+
+		if (isRequestRead && (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
+			requestPermissions(new String[] { Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestWrite && (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
+			requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, REQUEST_CODE_WRITE_STORAGE);
+		else
+			handleContentRequest();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	{
+		boolean isRequestStorage = ((requestCode == REQUEST_CODE_READ_STORAGE) || (requestCode == REQUEST_CODE_WRITE_STORAGE));
+
+		if (isRequestStorage && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED))
+			handleContentRequest();
+	}
 }

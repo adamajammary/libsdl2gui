@@ -443,18 +443,18 @@ std::vector<std::string> LSG_Window::OpenFolders()
 #elif defined _android
 std::string LSG_Window::OpenFile()
 {
-	auto jniEnvironment   = LSG_AndroidJNI::GetEnvironment();
-	auto jniActivity      = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
-	auto jniIsOpeningFile = jniEnvironment->GetStaticFieldID(jniActivity,  "IsOpeningFile", "Z");
-	auto jniOpenedFile    = jniEnvironment->GetStaticFieldID(jniActivity,  "OpenedFile",    "Ljava/lang/String;");
-	auto jniOpenFile      = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFile",      "()V");
+	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
+	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity,  "ContentPath",      "Ljava/lang/String;");
+	auto jniOpenFile         = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFile",         "()V");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFile);
 
-	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsOpeningFile))
+	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 		SDL_Delay(10);
 
-	auto openedFile   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniOpenedFile);
+	auto openedFile   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
 	auto fileUTF8     = jniEnvironment->GetStringUTFChars(openedFile, NULL);
 	auto selectedFile = std::string(fileUTF8);
 
