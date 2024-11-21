@@ -22,7 +22,7 @@ public class Sdl2GuiActivity extends SDLActivity
 	private static final int REQUEST_CODE_READ_STORAGE  = 4000;
 	private static final int REQUEST_CODE_WRITE_STORAGE = 5000;
 
-	public static String  ContentPath      = null;
+	public static String  ContentPath      = "";
 	public static boolean IsPickingContent = false;
 
 	private static Uri contentUri = null;
@@ -44,16 +44,9 @@ public class Sdl2GuiActivity extends SDLActivity
 		return (nightMask == Configuration.UI_MODE_NIGHT_YES);
 	}
 
-	public static void OpenFile()
+	public static void OpenFile(String filter)
 	{
-		IsPickingContent = true;
-
-		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.setType("*/*");
-
-		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FILE);
+		pickContentFile(filter, Intent.ACTION_OPEN_DOCUMENT, REQUEST_CODE_OPEN_FILE);
 	}
 
 	public static void OpenFolder()
@@ -65,37 +58,55 @@ public class Sdl2GuiActivity extends SDLActivity
 		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FOLDER);
 	}
 
-	public static void SaveFile()
+	public static void SaveFile(String filter)
 	{
-		IsPickingContent = true;
-
-		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.setType("*/*");
-
-		mSingleton.startActivityForResult(intent, REQUEST_CODE_SAVE_FILE);
+		pickContentFile(filter, Intent.ACTION_CREATE_DOCUMENT, REQUEST_CODE_SAVE_FILE);
 	}
 
 	private static void handleContentRequest()
 	{
-		String   docAuth    = contentUri.getAuthority();
-		String   docId      = DocumentsContract.getDocumentId(contentUri);
-		String[] docProps   = docId.split(":");
-		String   docPath    = docProps[1];
-		String   docType    = docProps[0];
-		String   docsDir    = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-		String   storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-		boolean  isHomeDocs = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
-		String   storage    = (isHomeDocs ? docsDir : storageDir);
+		String   uriPath     = contentUri.getPath();
+		boolean  isDir       = ((uriPath != null) && uriPath.startsWith("/tree/"));
+		String   docAuth     = contentUri.getAuthority();
+		String   docId       = (isDir ? DocumentsContract.getTreeDocumentId(contentUri) : DocumentsContract.getDocumentId(contentUri));
+		String[] docProps    = docId.split(":");
+		String   docPath     = (docProps.length > 1 ? ("/" + docProps[1]) : "");
+		String   docType     = (docProps.length > 0 ? docProps[0] : "");
+		String   docsDir     = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+		String   storageDir  = Environment.getExternalStorageDirectory().getAbsolutePath();
+		boolean  isHomeDocs  = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
+		String   storagePath = (isHomeDocs ? docsDir : storageDir);
 
-		ContentPath      = (storage + "/" + docPath);;
+		ContentPath      = (storagePath + docPath);
 		IsPickingContent = false;
+	}
+
+	private static void pickContentFile(String filter, String intentAction, int requestCode)
+	{
+		IsPickingContent = true;
+
+		Intent intent = new Intent(intentAction);
+
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("*/*");
+
+		String[] filters = (!filter.isEmpty() ? filter.split(" ") : new String[]{});
+
+		if (filters.length > 0)
+			intent.putExtra(Intent.EXTRA_MIME_TYPES, filters);
+
+		mSingleton.startActivityForResult(intent, requestCode);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
 	{
+		if (resultCode != RESULT_OK) {
+			ContentPath      = "";
+			IsPickingContent = false;
+			return;
+		}
+
 		contentUri = resultData.getData();
 
 		boolean isRequestRead  = ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));

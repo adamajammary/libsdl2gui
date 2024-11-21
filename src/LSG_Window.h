@@ -16,13 +16,6 @@ private:
     static SDL_Renderer* renderer;
     static SDL_Window*   window;
 
-    #if defined _windows
-        static std::vector<std::wstring> openFiles(bool allowMultipleSelection, const wchar_t* filter);
-        static std::vector<std::wstring> openFolders(bool allowMultipleSelection);
-    #elif defined _linux || defined _macosx
-        static std::vector<std::string> openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters);
-    #endif
-
 public:
     static void          Close();
     static float         GetDPI();
@@ -59,11 +52,23 @@ public:
         static std::vector<std::string> OpenFolders();
         static std::string              SaveFile(const std::vector<std::string>& filters);
     #elif defined _android
-        static std::string OpenFile();
+        static std::string OpenFile(const std::vector<std::string>& filters);
+        static std::string OpenFolder();
+        static std::string SaveFile(const std::vector<std::string>& filters);
     #endif
 
     #if defined _windows && defined _DEBUG
         static void OpenTest();
+    #endif
+
+private:
+    #if defined _windows
+        static std::vector<std::wstring> openFiles(bool allowMultipleSelection, const wchar_t* filter);
+        static std::vector<std::wstring> openFolders(bool allowMultipleSelection);
+    #elif defined _linux || defined _macosx
+        static std::vector<std::string> openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters);
+    #elif defined _android
+        static std::string pickFile(const std::vector<std::string>& filters, bool saveFile = false);
     #endif
 };
 

@@ -770,21 +770,13 @@ std::string LSG_OpenFile(const wchar_t* filter)
 
 	return filePath;
 }
-#elif defined _linux || defined _macosx
+#elif defined _android || defined _linux || defined _macosx
 std::string LSG_OpenFile(const std::vector<std::string>& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
 	return LSG_Window::OpenFile(filters);
-}
-#elif defined _android
-std::string LSG_OpenFile()
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	return LSG_Window::OpenFile();
 }
 #endif
 
@@ -819,7 +811,7 @@ std::vector<std::string> LSG_OpenFiles(const std::vector<std::string>& filters)
 }
 #endif
 
-#if defined _windows || defined _linux || defined _macosx
+#if defined _android || defined _linux || defined _macosx || defined _windows
 std::string LSG_OpenFolder()
 {
 	if (!isRunning)
@@ -839,7 +831,7 @@ std::string LSG_OpenFolder()
 }
 #endif
 
-#if defined _windows || defined _linux || defined _macosx
+#if defined _linux || defined _macosx || defined _windows
 std::vector<std::string> LSG_OpenFolders()
 {
 	if (!isRunning)
@@ -1013,7 +1005,7 @@ std::string LSG_SaveFile(const wchar_t* filter)
 
 	return filePath;
 }
-#elif defined _linux || defined _macosx
+#elif defined _android || defined _linux || defined _macosx
 std::string LSG_SaveFile(const std::vector<std::string>& filters)
 {
 	if (!isRunning)
