@@ -46,15 +46,15 @@ public:
         static std::vector<std::wstring> OpenFolders();
         static std::wstring              SaveFile(const wchar_t* filter);
     #elif defined _linux || defined _macosx
-        static std::string              OpenFile(const std::vector<std::string>& filters);
-        static std::vector<std::string> OpenFiles(const std::vector<std::string>& filters);
-        static std::string              OpenFolder();
-        static std::vector<std::string> OpenFolders();
-        static std::string              SaveFile(const std::vector<std::string>& filters);
-    #elif defined _android
-        static std::string OpenFile(const std::vector<std::string>& filters);
+        static std::string OpenFile(const LSG_Strings& filters);
+        static LSG_Strings OpenFiles(const LSG_Strings& filters);
         static std::string OpenFolder();
-        static std::string SaveFile(const std::vector<std::string>& filters);
+        static LSG_Strings OpenFolders();
+        static std::string SaveFile(const LSG_Strings& filters);
+    #elif defined _android
+        static std::string OpenFile(const LSG_Strings& filters);
+        static std::string OpenFolder();
+        static std::string SaveFile(const LSG_Strings& filters);
     #endif
 
     #if defined _windows && defined _DEBUG
@@ -66,9 +66,9 @@ private:
         static std::vector<std::wstring> openFiles(bool allowMultipleSelection, const wchar_t* filter);
         static std::vector<std::wstring> openFolders(bool allowMultipleSelection);
     #elif defined _linux || defined _macosx
-        static std::vector<std::string> openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters);
+        static LSG_Strings openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters);
     #elif defined _android
-        static std::string pickFile(const std::vector<std::string>& filters, bool saveFile = false);
+        static std::string pickFile(const LSG_Strings& filters, bool saveFile = false);
     #endif
 };
 

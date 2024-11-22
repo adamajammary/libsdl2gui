@@ -1664,30 +1664,61 @@ Exceptions
 
 ### LSG_OpenFile
 
-> Only supported on Windows, Linux and macOS.
+```cpp
+std::string LSG_OpenFile(const LSG_Strings& filters = {}); // Android, Linux and macOS
+std::string LSG_OpenFile(const wchar_t* filter = nullptr); // Windows
+```
+
+> Only supported on Android, Linux, macOS and Windows.
 
 Displays an Open File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
 
-```cpp
-std::string LSG_OpenFile();
-```
+Parameters
+
+- **filter** or **filters** Optional filter by file type
 
 Exceptions
 
 - runtime_error
 
+Android
+
+```cpp
+LSG_OpenFile({ "application/*", "audio/*", "image/*", "text/*", "video/*" });
+```
+
+Linux
+
+```cpp
+LSG_OpenFile({ "*.pdf", "*.txt" });
+```
+
+macOS
+
+```cpp
+LSG_OpenFile({ ".pdf", ".txt" });
+```
+
+Windows
+
+See [lpstrFilter](https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members) for more details.
+
+```cpp
+LSG_OpenFile(L"PDF (*.pdf)\0*.txt\0Text (*.txt)\0*.txt\0\0");
+```
+
 ### LSG_OpenFiles
 
-> Only supported on Windows, Linux and macOS.
+> Only supported on Linux, macOS and Windows.
 
 Displays an Open File dialog where you can select multiple files.
 
 Returns the selected file paths or an empty list if cancelled.
 
 ```cpp
-std::vector<std::string> LSG_OpenFiles();
+LSG_Strings LSG_OpenFiles();
 ```
 
 Exceptions
@@ -1696,7 +1727,7 @@ Exceptions
 
 ### LSG_OpenFolder
 
-> Only supported on Windows, Linux and MacOS.
+> Only supported on Android, Linux, macOS and Windows.
 
 Displays an Open Folder dialog where you can select a single folder.
 
@@ -1712,14 +1743,14 @@ Exceptions
 
 ### LSG_OpenFolders
 
-> Only supported on Windows, Linux and MacOS.
+> Only supported on Linux, macOS and Windows.
 
 Displays an Open Folder dialog where you can select multiple folders.
 
 Returns the selected folder paths or an empty list if cancelled.
 
 ```cpp
-std::vector<std::string> LSG_OpenFolders();
+LSG_Strings LSG_OpenFolders();
 ```
 
 Exceptions
@@ -1928,15 +1959,26 @@ Exceptions
 
 ### LSG_SaveFile
 
-> Only supported on Windows, Linux and MacOS.
+```cpp
+std::string LSG_SaveFile(const LSG_Strings& filters = {}); // Android, Linux and macOS
+std::string LSG_SaveFile(const wchar_t* filter = nullptr); // Windows
+```
+
+> Only supported on Android, Linux, macOS and Windows.
 
 Displays a Save File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
 
-```cpp
-std::string LSG_SaveFile();
-```
+Parameters
+
+- **filter** or **filters** Optional filter by file type
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenFile](#lsg_openfile) for examples.
 
 ### LSG_ScrollHorizontal
 

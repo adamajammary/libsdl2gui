@@ -162,7 +162,7 @@ void LSG_Window::OpenTest()
 #endif
 
 #if defined _linux
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters)
+LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
@@ -193,7 +193,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 
 	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
 
-	std::vector<std::string> filePaths;
+	LSG_Strings filePaths;
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
@@ -229,7 +229,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _macosx
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const std::vector<std::string>& filters)
+LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
 	auto panel = [NSOpenPanel openPanel];
 
@@ -255,7 +255,7 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 
 	const int MAX_FILE_PATH = 260;
 
-	std::vector<std::string> filePaths;
+	LSG_Strings filePaths;
 
 	for (id url in [panel URLs])
 	{
@@ -417,14 +417,14 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 	return LSG_Window::openFolders(true);
 }
 #elif defined _linux || defined _macosx
-std::string LSG_Window::OpenFile(const std::vector<std::string>& filters)
+std::string LSG_Window::OpenFile(const LSG_Strings& filters)
 {
 	auto files = LSG_Window::openFiles(false, false, filters);
 
 	return (!files.empty() ? files[0] : "");
 }
 
-std::vector<std::string> LSG_Window::OpenFiles(const std::vector<std::string>& filters)
+LSG_Strings LSG_Window::OpenFiles(const LSG_Strings& filters)
 {
 	return LSG_Window::openFiles(false, true, filters);
 }
@@ -436,12 +436,12 @@ std::string LSG_Window::OpenFolder()
 	return (!folders.empty() ? folders[0] : "");
 }
 
-std::vector<std::string> LSG_Window::OpenFolders()
+LSG_Strings LSG_Window::OpenFolders()
 {
 	return LSG_Window::openFiles(true, true, {});
 }
 #elif defined _android
-std::string LSG_Window::OpenFile(const std::vector<std::string>& filters)
+std::string LSG_Window::OpenFile(const LSG_Strings& filters)
 {
 	return LSG_Window::pickFile(filters);
 }
@@ -469,7 +469,7 @@ std::string LSG_Window::OpenFolder()
 	return selectedFolder;
 }
 
-std::string LSG_Window::pickFile(const std::vector<std::string>& filters, bool saveFile)
+std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 {
 	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
@@ -517,12 +517,12 @@ void LSG_Window::Render()
 }
 
 #if defined _android
-std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
+std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	return LSG_Window::pickFile(filters, true);
 }
 #elif defined _linux
-std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
+std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
@@ -573,7 +573,7 @@ std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
 	return filePath;
 }
 #elif defined _macosx
-std::string LSG_Window::SaveFile(const std::vector<std::string>& filters)
+std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	NSSavePanel* panel = [NSSavePanel savePanel];
 

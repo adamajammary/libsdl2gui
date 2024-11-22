@@ -491,12 +491,13 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
 /**
  * @brief Displays an Open File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
+ * @param filter/filters Optional filter by file type
  * @throws runtime_error
  */
 #if defined _windows
-DLLEXPORT std::string DLL LSG_OpenFile(const wchar_t* filter = nullptr); // https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members
+DLLEXPORT std::string DLL LSG_OpenFile(const wchar_t* filter = nullptr);
 #elif defined _android || defined _linux || defined _macosx
-DLLEXPORT std::string DLL LSG_OpenFile(const std::vector<std::string>& filters = {}); // https://gnome.pages.gitlab.gnome.org/gtk/gtk3/class.FileFilter.html
+DLLEXPORT std::string DLL LSG_OpenFile(const LSG_Strings& filters = {});
 #endif
 
 /**
@@ -505,9 +506,9 @@ DLLEXPORT std::string DLL LSG_OpenFile(const std::vector<std::string>& filters =
  * @throws runtime_error
  */
 #if defined _windows
-DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles(const wchar_t* filter = nullptr);
+DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const wchar_t* filter = nullptr);
 #elif defined _linux || defined _macosx
-DLLEXPORT std::vector<std::string> DLL LSG_OpenFiles(const std::vector<std::string>& filters = {});
+DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const LSG_Strings& filters = {});
 #endif
 
 /**
@@ -525,7 +526,7 @@ DLLEXPORT std::string DLL LSG_OpenFolder();
  * @throws runtime_error
  */
 #if defined _linux || defined _macosx || defined _windows
-DLLEXPORT std::vector<std::string> DLL LSG_OpenFolders();
+DLLEXPORT LSG_Strings DLL LSG_OpenFolders();
 #endif
 
 /**
@@ -610,12 +611,13 @@ DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
 /**
  * @brief Displays a Save File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
+ * @param filter/filters Optional filter by file type
  * @throws runtime_error
  */
 #if defined _windows
 DLLEXPORT std::string DLL LSG_SaveFile(const wchar_t* filter = nullptr);
 #elif defined _android || defined _linux || defined _macosx
-DLLEXPORT std::string DLL LSG_SaveFile(const std::vector<std::string>& filters = {});
+DLLEXPORT std::string DLL LSG_SaveFile(const LSG_Strings& filters = {});
 #endif
 
 /**
