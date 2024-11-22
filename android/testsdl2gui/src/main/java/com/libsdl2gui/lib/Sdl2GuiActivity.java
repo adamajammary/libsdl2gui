@@ -2,12 +2,14 @@
 
 package com.libsdl2gui.lib;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.Manifest;
+import android.Manifest.permission;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
@@ -63,6 +65,17 @@ public class Sdl2GuiActivity extends SDLActivity
 		pickContentFile(filter, Intent.ACTION_CREATE_DOCUMENT, REQUEST_CODE_SAVE_FILE);
 	}
 
+	private static void getPermission(String permission, int requestCode)
+	{
+		mSingleton.requestPermissions(new String[]{ permission }, requestCode);
+	}
+
+	private static void handleContentInvalid()
+	{
+		ContentPath      = "";
+		IsPickingContent = false;
+	}
+
 	private static void handleContentRequest()
 	{
 		String   uriPath     = contentUri.getPath();
@@ -79,6 +92,27 @@ public class Sdl2GuiActivity extends SDLActivity
 
 		ContentPath      = (storagePath + docPath);
 		IsPickingContent = false;
+	}
+
+	private static void handleContentUri()
+	{
+		ContentPath      = (contentUri.getScheme() + "://" + contentUri.getAuthority() + contentUri.getPath());
+		IsPickingContent = false;
+	}
+
+	private static boolean isMissingPermission(String permission)
+	{
+		return (mSingleton.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED);
+	}
+
+	private static boolean isRequestStorage(int requestCode)
+	{
+		return ((requestCode == REQUEST_CODE_READ_STORAGE) || (requestCode == REQUEST_CODE_WRITE_STORAGE));
+	}
+
+	private static boolean isPermissionGranted(int[] grantResults)
+	{
+		return (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED);
 	}
 
 	private static void pickContentFile(String filter, String intentAction, int requestCode)
@@ -98,24 +132,54 @@ public class Sdl2GuiActivity extends SDLActivity
 		mSingleton.startActivityForResult(intent, requestCode);
 	}
 
-	@Override
+	@SuppressLint("WrongConstant")
+    @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
 	{
 		if (resultCode != RESULT_OK) {
-			ContentPath      = "";
-			IsPickingContent = false;
+			handleContentInvalid();
 			return;
 		}
 
 		contentUri = resultData.getData();
 
+		ContentResolver contentResolver = mSingleton.getContentResolver();
+
+		int flags = (resultData.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
+
+		if (flags > 0)
+			contentResolver.takePersistableUriPermission(contentUri, flags);
+
 		boolean isRequestRead  = ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));
 		boolean isRequestWrite = (requestCode == REQUEST_CODE_SAVE_FILE);
 
-		if (isRequestRead && (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
-			requestPermissions(new String[] { Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_CODE_READ_STORAGE);
-		else if (isRequestWrite && (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
-			requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, REQUEST_CODE_WRITE_STORAGE);
+		String  mediaType = contentResolver.getType(contentUri);
+		boolean isAudio   = (mediaType != null && mediaType.startsWith("audio"));
+		boolean isImage   = (mediaType != null && mediaType.startsWith("image"));
+		boolean isVideo   = (mediaType != null && mediaType.startsWith("video"));
+
+		boolean isApi34 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+		boolean isApi33 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
+		boolean isApi30 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
+
+		if (isRequestRead && isApi34 && (isImage || isVideo) && isMissingPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED))
+			getPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && isAudio && isMissingPermission(permission.READ_MEDIA_AUDIO))
+			getPermission(permission.READ_MEDIA_AUDIO, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && isImage && isMissingPermission(permission.READ_MEDIA_IMAGES))
+			getPermission(permission.READ_MEDIA_IMAGES, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && isVideo && isMissingPermission(permission.READ_MEDIA_VIDEO))
+			getPermission(permission.READ_MEDIA_VIDEO, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && (isAudio || isImage || isVideo))
+			handleContentRequest();
+		else if (isRequestRead && isApi33)
+			handleContentUri();
+		else if (isRequestRead && isMissingPermission(permission.READ_EXTERNAL_STORAGE))
+			getPermission(permission.READ_EXTERNAL_STORAGE, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestWrite && isApi30)
+			handleContentUri();
+		else if (isRequestWrite && isMissingPermission(permission.WRITE_EXTERNAL_STORAGE))
+			getPermission(permission.WRITE_EXTERNAL_STORAGE, REQUEST_CODE_WRITE_STORAGE);
 		else
 			handleContentRequest();
 	}
@@ -123,9 +187,9 @@ public class Sdl2GuiActivity extends SDLActivity
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
-		boolean isRequestStorage = ((requestCode == REQUEST_CODE_READ_STORAGE) || (requestCode == REQUEST_CODE_WRITE_STORAGE));
-
-		if (isRequestStorage && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED))
+		if (isRequestStorage(requestCode) && isPermissionGranted(grantResults))
 			handleContentRequest();
+		else
+			handleContentInvalid();
 	}
 }
