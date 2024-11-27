@@ -14,6 +14,7 @@ public:
 
 private:
     static SDL_Renderer* renderer;
+    static SDL_SysWMinfo sysWmInfo;
     static SDL_Window*   window;
 
 public:
@@ -55,6 +56,8 @@ public:
         static std::string OpenFile(const LSG_Strings& filters);
         static std::string OpenFolder();
         static std::string SaveFile(const LSG_Strings& filters);
+    #elif defined _ios
+        static void OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback, bool allowMultipleSelection);
     #endif
 
     #if defined _windows && defined _DEBUG

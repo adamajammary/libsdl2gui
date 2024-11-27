@@ -1,7 +1,8 @@
 #include "LSG_Window.h"
 
-SDL_Renderer* LSG_Window::renderer = nullptr;
-SDL_Window*   LSG_Window::window   = nullptr;
+SDL_Renderer* LSG_Window::renderer  = nullptr;
+SDL_SysWMinfo LSG_Window::sysWmInfo = {};
+SDL_Window*   LSG_Window::window    = nullptr;
 
 void LSG_Window::Close()
 {
@@ -131,6 +132,9 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 	#endif
 
 	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Window::MinSize, LSG_Window::MinSize);
+
+    SDL_VERSION(&LSG_Window::sysWmInfo.version);
+    SDL_GetWindowWMInfo(LSG_Window::window, &LSG_Window::sysWmInfo);
 
 	LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -499,6 +503,53 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	jniEnvironment->DeleteLocalRef(jniActivity);
 
 	return selectedFile;
+}
+#elif defined _ios
+@interface MyPhotoPicker : UIViewController<PHPickerViewControllerDelegate>
+@property std::function<void(NSArray<PHPickerResult*>*)> resultsCallback;
+@end
+
+@implementation MyPhotoPicker
+- (void)picker: (PHPickerViewController*)picker didFinishPicking: (NSArray<PHPickerResult*>*)results
+{
+	[picker dismissViewControllerAnimated: true completion: nil];
+
+	self.resultsCallback(results);
+}
+@end
+
+void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* results)> resultsCallback, bool allowMultipleSelection)
+{
+    auto authStatus = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
+
+    if (authStatus == PHAuthorizationStatusNotDetermined)
+    {
+        [PHPhotoLibrary requestAuthorizationForAccessLevel: PHAccessLevelReadWrite handler: ^(PHAuthorizationStatus status) {}];
+
+        do {
+            SDL_Delay(10);
+            authStatus = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
+        } while (authStatus == PHAuthorizationStatusNotDetermined);
+
+        if ((authStatus != PHAuthorizationStatusAuthorized) && (authStatus != PHAuthorizationStatusLimited))
+            resultsCallback({});
+    }
+
+    auto photoPicker = [[MyPhotoPicker alloc] init];
+
+    photoPicker.resultsCallback = resultsCallback;
+
+    auto pickerConfig = [[PHPickerConfiguration alloc] initWithPhotoLibrary: [PHPhotoLibrary sharedPhotoLibrary]];
+
+    pickerConfig.selectionLimit = (allowMultipleSelection ? 0 : 1);
+
+    auto picker = [[PHPickerViewController alloc] initWithConfiguration: pickerConfig];
+
+    picker.delegate = photoPicker;
+    
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
 }
 #endif
 

@@ -19,8 +19,13 @@
     #endif
 #endif
 
+#include <functional>
 #include <string>
 #include <vector>
+
+#if defined _ios
+    #include <PhotosUI/PhotosUI.h> // PHPickerResult, PHPickerViewController
+#endif
 
 #ifndef LIB_SDL2_H
 #define LIB_SDL2_H
@@ -509,6 +514,24 @@ DLLEXPORT std::string DLL LSG_OpenFile(const LSG_Strings& filters = {});
 DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const wchar_t* filter = nullptr);
 #elif defined _linux || defined _macosx
 DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const LSG_Strings& filters = {});
+#endif
+
+/**
+ * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
+ * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenFilePhoto(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
+#endif
+
+/**
+ * @brief Displays asynchronously an Open Photo dialog where you can select multiple image files.
+ * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
 #endif
 
 /**

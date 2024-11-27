@@ -42,6 +42,12 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires Apple Photo library to access image files.</string>
+
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
+
 	<key>NSHumanReadableCopyright</key>
 	<string>${MACOSX_BUNDLE_COPYRIGHT}</string>
 

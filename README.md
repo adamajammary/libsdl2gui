@@ -1725,6 +1725,58 @@ Exceptions
 
 - runtime_error
 
+### LSG_OpenFilePhoto
+
+```cpp
+void LSG_OpenFilePhoto(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Photo dialog where you can select a single image file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+iOS
+
+See [PHPickerResult](https://developer.apple.com/documentation/photokit/phpickerresult?language=objc), [NSItemProvider](https://developer.apple.com/documentation/foundation/nsitemprovider?language=objc) and [Fetching Assets](https://developer.apple.com/documentation/photokit/phasset/fetching_assets?language=objc) for more details.
+
+```cpp
+
+LSG_OpenFilePhoto([](NSArray<PHPickerResult*>* results) -> void {
+  for (PHPickerResult* result in results) {
+    NSString*       localIdentifier = [result assetIdentifier];
+    NSItemProvider* provider        = [result itemProvider];
+  }
+});
+```
+
+### LSG_OpenFilePhotos
+
+```cpp
+void LSG_OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Photo dialog where you can select multiple image files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenFilePhoto](#lsg_openfilephoto) for examples.
+
 ### LSG_OpenFolder
 
 > Only supported on Android, Linux, macOS and Windows.
