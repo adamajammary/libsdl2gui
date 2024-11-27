@@ -111,14 +111,14 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
 -D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_OSX_ARCHITECTURES="arm64" \
--D CMAKE_OSX_DEPLOYMENT_TARGET="12.5" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="14.0" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
 -D CMAKE_SYSTEM_NAME="iOS" \
 -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
 -D EXT_LIB_DIR="/path/to/libs" \
 -D IOS_SDK="iphoneos"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="12.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="14.0" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
 ```
 
 #### Xcode - Devices
