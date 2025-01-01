@@ -67,6 +67,7 @@ Make sure the correct Android SDK path is set as either
 ```bash
 cmake .. -G "Unix Makefiles" \
 -D ANDROID_ABI="arm64-v8a" \
+-D ANDROID_HOME="/path/to/ANDROID_SDK" \
 -D ANDROID_NDK="/path/to/ANDROID_NDK" \
 -D ANDROID_PLATFORM="android-29" \
 -D CMAKE_BUILD_TYPE=Release \
