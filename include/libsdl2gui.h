@@ -24,7 +24,8 @@
 #include <vector>
 
 #if defined _ios
-    #include <PhotosUI/PhotosUI.h> // PHPickerResult, PHPickerViewController
+    #include <MediaPlayer/MediaPlayer.h> // MPMediaItem, MPMediaPickerController
+    #include <PhotosUI/PhotosUI.h>       // PHPickerResult, PHPickerViewController
 #endif
 
 #ifndef LIB_SDL2_H
@@ -517,24 +518,6 @@ DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const LSG_Strings& filters = {});
 #endif
 
 /**
- * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
- * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
- * @throws runtime_error
- */
-#if defined _ios
-DLLEXPORT void DLL LSG_OpenFilePhoto(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
-#endif
-
-/**
- * @brief Displays asynchronously an Open Photo dialog where you can select multiple image files.
- * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
- * @throws runtime_error
- */
-#if defined _ios
-DLLEXPORT void DLL LSG_OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
-#endif
-
-/**
  * @brief Displays an Open Folder dialog where you can select a single folder.
  * @returns the selected folder path or an empty string if cancelled
  * @throws runtime_error
@@ -550,6 +533,42 @@ DLLEXPORT std::string DLL LSG_OpenFolder();
  */
 #if defined _linux || defined _macosx || defined _windows
 DLLEXPORT LSG_Strings DLL LSG_OpenFolders();
+#endif
+
+/**
+ * @brief Displays asynchronously an Open Music dialog where you can select a single media file.
+ * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback);
+#endif
+
+/**
+ * @brief Displays asynchronously an Open Music dialog where you can select multiple media files.
+ * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback);
+#endif
+
+/**
+ * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
+ * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
+#endif
+
+/**
+ * @brief Displays asynchronously an Open Photo dialog where you can select multiple image files.
+ * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
 #endif
 
 /**

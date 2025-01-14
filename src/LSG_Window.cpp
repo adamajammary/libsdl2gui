@@ -505,6 +505,26 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	return selectedFile;
 }
 #elif defined _ios
+@interface MyMediaPicker : UIViewController<MPMediaPickerControllerDelegate>
+@property std::function<void(NSArray<MPMediaItem*>*)> resultsCallback;
+@end
+
+@implementation MyMediaPicker
+- (void)mediaPicker: (MPMediaPickerController*)picker didPickMediaItems: (MPMediaItemCollection*)itemCollection
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback(itemCollection.items);
+}
+
+- (void)mediaPickerDidCancel: (MPMediaPickerController*)picker
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback([NSArray array]);
+}
+@end
+
 @interface MyPhotoPicker : UIViewController<PHPickerViewControllerDelegate>
 @property std::function<void(NSArray<PHPickerResult*>*)> resultsCallback;
 @end
@@ -518,6 +538,40 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 }
 @end
 
+void LSG_Window::OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback, bool allowMultipleSelection)
+{
+    auto authStatus = [SKCloudServiceController authorizationStatus];
+    
+    if (authStatus == SKCloudServiceAuthorizationStatusNotDetermined)
+    {
+        [SKCloudServiceController requestAuthorization: ^(SKCloudServiceAuthorizationStatus status) {}];
+
+        do {
+            SDL_Delay(10);
+            authStatus = [SKCloudServiceController authorizationStatus];
+        } while (authStatus == SKCloudServiceAuthorizationStatusNotDetermined);
+    }
+
+    if ((authStatus != SKCloudServiceAuthorizationStatusAuthorized) && (authStatus != SKCloudServiceAuthorizationStatusRestricted)) {
+        resultsCallback([NSArray array]);
+        return;
+    }
+
+    auto mediaPicker = [[MyMediaPicker alloc] init];
+
+    mediaPicker.resultsCallback = resultsCallback;
+
+    auto picker = [[MPMediaPickerController alloc] init];
+
+    picker.allowsPickingMultipleItems = (allowMultipleSelection ? YES : NO);
+
+    picker.delegate = mediaPicker;
+
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
+}
+
 void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* results)> resultsCallback, bool allowMultipleSelection)
 {
     auto authStatus = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
@@ -530,9 +584,11 @@ void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* res
             SDL_Delay(10);
             authStatus = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
         } while (authStatus == PHAuthorizationStatusNotDetermined);
+    }
 
-        if ((authStatus != PHAuthorizationStatusAuthorized) && (authStatus != PHAuthorizationStatusLimited))
-            resultsCallback({});
+    if ((authStatus != PHAuthorizationStatusAuthorized) && (authStatus != PHAuthorizationStatusLimited)) {
+        resultsCallback([NSArray array]);
+        return;
     }
 
     auto photoPicker = [[MyPhotoPicker alloc] init];

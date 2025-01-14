@@ -82,7 +82,7 @@ elseif (IOS)
 
     set(LIBS ${LIBS} "-lfreetype")
 
-    set(OS_LIBS      "-framework Photos" "-framework PhotosUI" "-framework UIKit")
+    set(OS_LIBS      "-framework MediaPlayer" "-framework Photos" "-framework PhotosUI" "-framework StoreKit" "-framework UIKit")
     set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")

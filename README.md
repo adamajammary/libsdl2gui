@@ -22,6 +22,10 @@ Platform | Header | Package
 -------- | ------ | -------
 Android | android/asset_manager_jni.h | [Android NDK](https://developer.android.com/ndk/downloads)
 Android | sys/stat.h | [Android NDK](https://developer.android.com/ndk/downloads)
+iOS | MediaPlayer/MediaPlayer.h | Media Player Framework
+iOS | Photos/Photos.h | Photos Framework
+iOS | PhotosUI/PhotosUI.h | PhotosUI Kit Framework
+iOS | StoreKit/StoreKit.h | StoreKit Framework
 iOS | UIKit/UIKit.h | UIKit Framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
@@ -1726,58 +1730,6 @@ Exceptions
 
 - runtime_error
 
-### LSG_OpenFilePhoto
-
-```cpp
-void LSG_OpenFilePhoto(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
-```
-
-> Only supported on iOS.
-
-Displays asynchronously an Open Photo dialog where you can select a single image file.
-
-Parameters
-
-- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
-
-Exceptions
-
-- runtime_error
-
-iOS
-
-See [PHPickerResult](https://developer.apple.com/documentation/photokit/phpickerresult?language=objc), [NSItemProvider](https://developer.apple.com/documentation/foundation/nsitemprovider?language=objc) and [Fetching Assets](https://developer.apple.com/documentation/photokit/phasset/fetching_assets?language=objc) for more details.
-
-```cpp
-
-LSG_OpenFilePhoto([](NSArray<PHPickerResult*>* results) -> void {
-  for (PHPickerResult* result in results) {
-    NSString*       localIdentifier = [result assetIdentifier];
-    NSItemProvider* provider        = [result itemProvider];
-  }
-});
-```
-
-### LSG_OpenFilePhotos
-
-```cpp
-void LSG_OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
-```
-
-> Only supported on iOS.
-
-Displays asynchronously an Open Photo dialog where you can select multiple image files.
-
-Parameters
-
-- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
-
-Exceptions
-
-- runtime_error
-
-See [LSG_OpenFilePhoto](#lsg_openfilephoto) for examples.
-
 ### LSG_OpenFolder
 
 > Only supported on Android, Linux, macOS and Windows.
@@ -1809,6 +1761,108 @@ LSG_Strings LSG_OpenFolders();
 Exceptions
 
 - runtime_error
+
+### LSG_OpenMediaFile
+
+```cpp
+void LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Music dialog where you can select a single media file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+iOS
+
+See [MPMediaItem](https://developer.apple.com/documentation/mediaplayer/mpmediaitem?language=objc), [valueForProperty:](https://developer.apple.com/documentation/mediaplayer/mpmediaentity/value(forproperty:)?language=objc) and [General media item property keys](https://developer.apple.com/documentation/mediaplayer/general-media-item-property-keys?language=objc) for more details.
+
+```cpp
+LSG_OpenMediaFile([](NSArray<MPMediaItem*>* items) -> void {
+  for (MPMediaItem* item in items) {
+    NSString* title = [item valueForProperty: MPMediaItemPropertyTitle];
+    NSURL*    url   = [item valueForProperty: MPMediaItemPropertyAssetURL];
+  }
+});
+```
+
+### LSG_OpenMediaFiles
+
+```cpp
+void LSG_OpenMediaFiles(std::function<void(NSArray<<MPMediaItem*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Music dialog where you can select multiple media files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenMediaFile](#lsg_openmediafile) for examples.
+
+### LSG_OpenPhotoFile
+
+```cpp
+void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Photo dialog where you can select a single image file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+iOS
+
+See [PHPickerResult](https://developer.apple.com/documentation/photokit/phpickerresult?language=objc), [NSItemProvider](https://developer.apple.com/documentation/foundation/nsitemprovider?language=objc) and [Fetching Assets](https://developer.apple.com/documentation/photokit/phasset/fetching_assets?language=objc) for more details.
+
+```cpp
+LSG_OpenPhotoFile([](NSArray<PHPickerResult*>* results) -> void {
+  for (PHPickerResult* result in results) {
+    NSString*       localIdentifier = [result assetIdentifier];
+    NSItemProvider* provider        = [result itemProvider];
+  }
+});
+```
+
+### LSG_OpenPhotoFiles
+
+```cpp
+void LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Photo dialog where you can select multiple image files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenPhotoFile](#lsg_openphotofile) for examples.
 
 ### LSG_Present
 

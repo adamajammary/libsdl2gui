@@ -15,8 +15,9 @@
 	#include <android/asset_manager_jni.h> // AAsset*, JNI*, j*
 	#include <sys/stat.h>                  // mkdir(x)
 #elif defined _ios
-    #include <Photos/Photos.h> // PHPhotoLibrary
-    #include <UIKit/UIKit.h>   // UIScreen, UIUserInterfaceStyle*
+    #include <Photos/Photos.h>     // PHPhotoLibrary
+    #include <StoreKit/StoreKit.h> // SKCloudServiceController
+    #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
 #elif defined _linux
 	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
 #elif defined _macosx

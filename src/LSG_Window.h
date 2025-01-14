@@ -57,6 +57,7 @@ public:
         static std::string OpenFolder();
         static std::string SaveFile(const LSG_Strings& filters);
     #elif defined _ios
+        static void OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback, bool allowMultipleSelection);
         static void OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback, bool allowMultipleSelection);
     #endif
 
