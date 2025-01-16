@@ -18,11 +18,12 @@
     #include <Photos/Photos.h>     // PHPhotoLibrary
     #include <StoreKit/StoreKit.h> // SKCloudServiceController
     #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
+    #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _linux
 	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
 #elif defined _macosx
-	#include <AppKit/AppKit.h>                                 // NSApp, NSAppearanceName*, NSOpenPanel
-	#include <Foundation/Foundation.h>                         // NSString, NSUserDefaults
+	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
+	#include <Foundation/Foundation.h> // NSString, NSUserDefaults
 	#include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _windows
 	#include <shobjidl_core.h> // GetOpenFileNameW(x), IFileOpenDialog

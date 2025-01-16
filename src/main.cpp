@@ -859,6 +859,36 @@ LSG_Strings LSG_OpenFolders()
 #endif
 
 #if defined _ios
+void LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback)
+{
+    if (!isRunning)
+        throw std::runtime_error(ERROR_NOT_STARTED);
+
+    LSG_Window::OpenFileDocuments(resultsCallback, false);
+}
+#endif
+
+#if defined _ios
+void LSG_OpenFiles(std::function<void(NSArray<NSURL*>*)> resultsCallback)
+{
+    if (!isRunning)
+        throw std::runtime_error(ERROR_NOT_STARTED);
+
+    LSG_Window::OpenFileDocuments(resultsCallback, true);
+}
+#endif
+
+#if defined _ios
+void LSG_OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback)
+{
+    if (!isRunning)
+        throw std::runtime_error(ERROR_NOT_STARTED);
+
+    LSG_Window::OpenFolder(resultsCallback);
+}
+#endif
+
+#if defined _ios
 void LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback)
 {
     if (!isRunning)

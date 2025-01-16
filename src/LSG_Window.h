@@ -57,8 +57,10 @@ public:
         static std::string OpenFolder();
         static std::string SaveFile(const LSG_Strings& filters);
     #elif defined _ios
+        static void OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> resultsCallback, bool allowMultipleSelection);
         static void OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback, bool allowMultipleSelection);
         static void OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback, bool allowMultipleSelection);
+        static void OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback);
     #endif
 
     #if defined _windows && defined _DEBUG

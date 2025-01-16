@@ -27,8 +27,10 @@ iOS | Photos/Photos.h | Photos Framework
 iOS | PhotosUI/PhotosUI.h | PhotosUI Kit Framework
 iOS | StoreKit/StoreKit.h | StoreKit Framework
 iOS | UIKit/UIKit.h | UIKit Framework
+iOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
+macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
 Windows | shobjidl_core.h | Win32 API
 Windows | windows.h | WinMain
 
@@ -116,14 +118,14 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
 -D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_OSX_ARCHITECTURES="arm64" \
--D CMAKE_OSX_DEPLOYMENT_TARGET="12.5" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="14.0" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
 -D CMAKE_SYSTEM_NAME="iOS" \
 -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
 -D EXT_LIB_DIR="/path/to/libs" \
 -D IOS_SDK="iphoneos"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="12.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="14.0" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
 ```
 
 #### Xcode - Devices
@@ -1716,21 +1718,27 @@ LSG_OpenFile(L"PDF (*.pdf)\0*.txt\0Text (*.txt)\0*.txt\0\0");
 
 ### LSG_OpenFiles
 
+```cpp
+LSG_Strings LSG_OpenFiles();
+```
+
 > Only supported on Linux, macOS and Windows.
 
 Displays an Open File dialog where you can select multiple files.
 
 Returns the selected file paths or an empty list if cancelled.
 
-```cpp
-LSG_Strings LSG_OpenFiles();
-```
-
 Exceptions
 
 - runtime_error
 
+See [LSG_OpenFile](#lsg_openfile) for examples.
+
 ### LSG_OpenFolder
+
+```cpp
+std::string LSG_OpenFolder();
+```
 
 > Only supported on Android, Linux, macOS and Windows.
 
@@ -1738,15 +1746,15 @@ Displays an Open Folder dialog where you can select a single folder.
 
 Returns the selected folder path or an empty string if cancelled.
 
-```cpp
-std::string LSG_OpenFolder();
-```
-
 Exceptions
 
 - runtime_error
 
 ### LSG_OpenFolders
+
+```cpp
+LSG_Strings LSG_OpenFolders();
+```
 
 > Only supported on Linux, macOS and Windows.
 
@@ -1754,13 +1762,109 @@ Displays an Open Folder dialog where you can select multiple folders.
 
 Returns the selected folder paths or an empty list if cancelled.
 
+Exceptions
+
+- runtime_error
+
+### LSG_OpenFile (iOS)
+
 ```cpp
-LSG_Strings LSG_OpenFolders();
+void LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback); // iOS
 ```
+
+> Only supported on iOS.
+
+ Displays asynchronously a Document Picker dialog where you can select a single item file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
 
 Exceptions
 
 - runtime_error
+
+iOS
+
+See [Accessing items outside the app's sandbox](https://developer.apple.com/documentation/uikit/providing-access-to-directories?language=objc) for more details.
+
+```cpp
+LSG_OpenFile([](NSArray<NSURL*>* urls) -> void {
+  for (NSURL* url in urls) {
+    if (![url startAccessingSecurityScopedResource])
+      continue;
+
+    NSData* bookmarkData = [url bookmarkDataWithOptions: NSURLBookmarkCreationMinimalBookmark includingResourceValuesForKeys: nil relativeToURL: nil error: nil];
+
+    // TODO: save bookmark data for future access
+
+    [url stopAccessingSecurityScopedResource];
+  }
+});
+```
+
+### LSG_OpenFiles (iOS)
+
+```cpp
+void LSG_OpenFiles(std::function<void(NSArray<<NSURL*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously a Document Picker dialog where you can select multiple item files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenFile (iOS)](#lsg_openfile-ios) for examples.
+
+### LSG_OpenFolder (iOS)
+
+```cpp
+void LSG_OpenFolder(std::function<void(NSArray<<NSURL*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously a Document Picker dialog where you can select a single folder.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected folder, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [Accessing directory content outside the app's sandbox](https://developer.apple.com/documentation/uikit/providing-access-to-directories?language=objc) for more details.
+
+```cpp
+LSG_OpenFolder([](NSArray<NSURL*>* urls) -> void {
+  for (NSURL* url in urls) {
+    if (![url startAccessingSecurityScopedResource])
+      continue;
+
+    NSData* folderBookmarkData = [url bookmarkDataWithOptions: NSURLBookmarkCreationMinimalBookmark includingResourceValuesForKeys: nil relativeToURL: nil error: nil];
+
+    // TODO: save bookmark data for future folder access
+
+    NSArray<NSURL*>* files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL: url includingPropertiesForKeys: nil options: NSDirectoryEnumerationSkipsHiddenFiles error: nil];
+
+    for (NSURL* file in files) {
+      NSData* fileBookmarkData = [file bookmarkDataWithOptions: NSURLBookmarkCreationMinimalBookmark includingResourceValuesForKeys: nil relativeToURL: nil error: nil];
+
+      // TODO: save bookmark data for future file access
+    }
+
+    [url stopAccessingSecurityScopedResource];
+  }
+});
+```
 
 ### LSG_OpenMediaFile
 

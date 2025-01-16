@@ -505,6 +505,26 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	return selectedFile;
 }
 #elif defined _ios
+@interface MyDocumentPicker : UIViewController<UIDocumentPickerDelegate>
+@property std::function<void(NSArray<NSURL*>*)> resultsCallback;
+@end
+
+@implementation MyDocumentPicker
+- (void)documentPicker: (UIDocumentPickerViewController*)picker didPickDocumentsAtURLs: (NSArray<NSURL*>*)urls
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback(urls);
+}
+
+- (void)documentPickerWasCancelled: (UIDocumentPickerViewController*)picker
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback([NSArray array]);
+}
+@end
+
 @interface MyMediaPicker : UIViewController<MPMediaPickerControllerDelegate>
 @property std::function<void(NSArray<MPMediaItem*>*)> resultsCallback;
 @end
@@ -537,6 +557,23 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	self.resultsCallback(results);
 }
 @end
+
+void LSG_Window::OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> resultsCallback, bool allowMultipleSelection)
+{
+    auto documentPicker = [[MyDocumentPicker alloc] init];
+
+    documentPicker.resultsCallback = resultsCallback;
+
+    auto picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes: [NSArray arrayWithObject: UTTypeItem]];
+
+    picker.allowsMultipleSelection = (allowMultipleSelection ? YES : NO);
+
+    picker.delegate = documentPicker;
+
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
+}
 
 void LSG_Window::OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback, bool allowMultipleSelection)
 {
@@ -603,6 +640,21 @@ void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* res
 
     picker.delegate = photoPicker;
     
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
+}
+
+void LSG_Window::OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback)
+{
+    auto documentPicker = [[MyDocumentPicker alloc] init];
+
+    documentPicker.resultsCallback = resultsCallback;
+
+    auto picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes: [NSArray arrayWithObject: UTTypeFolder]];
+
+    picker.delegate = documentPicker;
+
     auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];

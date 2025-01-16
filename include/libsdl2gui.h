@@ -536,6 +536,33 @@ DLLEXPORT LSG_Strings DLL LSG_OpenFolders();
 #endif
 
 /**
+ * @brief Displays asynchronously a Document Picker dialog where you can select a single item file.
+ * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback);
+#endif
+
+/**
+ * @brief Displays asynchronously a Document Picker dialog where you can select multiple item files.
+ * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenFiles(std::function<void(NSArray<NSURL*>*)> resultsCallback);
+#endif
+
+/**
+ * @brief Displays asynchronously a Document Picker dialog where you can select a single folder.
+ * @param resultsCallback Callback function with an array containing the selected folder, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+#if defined _ios
+DLLEXPORT void DLL LSG_OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback);
+#endif
+
+/**
  * @brief Displays asynchronously an Open Music dialog where you can select a single media file.
  * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
  * @throws runtime_error
