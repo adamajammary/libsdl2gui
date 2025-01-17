@@ -495,6 +495,9 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 
 		if (scrollableParent)
 			static_cast<LSG_Panel*>(scrollableParent)->OnScrollMouseUp();
+
+		if (LSG_Events::isColumnResize && isDoubleClick)
+			LSG_Events::sendEvent(LSG_EVENT_TABLE_COLUMN_RESIZED, LSG_Events::lastComponent->GetID());
 	}
 
 	if (!textInput && LSG_Events::textInput && !isDoubleClick)
