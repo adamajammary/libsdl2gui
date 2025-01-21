@@ -78,7 +78,7 @@ bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 
 	if (this->isPaginationClicked(mousePosition))
 	{
-		if (this->isPageArrowClicked(mousePosition)) {
+		if (this->isPageArrowClicked(mousePosition, this->id)) {
 			this->Update();
 			this->SelectFirstRow();
 		}
@@ -515,7 +515,7 @@ void LSG_List::setItems(bool sort)
 
 void LSG_List::SetPage(int page)
 {
-	if (!this->navigate(page))
+	if (!this->navigate(page, this->id))
 		return;
 
 	this->reset();

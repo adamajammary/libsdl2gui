@@ -54,9 +54,9 @@ protected:
 	int  getLastRow();
 	void initPagination(const SDL_Rect& background, const SDL_Color& backgroundColor);
 	bool isEmpty();
-	bool isPageArrowClicked(const SDL_Point& mousePosition);
+	bool isPageArrowClicked(const SDL_Point& mousePosition, const std::string& id);
 	bool isPaginationClicked(const SDL_Point& mousePosition);
-	bool navigate(int page);
+	bool navigate(int page, const std::string& id);
 	void renderPagination(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Color& backgroundColor);
 	bool showPagination();
 

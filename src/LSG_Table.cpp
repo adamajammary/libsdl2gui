@@ -209,7 +209,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 
 	if (this->isPaginationClicked(mousePosition))
 	{
-		if (this->isPageArrowClicked(mousePosition)) {
+		if (this->isPageArrowClicked(mousePosition, this->id)) {
 			this->Update();
 			this->SelectFirstRow();
 		}

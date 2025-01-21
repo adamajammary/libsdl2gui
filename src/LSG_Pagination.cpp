@@ -323,16 +323,16 @@ bool LSG_Pagination::isEmpty()
 	return (this->items.empty() && this->groups.empty() && this->rows.empty());
 }
 
-bool LSG_Pagination::isPageArrowClicked(const SDL_Point& mousePosition)
+bool LSG_Pagination::isPageArrowClicked(const SDL_Point& mousePosition, const std::string& id)
 {
 	if (SDL_PointInRect(&mousePosition, &this->arrowHome))
-		return this->navigate(0);
+		return this->navigate(0, id);
 	else if (SDL_PointInRect(&mousePosition, &this->arrowPrev))
-		return this->navigate(std::max(0, this->page - 1));
+		return this->navigate(std::max(0, this->page - 1), id);
 	else if (SDL_PointInRect(&mousePosition, &this->arrowNext))
-		return this->navigate(std::min(this->GetLastPage(), this->page + 1));
+		return this->navigate(std::min(this->GetLastPage(), this->page + 1), id);
 	else if (SDL_PointInRect(&mousePosition, &this->arrowEnd))
-		return this->navigate(this->GetLastPage());
+		return this->navigate(this->GetLastPage(), id);
 
 	return false;
 }
@@ -342,12 +342,20 @@ bool LSG_Pagination::isPaginationClicked(const SDL_Point& mousePosition)
 	return (this->showPagination() && SDL_PointInRect(&mousePosition, &this->pagination));
 }
 
-bool LSG_Pagination::navigate(int page)
+bool LSG_Pagination::navigate(int page, const std::string& id)
 {
 	if (page == this->page)
 		return false;
 
 	this->page = page;
+
+	SDL_Event pageEvent = {};
+
+	pageEvent.type       = SDL_RegisterEvents(1);
+	pageEvent.user.code  = (int)LSG_EVENT_PAGE_NAVIGATED;
+	pageEvent.user.data1 = (void*)strdup(id.c_str());
+
+	SDL_PushEvent(&pageEvent);
 
 	return true;
 }
