@@ -498,23 +498,20 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
 /**
  * @brief Displays an Open File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
- * @param filter/filters Optional filter by file type
+ * @param filters Optional filter by file type
  * @throws runtime_error
  */
-#if defined _windows
-DLLEXPORT std::string DLL LSG_OpenFile(const wchar_t* filter = nullptr);
-#elif defined _android || defined _linux || defined _macosx
+#if defined _android || defined _linux || defined _macosx || defined _windows
 DLLEXPORT std::string DLL LSG_OpenFile(const LSG_Strings& filters = {});
 #endif
 
 /**
  * @brief Displays an Open File dialog where you can select multiple files.
  * @returns the selected file paths or an empty list if cancelled
+ * @param filters Optional filter by file type
  * @throws runtime_error
  */
-#if defined _windows
-DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const wchar_t* filter = nullptr);
-#elif defined _linux || defined _macosx
+#if defined _linux || defined _macosx || _windows
 DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const LSG_Strings& filters = {});
 #endif
 
@@ -681,12 +678,10 @@ DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
 /**
  * @brief Displays a Save File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
- * @param filter/filters Optional filter by file type
+ * @param filters Optional filter by file type
  * @throws runtime_error
  */
-#if defined _windows
-DLLEXPORT std::string DLL LSG_SaveFile(const wchar_t* filter = nullptr);
-#elif defined _android || defined _linux || defined _macosx
+#if defined _android || defined _linux || defined _macosx || defined _windows
 DLLEXPORT std::string DLL LSG_SaveFile(const LSG_Strings& filters = {});
 #endif
 

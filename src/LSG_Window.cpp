@@ -27,6 +27,24 @@ float LSG_Window::GetDPI()
 	return dpi;
 }
 
+#if defined _windows
+std::vector<std::wstring> LSG_Window::getFiltersWide(const LSG_Strings& filters)
+{
+	std::vector<std::wstring> filtersWide;
+
+	for (const auto& filter : filters)
+	{
+		auto filterWide = (wchar_t*)SDL_iconv_string("WCHAR_T", "UTF-8", filter.c_str(), (filter.size() + 1));
+
+		filtersWide.push_back(std::wstring(filterWide));
+
+		SDL_free(filterWide);
+	}
+
+	return filtersWide;
+}
+#endif
+
 SDL_Size LSG_Window::GetMinimumSize()
 {
 	SDL_Size size = {};
@@ -285,86 +303,94 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 	return filePaths;
 }
 #elif defined _windows
-std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, const wchar_t* filter)
+std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, const LSG_Strings& filters)
 {
-	const int MAX_FILE_PATH = 2048;
+	IFileOpenDialog* browseDialog = nullptr;
 
-	OPENFILENAMEW browseDialog                = {};
-	wchar_t       selectedPath[MAX_FILE_PATH] = {};
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
 
-	// https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
-
-	browseDialog.lStructSize  = sizeof(browseDialog);
-	browseDialog.lpstrFile    = selectedPath;
-	browseDialog.lpstrFile[0] = '\0';
-	browseDialog.nMaxFile     = sizeof(selectedPath);
-	browseDialog.Flags        = (OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
-	browseDialog.nFilterIndex = 1;
-
-	if (allowMultipleSelection)
-		browseDialog.Flags |= OFN_ALLOWMULTISELECT;
-
-	if (filter && (std::wcslen(filter) > 0))
-		browseDialog.lpstrFilter = filter;
-	else
-		browseDialog.lpstrFilter = L"All Files (*)\0*.*\0\0";
-
-	if (!GetOpenFileNameW(&browseDialog))
+	if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&browseDialog))) || !browseDialog)
 		return {};
 
-	std::wstring directory = L"";
+	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
 
-	for (int i = 0; i < browseDialog.nFileOffset - 1; i++)
-		directory.push_back(selectedPath[i]);
+	auto options = (FOS_DONTADDTORECENT | FOS_FILEMUSTEXIST | FOS_NOCHANGEDIR | FOS_NODEREFERENCELINKS);
+
+	if (allowMultipleSelection)
+		options |= FOS_ALLOWMULTISELECT;
+
+	browseDialog->SetOptions(options);
+
+	std::vector<COMDLG_FILTERSPEC> filterSpecs;
+
+	auto filtersWide = LSG_Window::getFiltersWide(filters);
+
+	for (const auto& filterType : filtersWide)
+		filterSpecs.push_back({ .pszName = filterType.c_str(), .pszSpec = filterType.c_str() });
+
+	if (!filterSpecs.empty())
+		browseDialog->SetFileTypes(filterSpecs.size(), filterSpecs.data());
 
 	std::vector<std::wstring> filePaths;
 
-	std::wstring filePath = L"";
+	IShellItemArray* shellItems     = nullptr;
+	DWORD            shellItemCount = 0;
 
-	for (int i = browseDialog.nFileOffset; i < MAX_FILE_PATH; i++)
+	if (SUCCEEDED(browseDialog->Show(nullptr)) && SUCCEEDED(browseDialog->GetResults(&shellItems)) && SUCCEEDED(shellItems->GetCount(&shellItemCount)))
 	{
-		if (selectedPath[i] != '\0') {
-			filePath.push_back(selectedPath[i]);
-			continue;
+		for (DWORD i = 0; i < shellItemCount; i++)
+		{
+			IShellItem* shellItem = nullptr;
+
+			if (FAILED(shellItems->GetItemAt(i, &shellItem)))
+				continue;
+
+			LPWSTR selectedPath = nullptr;
+
+			if (SUCCEEDED(shellItem->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &selectedPath)) && selectedPath)
+				filePaths.push_back(std::wstring(selectedPath));
+
+			if (selectedPath)
+				CoTaskMemFree(selectedPath);
+
+			if (shellItem)
+				shellItem->Release();
 		}
-
-		if (filePath.empty())
-			break;
-
-		if (directory.ends_with('\\'))
-			filePaths.push_back(LSG_Text::FormatW(L"%s%s", directory.c_str(), filePath.c_str()));
-		else
-			filePaths.push_back(LSG_Text::FormatW(L"%s\\%s", directory.c_str(), filePath.c_str()));
-
-		filePath.clear();
 	}
+
+	if (shellItems)
+		shellItems->Release();
+
+	if (browseDialog)
+		browseDialog->Release();
 
 	return filePaths;
 }
 #endif
 
 #if defined _windows
-std::wstring LSG_Window::OpenFile(const wchar_t* filter)
+std::wstring LSG_Window::OpenFile(const LSG_Strings& filters)
 {
-	auto files = LSG_Window::openFiles(false, filter);
+	auto files = LSG_Window::openFiles(false, filters);
 
 	return (!files.empty() ? files[0] : L"");
 }
 
-std::vector<std::wstring> LSG_Window::OpenFiles(const wchar_t* filter)
+std::vector<std::wstring> LSG_Window::OpenFiles(const LSG_Strings& filters)
 {
-	return LSG_Window::openFiles(true, filter);
+	return LSG_Window::openFiles(true, filters);
 }
 
 std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
 {
 	IFileOpenDialog* browseDialog = nullptr;
 
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
+
 	if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&browseDialog))) || !browseDialog)
 		return {};
 
 	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
-	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileopendialog
 
 	auto options = (FOS_DONTADDTORECENT | FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST | FOS_PICKFOLDERS);
 
@@ -771,29 +797,55 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	return filePath;
 }
 #elif defined _windows
-std::wstring LSG_Window::SaveFile(const wchar_t* filter)
+std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 {
-	OPENFILENAMEW browseDialog           = {};
-	wchar_t       selectedPath[MAX_PATH] = {};
+	IFileSaveDialog* browseDialog = nullptr;
 
-	// https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
 
-	browseDialog.lStructSize  = sizeof(browseDialog);
-	browseDialog.lpstrFile    = selectedPath;
-	browseDialog.lpstrFile[0] = '\0';
-	browseDialog.nMaxFile     = sizeof(selectedPath);
-	browseDialog.Flags        = (OFN_CREATEPROMPT | OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
-	browseDialog.nFilterIndex = 1;
+	if (FAILED(CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&browseDialog))) || !browseDialog)
+		return {};
 
-	if (filter && (std::wcslen(filter) > 0))
-		browseDialog.lpstrFilter = filter;
-	else
-		browseDialog.lpstrFilter = L"All Files (*)\0*.*\0\0";
+	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
 
-	if (!GetSaveFileNameW(&browseDialog))
-		return L"";
-	
-	return std::wstring(selectedPath);
+	auto options = (FOS_CREATEPROMPT | FOS_DONTADDTORECENT | FOS_NOCHANGEDIR | FOS_NODEREFERENCELINKS | FOS_OVERWRITEPROMPT);
+
+	if (!filters.empty())
+		options |= FOS_STRICTFILETYPES;
+
+	browseDialog->SetOptions(options);
+
+	std::vector<COMDLG_FILTERSPEC> filterSpecs;
+
+	auto filtersWide = LSG_Window::getFiltersWide(filters);
+
+	for (const auto& filterType : filtersWide)
+		filterSpecs.push_back({ .pszName = filterType.c_str(), .pszSpec = filterType.c_str() });
+
+	if (!filterSpecs.empty())
+		browseDialog->SetFileTypes(filterSpecs.size(), filterSpecs.data());
+
+	std::wstring filePath  = L"";
+	IShellItem*  shellItem = nullptr;
+
+	if (SUCCEEDED(browseDialog->Show(nullptr)) && SUCCEEDED(browseDialog->GetResult(&shellItem)))
+	{
+		LPWSTR selectedPath = nullptr;
+
+		if (SUCCEEDED(shellItem->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &selectedPath)) && selectedPath)
+			filePath = std::wstring(selectedPath);
+
+		if (selectedPath)
+			CoTaskMemFree(selectedPath);
+	}
+
+	if (shellItem)
+		shellItem->Release();
+
+	if (browseDialog)
+		browseDialog->Release();
+
+	return filePath;
 }
 #endif
 

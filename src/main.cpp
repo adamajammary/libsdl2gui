@@ -757,12 +757,12 @@ bool LSG_IsWindowMaximized()
 }
 
 #if defined _windows
-std::string LSG_OpenFile(const wchar_t* filter)
+std::string LSG_OpenFile(const LSG_Strings& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto filePathWide = LSG_Window::OpenFile(filter);
+	auto filePathWide = LSG_Window::OpenFile(filters);
 	auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
 	auto filePath     = std::string(filePathUTF8);
 
@@ -781,14 +781,14 @@ std::string LSG_OpenFile(const LSG_Strings& filters)
 #endif
 
 #if defined _windows
-LSG_Strings LSG_OpenFiles(const wchar_t* filter)
+LSG_Strings LSG_OpenFiles(const LSG_Strings& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
 	LSG_Strings filePaths;
 
-	auto filePathsWide = LSG_Window::OpenFiles(filter);
+	auto filePathsWide = LSG_Window::OpenFiles(filters);
 
 	for (const auto& filePathWide : filePathsWide)
 	{
@@ -1062,12 +1062,12 @@ std::vector<SDL_Event> LSG_Run()
 }
 
 #if defined _windows
-std::string LSG_SaveFile(const wchar_t* filter)
+std::string LSG_SaveFile(const LSG_Strings& filters)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto filePathWide = LSG_Window::SaveFile(filter);
+	auto filePathWide = LSG_Window::SaveFile(filters);
 	auto filePathUTF8 = SDL_iconv_wchar_utf8(filePathWide.c_str());
 	auto filePath     = std::string(filePathUTF8);
 

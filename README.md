@@ -1673,8 +1673,7 @@ Exceptions
 ### LSG_OpenFile
 
 ```cpp
-std::string LSG_OpenFile(const LSG_Strings& filters = {}); // Android, Linux and macOS
-std::string LSG_OpenFile(const wchar_t* filter = nullptr); // Windows
+std::string LSG_OpenFile(const LSG_Strings& filters = {}); // Android, Linux, macOS and Windows
 ```
 
 > Only supported on Android, Linux, macOS and Windows.
@@ -1685,7 +1684,7 @@ Returns the selected file path or an empty string if cancelled.
 
 Parameters
 
-- **filter** or **filters** Optional filter by file type
+- **filters** Optional filter by file type
 
 Exceptions
 
@@ -1711,16 +1710,14 @@ LSG_OpenFile({ ".pdf", ".txt" });
 
 Windows
 
-See [lpstrFilter](https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew#members) for more details.
-
 ```cpp
-LSG_OpenFile(L"PDF (*.pdf)\0*.txt\0Text (*.txt)\0*.txt\0\0");
+LSG_OpenFile({ "*.pdf", "*.txt" });
 ```
 
 ### LSG_OpenFiles
 
 ```cpp
-LSG_Strings LSG_OpenFiles();
+LSG_Strings LSG_OpenFiles(const LSG_Strings& filters = {}); // Linux, macOS and Windows
 ```
 
 > Only supported on Linux, macOS and Windows.
@@ -1728,6 +1725,10 @@ LSG_Strings LSG_OpenFiles();
 Displays an Open File dialog where you can select multiple files.
 
 Returns the selected file paths or an empty list if cancelled.
+
+Parameters
+
+- **filters** Optional filter by file type
 
 Exceptions
 
@@ -2172,8 +2173,7 @@ Exceptions
 ### LSG_SaveFile
 
 ```cpp
-std::string LSG_SaveFile(const LSG_Strings& filters = {}); // Android, Linux and macOS
-std::string LSG_SaveFile(const wchar_t* filter = nullptr); // Windows
+std::string LSG_SaveFile(const LSG_Strings& filters = {}); // Android, Linux, macOS and Windows
 ```
 
 > Only supported on Android, Linux, macOS and Windows.
@@ -2184,7 +2184,7 @@ Returns the selected file path or an empty string if cancelled.
 
 Parameters
 
-- **filter** or **filters** Optional filter by file type
+- **filters** Optional filter by file type
 
 Exceptions
 

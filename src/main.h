@@ -1,10 +1,10 @@
 #ifndef LSG_MAIN_H
 #define LSG_MAIN_H
 
-#include <algorithm> // min/max(x)
-#include <cstdio>    // snprintf(x)
-#include <cstring>   // strlen(x), strtok(x)
-#include <cwchar>    // wcslen(x)
+#include <algorithm> // min/max()
+#include <cstdio>    // snprintf()
+#include <cstring>   // strlen(), strtok()
+#include <cwchar>    // wcslen()
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -13,20 +13,20 @@
 
 #if defined _android
 	#include <android/asset_manager_jni.h> // AAsset*, JNI*, j*
-	#include <sys/stat.h>                  // mkdir(x)
+	#include <sys/stat.h>                  // mkdir()
 #elif defined _ios
     #include <Photos/Photos.h>     // PHPhotoLibrary
     #include <StoreKit/StoreKit.h> // SKCloudServiceController
     #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
     #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _linux
-	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
+	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(), gtk_dialog_run(), gtk_file_chooser_get_uri()
 #elif defined _macosx
 	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
 	#include <Foundation/Foundation.h> // NSString, NSUserDefaults
 	#include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _windows
-	#include <shobjidl_core.h> // GetOpenFileNameW(x), IFileOpenDialog
+	#include <shobjidl_core.h> // IFileOpenDialog, IFileSaveDialog
 #endif
 
 #ifndef LIB_SDL2_SYSWM_H
