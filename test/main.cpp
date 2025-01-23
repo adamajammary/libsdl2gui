@@ -83,7 +83,7 @@ static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
 static void handleUserEvent(const SDL_UserEvent& event)
 {
     auto type = (LSG_EventType)event.code;
-    auto id   = static_cast<const char*>(event.data1);
+    auto id   = std::string(static_cast<const char*>(event.data1));
 
     switch (type) {
     case LSG_EVENT_BUTTON_CLICKED:
@@ -95,7 +95,7 @@ static void handleUserEvent(const SDL_UserEvent& event)
         handleRowEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
-        if (std::string(id) == "Slider")
+        if (id == "Slider")
             LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
         break;
     default:

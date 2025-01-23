@@ -398,6 +398,9 @@ void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 	if (!component || !component->enabled)
 		return;
 
+	if (component->IsScrollable() || component->IsSlider())
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
+
 	if (component->IsMenu()) {
 		static_cast<LSG_Menu*>(component)->OnScrollVertical(scroll);
 		return;
@@ -423,10 +426,7 @@ void LSG_Events::handleMouseScrollEvent(const SDL_MouseWheelEvent& event)
 	auto scrollableParent = component->GetScrollableParent();
 
 	if (scrollableParent)
-		isHandled = static_cast<LSG_Panel*>(scrollableParent)->OnScrollVertical(scroll);
-
-	if (!isHandled)
-		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
+		static_cast<LSG_Panel*>(scrollableParent)->OnScrollVertical(scroll);
 }
 
 void LSG_Events::handleMouseUp(const SDL_Event& event)
