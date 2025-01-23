@@ -250,22 +250,28 @@ void LSG_ScrollBar::OnScrollMouseUp()
 
 bool LSG_ScrollBar::OnScrollHorizontal(int offset)
 {
+	if (!this->showScrollX)
+		return false;
+
 	this->scrollOffsetX += offset;
 
 	if (this->scrollOffsetX < 0)
 		this->scrollOffsetX = 0;
 
-	return this->showScrollX;
+	return true;
 }
 
 bool LSG_ScrollBar::OnScrollVertical(int offset)
 {
+	if (!this->showScrollY)
+		return false;
+
 	this->scrollOffsetY += offset;
 
 	if (this->scrollOffsetY < 0)
 		this->scrollOffsetY = 0;
 
-	return this->showScrollY;
+	return true;
 }
 
 bool LSG_ScrollBar::onScrollSlideHorizontal(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)
