@@ -1325,8 +1325,23 @@ void LSG_SetFontSize(const std::string& id, int size)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	LSG_XML::SetAttribute(component->GetXmlNode(), "font-size", std::to_string(size));
+	LSG_UI::SetFontSize(component, size);
+	LSG_UI::LayoutParent(component);
+	LSG_UI::SetText(component);
+}
 
+void LSG_SetFontStyle(const std::string& id, int style)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	LSG_UI::SetFontStyle(component, style);
+	LSG_UI::LayoutParent(component);
 	LSG_UI::SetText(component);
 }
 
@@ -1676,9 +1691,7 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	LSG_XML::SetAttribute(component->GetXmlNode(), "text-color", LSG_Graphics::ToXmlAttribute(color));
-
-	LSG_UI::SetTextColor(component, color, SDL_Color(component->textColor));
+	LSG_UI::SetTextColor(component, color);
 	LSG_UI::SetText(component);
 }
 

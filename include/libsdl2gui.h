@@ -35,6 +35,13 @@ extern "C" {
 }
 #endif
 
+#ifndef LIB_SDL2_TTF_H
+#define LIB_SDL2_TTF_H
+extern "C" {
+	#include <SDL2/SDL_ttf.h>
+}
+#endif
+
 enum LSG_EventType
 {
 	LSG_EVENT_BUTTON_CLICKED,
@@ -817,13 +824,22 @@ DLLEXPORT void DLL LSG_SetColorTheme(const std::string& colorThemeFile);
 DLLEXPORT void DLL LSG_SetEnabled(const std::string& id, bool enabled = true);
 
 /**
- * @brief Sets the font size of a component.
+ * @brief Sets the font size of a component and sub-components.
  * @param id   Component ID
  * @param size Font size
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetFontSize(const std::string& id, int size);
+
+/**
+ * @brief Sets the font style of a component and sub-components.
+ * @param id    Component ID
+ * @param style Font style
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetFontStyle(const std::string& id, int style);
 
 /**
  * @brief Sets the height of a component.

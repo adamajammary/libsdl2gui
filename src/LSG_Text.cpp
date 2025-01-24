@@ -4,6 +4,7 @@ LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->lastFontSize  = 0;
+	this->lastFontStyle = -1;
 	this->lastTextColor = {};
 
 	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
@@ -86,9 +87,9 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	if (text.empty())
 		return nullptr;
 
-	auto color = (!textColor     ? this->textColor     : *textColor);
-	auto size  = (fontSize  == 0 ? this->getFontSize() : fontSize);
-	auto style = (fontStyle < 0  ? this->fontStyle     : fontStyle);
+	auto color = (!textColor    ? this->textColor      : *textColor);
+	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
+	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
 
 	auto font = LSG_Text::GetFontArial(size);
 
@@ -113,6 +114,7 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	SDL_FreeSurface(surface);
 
 	this->lastFontSize  = size;
+	this->lastFontStyle = style;
 	this->lastTextColor = SDL_Color(color);
 
 	return texture;
@@ -120,10 +122,11 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 
 bool LSG_Text::hasChanged()
 {
-	bool isColorChanged    = !LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor);
-	bool isFontSizeChanged = (this->getFontSize() != this->lastFontSize);
+	bool isColorChanged     = !LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor);
+	bool isFontSizeChanged  = (this->getFontSize()  != this->lastFontSize);
+	bool isFontStyleChanged = (this->getFontStyle() != this->lastFontStyle);
 
-	return (isColorChanged || isFontSizeChanged);
+	return (isColorChanged || isFontSizeChanged || isFontStyleChanged);
 }
 
 std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)

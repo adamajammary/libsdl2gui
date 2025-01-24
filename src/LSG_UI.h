@@ -44,8 +44,10 @@ public:
     static void            Render(SDL_Renderer* renderer);
     static void            SetColorTheme(const std::string& colorThemeFile, bool sort = false);
     static void            SetEnabled(LSG_Component* component, bool enabled = true);
+    static void            SetFontSize(LSG_Component* component, int size);
+    static void            SetFontStyle(LSG_Component* component, int style);
     static void            SetText(LSG_Component* component, bool sort = false);
-    static void            SetTextColor(LSG_Component* component, const SDL_Color& newColor, const SDL_Color& oldColor);
+    static void            SetTextColor(LSG_Component* component, const SDL_Color& color);
     static void            UnhighlightComponents();
 
 private:

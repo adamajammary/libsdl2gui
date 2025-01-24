@@ -25,7 +25,6 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	auto visible     = (attributes.contains("visible")     ? attributes["visible"]     : "true");
 
 	this->enabled     = (enabled == "true");
-	this->fontStyle   = this->getFontStyle();
 	this->orientation = orientation;
 	this->visible     = (visible == "true");
 
@@ -192,12 +191,14 @@ int LSG_Component::getFontSize()
 
 int LSG_Component::getFontStyle()
 {
-	auto attributes    = LSG_XML::GetAttributes(this->xmlNode);
-	auto bold          = (attributes.contains("bold") ? attributes["bold"] : "");
-	auto italic        = (attributes.contains("italic") ? attributes["italic"] : "");
+	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+
+	auto bold          = (attributes.contains("bold")           ? attributes["bold"] : "");
+	auto italic        = (attributes.contains("italic")         ? attributes["italic"] : "");
 	auto strikeThrough = (attributes.contains("strike-through") ? attributes["strike-through"] : "");
-	auto underline     = (attributes.contains("underline") ? attributes["underline"] : "");
-	int  style         = TTF_STYLE_NORMAL;
+	auto underline     = (attributes.contains("underline")      ? attributes["underline"] : "");
+
+	int style = TTF_STYLE_NORMAL;
 
 	if (bold == "true")
 		style |= TTF_STYLE_BOLD;

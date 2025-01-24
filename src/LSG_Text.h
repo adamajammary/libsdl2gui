@@ -11,6 +11,7 @@ public:
 
 protected:
 	int       lastFontSize;
+	int       lastFontStyle;
 	SDL_Color lastTextColor;
 	bool      wrap;
 

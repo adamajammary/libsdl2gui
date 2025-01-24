@@ -26,7 +26,6 @@ public:
 
 protected:
 	LSG_Components            children;
-	int                       fontStyle;
 	std::string               id;
 	int                       layer;
 	std::string               orientation;

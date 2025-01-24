@@ -43,13 +43,6 @@ extern "C" {
 }
 #endif
 
-#ifndef LIB_SDL2_TTF_H
-#define LIB_SDL2_TTF_H
-extern "C" {
-	#include <SDL2/SDL_ttf.h>
-}
-#endif
-
 #ifndef LIB_XML2_H
 #define LIB_XML2_H
 namespace LibXml {

@@ -1051,6 +1051,36 @@ void LSG_UI::SetEnabled(LSG_Component* component, bool enabled)
 		LSG_UI::SetEnabled(child, enabled);
 }
 
+void LSG_UI::SetFontSize(LSG_Component* component, int size)
+{
+	if (!component)
+		return;
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "font-size", std::to_string(size));
+
+	for (auto child : component->GetChildren())
+		LSG_UI::SetFontSize(child, size);
+}
+
+void LSG_UI::SetFontStyle(LSG_Component* component, int style)
+{
+	if (!component)
+		return;
+
+	auto bold          = ((style & TTF_STYLE_BOLD)          ? "true" : "false");
+	auto italic        = ((style & TTF_STYLE_ITALIC)        ? "true" : "false");
+	auto strikeThrough = ((style & TTF_STYLE_STRIKETHROUGH) ? "true" : "false");
+	auto underline     = ((style & TTF_STYLE_UNDERLINE)     ? "true" : "false");
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "bold",           bold);
+	LSG_XML::SetAttribute(component->GetXmlNode(), "italic",         italic);
+	LSG_XML::SetAttribute(component->GetXmlNode(), "strike-through", strikeThrough);
+	LSG_XML::SetAttribute(component->GetXmlNode(), "underline",      underline);
+
+	for (auto child : component->GetChildren())
+		LSG_UI::SetFontStyle(child, style);
+}
+
 void LSG_UI::setImages(LSG_Component* component)
 {
 	if (!component)
@@ -1109,15 +1139,17 @@ void LSG_UI::setTableRows(LSG_Component* component, bool sort)
 		LSG_UI::setTableRows(child, sort);
 }
 
-void LSG_UI::SetTextColor(LSG_Component* component, const SDL_Color& newColor, const SDL_Color& oldColor)
+void LSG_UI::SetTextColor(LSG_Component* component, const SDL_Color& color)
 {
 	if (!component)
 		return;
 
-	component->textColor = newColor;
+	component->textColor = color;
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "text-color", LSG_Graphics::ToXmlAttribute(color));
 
 	for (auto child : component->GetChildren())
-		LSG_UI::SetTextColor(child, newColor, oldColor);
+		LSG_UI::SetTextColor(child, color);
 }
 
 void LSG_UI::setTextLabels(LSG_Component* component)

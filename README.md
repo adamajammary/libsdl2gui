@@ -2527,7 +2527,7 @@ LSG_SetEnabled("ButtonIdColorThemeLight");
 void LSG_SetFontSize(const std::string& id, int size);
 ```
 
-Sets the font size of a component.
+Sets the font size of a component and sub-components.
 
 Parameters
 
@@ -2543,6 +2543,31 @@ Example
 
 ```cpp
 LSG_SetFontSize("TextIdColorTheme", 40);
+```
+
+### LSG_SetFontStyle
+
+```cpp
+void LSG_SetFontStyle(const std::string& id, int style);
+```
+
+Sets the font style of a component and sub-components.
+
+Parameters
+
+- **id** Component ID
+- **size** Font style
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetFontStyle("TextIdColorTheme", (TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_STRIKETHROUGH | TTF_STYLE_UNDERLINE));
+LSG_SetFontStyle("TextIdColorTheme", TTF_STYLE_NORMAL);
 ```
 
 ### LSG_SetHeight

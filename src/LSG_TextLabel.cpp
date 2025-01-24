@@ -30,10 +30,12 @@ SDL_Size LSG_TextLabel::GetTextSize(const SDL_Size& maxSize)
 	if (this->text.empty())
 		return maxSize;
 
-	auto fontSize = this->getFontSize();
-	auto font     = LSG_Text::GetFontArial(fontSize);
+	auto fontSize  = this->getFontSize();
+	auto fontStyle = this->getFontStyle();
 
-	TTF_SetFontStyle(font, this->fontStyle);
+	auto font = LSG_Text::GetFontArial(fontSize);
+
+	TTF_SetFontStyle(font, fontStyle);
 
 	SDL_Surface* surface   = nullptr;
 	auto         textUTF16 = LSG_Text::ToUTF16(this->text);
