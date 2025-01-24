@@ -45,6 +45,7 @@ public:
     static void            SetColorTheme(const std::string& colorThemeFile, bool sort = false);
     static void            SetEnabled(LSG_Component* component, bool enabled = true);
     static void            SetText(LSG_Component* component, bool sort = false);
+    static void            SetTextColor(LSG_Component* component, const SDL_Color& newColor, const SDL_Color& oldColor);
     static void            UnhighlightComponents();
 
 private:

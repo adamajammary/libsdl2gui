@@ -1109,6 +1109,17 @@ void LSG_UI::setTableRows(LSG_Component* component, bool sort)
 		LSG_UI::setTableRows(child, sort);
 }
 
+void LSG_UI::SetTextColor(LSG_Component* component, const SDL_Color& newColor, const SDL_Color& oldColor)
+{
+	if (!component)
+		return;
+
+	component->textColor = newColor;
+
+	for (auto child : component->GetChildren())
+		LSG_UI::SetTextColor(child, newColor, oldColor);
+}
+
 void LSG_UI::setTextLabels(LSG_Component* component)
 {
 	if (!component)

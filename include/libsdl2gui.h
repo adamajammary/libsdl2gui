@@ -1048,7 +1048,7 @@ DLLEXPORT void DLL LSG_SetTableRows(const std::string& id, const LSG_TableRows& 
 DLLEXPORT void DLL LSG_SetText(const std::string& id, const std::string& value);
 
 /**
- * @brief Sets the text color of a component.
+ * @brief Sets the text color of a component and all sub-components.
  * @param id    Component ID
  * @param color Text color
  * @throws invalid_argument

@@ -3183,7 +3183,7 @@ LSG_SetText("TextIdColorTheme", "Color Theme");
 void LSG_SetTextColor(const std::string& id, const SDL_Color& color);
 ```
 
-Sets the text color of a component.
+Sets the text color of a component and all sub-components.
 
 Parameters
 

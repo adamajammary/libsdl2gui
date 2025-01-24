@@ -1676,10 +1676,9 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->textColor = color;
-
 	LSG_XML::SetAttribute(component->GetXmlNode(), "text-color", LSG_Graphics::ToXmlAttribute(color));
 
+	LSG_UI::SetTextColor(component, color, SDL_Color(component->textColor));
 	LSG_UI::SetText(component);
 }
 
