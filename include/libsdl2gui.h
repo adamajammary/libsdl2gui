@@ -851,6 +851,15 @@ DLLEXPORT void DLL LSG_SetFontStyle(const std::string& id, int style);
 DLLEXPORT void DLL LSG_SetHeight(const std::string& id, int height);
 
 /**
+ * @brief Sets the height of a component as a percent between 0 and 1.
+ * @param id      Component ID
+ * @param percent [0.0 - 1.0]
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetHeight(const std::string& id, double percent);
+
+/**
  * @brief Sets the file path of an image.
  * @param id   <image> component ID
  * @param file Image file path
@@ -981,6 +990,16 @@ DLLEXPORT void DLL LSG_SetProgressValue(const std::string& id, double percent);
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size);
 
 /**
+ * @brief Sets the size of a component as a percent between 0 and 1.
+ * @param id     Component ID
+ * @param width  [0.0-1.0]
+ * @param height [0.0-1.0]
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height);
+
+/**
  * @brief Sets the value of the slider as a percent between 0 and 1.
  * @param id      <slider> component ID
  * @param percent [0.0-1.0]
@@ -1107,6 +1126,15 @@ DLLEXPORT void DLL LSG_SetVisible(const std::string& id, bool visible = true);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetWidth(const std::string& id, int width);
+
+/**
+ * @brief Sets the width of a component as a percent between 0 and 1.
+ * @param id      Component ID
+ * @param percent [0.0 - 1.0]
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetWidth(const std::string& id, double percent);
 
 /**
  * @brief Maximizes or restores the window.

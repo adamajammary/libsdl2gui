@@ -2591,7 +2591,31 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetHeight("MenuIdMenu", 100);
+LSG_SetHeight("ButtonIdColorThemeDark", 100);
+```
+
+### LSG_SetHeight (percent)
+
+```cpp
+void LSG_SetHeight(const std::string& id, double percent);
+```
+
+Sets the height of a component as a percent between 0 and 1.
+
+Parameters
+
+- **id** Component ID
+- **percent** [0.0 - 1.0]
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetHeight("ButtonIdColorThemeDark", 0.5);
 ```
 
 ### LSG_SetImage
@@ -2941,6 +2965,31 @@ Example
 
 ```cpp
 LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
+```
+
+### LSG_SetSize (percent)
+
+```cpp
+void LSG_SetSize(const std::string& id, double width, double height);
+```
+
+Sets the size of a component as a percent between 0 and 1.
+
+Parameters
+
+- **id** Component ID
+- **width** [0.0 - 1.0]
+- **height** [0.0 - 1.0]
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetSize("ButtonIdColorThemeDark", 0.25, 0.75);
 ```
 
 ### LSG_SetSliderValue
@@ -3319,7 +3368,31 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetWidth("MenuIdMenu", 300);
+LSG_SetWidth("ButtonIdColorThemeDark", 300);
+```
+
+### LSG_SetWidth (percent)
+
+```cpp
+void LSG_SetWidth(const std::string& id, double percent);
+```
+
+Sets the width of a component as a percent between 0 and 1.
+
+Parameters
+
+- **id** Component ID
+- **percent** [0.0 - 1.0]
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetWidth("ButtonIdColorThemeDark", 0.5);
 ```
 
 ### LSG_SetWindowMaximized

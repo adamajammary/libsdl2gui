@@ -1360,6 +1360,23 @@ void LSG_SetHeight(const std::string& id, int height)
 	LSG_UI::LayoutRoot();
 }
 
+void LSG_SetHeight(const std::string& id, double percent)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	auto height = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "height", height);
+
+	LSG_UI::LayoutRoot();
+}
+
 void LSG_SetImage(const std::string& id, const std::string& file, bool fill)
 {
 	if (!isRunning)
@@ -1560,6 +1577,25 @@ void LSG_SetSize(const std::string& id, const SDL_Size& size)
 	LSG_UI::LayoutRoot();
 }
 
+void LSG_SetSize(const std::string& id, double width, double height)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	auto w = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, width))  * 100.0));
+	auto h = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, height)) * 100.0));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "width",  w);
+	LSG_XML::SetAttribute(component->GetXmlNode(), "height", h);
+
+	LSG_UI::LayoutRoot();
+}
+
 void LSG_SetSliderValue(const std::string& id, double percent)
 {
 	if (!isRunning)
@@ -1754,6 +1790,23 @@ void LSG_SetWidth(const std::string& id, int width)
 		throw std::invalid_argument(getErrorNoID("", id));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width", std::to_string(width));
+
+	LSG_UI::LayoutRoot();
+}
+
+void LSG_SetWidth(const std::string& id, double percent)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	auto width = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
+
+	LSG_XML::SetAttribute(component->GetXmlNode(), "width", width);
 
 	LSG_UI::LayoutRoot();
 }
