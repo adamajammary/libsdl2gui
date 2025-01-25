@@ -641,9 +641,9 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 		auto childMargin   = child->margin;
 		auto childMargin2x = (childMargin * 2);
 
-		bool addSpacing     = ((i > 0) && (visibleChildren.size() > 1));
-		auto childSpacingX  = (addSpacing && !isVertical ? spacing : 0);
-		auto childSpacingY  = (addSpacing && isVertical  ? spacing : 0);
+		bool addSpacing    = (i > 0);
+		auto childSpacingX = (addSpacing && !isVertical ? spacing : 0);
+		auto childSpacingY = (addSpacing && isVertical  ? spacing : 0);
 
 		child->SetPositionAlign(offsetX + childMargin + childSpacingX, offsetY + childMargin + childSpacingY);
 
