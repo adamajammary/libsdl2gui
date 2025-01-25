@@ -620,13 +620,17 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	auto remainingX = maxX;
 	auto remainingY = maxY;
 
-	// TOP-LEFT ALIGN
-	for (size_t i = 0; i < children.size(); i++)
-	{
-		auto child = children[i];
+	LSG_Components visibleChildren;
 
-		if (!child->visible || child->IsModal())
-			continue;
+	for (auto child : children) {
+		if (child->visible && !child->IsModal())
+			visibleChildren.push_back(child);
+	}
+
+	// TOP-LEFT ALIGN
+	for (size_t i = 0; i < visibleChildren.size(); i++)
+	{
+		auto child = visibleChildren[i];
 
 		if (child->IsMenu()) {
 			child->background.x = offsetX;
@@ -637,7 +641,7 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 		auto childMargin   = child->margin;
 		auto childMargin2x = (childMargin * 2);
 
-		bool addSpacing     = (i > 0 && children.size() > 1);
+		bool addSpacing     = ((i > 0) && (visibleChildren.size() > 1));
 		auto childSpacingX  = (addSpacing && !isVertical ? spacing : 0);
 		auto childSpacingY  = (addSpacing && isVertical  ? spacing : 0);
 
@@ -653,11 +657,8 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	}
 
 	// ALIGN
-	for (auto child : children)
+	for (auto child : visibleChildren)
 	{
-		if (!child->visible || child->IsModal())
-			continue;
-
 		auto childOffsetX  = child->background.x;
 		auto childOffsetY  = child->background.y;
 		auto childMargin2x = (child->margin * 2);
