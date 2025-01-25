@@ -248,9 +248,9 @@ void LSG_ScrollBar::OnScrollMouseUp()
 	this->isSlideActiveY = false;
 }
 
-bool LSG_ScrollBar::OnScrollHorizontal(int offset)
+bool LSG_ScrollBar::OnScrollHorizontal(int offset, bool forceScroll)
 {
-	if (!this->showScrollX)
+	if (!this->showScrollX && !forceScroll)
 		return false;
 
 	this->scrollOffsetX += offset;
@@ -261,9 +261,9 @@ bool LSG_ScrollBar::OnScrollHorizontal(int offset)
 	return true;
 }
 
-bool LSG_ScrollBar::OnScrollVertical(int offset)
+bool LSG_ScrollBar::OnScrollVertical(int offset, bool forceScroll)
 {
-	if (!this->showScrollY)
+	if (!this->showScrollY && !forceScroll)
 		return false;
 
 	this->scrollOffsetY += offset;
