@@ -1670,6 +1670,18 @@ Exceptions
 
 - runtime_error
 
+### LSG_Layout
+
+```cpp
+void LSG_Layout();
+```
+
+Recalculates and redraws the window layout.
+
+Exceptions
+
+- runtime_error
+
 ### LSG_OpenFile
 
 ```cpp
@@ -2573,7 +2585,7 @@ LSG_SetFontStyle("TextIdColorTheme", TTF_STYLE_NORMAL);
 ### LSG_SetHeight
 
 ```cpp
-void LSG_SetHeight(const std::string& id, int height);
+void LSG_SetHeight(const std::string& id, int height, bool layout = true);
 ```
 
 Sets the height of a component.
@@ -2582,6 +2594,7 @@ Parameters
 
 - **id** Component ID
 - **height** Height in pixels
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -2597,7 +2610,7 @@ LSG_SetHeight("ButtonIdColorThemeDark", 100);
 ### LSG_SetHeight (percent)
 
 ```cpp
-void LSG_SetHeight(const std::string& id, double percent);
+void LSG_SetHeight(const std::string& id, double percent, bool layout = true);
 ```
 
 Sets the height of a component as a percent between 0 and 1.
@@ -2606,6 +2619,7 @@ Parameters
 
 - **id** Component ID
 - **percent** [0.0 - 1.0]
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -2800,7 +2814,7 @@ LSG_SetMenuItemValue("MenuIdQuit", "Quit\\tCtrl+Q");
 ### LSG_SetOrientation
 
 ```cpp
-void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation);
+void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation, bool layout = true);
 ```
 
 Sets the layout orientation of the children of a component.
@@ -2809,6 +2823,7 @@ Parameters
 
 - **id** Component ID
 - **orientation** Horizontal or vertical
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -2946,7 +2961,7 @@ LSG_SetProgressValue("ProgressBar", 0.5);
 ### LSG_SetSize
 
 ```cpp
-void LSG_SetSize(const std::string& id, const SDL_Size& size);
+void LSG_SetSize(const std::string& id, const SDL_Size& size, bool layout = true);
 ```
 
 Sets the size of a component.
@@ -2955,6 +2970,7 @@ Parameters
 
 - **id** Component ID
 - **size** Width and height in pixels
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -2970,7 +2986,7 @@ LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
 ### LSG_SetSize (percent)
 
 ```cpp
-void LSG_SetSize(const std::string& id, double width, double height);
+void LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
 ```
 
 Sets the size of a component as a percent between 0 and 1.
@@ -2980,6 +2996,7 @@ Parameters
 - **id** Component ID
 - **width** [0.0 - 1.0]
 - **height** [0.0 - 1.0]
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -3326,7 +3343,7 @@ LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
 ### LSG_SetVisible
 
 ```cpp
-void LSG_SetVisible(const std::string& id, bool visible = true);
+void LSG_SetVisible(const std::string& id, bool visible = true, bool layout = true);
 ```
 
 Shows or hides the component.
@@ -3335,6 +3352,7 @@ Parameters
 
 - **id** Component ID
 - **visible** true to show or false to hide
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -3350,7 +3368,7 @@ LSG_SetVisible("MenuIdMenu", false);
 ### LSG_SetWidth
 
 ```cpp
-void LSG_SetWidth(const std::string& id, int width);
+void LSG_SetWidth(const std::string& id, int width, bool layout = true);
 ```
 
 Sets the width of a component.
@@ -3359,6 +3377,7 @@ Parameters
 
 - **id** Component ID
 - **width** Width in pixels
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -3374,7 +3393,7 @@ LSG_SetWidth("ButtonIdColorThemeDark", 300);
 ### LSG_SetWidth (percent)
 
 ```cpp
-void LSG_SetWidth(const std::string& id, double percent);
+void LSG_SetWidth(const std::string& id, double percent, bool layout = true);
 ```
 
 Sets the width of a component as a percent between 0 and 1.
@@ -3383,6 +3402,7 @@ Parameters
 
 - **id** Component ID
 - **percent** [0.0 - 1.0]
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 

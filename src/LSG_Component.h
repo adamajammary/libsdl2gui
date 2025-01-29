@@ -66,9 +66,14 @@ public:
 	void             RemoveChild(LSG_Component* child);
 	virtual void     Render(SDL_Renderer* renderer) override;
 	void             SetAlignmentHorizontal(LSG_HAlign alignment);
-	void             SetAlignmentVertical(LSG_VAlign   alignment);
+	void             SetAlignmentVertical(LSG_VAlign alignment);
+	void             SetBackgroundColor(const SDL_Color& color);
+	void             SetBorder(int border);
+	void             SetBorderColor(const SDL_Color& color);
 	virtual void     SetColors();
+	void             SetMargin(int margin);
 	void             SetOrientation(LSG_Orientation orientation);
+	void             SetPadding(int padding);
 	void             SetPositionAlign(int x, int y);
 	void             SetSizeBlank(int sizeX, int sizeY, int componentsX, int componentsY);
 	void             SetSizeFixed();

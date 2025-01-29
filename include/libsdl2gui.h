@@ -503,6 +503,12 @@ DLLEXPORT bool DLL LSG_IsVisible(const std::string& id);
 DLLEXPORT bool DLL LSG_IsWindowMaximized();
 
 /**
+ * @brief Recalculates and redraws the window layout.
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_Layout();
+
+/**
  * @brief Displays an Open File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
  * @param filters Optional filter by file type
@@ -845,19 +851,21 @@ DLLEXPORT void DLL LSG_SetFontStyle(const std::string& id, int style);
  * @brief Sets the height of a component.
  * @param id     Component ID
  * @param height Height in pixels
+ * @param layout Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetHeight(const std::string& id, int height);
+DLLEXPORT void DLL LSG_SetHeight(const std::string& id, int height, bool layout = true);
 
 /**
  * @brief Sets the height of a component as a percent between 0 and 1.
  * @param id      Component ID
  * @param percent [0.0 - 1.0]
+ * @param layout  Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetHeight(const std::string& id, double percent);
+DLLEXPORT void DLL LSG_SetHeight(const std::string& id, double percent, bool layout = true);
 
 /**
  * @brief Sets the file path of an image.
@@ -928,10 +936,11 @@ DLLEXPORT void DLL LSG_SetMenuItemValue(const std::string& id, const std::string
  * @brief Sets the layout orientation of the children of a component.
  * @param id          Component ID
  * @param orientation Horizontal or vertical
+ * @param layout      Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetOrientation(const std::string& id, LSG_Orientation orientation);
+DLLEXPORT void DLL LSG_SetOrientation(const std::string& id, LSG_Orientation orientation, bool layout = true);
 
 /**
  * @brief Sets the padding inside a component.
@@ -982,22 +991,24 @@ DLLEXPORT void DLL LSG_SetProgressValue(const std::string& id, double percent);
 
 /**
  * @brief Sets the size of a component.
- * @param id   Component ID
- * @param size Width and height in pixels
+ * @param id     Component ID
+ * @param size   Width and height in pixels
+ * @param layout Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size);
+DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size, bool layout = true);
 
 /**
  * @brief Sets the size of a component as a percent between 0 and 1.
  * @param id     Component ID
  * @param width  [0.0-1.0]
  * @param height [0.0-1.0]
+ * @param layout Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height);
+DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
 
 /**
  * @brief Sets the value of the slider as a percent between 0 and 1.
@@ -1113,28 +1124,31 @@ DLLEXPORT void DLL LSG_SetTitle(const std::string& id, const std::string& title)
  * @brief Shows or hides the component.
  * @param id      Component ID
  * @param visible true to show or false to hide
+ * @param layout  Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetVisible(const std::string& id, bool visible = true);
+DLLEXPORT void DLL LSG_SetVisible(const std::string& id, bool visible = true, bool layout = true);
 
 /**
  * @brief Sets the width of a component.
- * @param id    Component ID
- * @param width Width in pixels
+ * @param id     Component ID
+ * @param width  Width in pixels
+ * @param layout Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetWidth(const std::string& id, int width);
+DLLEXPORT void DLL LSG_SetWidth(const std::string& id, int width, bool layout = true);
 
 /**
  * @brief Sets the width of a component as a percent between 0 and 1.
  * @param id      Component ID
  * @param percent [0.0 - 1.0]
+ * @param layout  Recalculates and redraws the window layout after applying the change
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetWidth(const std::string& id, double percent);
+DLLEXPORT void DLL LSG_SetWidth(const std::string& id, double percent, bool layout = true);
 
 /**
  * @brief Maximizes or restores the window.

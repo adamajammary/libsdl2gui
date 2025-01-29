@@ -531,6 +531,27 @@ void LSG_Component::SetAlignmentVertical(LSG_VAlign alignment)
 	LSG_XML::SetAttribute(this->xmlNode, "valign", value);
 }
 
+void LSG_Component::SetBackgroundColor(const SDL_Color& color)
+{
+	this->backgroundColor = color;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "background-color", LSG_Graphics::ToXmlAttribute(color));
+}
+
+void LSG_Component::SetBorder(int border)
+{
+	this->border = border;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "border", std::to_string(border));
+}
+
+void LSG_Component::SetBorderColor(const SDL_Color& color)
+{
+	this->borderColor = color;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "border-color", LSG_Graphics::ToXmlAttribute(color));
+}
+
 void LSG_Component::SetColors()
 {
 	auto backgroundColor = this->getXmlColor("background-color");
@@ -545,11 +566,25 @@ void LSG_Component::SetColors()
 		child->SetColors();
 }
 
+void LSG_Component::SetMargin(int margin)
+{
+	this->margin = margin;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "margin", std::to_string(margin));
+}
+
 void LSG_Component::SetOrientation(LSG_Orientation orientation)
 {
 	this->orientation = LSG_ConstOrientation::ToString(orientation);
 
 	LSG_XML::SetAttribute(this->GetXmlNode(), "orientation", this->orientation);
+}
+
+void LSG_Component::SetPadding(int padding)
+{
+	this->padding = padding;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "padding", std::to_string(padding));
 }
 
 void LSG_Component::SetPositionAlign(int x, int y)

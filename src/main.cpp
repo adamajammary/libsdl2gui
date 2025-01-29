@@ -756,6 +756,14 @@ bool LSG_IsWindowMaximized()
 	return LSG_Window::IsMaximized();
 }
 
+void LSG_Layout()
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	LSG_UI::LayoutRoot();
+}
+
 #if defined _windows
 std::string LSG_OpenFile(const LSG_Strings& filters)
 {
@@ -1244,9 +1252,7 @@ void LSG_SetBackgroundColor(const std::string& id, const SDL_Color& color)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->backgroundColor = color;
-
-	LSG_XML::SetAttribute(component->GetXmlNode(), "background-color", LSG_Graphics::ToXmlAttribute(color));
+	component->SetBackgroundColor(color);
 }
 
 void LSG_SetBorder(const std::string& id, int border)
@@ -1259,9 +1265,7 @@ void LSG_SetBorder(const std::string& id, int border)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->border = border;
-
-	LSG_XML::SetAttribute(component->GetXmlNode(), "border", std::to_string(border));
+	component->SetBorder(border);
 
 	LSG_UI::LayoutParent(component);
 }
@@ -1276,9 +1280,7 @@ void LSG_SetBorderColor(const std::string& id, const SDL_Color& color)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->borderColor = color;
-
-	LSG_XML::SetAttribute(component->GetXmlNode(), "border-color", LSG_Graphics::ToXmlAttribute(color));
+	component->SetBorderColor(color);
 }
 
 void LSG_SetButtonSelected(const std::string& id, bool selected)
@@ -1345,7 +1347,7 @@ void LSG_SetFontStyle(const std::string& id, int style)
 	LSG_UI::SetText(component);
 }
 
-void LSG_SetHeight(const std::string& id, int height)
+void LSG_SetHeight(const std::string& id, int height, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1357,10 +1359,11 @@ void LSG_SetHeight(const std::string& id, int height)
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", std::to_string(height));
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
-void LSG_SetHeight(const std::string& id, double percent)
+void LSG_SetHeight(const std::string& id, double percent, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1374,7 +1377,8 @@ void LSG_SetHeight(const std::string& id, double percent)
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", height);
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
 void LSG_SetImage(const std::string& id, const std::string& file, bool fill)
@@ -1426,9 +1430,7 @@ void LSG_SetMargin(const std::string& id, int margin)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->margin = margin;
-
-	LSG_XML::SetAttribute(component->GetXmlNode(), "margin", std::to_string(margin));
+	component->SetMargin(margin);
 
 	LSG_UI::LayoutParent(component);
 }
@@ -1474,7 +1476,7 @@ void LSG_SetMenuItemValue(const std::string& id, const std::string& value)
 	component->text = value;
 }
 
-void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation)
+void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1486,7 +1488,8 @@ void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation)
 
 	component->SetOrientation(orientation);
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
 void LSG_SetPadding(const std::string& id, int padding)
@@ -1499,9 +1502,7 @@ void LSG_SetPadding(const std::string& id, int padding)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	component->padding = padding;
-
-	LSG_XML::SetAttribute(component->GetXmlNode(), "padding", std::to_string(padding));
+	component->SetPadding(padding);
 
 	LSG_UI::LayoutParent(component);
 }
@@ -1561,7 +1562,7 @@ void LSG_SetProgressValue(const std::string& id, double percent)
 	static_cast<LSG_ProgressBar*>(component)->SetValue(percent);
 }
 
-void LSG_SetSize(const std::string& id, const SDL_Size& size)
+void LSG_SetSize(const std::string& id, const SDL_Size& size, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1574,10 +1575,11 @@ void LSG_SetSize(const std::string& id, const SDL_Size& size)
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width",  std::to_string(size.width));
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", std::to_string(size.height));
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
-void LSG_SetSize(const std::string& id, double width, double height)
+void LSG_SetSize(const std::string& id, double width, double height, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1593,7 +1595,8 @@ void LSG_SetSize(const std::string& id, double width, double height)
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width",  w);
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", h);
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
 void LSG_SetSliderValue(const std::string& id, double percent)
@@ -1764,7 +1767,7 @@ void LSG_SetTitle(const std::string& id, const std::string& title)
 		static_cast<LSG_MenuSub*>(component)->SetSubMenu(component->background);
 }
 
-void LSG_SetVisible(const std::string& id, bool visible)
+void LSG_SetVisible(const std::string& id, bool visible, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1776,10 +1779,11 @@ void LSG_SetVisible(const std::string& id, bool visible)
 
 	component->SetVisible(visible);
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
-void LSG_SetWidth(const std::string& id, int width)
+void LSG_SetWidth(const std::string& id, int width, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1791,10 +1795,11 @@ void LSG_SetWidth(const std::string& id, int width)
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width", std::to_string(width));
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
-void LSG_SetWidth(const std::string& id, double percent)
+void LSG_SetWidth(const std::string& id, double percent, bool layout)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1808,7 +1813,8 @@ void LSG_SetWidth(const std::string& id, double percent)
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width", width);
 
-	LSG_UI::LayoutRoot();
+	if (layout)
+		LSG_UI::LayoutRoot();
 }
 
 void LSG_SetWindowMaximized(bool maximized)
