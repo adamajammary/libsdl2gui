@@ -149,6 +149,9 @@ void LSG_List::removeItem(int row, int lastRow)
 
 void LSG_List::RemoveItem(int row)
 {
+	if (row < 0)
+		return;
+
 	auto lastRow = (int)(this->items.size() - 1);
 
 	this->removeItem(row, lastRow);
@@ -156,6 +159,9 @@ void LSG_List::RemoveItem(int row)
 
 void LSG_List::RemovePageItem(int row)
 {
+	if (row < 0)
+		return;
+
 	auto rowIndex = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
 
 	this->removeItem(rowIndex, this->getLastRow());
