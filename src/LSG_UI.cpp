@@ -764,9 +764,16 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	auto componentsX = 0;
 	auto componentsY = 0;
 
-	for (size_t i = 0; i < children.size(); i++)
+	LSG_Components visibleChildren;
+
+	for (auto child : children) {
+		if (child->visible && !child->IsModal())
+			visibleChildren.push_back(child);
+	}
+
+	for (size_t i = 0; i < visibleChildren.size(); i++)
 	{
-		auto child = children[i];
+		auto child = visibleChildren[i];
 
 		if (!child->visible || child->IsModal())
 			continue;
@@ -781,7 +788,7 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 		auto width         = (childAttribs.contains("width")  ? childAttribs["width"]  : "");
 		auto height        = (childAttribs.contains("height") ? childAttribs["height"] : "");
 		auto childMargin2x = (child->margin * 2);
-		bool addSpacing    = (i > 0 && children.size() > 1);
+		bool addSpacing    = (i > 0);
 
 		// VERTICAL
 		if (component->IsVertical())
@@ -861,10 +868,8 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 		}
 	}
 
-	for (auto child : children) {
-		if (child->visible && !child->IsModal())
-			child->SetSizeBlank(sizeX, sizeY, componentsX, componentsY);
-	}
+	for (auto child : visibleChildren)
+		child->SetSizeBlank(sizeX, sizeY, componentsX, componentsY);
 }
 
 void LSG_UI::Load(const std::string& colorThemeFile)
