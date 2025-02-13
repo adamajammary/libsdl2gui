@@ -28,12 +28,14 @@ SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile)
 
 	auto downscaledSize = LSG_Graphics::GetDownscaledSize(size, { maxSize, maxSize });
 
-	return LSG_Graphics::GetTextureDownScaled(imageFile, downscaledSize);
+	icon = LSG_Graphics::GetTextureDownScaled(imageFile, downscaledSize);
+
+	return icon;
 }
 
 int LSG_MenuItem::getMaxHeightIcon() const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon2x);
+	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
 	return (this->background.h - padding);
 }
@@ -123,7 +125,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer)
 		return;
 
 	auto size    = LSG_Graphics::GetTextureSize(texture);
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
+	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIconSelected);
 
 	SDL_Rect destination = {
 		(this->background.x + this->background.w - size.width - padding),

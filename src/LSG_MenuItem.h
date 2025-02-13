@@ -13,8 +13,8 @@ public:
 	static const int Height = 32;
 
 private:
-	static const int PaddingIcon   = 5;
-	static const int PaddingIcon2x = 10;
+	static const int PaddingIcon         = 14;
+	static const int PaddingIconSelected = 5;
 
 private:
 	bool                 closed;

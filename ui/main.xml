@@ -38,12 +38,12 @@
 
       <panel spacing="10" font-size="18">
         <button id="ButtonIdColorThemeDark" halign="center" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
-          <image file="img/dark-512.png" width="48" height="48" />
+          <image file="img/dark-512.png" width="24" height="24" />
           <text>Dark</text>
         </button>
 
         <button id="ButtonIdColorThemeLight" halign="center" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
-          <image file="img/light-512.png" width="48" height="48" />
+          <image file="img/light-512.png" width="24" height="24" />
           <text>Light</text>
         </button>
       </panel>

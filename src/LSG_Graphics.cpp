@@ -24,15 +24,18 @@ SDL_Rect LSG_Graphics::GetDestinationAligned(const SDL_Rect& background, const S
 
 SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size& newSize)
 {
-	SDL_Size size = oldSize;
+	SDL_Size remainder = {
+		(newSize.width  % 2),
+		(newSize.height % 2)
+	};
 
-	do {
-		if (size.width > newSize.width)
-			size.width = (size.width  >> 1);
+	if ((remainder.width < 1) && (remainder.height < 1))
+		return newSize;
 
-		if (size.height > newSize.height)
-			size.height = (size.height >> 1);
-	} while (((size.width > newSize.width) || (size.height > newSize.height)) && (size.width > 0) && (size.height > 0));
+	SDL_Size size = {
+		(newSize.width  + remainder.width),
+		(newSize.height + remainder.height)
+	};
 
 	return size;
 }
