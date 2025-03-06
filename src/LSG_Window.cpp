@@ -490,7 +490,7 @@ std::string LSG_Window::OpenFolder()
 		SDL_Delay(10);
 
 	auto openedFolder   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
-	auto folderUTF8     = jniEnvironment->GetStringUTFChars(openedFolder, NULL);
+	auto folderUTF8     = jniEnvironment->GetStringUTFChars(openedFolder, nullptr);
 	auto selectedFolder = std::string(folderUTF8);
 
 	jniEnvironment->ReleaseStringUTFChars(openedFolder, folderUTF8);
@@ -521,7 +521,7 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 		SDL_Delay(10);
 
 	auto pickedFile   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
-	auto fileUTF8     = jniEnvironment->GetStringUTFChars(pickedFile, NULL);
+	auto fileUTF8     = jniEnvironment->GetStringUTFChars(pickedFile, nullptr);
 	auto selectedFile = std::string(fileUTF8);
 
 	jniEnvironment->ReleaseStringUTFChars(pickedFile, fileUTF8);
@@ -699,6 +699,22 @@ void LSG_Window::Render()
 	SDL_RenderClear(LSG_Window::renderer);
 
 	LSG_UI::Render(LSG_Window::renderer);
+}
+
+SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format)
+{
+	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
+	auto newTexture   = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, size.width, size.height);
+
+	SDL_SetRenderTarget(LSG_Window::renderer, newTexture);
+
+	SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
+
+	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
+
+	SDL_DestroyTexture(texture);
+
+	return newTexture;
 }
 
 #if defined _android
@@ -908,4 +924,3 @@ SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 
 	return texture;
 }
-

@@ -88,7 +88,7 @@ void LSG_Image::render(SDL_Renderer* renderer)
 		this->size.height = fillArea.h;
 
 	auto textureSize    = this->getTextureSize();
-	auto downscaledSize = LSG_Graphics::GetDownscaledSize(textureSize, this->size);
+	auto downscaledSize = LSG_Graphics::GetDownscaledSize(this->size);
 
 	if ((textureSize.width > downscaledSize.width) || (textureSize.height > downscaledSize.height))
 	{

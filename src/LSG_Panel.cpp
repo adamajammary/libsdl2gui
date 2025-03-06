@@ -45,6 +45,8 @@ SDL_Size LSG_Panel::GetSize()
 			childSize = static_cast<LSG_TextInput*>(child)->GetSize();
 		else if (child->IsTextLabel())
 			childSize = static_cast<LSG_TextLabel*>(child)->GetSize();
+		else if (child->IsTiles())
+			childSize = static_cast<LSG_Tiles*>(child)->GetSize();
 
 		if (isVertical) {
 			totalSize.height += (childSize.height + childMargin2x);
@@ -204,6 +206,8 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, 
 			static_cast<LSG_TextInput*>(child)->Render(renderer, renderPosition);
 		else if (child->IsTextLabel())
 			static_cast<LSG_TextLabel*>(child)->Render(renderer, renderPosition);
+		else if (child->IsTiles())
+			static_cast<LSG_Tiles*>(child)->Render(renderer, renderPosition);
 
 		if (isVertical)
 			offsetPosition.y += (child->background.h + child->margin + spacing);

@@ -236,6 +236,14 @@ LSG_Component* LSG_Component::GetParent()
 	return this->parent;
 }
 
+LSG_Alignment LSG_Component::getParentAlignment()
+{
+	if (this->parent)
+		return this->parent->getAlignment();
+
+	return { LSG_HALIGN_LEFT, LSG_VALIGN_TOP };
+}
+
 int LSG_Component::GetSpacing()
 {
 	auto spacing = LSG_XML::GetAttribute(this->xmlNode, "spacing");
@@ -350,7 +358,7 @@ bool LSG_Component::IsProgressBar() const
 
 bool LSG_Component::IsScrollable() const
 {
-	return (this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel());
+	return (this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel() || this->IsTiles());
 }
 
 bool LSG_Component::IsSlider() const
@@ -376,6 +384,11 @@ bool LSG_Component::IsTextInput() const
 bool LSG_Component::IsTextLabel() const
 {
 	return (this->xmlNodeName == "text");
+}
+
+bool LSG_Component::IsTiles() const
+{
+	return (this->xmlNodeName == "tiles");
 }
 
 bool LSG_Component::IsVertical() const

@@ -125,27 +125,18 @@ struct LSG_ConstAndroid
 
 struct LSG_ConstBytes
 {
-private:
-	static inline const auto FirstByte  = (1 + 0x0);
-	static inline const auto SecondByte = (1 + 0xFF);
-	static inline const auto ThirdByte  = (1 + 0xFFFF);
-	static inline const auto FourthByte = (1 + 0xFFFFFF);
-
 public:
-	static inline const int ToInt(uint8_t a, uint8_t b, bool littleEndian = true)
+	static inline const uint16_t ToInt(uint8_t a, uint8_t b, bool littleEndian = true)
 	{
-		if (littleEndian)
-			return ((b * SecondByte) + (a * FirstByte));
-
-		return ((a * SecondByte) + (b * FirstByte));
+		return (uint16_t)(littleEndian ? ((b << 8) | a) : ((a << 8) | b));
 	}
 
-	static inline const int ToInt(uint8_t a, uint8_t b, uint8_t c, uint8_t d, bool littleEndian = true)
+	static inline const uint32_t ToInt(uint8_t a, uint8_t b, uint8_t c, uint8_t d, bool littleEndian = true)
 	{
 		if (littleEndian)
-			return ((d * FourthByte) + (c * ThirdByte) + (b * SecondByte) + (a * FirstByte));
+			return (uint32_t)((d << 24) | (c << 16) | (b << 8) | a);
 
-		return ((a * FourthByte) + (b * ThirdByte) + (c * SecondByte) + (d * FirstByte));
+		return (uint32_t)((a << 24) | (b << 16) | (c << 8) | d);
 	}
 };
 
@@ -248,6 +239,7 @@ const char* LSG_GetBasePath();
 #include "LSG_Table.h"
 #include "LSG_TextInput.h"
 #include "LSG_TextLabel.h"
+#include "LSG_Tiles.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"
 #include "LSG_XML.h"

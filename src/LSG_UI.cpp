@@ -34,6 +34,8 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		layer += LSG_List::LayerOffset;
 	else if (name == "table")
 		layer += LSG_Table::LayerOffset;
+	else if (name == "tiles")
+		layer += LSG_Tiles::LayerOffset;
 
 	if ((name != "modal") && LSG_Modal::IsModalChild(parent))
 		layer += LSG_Modal::LayerOffsetMin;
@@ -71,6 +73,10 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		static_cast<LSG_Table*>(parent)->SetHeader(node);
 	else if (name == "table-row")
 		static_cast<LSG_Table*>(parent)->AddRow(node);
+	else if (name == "tiles")
+		component = new LSG_Tiles(id, layer, node, name, parent);
+	else if (name == "tile")
+		static_cast<LSG_Tiles*>(parent)->AddTile(node);
 	else if (name == "image")
 		component = new LSG_Image(id, layer, node, name, parent);
 	else if (name == "progress-bar")
@@ -396,6 +402,10 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			{
 				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 			}
+			else if (component->IsTiles())
+			{
+				static_cast<LSG_Tiles*>(component)->OnMouseOver(mousePosition);
+			}
 
 			break;
 		}
@@ -522,6 +532,7 @@ void LSG_UI::Layout()
 	LSG_UI::setListItems(LSG_UI::root);
 	LSG_UI::setTableRows(LSG_UI::root);
 	LSG_UI::setTextLabels(LSG_UI::root);
+	LSG_UI::setTiles(LSG_UI::root);
 
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
@@ -554,6 +565,7 @@ void LSG_UI::layoutModal(LSG_Component* component)
 		LSG_UI::setListItems(component);
 		LSG_UI::setTableRows(component);
 		LSG_UI::setTextLabels(component);
+		LSG_UI::setTiles(component);
 
 		auto height = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
 
@@ -1180,10 +1192,23 @@ void LSG_UI::SetText(LSG_Component* component, bool sort)
 	LSG_UI::setListItems(component, sort);
 	LSG_UI::setTableRows(component, sort);
 	LSG_UI::setTextLabels(component);
+	LSG_UI::setTiles(component, sort);
 
 	LSG_UI::setMenu(component);
 
 	LSG_UI::layoutModal(component);
+}
+
+void LSG_UI::setTiles(LSG_Component* component, bool sort)
+{
+	if (!component)
+		return;
+
+	if (component->IsTiles())
+		static_cast<LSG_Tiles*>(component)->SetTiles(sort);
+
+	for (auto child : component->GetChildren())
+		LSG_UI::setTiles(child, sort);
 }
 
 void LSG_UI::UnhighlightComponents()

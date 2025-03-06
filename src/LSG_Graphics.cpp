@@ -22,7 +22,7 @@ SDL_Rect LSG_Graphics::GetDestinationAligned(const SDL_Rect& background, const S
 	return destination;
 }
 
-SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size& newSize)
+SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& newSize)
 {
 	SDL_Size remainder = {
 		(newSize.width  % 2),
@@ -176,13 +176,13 @@ LSG_ImageOrientation LSG_Graphics::GetImageOrientation(const std::string& imageF
 
 		std::fread(&offsetToFirstIFD, 1, 4, file);
 
-		auto offset = (uint32_t)LSG_ConstBytes::ToInt(offsetToFirstIFD[0], offsetToFirstIFD[1], offsetToFirstIFD[2], offsetToFirstIFD[3], isByteOrderIntel);
+		auto offset = LSG_ConstBytes::ToInt(offsetToFirstIFD[0], offsetToFirstIFD[1], offsetToFirstIFD[2], offsetToFirstIFD[3], isByteOrderIntel);
 
 		std::fseek(file, (offset - 8), SEEK_CUR); // Seek to first IFD (Image File Directory)
 
 		std::fread(&nrOfIFDs, 1, 2, file);
 
-		auto nrOfDirectories = (uint16_t)LSG_ConstBytes::ToInt(nrOfIFDs[0], nrOfIFDs[1], isByteOrderIntel);
+		auto nrOfDirectories = LSG_ConstBytes::ToInt(nrOfIFDs[0], nrOfIFDs[1], isByteOrderIntel);
 
 		for (int i = 0; i < nrOfDirectories; i++)
 		{
@@ -192,7 +192,7 @@ LSG_ImageOrientation LSG_Graphics::GetImageOrientation(const std::string& imageF
 
 			std::fread(&ifd, 1, 12, file);
 
-			auto tagID = (uint16_t)LSG_ConstBytes::ToInt(ifd[0], ifd[1], isByteOrderIntel);
+			auto tagID = LSG_ConstBytes::ToInt(ifd[0], ifd[1], isByteOrderIntel);
 
 			if (tagID != 0x0112) // Orientation (0x01 0x12)
 				continue;

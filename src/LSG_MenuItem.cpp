@@ -26,7 +26,7 @@ SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile)
 
 	SDL_DestroyTexture(icon);
 
-	auto downscaledSize = LSG_Graphics::GetDownscaledSize(size, { maxSize, maxSize });
+	auto downscaledSize = LSG_Graphics::GetDownscaledSize({ maxSize, maxSize });
 
 	icon = LSG_Graphics::GetTextureDownScaled(imageFile, downscaledSize);
 

@@ -289,7 +289,7 @@ namespace LSG_UnitTest
         {
             try
             {
-                auto header = LSG_GetTableHeader("Table");
+                auto header = LSG_GetTableHeader("TableWithGroups");
 
                 Assert::AreEqual(2, (int)header.size());
 
@@ -306,9 +306,9 @@ namespace LSG_UnitTest
         {
             try
             {
-                LSG_RemoveTableHeader("Table");
+                LSG_RemoveTableHeader("TableWithGroups");
 
-                auto header = LSG_GetTableHeader("Table");
+                auto header = LSG_GetTableHeader("TableWithGroups");
 
                 Assert::IsTrue(header.empty());
             }
@@ -322,9 +322,9 @@ namespace LSG_UnitTest
         {
             try
             {
-                LSG_SetTableHeader("Table", { "New Header A", "New Header B", "New Header C" });
+                LSG_SetTableHeader("TableWithGroups", { "New Header A", "New Header B", "New Header C" });
 
-                auto header = LSG_GetTableHeader("Table");
+                auto header = LSG_GetTableHeader("TableWithGroups");
 
                 Assert::AreEqual(3, (int)header.size());
 
@@ -561,13 +561,14 @@ namespace LSG_UnitTest
         {
             try
             {
-                for (int i = 0; i < 200; i++)
-                    LSG_AddTableRow("Table", { ("My new table row " + std::to_string(i) + " - Column A"), ("My new table row " + std::to_string(i) + " - Column B") });
+                SetRows();
 
-                auto rows     = LSG_GetTableRows("Table");
-                auto pageRows = LSG_GetPageTableRows("Table");
+                LSG_AddTableRow("TableWithGroups", { ("My new table row 200 - Column A"), ("My new table row 200 - Column B") });
 
-                Assert::AreEqual(206,                   (int)rows.size());
+                auto rows     = LSG_GetTableRows("TableWithGroups");
+                auto pageRows = LSG_GetPageTableRows("TableWithGroups");
+
+                Assert::AreEqual(201,                   (int)rows.size());
                 Assert::AreEqual(LSG_MAX_ROWS_PER_PAGE, (int)pageRows.size());
             }
             catch (const std::exception& e)
@@ -582,9 +583,9 @@ namespace LSG_UnitTest
             {
                 SetRows();
 
-                auto rowN1  = LSG_GetTableRow("Table", -1);
-                auto row0   = LSG_GetTableRow("Table", 0);
-                auto row199 = LSG_GetTableRow("Table", 199);
+                auto rowN1  = LSG_GetTableRow("TableWithGroups", -1);
+                auto row0   = LSG_GetTableRow("TableWithGroups", 0);
+                auto row199 = LSG_GetTableRow("TableWithGroups", 199);
 
                 Assert::IsTrue(rowN1.empty());
 
@@ -597,9 +598,9 @@ namespace LSG_UnitTest
                 Assert::AreEqual("My new table row 99 - Column A", row199[0].c_str());
                 Assert::AreEqual("My new table row 99 - Column B", row199[1].c_str());
 
-                auto pageRowN1  = LSG_GetPageTableRow("Table", -1);
-                auto pageRow0   = LSG_GetPageTableRow("Table", 0);
-                auto pageRow199 = LSG_GetPageTableRow("Table", 199);
+                auto pageRowN1  = LSG_GetPageTableRow("TableWithGroups", -1);
+                auto pageRow0   = LSG_GetPageTableRow("TableWithGroups", 0);
+                auto pageRow199 = LSG_GetPageTableRow("TableWithGroups", 199);
 
                 Assert::IsTrue(pageRowN1.empty());
                 Assert::IsTrue(pageRow199.empty());
@@ -609,10 +610,10 @@ namespace LSG_UnitTest
                 Assert::AreEqual("My new table row 0 - Column A", pageRow0[0].c_str());
                 Assert::AreEqual("My new table row 0 - Column B", pageRow0[1].c_str());
 
-                LSG_SetPage("Table", 1);
+                LSG_SetPage("TableWithGroups", 1);
 
-                row0   = LSG_GetTableRow("Table", 0);
-                row199 = LSG_GetTableRow("Table", 199);
+                row0   = LSG_GetTableRow("TableWithGroups", 0);
+                row199 = LSG_GetTableRow("TableWithGroups", 199);
 
                 Assert::AreEqual(2, (int)row0.size());
                 Assert::AreEqual(2, (int)row199.size());
@@ -623,8 +624,8 @@ namespace LSG_UnitTest
                 Assert::AreEqual("My new table row 99 - Column A", row199[0].c_str());
                 Assert::AreEqual("My new table row 99 - Column B", row199[1].c_str());
 
-                pageRow0   = LSG_GetPageTableRow("Table", 0);
-                pageRow199 = LSG_GetPageTableRow("Table", 199);
+                pageRow0   = LSG_GetPageTableRow("TableWithGroups", 0);
+                pageRow199 = LSG_GetPageTableRow("TableWithGroups", 199);
 
                 Assert::IsTrue(pageRow199.empty());
 
@@ -645,11 +646,15 @@ namespace LSG_UnitTest
             {
                 SetRows();
 
-                auto rows     = LSG_GetTableRows("Table");
-                auto pageRows = LSG_GetPageTableRows("Table");
+                auto rows       = LSG_GetTableRows("TableWithGroups");
+                auto groups     = LSG_GetTableGroups("TableWithGroups");
+                auto pageRows   = LSG_GetPageTableRows("TableWithGroups");
+                auto pageGroups = LSG_GetPageTableGroups("TableWithGroups");
 
                 Assert::AreEqual(200,                   (int)rows.size());
                 Assert::AreEqual(LSG_MAX_ROWS_PER_PAGE, (int)pageRows.size());
+                Assert::AreEqual(0,                     (int)groups.size());
+                Assert::AreEqual(0,                     (int)pageGroups.size());
             }
             catch (const std::exception& e)
             {
@@ -663,14 +668,14 @@ namespace LSG_UnitTest
             {
                 SetRows();
 
-                LSG_RemoveTableRow("Table", -1);
-                LSG_RemoveTableRow("Table", 0);
-                LSG_RemoveTableRow("Table", 199);
+                LSG_RemoveTableRow("TableWithGroups", -1);
+                LSG_RemoveTableRow("TableWithGroups", 0);
+                LSG_RemoveTableRow("TableWithGroups", 199);
 
-                auto row0   = LSG_GetTableRow("Table", 0);
-                auto row197 = LSG_GetTableRow("Table", 197);
-                auto row198 = LSG_GetTableRow("Table", 198);
-                auto row199 = LSG_GetTableRow("Table", 199);
+                auto row0   = LSG_GetTableRow("TableWithGroups", 0);
+                auto row197 = LSG_GetTableRow("TableWithGroups", 197);
+                auto row198 = LSG_GetTableRow("TableWithGroups", 198);
+                auto row199 = LSG_GetTableRow("TableWithGroups", 199);
 
                 Assert::IsTrue(row199.empty());
 
@@ -687,27 +692,27 @@ namespace LSG_UnitTest
                 Assert::AreEqual("My new table row 99 - Column A", row198[0].c_str());
                 Assert::AreEqual("My new table row 99 - Column B", row198[1].c_str());
 
-                LSG_RemovePageTableRow("Table", -1);
-                LSG_RemovePageTableRow("Table", 0);
-                LSG_RemovePageTableRow("Table", 198);
+                LSG_RemovePageTableRow("TableWithGroups", -1);
+                LSG_RemovePageTableRow("TableWithGroups", 0);
+                LSG_RemovePageTableRow("TableWithGroups", 198);
 
-                auto pageRow0 = LSG_GetPageTableRow("Table", 0);
+                auto pageRow0 = LSG_GetPageTableRow("TableWithGroups", 0);
 
                 Assert::AreEqual(2, (int)pageRow0.size());
 
                 Assert::AreEqual("My new table row 10 - Column A", pageRow0[0].c_str());
                 Assert::AreEqual("My new table row 10 - Column B", pageRow0[1].c_str());
 
-                LSG_SetPage("Table", 1);
+                LSG_SetPage("TableWithGroups", 1);
 
-                row0 = LSG_GetTableRow("Table", 0);
+                row0 = LSG_GetTableRow("TableWithGroups", 0);
 
                 Assert::AreEqual(2, (int)row0.size());
 
                 Assert::AreEqual("My new table row 10 - Column A", row0[0].c_str());
                 Assert::AreEqual("My new table row 10 - Column B", row0[1].c_str());
 
-                pageRow0 = LSG_GetPageTableRow("Table", 0);
+                pageRow0 = LSG_GetPageTableRow("TableWithGroups", 0);
 
                 Assert::AreEqual(2, (int)pageRow0.size());
 
@@ -726,11 +731,11 @@ namespace LSG_UnitTest
             {
                 SetRows();
 
-                LSG_SetTableRow("Table", 0, { ("A - My first table row - Column A"), ("A - My first table row - Column B") });
-                LSG_SetTableRow("Table", 199, { ("Z - My last table row - Column A"), ("Z - My last table row - Column B") });
+                LSG_SetTableRow("TableWithGroups",   6, { ("A - My first table row - Column A"), ("A - My first table row - Column B") });
+                LSG_SetTableRow("TableWithGroups", 199, { ("Z - My last table row - Column A"),  ("Z - My last table row - Column B") });
 
-                auto row0   = LSG_GetTableRow("Table", 0);
-                auto row199 = LSG_GetTableRow("Table", 199);
+                auto row0   = LSG_GetTableRow("TableWithGroups", 6);
+                auto row199 = LSG_GetTableRow("TableWithGroups", 199);
 
                 Assert::AreEqual(2, (int)row0.size());
                 Assert::AreEqual(2, (int)row199.size());
@@ -741,11 +746,11 @@ namespace LSG_UnitTest
                 Assert::AreEqual("Z - My last table row - Column A", row199[0].c_str());
                 Assert::AreEqual("Z - My last table row - Column B", row199[1].c_str());
 
-                LSG_SetPageTableRow("Table", 0, { ("A - My first page table row - Column A"), ("A - My first page table row - Column B") });
-                LSG_SetPageTableRow("Table", 199, { ("Z - My last page table row - Column A"), ("Z - My last page table row - Column B") });
+                LSG_SetPageTableRow("TableWithGroups",   6, { ("A - My first page table row - Column A"), ("A - My first page table row - Column B") });
+                LSG_SetPageTableRow("TableWithGroups", 199, { ("Z - My last page table row - Column A"),  ("Z - My last page table row - Column B") });
 
-                auto pageRow0   = LSG_GetPageTableRow("Table", 0);
-                auto pageRow199 = LSG_GetPageTableRow("Table", 199);
+                auto pageRow0   = LSG_GetPageTableRow("TableWithGroups", 6);
+                auto pageRow199 = LSG_GetPageTableRow("TableWithGroups", 199);
 
                 Assert::IsTrue(pageRow199.empty());
 
@@ -769,14 +774,10 @@ namespace LSG_UnitTest
                 for (int i = 0; i < 200; i++)
                     newRows.push_back({ ("My new table row " + std::to_string(i) + " - Column A"), ("My new table row " + std::to_string(i) + " - Column B") });
 
-                LSG_SetPage("Table", 0);
-                LSG_SetTableRows("Table", newRows);
+                LSG_SetPage("TableWithGroups", 0);
+                LSG_SetTableGroups("TableWithGroups", {});
+                LSG_SetTableRows("TableWithGroups", newRows);
 
-                auto rows     = LSG_GetTableRows("Table");
-                auto pageRows = LSG_GetPageTableRows("Table");
-
-                Assert::AreEqual(200,                   (int)rows.size());
-                Assert::AreEqual(LSG_MAX_ROWS_PER_PAGE, (int)pageRows.size());
             }
             catch (const std::exception& e)
             {
@@ -790,10 +791,10 @@ namespace LSG_UnitTest
             {
                 SetRows();
 
-                LSG_SortTable("Table", LSG_SORT_ORDER_DESCENDING, 1);
+                LSG_SortTable("TableWithGroups", LSG_SORT_ORDER_DESCENDING, 1);
 
-                auto row0   = LSG_GetTableRow("Table", 0);
-                auto row199 = LSG_GetTableRow("Table", 199);
+                auto row0   = LSG_GetTableRow("TableWithGroups", 0);
+                auto row199 = LSG_GetTableRow("TableWithGroups", 199);
 
                 Assert::AreEqual(2, (int)row0.size());
                 Assert::AreEqual(2, (int)row199.size());
@@ -804,10 +805,10 @@ namespace LSG_UnitTest
                 Assert::AreEqual("My new table row 0 - Column A", row199[0].c_str());
                 Assert::AreEqual("My new table row 0 - Column B", row199[1].c_str());
 
-                LSG_SortTable("Table", LSG_SORT_ORDER_ASCENDING, 1);
+                LSG_SortTable("TableWithGroups", LSG_SORT_ORDER_ASCENDING, 1);
 
-                row0   = LSG_GetTableRow("Table", 0);
-                row199 = LSG_GetTableRow("Table", 199);
+                row0   = LSG_GetTableRow("TableWithGroups", 0);
+                row199 = LSG_GetTableRow("TableWithGroups", 199);
 
                 Assert::AreEqual(2, (int)row0.size());
                 Assert::AreEqual(2, (int)row199.size());
@@ -885,6 +886,196 @@ namespace LSG_UnitTest
         }
     };
 
+	TEST_CLASS(Tile)
+	{
+        TEST_METHOD(AddTile)
+        {
+            try
+            {
+                SetTiles();
+
+                LSG_TileItem tile = {
+                  .image = "/path/to/image/file2.jpg",
+                  .text  = "Image 2"
+                };
+
+                LSG_AddTile("Tiles", tile);
+
+                auto tiles = LSG_GetTiles("Tiles");
+
+                Assert::AreEqual(5, (int)tiles.size());
+
+                auto tile4 = LSG_GetTile("Tiles", 4);
+
+                Assert::AreEqual(tile.image.c_str(), tile4.image.c_str());
+                Assert::AreEqual(tile.text.c_str(),  tile4.text.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(GetTile)
+        {
+            try
+            {
+                SetTiles();
+
+                auto tileN1 = LSG_GetTile("Tiles", -1);
+                auto tile1  = LSG_GetTile("Tiles", 1);
+                auto tile3  = LSG_GetTile("Tiles", 3);
+                auto tile4  = LSG_GetTile("Tiles", 4);
+
+                Assert::IsTrue(tileN1.image.empty());
+                Assert::IsTrue(tileN1.text.empty());
+
+                Assert::IsTrue(tile1.image.empty());
+                Assert::AreEqual("No image", tile1.text.c_str());
+
+                Assert::AreEqual("/path/to/image/file1.jpg", tile3.image.c_str());
+                Assert::AreEqual("Image 1",                  tile3.text.c_str());
+
+                Assert::IsTrue(tile4.image.empty());
+                Assert::IsTrue(tile4.text.empty());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(GetTiles)
+        {
+            try
+            {
+                SetTiles();
+
+                auto tiles = LSG_GetTiles("Tiles");
+
+                Assert::AreEqual(4, (int)tiles.size());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(RemoveTile)
+        {
+            try
+            {
+                SetTiles();
+
+                LSG_RemoveTile("Tiles", -1);
+                LSG_RemoveTile("Tiles", 0);
+                LSG_RemoveTile("Tiles", 3);
+
+                auto tile0 = LSG_GetTile("Tiles", 0);
+                auto tile2 = LSG_GetTile("Tiles", 2);
+
+                Assert::IsTrue(tile0.image.empty());
+                Assert::AreEqual("No image", tile0.text.c_str());
+
+                Assert::AreEqual("/path/to/image/file1.jpg", tile2.image.c_str());
+                Assert::AreEqual("Image 1",                  tile2.text.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SelectTile)
+        {
+            try
+            {
+                SetTiles();
+
+                auto tiles0 = LSG_GetSelectedTiles("Tiles");
+
+                Assert::IsTrue(tiles0.empty());
+
+                LSG_SelectTiles("Tiles", { -1, 1, 3, 4 });
+
+                auto tiles = LSG_GetSelectedTiles("Tiles");
+
+                Assert::AreEqual(2, (int)tiles.size());
+                Assert::AreEqual(1, (int)tiles[0]);
+                Assert::AreEqual(3, (int)tiles[1]);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetTile)
+        {
+            try
+            {
+                SetTiles();
+
+                LSG_TileItem tileItem = {
+                    .image = "/path/to/image/file2.jpg",
+                    .text  = "Image 2"
+                };
+
+                LSG_SetTile("Tiles", -1, tileItem);
+
+                auto tile = LSG_GetTile("Tiles", -1);
+
+                Assert::IsTrue(tile.image.empty());
+                Assert::IsTrue(tile.text.empty());
+
+                LSG_SetTile("Tiles", 0, tileItem);
+
+                tile = LSG_GetTile("Tiles", 0);
+
+                Assert::AreEqual(tileItem.image, tile.image);
+                Assert::AreEqual(tileItem.text,  tile.text);
+
+                LSG_SetTile("Tiles", 4, tileItem);
+
+                tile = LSG_GetTile("Tiles", 4);
+
+                Assert::IsTrue(tile.image.empty());
+                Assert::IsTrue(tile.text.empty());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetTiles)
+        {
+            try
+            {
+                LSG_TileItems tileItems = {
+                    { .image = "", .text = "" },
+                    { .image = "", .text = "No image" },
+                    { .image = "/path/to/image/file.jpg",  .text  = "" },
+                    { .image = "/path/to/image/file1.jpg", .text  = "Image 1" }
+                };
+
+                LSG_SetTiles("Tiles", tileItems);
+
+                auto tiles = LSG_GetTiles("Tiles");
+
+                Assert::AreEqual(tileItems.size(), tiles.size());
+
+                for (size_t i = 0; i < tiles.size(); i++) {
+                    Assert::AreEqual(tileItems[i].image, tiles[i].image);
+                    Assert::AreEqual(tileItems[i].text,  tiles[i].text);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+	};
 }
 
 #endif

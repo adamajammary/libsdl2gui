@@ -11,7 +11,7 @@ private:
 
 public:
 	static SDL_Rect                GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment);
-	static SDL_Size                GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size& newSize);
+	static SDL_Size                GetDownscaledSize(const SDL_Size& newSize);
 	static int                     GetDPIScaled(int value);
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);

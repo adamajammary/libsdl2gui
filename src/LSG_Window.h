@@ -31,6 +31,7 @@ public:
     static SDL_Renderer* Open(const std::string& title, int width, int height);
     static void          Present();
     static void          Render();
+    static SDL_Texture*  RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format);
     static void          SetMaximized(bool maximized = true);
     static void          SetMinimumSize(int width, int height);
     static void          SetPosition(int x, int y);

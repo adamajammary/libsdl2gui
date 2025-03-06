@@ -107,11 +107,11 @@ Euismod lacinia at quis risus.</text>
       </panel>
     </panel>
 
-    <panel orientation="vertical">
+    <panel orientation="vertical" padding="10" border="1">
       <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
-          <text underline="true">Table:</text>
-          <text id="TableRow" />
+          <text underline="true">Tiles with wrapping:</text>
+          <text id="Tile" />
         </panel>
 
         <panel spacing="5">
@@ -121,42 +121,21 @@ Euismod lacinia at quis risus.</text>
       </panel>
 
       <panel spacing="10">
-        <panel id="PanelIdTable" padding="10" border="1">
-          <table id="Table" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
-            <table-header>
-              <table-column>Dolor</table-column>
-              <table-column>Magna</table-column>
-            </table-header>
-
-            <table-row>
-              <table-column>Adipiscing</table-column>
-              <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Congue</table-column>
-              <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Consequat</table-column>
-              <table-column>Ac felis donec et odio pellentesque diam volutpat commodo</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Blandit</table-column>
-              <table-column>Imperdiet nulla malesuada</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Cursus</table-column>
-              <table-column>Pellentesque elit eget gravida</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Risus</table-column>
-              <table-column>Sociis natoque penatibus</table-column>
-            </table-row>
-          </table>
+        <panel id="PanelIdTiles" padding="10" border="1">
+          <tiles id="Tiles" tile-size="128" spacing="5" font-size="12" text-color="#FFFFFF" text-halign="center" text-valign="bottom" wrap="true">
+            <tile image="img/tile-1.jpg" text="Tile #1" />
+            <tile image="img/tile-2.jpg" text="Tile #2" />
+            <tile image="img/tile-3.jpg" text="Tile #3" />
+            <tile image="img/tile-4.jpg" text="Tile #4" />
+            <tile image="img/tile-1.jpg" text="Tile #5" />
+            <tile image="img/tile-2.jpg" text="Tile #6" />
+            <tile image="img/tile-3.jpg" text="Tile #7" />
+            <tile image="img/tile-4.jpg" text="Tile #8" />
+          </tiles>
         </panel>
 
         <panel id="PanelIdTableWithGroups" padding="10" border="1">
-          <table id="TableWithGroups" sort="ascending" sort-column="0">
+          <table id="TableWithGroups" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
             <table-header>
               <table-column>Dolor</table-column>
               <table-column>Magna</table-column>

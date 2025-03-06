@@ -74,10 +74,21 @@ static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
 
     if (id == "List")
         LSG_SetText("ListRow", rowText);
-    else if (id == "Table")
-        LSG_SetText("TableRow", rowText);
     else if (id == "TableWithGroups")
         LSG_SetText("TableWithGroupsRow", rowText);
+}
+
+static void handleTileEvent(const std::string& id, const std::vector<int>& tiles)
+{
+    std::string tileText = (!tiles.empty() ? std::to_string(tiles[0]) : "");
+
+    for (size_t i = 1; i < tiles.size(); i++) {
+        if (tiles[i] >= 0)
+            tileText.append("," + std::to_string(tiles[i]));
+    }
+
+    if (id == "Tiles")
+        LSG_SetText("Tile", tileText);
 }
 
 static void handleUserEvent(const SDL_UserEvent& event)
@@ -97,6 +108,10 @@ static void handleUserEvent(const SDL_UserEvent& event)
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
         if (id == "Slider")
             LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
+        break;
+    case LSG_EVENT_TILE_SELECTED:
+    case LSG_EVENT_TILE_UNSELECTED:
+        handleTileEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     default:
         break;

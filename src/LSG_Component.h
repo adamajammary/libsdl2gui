@@ -62,6 +62,7 @@ public:
 	bool             IsTable() const;
 	bool             IsTextInput() const;
 	bool             IsTextLabel() const;
+	bool             IsTiles() const;
 	bool             IsVertical() const;
 	void             RemoveChild(LSG_Component* child);
 	virtual void     Render(SDL_Renderer* renderer) override;
@@ -88,6 +89,7 @@ protected:
 	SDL_Rect      getFillArea(const SDL_Rect& background, int border);
 	int           getFontSize();
 	int           getFontStyle();
+	LSG_Alignment getParentAlignment();
 	int           getTextureHeight();
 	SDL_Size      getTextureSize();
 	std::string   getXmlColor(const std::string& xmlAttribute, bool recursive = true);

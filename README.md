@@ -611,6 +611,31 @@ placeholder="string"
 value="string"
 ```
 
+### \<tiles\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_TILE_ACTIVATED](#handle-events), [LSG_EVENT_TILE_SELECTED](#handle-events) and [LSG_EVENT_TILE_UNSELECTED](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+spacing="int"
+font-size="int" # default="14"
+text-color="color"
+
+text-halign="alignment_horizontal"
+text-valign="alignment_vertical"
+tile-size="size"
+wrap="boolean" # default="true"
+```
+
 ### \<window\>
 
 [boolean](#boolean) | [file_path](#file_path)
@@ -727,7 +752,10 @@ enum LSG_EventType {
   LSG_EVENT_SLIDER_VALUE_CHANGED,
   LSG_EVENT_TABLE_COLUMN_RESIZED,
   LSG_EVENT_TEXT_INPUT_CLEARED,
-  LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
+  LSG_EVENT_TEXT_INPUT_COMPLETED, // ENTER
+  LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
+  LSG_EVENT_TILE_SELECTED,
+  LSG_EVENT_TILE_UNSELECTED
 };
 ```
 
@@ -781,16 +809,6 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
-### LSG_TableGroup
-
-```cpp
-struct LSG_TableGroup
-{
-  std::string   group;
-  LSG_TableRows rows;
-};
-```
-
 ### SDL_Size
 
 ```cpp
@@ -800,16 +818,30 @@ struct SDL_Size {
 };
 ```
 
+### LSG_TableGroup
+
+```cpp
+struct LSG_TableGroup
+{
+  std::string   group = "";
+  LSG_TableRows rows  = {};
+};
+```
+
+### LSG_TileItem
+
+```cpp
+struct LSG_TileItem
+{
+  std::string image = "";
+  std::string text  = "";
+};
+```
+
 ### LSG_Strings
 
 ```cpp
 using LSG_Strings = std::vector<std::string>;
-```
-
-### LSG_TableGroups
-
-```cpp
-using LSG_TableGroups = std::vector<LSG_TableGroup>;
 ```
 
 ### LSG_TableRows
@@ -818,10 +850,22 @@ using LSG_TableGroups = std::vector<LSG_TableGroup>;
 using LSG_TableRows = std::vector<LSG_Strings>;
 ```
 
+### LSG_TableGroups
+
+```cpp
+using LSG_TableGroups = std::vector<LSG_TableGroup>;
+```
+
+### LSG_TileItems
+
+```cpp
+using LSG_TileItems = std::vector<LSG_TileItem>;
+```
+
 ### LSG_AddListItem
 
 ```cpp
-void LSG_AddListItem(const std::string& id, const std::string& item)
+void LSG_AddListItem(const std::string& id, const std::string& item);
 ```
 
 Adds a new item to the list.
@@ -845,7 +889,7 @@ LSG_AddListItem("List", "My new list item");
 ### LSG_AddSubMenuItem
 
 ```cpp
-void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
+void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId);
 ```
 
 Adds a new item to the sub-menu.
@@ -921,9 +965,41 @@ Exceptions
 Example
 
 ```cpp
-LSG_Strings row = { "New row - Column A", "New row - Column B" };
+LSG_Strings row = {
+  "New row - Column A",
+  "New row - Column B"
+};
 
 LSG_AddTableRow("Table", row);
+```
+
+### LSG_AddTile
+
+```cpp
+void LSG_AddTile(const std::string& id, const LSG_TileItem& tile);
+```
+
+Adds a new tile to the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **tile** Tile item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TileItem tile = {
+  .image = "/path/to/image/file1.jpg",
+  .text  = "Image 1"
+};
+
+LSG_AddTile("Tiles", tile);
 ```
 
 ### LSG_ClearTextInput
@@ -1247,7 +1323,7 @@ Exceptions
 - invalid_argument
 - runtime_error
 
-### LSG_GetSelectedRow
+### LSG_GetSelectedRows
 
 ```cpp
 std::vector<int> LSG_GetSelectedRows(const std::string& id);
@@ -1258,6 +1334,23 @@ Returns the selected 0-based row indices (-1 for unselected) of the list or tabl
 Parameters
 
 - **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSelectedTiles
+
+```cpp
+std::vector<int> LSG_GetSelectedTiles(const std::string& id);
+```
+
+Returns the selected 0-based tile indices (-1 for unselected) of the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
 
 Exceptions
 
@@ -1499,6 +1592,41 @@ Returns the text input value.
 Parameters
 
 - **id** \<text-input\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTile
+
+```cpp
+LSG_TileItem LSG_GetTile(const std::string& id, int index);
+```
+
+Returns the tile item from the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTiles
+
+```cpp
+LSG_TileItems LSG_GetTiles(const std::string& id);
+```
+
+Returns all the tile items from the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
 
 Exceptions
 
@@ -2023,7 +2151,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemoveListItem("List", 12);
+LSG_RemoveListItem("List", 0);
 ```
 
 ### LSG_RemoveMenuItem
@@ -2070,7 +2198,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemovePageListItem("List", 12);
+LSG_RemovePageListItem("List", 0);
 ```
 
 ### LSG_RemovePageTableRow
@@ -2094,7 +2222,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemoveTableRow("Table", 6);
+LSG_RemoveTableRow("Table", 0);
 ```
 
 ### LSG_RemoveTableHeader
@@ -2165,7 +2293,31 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemoveTableRow("Table", 6);
+LSG_RemoveTableRow("Table", 0);
+```
+
+### LSG_RemoveTile
+
+```cpp
+void LSG_RemoveTile(const std::string& id, int index);
+```
+
+Removes the tile item from the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemoveTile("Tiles", 0);
 ```
 
 ### LSG_Run
@@ -2295,7 +2447,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_SelectRow("List", 2);
+LSG_SelectRow("List", 0);
 ```
 
 ### LSG_SelectRowByOffset
@@ -2343,7 +2495,55 @@ Exceptions
 Example
 
 ```cpp
-LSG_SelectRows("List", { 1, 2 });
+LSG_SelectRows("List", { 0, 1 });
+```
+
+### LSG_SelectTile
+
+```cpp
+void LSG_SelectTile(const std::string& id, int index);
+```
+
+Selects the tile item in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position (-1 for unselected)
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectTile("Tiles", 0);
+```
+
+### LSG_SelectTiles
+
+```cpp
+void LSG_SelectTiles(const std::string& id, const std::vector<int>& indices);
+```
+
+Selects the tile items in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **indices** 0-based tile index positions
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectTiles("Tiles", { 0, 1 });
 ```
 
 ### LSG_SetAlignmentHorizontal
@@ -3314,6 +3514,67 @@ Example
 
 ```cpp
 LSG_SetTextInputValue("TextInput", "Initial text input value");
+```
+
+### LSG_SetTile
+
+```cpp
+void LSG_SetTile(const std::string& id, int index, const LSG_TileItem& tile);
+```
+
+Updates and overwrites the tile item in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position
+- **tile** New tile item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TileItem tile = {
+  .image = "/path/to/image/file2.jpg",
+  .text  = "Image 2"
+};
+
+LSG_SetTile("Tiles", 0, tile);
+```
+
+### LSG_SetTiles
+
+```cpp
+void LSG_SetTiles(const std::string& id, const LSG_TileItems& tiles);
+```
+
+Sets the tile items of the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **tiles** Tile items
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TileItems tiles = {
+  { .image = "", .text = "" },
+  { .image = "", .text = "No image" },
+  { .image = "/path/to/image/file.jpg",  .text  = "" },
+  { .image = "/path/to/image/file1.jpg", .text  = "Image 1" }
+};
+
+LSG_SetTiles("Tiles", tiles);
 ```
 
 ### LSG_SetTitle

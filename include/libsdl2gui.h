@@ -59,7 +59,10 @@ enum LSG_EventType
 	LSG_EVENT_SLIDER_VALUE_CHANGED,
 	LSG_EVENT_TABLE_COLUMN_RESIZED,
 	LSG_EVENT_TEXT_INPUT_CLEARED,
-	LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
+	LSG_EVENT_TEXT_INPUT_COMPLETED, // ENTER
+	LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
+	LSG_EVENT_TILE_SELECTED,
+	LSG_EVENT_TILE_UNSELECTED
 };
 
 enum LSG_HAlign
@@ -102,11 +105,19 @@ using LSG_TableRows = std::vector<LSG_Strings>;
 
 struct LSG_TableGroup
 {
-	std::string   group;
-	LSG_TableRows rows;
+	std::string   group = "";
+	LSG_TableRows rows  = {};
 };
 
 using LSG_TableGroups = std::vector<LSG_TableGroup>;
+
+struct LSG_TileItem
+{
+	std::string image = "";
+	std::string text  = "";
+};
+
+using LSG_TileItems = std::vector<LSG_TileItem>;
 
 /**
  * @brief Adds a new item to the list.
@@ -144,6 +155,15 @@ DLLEXPORT void DLL LSG_AddTableGroup(const std::string& id, const LSG_TableGroup
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_AddTableRow(const std::string& id, const LSG_Strings& columns);
+
+/**
+ * @brief Adds a new tile to the tiles grid.
+ * @param id   <tiles> component ID
+ * @param tile Tile item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_AddTile(const std::string& id, const LSG_TileItem& tile);
 
 /**
  * @brief Clears the text input value.
@@ -307,6 +327,14 @@ DLLEXPORT int DLL LSG_GetScrollVertical(const std::string& id);
 DLLEXPORT std::vector<int> DLL LSG_GetSelectedRows(const std::string& id);
 
 /**
+ * @returns the selected 0-based tile indices (-1 for unselected) of the tiles grid
+ * @param id <tiles> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::vector<int> DLL LSG_GetSelectedTiles(const std::string& id);
+
+/**
  * @returns the component size
  * @param id Component ID
  * @throws invalid_argument
@@ -420,6 +448,23 @@ DLLEXPORT std::string DLL LSG_GetText(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetTextInputValue(const std::string& id);
+
+/**
+ * @returns the tile item from the tiles grid
+ * @param id    <tiles> component ID
+ * @param index 0-based tile index position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_TileItem DLL LSG_GetTile(const std::string& id, int index);
+
+/**
+ * @returns all the tile items from the tiles grid
+ * @param id <tiles> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_TileItems DLL LSG_GetTiles(const std::string& id);
 
 /**
  * @returns the header title of the modal, menu or sub-menu
@@ -682,6 +727,15 @@ DLLEXPORT void DLL LSG_RemoveTableGroup(const std::string& id, const std::string
 DLLEXPORT void DLL LSG_RemoveTableRow(const std::string& id, int row);
 
 /**
+ * @brief Removes the tile item from the tiles grid.
+ * @param id    <tiles> component ID
+ * @param index 0-based tile index position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_RemoveTile(const std::string& id, int index);
+
+/**
  * @brief Handles events and renders the UI components.
  * @returns a list of SDL2 events available during this run
  * @throws runtime_error
@@ -758,6 +812,24 @@ DLLEXPORT void DLL LSG_SelectRowByOffset(const std::string& id, int offset);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SelectRows(const std::string& id, const std::vector<int>& rows);
+
+/**
+ * @brief Selects the tile item in the tiles grid.
+ * @param id    <tiles> component ID
+ * @param index 0-based tile index position (-1 for unselected)
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectTile(const std::string& id, int index);
+
+/**
+ * @brief Selects the tile items in the tiles grid.
+ * @param id      <tiles> component ID
+ * @param indices 0-based tile index positions
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectTiles(const std::string& id, const std::vector<int>& indices);
 
 /**
  * @brief Sets the horizontal alignment of child components in containers like <panel> and <button>, or alignment of textured components like <image> and <text> relative to available space in their background component.
@@ -1110,6 +1182,25 @@ DLLEXPORT void DLL LSG_SetTextColor(const std::string& id, const SDL_Color& colo
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetTextInputValue(const std::string& id, const std::string& value);
+
+/**
+ * @brief Updates and overwrites the tile item in the tiles grid.
+ * @param id    <tiles> component ID
+ * @param index 0-based tile index position
+ * @param tile  New tile item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTile(const std::string& id, int index, const LSG_TileItem& tile);
+
+/**
+ * @brief Sets the tile items of the tiles grid.
+ * @param id    <tiles> component ID
+ * @param tiles Tile items
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTiles(const std::string& id, const LSG_TileItems& tiles);
 
 /**
  * @brief Sets the header title of the modal, menu or sub-menu.

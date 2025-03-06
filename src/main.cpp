@@ -175,6 +175,19 @@ void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 	static_cast<LSG_Table*>(component)->AddRow(columns);
 }
 
+void LSG_AddTile(const std::string& id, const LSG_TileItem& tile)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	static_cast<LSG_Tiles*>(component)->AddTile(tile);
+}
+
 void LSG_ClearTextInput(const std::string& id)
 {
 	if (!isRunning)
@@ -452,6 +465,19 @@ std::vector<int> LSG_GetSelectedRows(const std::string& id)
 	return static_cast<LSG_List*>(component)->GetSelectedRows();
 }
 
+std::vector<int> LSG_GetSelectedTiles(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	return static_cast<LSG_Tiles*>(component)->GetSelectedTiles();
+}
+
 SDL_Size LSG_GetSize(const std::string& id)
 {
 	if (!isRunning)
@@ -636,6 +662,32 @@ std::string LSG_GetTextInputValue(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<text-input>", id));
 
 	return static_cast<LSG_TextInput*>(component)->GetValue();
+}
+
+LSG_TileItem LSG_GetTile(const std::string& id, int index)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	return static_cast<LSG_Tiles*>(component)->GetTile(index);
+}
+
+LSG_TileItems LSG_GetTiles(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	return static_cast<LSG_Tiles*>(component)->GetTiles();
 }
 
 std::string LSG_GetTitle(const std::string& id)
@@ -1057,6 +1109,19 @@ void LSG_RemoveTableRow(const std::string& id, int row)
 	static_cast<LSG_Table*>(component)->RemoveRow(row);
 }
 
+void LSG_RemoveTile(const std::string& id, int index)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	static_cast<LSG_Tiles*>(component)->RemoveTile(index);
+}
+
 std::vector<SDL_Event> LSG_Run()
 {
 	if (!isRunning)
@@ -1210,6 +1275,32 @@ void LSG_SelectRows(const std::string& id, const std::vector<int>& rows)
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
 
 	static_cast<LSG_List*>(component)->Select(rows);
+}
+
+void LSG_SelectTile(const std::string& id, int index)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	static_cast<LSG_Tiles*>(component)->Select(index);
+}
+
+void LSG_SelectTiles(const std::string& id, const std::vector<int>& indices)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	static_cast<LSG_Tiles*>(component)->Select(indices);
 }
 
 void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)
@@ -1745,6 +1836,32 @@ void LSG_SetTextInputValue(const std::string& id, const std::string& value)
 		throw std::invalid_argument(getErrorNoID("<text-input>", id));
 
 	static_cast<LSG_TextInput*>(component)->SetValue(value);
+}
+
+void LSG_SetTile(const std::string& id, int index, const LSG_TileItem& tile)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	static_cast<LSG_Tiles*>(component)->SetTile(index, tile);
+}
+
+void LSG_SetTiles(const std::string& id, const LSG_TileItems& tiles)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	static_cast<LSG_Tiles*>(component)->SetTiles(tiles);
 }
 
 void LSG_SetTitle(const std::string& id, const std::string& title)

@@ -17,9 +17,9 @@ protected:
 	std::vector<int> selectedRows;
 
 public:
-	void             AddItem(const std::string& item, bool reset = true);
 	void             Activate();
 	void             Activate(const SDL_Point& mousePosition);
+	void             AddItem(const std::string& item);
 	std::vector<int> GetSelectedRows() const;
 	LSG_SortOrder    GetSortOrder();
 	SDL_Size         GetSize();

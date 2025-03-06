@@ -10,7 +10,8 @@ LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 
 void LSG_List::Activate()
 {
-	this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
+	if (!this->selectedRows.empty())
+		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
 void LSG_List::Activate(const SDL_Point& mousePosition)
@@ -19,15 +20,14 @@ void LSG_List::Activate(const SDL_Point& mousePosition)
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
-void LSG_List::AddItem(const std::string& item, bool reset)
+void LSG_List::AddItem(const std::string& item)
 {
 	if (item.empty())
 		return;
 
 	this->items.push_back(item);
 
-	if (reset)
-		this->reset();
+	this->reset();
 }
 
 int LSG_List::getRowHeight()
