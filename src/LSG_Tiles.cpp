@@ -527,6 +527,8 @@ void LSG_Tiles::RemoveTile(int index)
 	this->tiles.erase(this->tiles.begin() + (size_t)index);
 
 	this->reset();
+
+	this->Select(!this->tiles.empty() && !this->selectedTiles.empty() ? this->selectedTiles[0] : -1);
 }
 
 void LSG_Tiles::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -685,12 +687,16 @@ void LSG_Tiles::resetScroll()
 
 bool LSG_Tiles::Select(int index)
 {
-	if (!this->enabled || (index < 0) || (index >= (int)this->tiles.size()))
+	if (!this->enabled || (index >= (int)this->tiles.size()))
 		return false;
 
-	this->selectedTiles = { index };
-
-	this->sendEvent(index < 0 ? LSG_EVENT_TILE_UNSELECTED : LSG_EVENT_TILE_SELECTED);
+	if (index < 0) {
+		this->selectedTiles.clear();
+		this->sendEvent(LSG_EVENT_TILE_UNSELECTED);
+	} else {
+		this->selectedTiles = { index };
+		this->sendEvent(LSG_EVENT_TILE_SELECTED);
+	}
 
 	return true;
 }
@@ -865,8 +871,12 @@ void LSG_Tiles::SelectPrevious(bool keyShift)
 		return;
 	}
 
-	auto current        = this->getSelectedTile();
-	auto previous       = (current - 1);
+	auto current  = this->getSelectedTile();
+	auto previous = (current - 1);
+
+	if (previous < 0)
+		return;
+
 	auto tileSizeSpaced = (this->tileSize + this->spacing);
 
 	if (!this->wrapTiles)
@@ -904,6 +914,9 @@ void LSG_Tiles::SelectPreviousPage(bool keyShift)
 	if ((previous < 0) && (previous > -maxTiles))
 		previous = 0;
 
+	if (previous < 0)
+		return;
+
 	this->scrollOffsetY = std::max((this->scrollOffsetY - ((this->tileSize + this->spacing) * 2)), 0);
 
 	if (keyShift)
@@ -923,6 +936,9 @@ void LSG_Tiles::SelectPreviousRow(bool keyShift)
 	}
 
 	auto previous = (this->getSelectedTile() - this->tilesPerRow);
+
+	if (previous < 0)
+		return;
 
 	this->scrollOffsetY = std::max((this->scrollOffsetY - (this->tileSize + this->spacing)), 0);
 
@@ -1048,6 +1064,8 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 	}
 
 	this->reset();
+
+	this->Select(!this->tiles.empty() ? 0 : -1);
 }
 
 void LSG_Tiles::SetTiles(bool resetScroll)
