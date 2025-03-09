@@ -106,6 +106,9 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 	this->text.destination   = SDL_Rect(this->image.destination);
 	this->text.destination.h = std::min((tile.text.texture.size.height + LSG_Tiles::TextPadding), this->tileSize);
 
+	if (tile.text.text.empty() || !tile.text.texture.size.height)
+		this->text.destination.h = 0;
+
 	switch (this->textAlignment.valign) {
 		case LSG_VALIGN_MIDDLE: this->text.destination.y += ((this->tileSize - this->text.destination.h) / 2); break;
 		case LSG_VALIGN_BOTTOM: this->text.destination.y += (this->tileSize  - this->text.destination.h); break;
@@ -160,6 +163,9 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 
 	this->text.destination.y = this->image.destination.y;
 	this->text.destination.h = std::min((tile.text.texture.size.height + LSG_Tiles::TextPadding), this->image.destination.h);
+
+	if (tile.text.text.empty() || !tile.text.texture.size.height)
+		this->text.destination.h = 0;
 
 	switch (this->textAlignment.valign) {
 		case LSG_VALIGN_MIDDLE: this->text.destination.y += ((this->image.destination.h - this->text.destination.h) / 2); break;
