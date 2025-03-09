@@ -1192,23 +1192,23 @@ void LSG_UI::SetText(LSG_Component* component, bool sort)
 	LSG_UI::setListItems(component, sort);
 	LSG_UI::setTableRows(component, sort);
 	LSG_UI::setTextLabels(component);
-	LSG_UI::setTiles(component, sort);
+	LSG_UI::setTiles(component);
 
 	LSG_UI::setMenu(component);
 
 	LSG_UI::layoutModal(component);
 }
 
-void LSG_UI::setTiles(LSG_Component* component, bool sort)
+void LSG_UI::setTiles(LSG_Component* component)
 {
 	if (!component)
 		return;
 
 	if (component->IsTiles())
-		static_cast<LSG_Tiles*>(component)->SetTiles(sort);
+		static_cast<LSG_Tiles*>(component)->SetTiles();
 
 	for (auto child : component->GetChildren())
-		LSG_UI::setTiles(child, sort);
+		LSG_UI::setTiles(child);
 }
 
 void LSG_UI::UnhighlightComponents()

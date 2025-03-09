@@ -95,7 +95,7 @@ public:
 	void             SelectPreviousRow(bool keyShift = false);
 	void             SetTile(int index, const LSG_TileItem& tile);
 	void             SetTiles(const LSG_TileItems& tiles);
-	void             SetTiles(bool resetScroll);
+	void             SetTiles();
 
 private:
 	void          advanceToNextTile();
@@ -121,7 +121,7 @@ private:
 	void          renderImage(SDL_Renderer* renderer, const LSG_TileImage& image);
 	void          renderScrollBar(SDL_Renderer* renderer);
 	void          renderText(SDL_Renderer* renderer, const LSG_TileText& text);
-	void          reset(bool resetScroll = true);
+	void          reset(bool resetScroll = false);
 	void          resetScroll();
 	virtual void  sendEvent(LSG_EventType type) override;
 	void          selectCtrl(int index);

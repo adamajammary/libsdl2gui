@@ -1063,14 +1063,14 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 		});
 	}
 
-	this->reset();
+	this->reset(true);
 
 	this->Select(!this->tiles.empty() ? 0 : -1);
 }
 
-void LSG_Tiles::SetTiles(bool resetScroll)
+void LSG_Tiles::SetTiles()
 {
-	this->reset(resetScroll);
+	this->reset();
 }
 
 void LSG_Tiles::setTiles()
