@@ -442,10 +442,14 @@ LSG_TileItems LSG_Tiles::GetTiles()
 
 int LSG_Tiles::getTilesPerRow()
 {
-	if (!this->wrapTiles)
-		return (int)this->tiles.size();
+	int tilesPerRow;
 
-	return std::min((this->fillArea.w / (this->tileSize + this->spacing)), (int)this->tiles.size());
+	if (!this->wrapTiles)
+		tilesPerRow = (int)this->tiles.size();
+	else
+		tilesPerRow = std::min((this->fillArea.w / (this->tileSize + this->spacing)), (int)this->tiles.size());
+
+	return std::max(tilesPerRow, 1);
 }
 
 bool LSG_Tiles::isTextVisible() const
