@@ -180,8 +180,10 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer)
 		return;
 
 	auto height      = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
+	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
 	auto textureSize = LSG_Graphics::GetTextureSize(texture);
-	auto maxWidth    = (this->background.w - this->padding - (!this->hideCloseIcon ? height : 0) - this->padding);
+	auto iconSize    = (!this->hideCloseIcon ? height : 0);
+	auto maxWidth    = (this->background.w - this->padding - iconSize - this->padding);
 
 	SDL_Rect clip = {
 		0,
@@ -191,10 +193,10 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer)
 	};
 
 	SDL_Rect destination = {
-		(this->background.x + ((maxWidth - textureSize.width)  / 2)),
-		(this->background.y + (((this->padding + height + this->padding) - textureSize.height) / 2)),
-		textureSize.width,
-		textureSize.height
+		(this->background.x + padding + ((maxWidth - clip.w) / 2)),
+		(this->background.y + ((height - clip.h) / 2)),
+		clip.w,
+		clip.h
 	};
 
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
