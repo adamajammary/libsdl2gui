@@ -901,7 +901,7 @@ void LSG_Window::ShowMessage(const std::string& message, uint32_t flags)
 SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 {
 	if (imageFile.empty())
-		throw std::invalid_argument("imageFile cannot be empty.");
+		return nullptr;
 
 	auto filePath = LSG_Text::GetFullPath(imageFile);
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
@@ -915,7 +915,7 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 {
 	if (!surface)
-		throw std::invalid_argument("surface cannot be null.");
+		return nullptr;
 
 	auto texture = SDL_CreateTextureFromSurface(LSG_Window::renderer, surface);
 
