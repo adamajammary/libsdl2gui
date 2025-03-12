@@ -55,12 +55,22 @@ LSG_Component::~LSG_Component()
 			delete static_cast<LSG_MenuItem*>(child);
 		else if (child->IsSubMenu())
 			delete static_cast<LSG_MenuSub*>(child);
+		else if (child->IsModal())
+			delete static_cast<LSG_Modal*>(child);
+		else if (child->IsPanel())
+			delete static_cast<LSG_Panel*>(child);
+		else if (child->IsProgressBar())
+			delete static_cast<LSG_ProgressBar*>(child);
 		else if (child->IsSlider())
 			delete static_cast<LSG_Slider*>(child);
 		else if (child->IsTable())
 			delete static_cast<LSG_Table*>(child);
+		else if (child->IsTextInput())
+			delete static_cast<LSG_TextInput*>(child);
 		else if (child->IsTextLabel())
 			delete static_cast<LSG_TextLabel*>(child);
+		else if (child->IsTiles())
+			delete static_cast<LSG_Tiles*>(child);
 		else
 			delete child;
 	}

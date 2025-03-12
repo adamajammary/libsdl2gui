@@ -475,6 +475,15 @@ DLLEXPORT LSG_TileItems DLL LSG_GetTiles(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetTitle(const std::string& id);
 
 /**
+ * @returns a downscaled thumbnail of the original image
+ * @param filePath Image file path
+ * @param maxSize  Max size of thumbnail
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT SDL_Surface* DLL LSG_GetThumbnail(const std::string& filePath, const SDL_Size& maxSize);
+
+/**
  * @returns the minimum window size
  * @throws runtime_error
  */

@@ -22,22 +22,128 @@ SDL_Rect LSG_Graphics::GetDestinationAligned(const SDL_Rect& background, const S
 	return destination;
 }
 
-SDL_Size LSG_Graphics::GetDownscaledSize(const SDL_Size& newSize)
+SDL_Point LSG_Graphics::GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize)
 {
-	SDL_Size remainder = {
-		(newSize.width  % 2),
-		(newSize.height % 2)
+	if ((maxSize.width < 1) || (maxSize.height < 1))
+		return { 1, 1 };
+
+	if ((fullSize.width <= (maxSize.width * 2)) && ((fullSize.height <= (maxSize.height * 2))))
+		return { 1, 1 };
+
+	SDL_Point downScaleFactor = {
+		(fullSize.width  / maxSize.width),
+		(fullSize.height / maxSize.height)
 	};
 
-	if ((remainder.width < 1) && (remainder.height < 1))
-		return newSize;
+	return downScaleFactor;
+}
 
-	SDL_Size size = {
-		(newSize.width  + remainder.width),
-		(newSize.height + remainder.height)
+/**
+ * @throws runtime_error
+ */
+SDL_Surface* LSG_Graphics::getDownScaledSurface(const std::string& imageFile, const SDL_Point& downscaleFactor)
+{
+	if (imageFile.empty() || ((downscaleFactor.x < 2) && (downscaleFactor.y < 2)))
+		return nullptr;
+
+	auto filePath = LSG_Text::GetFullPath(imageFile);
+	auto surface  = IMG_Load(filePath.c_str());
+
+	if (!surface)
+		throw std::runtime_error(LSG_Text::Format("Failed to load image '%s': %s", filePath.c_str(), SDL_GetError()));
+
+	// https://github.com/sabdul-khabir/SDL3_gfx/blob/master/SDL3_rotozoom.c#L87
+
+	auto srcSurface = surface;
+
+	if (surface->format->BitsPerPixel != 32) {
+		srcSurface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+		SDL_FreeSurface(surface);
+	}
+
+	if (SDL_MUSTLOCK(srcSurface))
+		SDL_LockSurface(srcSurface);
+
+	auto bits   = srcSurface->format->BitsPerPixel;
+	auto bytes  = srcSurface->format->BytesPerPixel;
+	auto format = srcSurface->format->format;
+
+	SDL_Size destSize = {
+		(srcSurface->w / downscaleFactor.x),
+		(srcSurface->h / downscaleFactor.y)
 	};
 
-	return size;
+	auto destSurface = SDL_CreateRGBSurfaceWithFormat(0, destSize.width, (destSize.height + 2), bits, format);
+
+	destSurface->h = destSize.height;
+
+	auto divisionFactor    = (downscaleFactor.x * downscaleFactor.y);
+	auto divisionFactorRGB = (downscaleFactor.x * bytes);
+
+	auto destGap = (destSurface->pitch - (destSurface->w * bytes));
+
+	auto srcPixel  = (SDL_Color*)srcSurface->pixels;
+	auto destPixel = (SDL_Color*)destSurface->pixels;
+
+	for (int y = 0; y < destSurface->h; y++)
+	{
+		auto srcPixelY = srcPixel;
+
+		for (int x = 0; x < destSurface->w; x++)
+		{
+			auto srcPixelX = srcPixel;
+
+			int r = 0, g = 0, b = 0, a = 0;
+
+			for (int i = 0; i < downscaleFactor.y; i++)
+			{
+				for (int j = 0; j < downscaleFactor.x; j++)
+				{
+					r += srcPixel->r;
+					g += srcPixel->g;
+					b += srcPixel->b;
+					a += srcPixel->a;
+
+					srcPixel++;
+				}
+
+				srcPixel = (SDL_Color*)((uint8_t*)srcPixel + (srcSurface->pitch - divisionFactorRGB));
+			}
+
+			srcPixel = (SDL_Color*)((uint8_t*)srcPixelX + divisionFactorRGB);
+
+			destPixel->r = (r / divisionFactor);
+			destPixel->g = (g / divisionFactor);
+			destPixel->b = (b / divisionFactor);
+			destPixel->a = (a / divisionFactor);
+
+			destPixel++;
+		}
+
+		srcPixel  = (SDL_Color*)((uint8_t*)srcPixelY + (srcSurface->pitch * downscaleFactor.y));
+		destPixel = (SDL_Color*)((uint8_t*)destPixel + destGap);
+	}
+
+	if (SDL_MUSTLOCK(srcSurface))
+		SDL_UnlockSurface(srcSurface);
+
+	SDL_FreeSurface(srcSurface);
+
+	return destSurface;
+}
+
+SDL_Texture* LSG_Graphics::GetDownScaledTexture(const std::string& imageFile, const SDL_Point& downscaleFactor)
+{
+	auto surface = LSG_Graphics::getDownScaledSurface(imageFile, downscaleFactor);
+
+	if (!surface)
+		return nullptr;
+
+	auto texture = LSG_Window::ToTexture(surface);
+
+	SDL_FreeSurface(surface);
+
+	return texture;
 }
 
 int LSG_Graphics::GetDPIScaled(int value)
@@ -271,96 +377,6 @@ SDL_Color LSG_Graphics::GetOffsetColor(const SDL_Color& color, int offset)
 	return offsetColor;
 }
 
-/**
- * @throws runtime_error
- */
-SDL_Texture* LSG_Graphics::GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize)
-{
-	if (imageFile.empty() || (newSize.width < 1) || (newSize.height < 1))
-		return nullptr;
-
-	auto filePath = LSG_Text::GetFullPath(imageFile);
-	auto surface  = IMG_Load(filePath.c_str());
-
-	if (!surface)
-		throw std::runtime_error(LSG_Text::Format("Failed to load image '%s': %s", filePath.c_str(), SDL_GetError()));
-
-	auto srcSurface = surface;
-
-	if (surface->format->BitsPerPixel != 32) {
-		srcSurface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
-		SDL_FreeSurface(surface);
-	}
-
-	if (SDL_MUSTLOCK(srcSurface))
-		SDL_LockSurface(srcSurface);
-
-	auto bits   = srcSurface->format->BitsPerPixel;
-	auto bytes  = srcSurface->format->BytesPerPixel;
-	auto format = srcSurface->format->format;
-
-	auto destSurface = SDL_CreateRGBSurfaceWithFormat(0, newSize.width, newSize.height, bits, format);
-
-	auto divisionFactorX   = (srcSurface->w / destSurface->w);
-	auto divisionFactorY   = (srcSurface->h / destSurface->h);
-	auto divisionFactor    = (divisionFactorX * divisionFactorY);
-	auto divisionFactorRGB = (divisionFactorX * bytes);
-
-	auto destGap = (destSurface->pitch - (destSurface->w * bytes));
-
-	auto srcPixel  = (SDL_Color*)srcSurface->pixels;
-	auto destPixel = (SDL_Color*)destSurface->pixels;
-
-	for (int y = 0; y < destSurface->h; y++)
-	{
-		auto srcPixelY = srcPixel;
-
-		for (int x = 0; x < destSurface->w; x++)
-		{
-			auto srcPixelX = srcPixel;
-
-			int r = 0, g = 0, b = 0, a = 0;
-
-			for (int i = 0; i < divisionFactorY; i++)
-			{
-				for (int j = 0; j < divisionFactorX; j++)
-				{
-					r += srcPixel->r;
-					g += srcPixel->g;
-					b += srcPixel->b;
-					a += srcPixel->a;
-
-					srcPixel++;
-				}
-
-				srcPixel = (SDL_Color*)((uint8_t*)srcPixel + (srcSurface->pitch - divisionFactorRGB));
-			}
-
-			srcPixel = (SDL_Color*)((uint8_t*)srcPixelX + divisionFactorRGB);
-
-			destPixel->r = (r / divisionFactor);
-			destPixel->g = (g / divisionFactor);
-			destPixel->b = (b / divisionFactor);
-			destPixel->a = (a / divisionFactor);
-
-			destPixel++;
-		}
-
-		srcPixel  = (SDL_Color*)((uint8_t*)srcPixelY + (srcSurface->pitch * divisionFactorY));
-		destPixel = (SDL_Color*)((uint8_t*)destPixel + destGap);
-	}
-
-	if (SDL_MUSTLOCK(srcSurface))
-		SDL_UnlockSurface(srcSurface);
-
-	auto texture = LSG_Window::ToTexture(destSurface);
-
-	SDL_FreeSurface(destSurface);
-	SDL_FreeSurface(srcSurface);
-
-	return texture;
-}
-
 SDL_Size LSG_Graphics::GetTextureSize(SDL_Texture* texture)
 {
 	if (!texture)
@@ -370,6 +386,29 @@ SDL_Size LSG_Graphics::GetTextureSize(SDL_Texture* texture)
 	SDL_QueryTexture(texture, nullptr, nullptr, &textureSize.width, &textureSize.height);
 
 	return textureSize;
+}
+
+SDL_Surface* LSG_Graphics::GetThumbnail(const std::string& imageFile, const SDL_Size& maxSize)
+{
+	if (imageFile.empty())
+		return nullptr;
+
+	auto filePath = LSG_Text::GetFullPath(imageFile);
+	auto surface  = IMG_Load(filePath.c_str());
+
+	if (!surface)
+		return nullptr;
+
+	auto downscaleFactor = LSG_Graphics::GetDownscaleFactor({ surface->w, surface->h }, maxSize);
+
+	if ((downscaleFactor.x > 1) || (downscaleFactor.y > 1))
+	{
+		SDL_FreeSurface(surface);
+
+		surface = LSG_Graphics::getDownScaledSurface(imageFile, downscaleFactor);
+	}
+
+	return surface;
 }
 
 SDL_Color LSG_Graphics::GetThumbColor(const SDL_Color& backgroundColor)

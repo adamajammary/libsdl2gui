@@ -21,14 +21,14 @@ SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile)
 	auto size    = LSG_Graphics::GetTextureSize(icon);
 	auto maxSize = this->getMaxHeightIcon();
 
-	if ((size.width <= maxSize) && (size.height <= maxSize))
-		return icon;
+	auto downscaleFactor = LSG_Graphics::GetDownscaleFactor(size, { maxSize, maxSize });
 
-	SDL_DestroyTexture(icon);
+	if ((downscaleFactor.x > 1) || (downscaleFactor.y > 1))
+	{
+		SDL_DestroyTexture(icon);
 
-	auto downscaledSize = LSG_Graphics::GetDownscaledSize({ maxSize, maxSize });
-
-	icon = LSG_Graphics::GetTextureDownScaled(imageFile, downscaledSize);
+		icon = LSG_Graphics::GetDownScaledTexture(imageFile, downscaleFactor);
+	}
 
 	return icon;
 }

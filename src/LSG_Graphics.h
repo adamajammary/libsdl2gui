@@ -11,7 +11,8 @@ private:
 
 public:
 	static SDL_Rect                GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment);
-	static SDL_Size                GetDownscaledSize(const SDL_Size& newSize);
+	static SDL_Point               GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize);
+	static SDL_Texture*            GetDownScaledTexture(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static int                     GetDPIScaled(int value);
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
@@ -19,8 +20,8 @@ public:
 	static LSG_ImageOrientation    GetImageOrientation(const std::string& imageFile);
 	static SDL_Color               GetInverseColor(const SDL_Color& color);
 	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
-	static SDL_Texture*            GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize);
 	static SDL_Size                GetTextureSize(SDL_Texture* texture);
+	static SDL_Surface*            GetThumbnail(const std::string& imageFile, const SDL_Size& maxSize);
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static SDL_Texture*            GetVectorBack(const SDL_Color& color,  const SDL_Size& size);
 	static SDL_Texture*            GetVectorClose(const SDL_Color& color, const SDL_Size& size);
@@ -35,6 +36,7 @@ public:
 	static std::string             ToXmlAttribute(const SDL_Color& color);
 
 private:
+	static SDL_Surface*            getDownScaledSurface(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, int paddingX, int paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static SDL_Texture*            getVector(const std::string& svg);
 };

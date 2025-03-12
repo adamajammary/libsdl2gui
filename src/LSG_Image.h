@@ -7,13 +7,14 @@ class LSG_Image : public LSG_Component
 {
 public:
 	LSG_Image(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
-	~LSG_Image() {}
+	~LSG_Image();
 
 private:
+	SDL_Texture*         downscaledTexture;
 	std::string          file;
 	bool                 fill;
+	SDL_Size             imageSize;
 	LSG_ImageOrientation orientation;
-	SDL_Size             size;
 
 public:
 	SDL_Size     GetImageSize() const;
@@ -25,7 +26,9 @@ public:
 	void         SetImage();
 
 private:
-	void render(SDL_Renderer* renderer);
+	virtual void destroyTextures() override;
+	SDL_Size     getMaxSize(const SDL_Rect& background);
+	void         render(SDL_Renderer* renderer);
 };
 
 #endif

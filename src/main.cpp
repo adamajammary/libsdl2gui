@@ -707,6 +707,17 @@ std::string LSG_GetTitle(const std::string& id)
 	return LSG_XML::GetAttribute(component->GetXmlNode(), "title");
 }
 
+SDL_Surface* LSG_GetThumbnail(const std::string& filePath, const SDL_Size& maxSize)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	if (filePath.empty())
+		throw std::invalid_argument("filePath cannot be empty.");
+
+	return LSG_Graphics::GetThumbnail(filePath, maxSize);
+}
+
 SDL_Size LSG_GetWindowMinimumSize()
 {
 	if (!isRunning)
