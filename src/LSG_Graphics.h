@@ -17,7 +17,6 @@ public:
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
-	static LSG_ImageOrientation    GetImageOrientation(const std::string& imageFile);
 	static SDL_Color               GetInverseColor(const SDL_Color& color);
 	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
 	static SDL_Size                GetTextureSize(SDL_Texture* texture);

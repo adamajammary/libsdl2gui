@@ -222,6 +222,36 @@ std::string LSG_GetColorTheme()
 	return LSG_UI::GetColorTheme();
 }
 
+LSG_ExifData LSG_GetImageExif(const std::string& filePath)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	if (filePath.empty())
+		throw std::invalid_argument("filePath cannot be empty.");
+
+	return LSG_Exif::Get(filePath);
+}
+
+LSG_ImageOrientation LSG_GetImageOrientation(const LSG_ExifTags& tags)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	return LSG_Exif::GetOrientation(tags);
+}
+
+SDL_Surface* LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	if (filePath.empty())
+		throw std::invalid_argument("filePath cannot be empty.");
+
+	return LSG_Graphics::GetThumbnail(filePath, maxSize);
+}
+
 int LSG_GetLastPage(const std::string& id)
 {
 	if (!isRunning)
@@ -705,17 +735,6 @@ std::string LSG_GetTitle(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
 
 	return LSG_XML::GetAttribute(component->GetXmlNode(), "title");
-}
-
-SDL_Surface* LSG_GetThumbnail(const std::string& filePath, const SDL_Size& maxSize)
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	if (filePath.empty())
-		throw std::invalid_argument("filePath cannot be empty.");
-
-	return LSG_Graphics::GetThumbnail(filePath, maxSize);
 }
 
 SDL_Size LSG_GetWindowMinimumSize()

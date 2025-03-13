@@ -7,7 +7,6 @@
 #include <cwchar>    // wcslen()
 #include <filesystem>
 #include <fstream>
-#include <map>
 #include <set>
 #include <unordered_map>
 
@@ -123,23 +122,6 @@ struct LSG_ConstAndroid
 };
 #endif
 
-struct LSG_ConstBytes
-{
-public:
-	static inline const uint16_t ToInt(uint8_t a, uint8_t b, bool littleEndian = true)
-	{
-		return (uint16_t)(littleEndian ? ((b << 8) | a) : ((a << 8) | b));
-	}
-
-	static inline const uint32_t ToInt(uint8_t a, uint8_t b, uint8_t c, uint8_t d, bool littleEndian = true)
-	{
-		if (littleEndian)
-			return (uint32_t)((d << 24) | (c << 16) | (b << 8) | a);
-
-		return (uint32_t)((a << 24) | (b << 16) | (c << 8) | d);
-	}
-};
-
 struct LSG_Cursor
 {
 	static inline const int IBeamOffset = 3;
@@ -203,12 +185,6 @@ struct LSG_Alignment
 	LSG_VAlign valign = LSG_VALIGN_TOP;
 };
 
-struct LSG_ImageOrientation
-{
-	SDL_RendererFlip flip     = SDL_FLIP_NONE;
-	double           rotation = 0.0;
-};
-
 const char* LSG_GetBasePath();
 
 #if defined _android
@@ -225,6 +201,8 @@ const char* LSG_GetBasePath();
 #include "LSG_Text.h"
 
 #include "LSG_Button.h"
+#include "LSG_Bytes.h"
+#include "LSG_Exif.h"
 #include "LSG_Events.h"
 #include "LSG_Image.h"
 #include "LSG_Line.h"

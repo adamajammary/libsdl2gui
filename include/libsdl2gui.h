@@ -20,6 +20,7 @@
 #endif
 
 #include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -65,6 +66,25 @@ enum LSG_EventType
 	LSG_EVENT_TILE_UNSELECTED
 };
 
+// https://www.media.mit.edu/pia/Research/deepview/exif.html
+// https://exiftool.org/TagNames/EXIF.html
+
+enum LSG_ExifTagID
+{
+	LSG_EXIF_TAG_ID_CAMERA_FOCAL_LENGTH  = 0x920a,
+	LSG_EXIF_TAG_ID_CAMERA_MAKE          = 0x010f,
+	LSG_EXIF_TAG_ID_CAMERA_MODEL         = 0x0110,
+	LSG_EXIF_TAG_ID_CAMERA_FSTOP         = 0x829d,
+	LSG_EXIF_TAG_ID_CAMERA_EXPOSURE_TIME = 0x829a,
+	LSG_EXIF_TAG_ID_CAMERA_ISO           = 0x8827,
+	LSG_EXIF_TAG_ID_DATE_TIME_ORIGINAL   = 0x9003,
+	LSG_EXIF_TAG_ID_OFFSET_SUB_IFD       = 0x8769,
+	LSG_EXIF_TAG_ID_ORIENTATION          = 0x0112,
+	LSG_EXIF_TAG_ID_THUMB_JPEG_OFFSET    = 0x0201,
+	LSG_EXIF_TAG_ID_THUMB_JPEG_SIZE      = 0x0202,
+	LSG_EXIF_TAG_ID_THUMB_COMPRESSION    = 0x0103
+};
+
 enum LSG_HAlign
 {
 	LSG_HALIGN_LEFT,
@@ -98,6 +118,20 @@ struct SDL_Size
 {
 	int width  = 0;
 	int height = 0;
+};
+
+using LSG_ExifTags = std::map<uint16_t, std::string>;
+
+struct LSG_ExifData
+{
+	LSG_ExifTags tags      = {};
+	SDL_Surface* thumbnail = nullptr;
+};
+
+struct LSG_ImageOrientation
+{
+	SDL_RendererFlip flip     = SDL_FLIP_NONE;
+	double           rotation = 0.0;
 };
 
 using LSG_Strings   = std::vector<std::string>;
@@ -186,6 +220,30 @@ DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetColorTheme();
+
+/**
+ * @returns EXIF (Exchangeable Image File Format) data from the image file (if it exists)
+ * @param filePath Image file path
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_ExifData DLL LSG_GetImageExif(const std::string& filePath);
+
+/**
+ * @returns the orientation of the image from the EXIF tags (if it exists)
+ * @param tags EXIF data tags
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_ImageOrientation DLL LSG_GetImageOrientation(const LSG_ExifTags& tags);
+
+/**
+ * @returns a downscaled thumbnail of the original image
+ * @param filePath Image file path
+ * @param maxSize  Max size of thumbnail
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT SDL_Surface* DLL LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
 
 /**
  * @returns the last 0-based page index of the list or table
@@ -473,15 +531,6 @@ DLLEXPORT LSG_TileItems DLL LSG_GetTiles(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetTitle(const std::string& id);
-
-/**
- * @returns a downscaled thumbnail of the original image
- * @param filePath Image file path
- * @param maxSize  Max size of thumbnail
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT SDL_Surface* DLL LSG_GetThumbnail(const std::string& filePath, const SDL_Size& maxSize);
 
 /**
  * @returns the minimum window size

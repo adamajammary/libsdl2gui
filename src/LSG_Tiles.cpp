@@ -1097,7 +1097,8 @@ void LSG_Tiles::setTiles()
 				tile.image.texture.size    = { surface->w, surface->h };
 				tile.image.texture.texture = LSG_Window::ToTexture(surface);
 
-				auto orientation = LSG_Graphics::GetImageOrientation(filePath);
+				auto exif        = LSG_Exif::Get(filePath);
+				auto orientation = LSG_Exif::GetOrientation(exif.tags);
 
 				if (orientation.rotation > 0.0)
 				{

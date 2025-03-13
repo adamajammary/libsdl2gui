@@ -205,9 +205,11 @@ void LSG_Image::SetImage(const std::string& file, bool fill)
 
 	this->destroyTextures();
 
+	auto exif = LSG_Exif::Get(file);
+
 	this->file        = file;
 	this->fill        = fill;
-	this->orientation = LSG_Graphics::GetImageOrientation(file);
+	this->orientation = LSG_Exif::GetOrientation(exif.tags);
 	this->texture     = LSG_Window::ToTexture(file);
 }
 
@@ -222,8 +224,10 @@ void LSG_Image::SetImage()
 	auto xmlFile    = (attributes.contains("file") ? attributes["file"] : "");
 	auto xmlFill    = (attributes.contains("fill") ? attributes["fill"] : "");
 
+	auto exif = LSG_Exif::Get(xmlFile);
+
 	this->file        = xmlFile;
 	this->fill        = (xmlFill == "true");
-	this->orientation = LSG_Graphics::GetImageOrientation(xmlFile);
+	this->orientation = LSG_Exif::GetOrientation(exif.tags);
 	this->texture     = LSG_Window::ToTexture(xmlFile);
 }

@@ -818,6 +818,26 @@ struct SDL_Size {
 };
 ```
 
+### LSG_ExifData
+
+```cpp
+struct LSG_ExifData
+{
+  LSG_ExifTags tags      = {};
+  SDL_Surface* thumbnail = nullptr;
+};
+```
+
+### LSG_ImageOrientation
+
+```cpp
+struct LSG_ImageOrientation
+{
+  SDL_RendererFlip flip     = SDL_FLIP_NONE;
+  double           rotation = 0.0;
+};
+```
+
 ### LSG_TableGroup
 
 ```cpp
@@ -836,6 +856,12 @@ struct LSG_TileItem
   std::string image = "";
   std::string text  = "";
 };
+```
+
+### LSG_ExifTags
+
+```cpp
+using LSG_ExifTags = std::map<uint16_t, std::string>;
 ```
 
 ### LSG_Strings
@@ -1046,6 +1072,57 @@ Returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" i
 
 Exceptions
 
+- runtime_error
+
+### LSG_GetImageExif
+
+```cpp
+LSG_ExifData LSG_GetImageExif(const std::string& filePath);
+```
+
+Returns EXIF (Exchangeable Image File Format) data from the image file (if it exists).
+
+Parameters
+
+- **filePath** Image file path
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetImageOrientation
+
+```cpp
+LSG_ImageOrientation LSG_GetImageOrientation(const LSG_ExifTags& tags);
+```
+
+Returns the orientation of the image from the EXIF tags (if it exists).
+
+Parameters
+
+- **tags** EXIF data tags
+
+Exceptions
+
+- runtime_error
+
+### LSG_GetImageThumbnail
+
+```cpp
+SDL_Surface* LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
+```
+
+Returns a downscaled thumbnail of the original image.
+
+Parameters
+
+- **filePath** Image file path
+- **maxSize** Max size of thumbnail
+
+Exceptions
+
+- invalid_argument
 - runtime_error
 
 ### LSG_GetLastPage
@@ -1644,24 +1721,6 @@ Returns the header title of the modal, menu or sub-menu.
 Parameters
 
 - **id** \<modal\>, \<menu\> or \<menu-sub\> component ID
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-### LSG_GetThumbnail
-
-```cpp
-SDL_Surface* LSG_GetThumbnail(const std::string& filePath, const SDL_Size& maxSize);
-```
-
-Returns a downscaled thumbnail of the original image.
-
-Parameters
-
-- **filePath** Image file path
-- **maxSize** Max size of thumbnail
 
 Exceptions
 

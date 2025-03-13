@@ -157,3 +157,13 @@ uint16_t* LSG_Text::ToUTF16(const std::string& text)
 
 	return textUTF16;
 }
+
+std::wstring LSG_Text::ToWide(const std::string& text)
+{
+	auto utf16 = LSG_Text::ToUTF16(text);
+	auto wide  = std::wstring(reinterpret_cast<const wchar_t*>(utf16));
+
+	SDL_free(utf16);
+
+    return wide;
+}

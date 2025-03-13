@@ -226,7 +226,9 @@ void LSG_MenuItem::SetMenuItem(const SDL_Rect& background)
 
 	if (!xmlIcon.empty())
 	{
-		this->iconOrientation = LSG_Graphics::GetImageOrientation(xmlIcon);
+		auto exif = LSG_Exif::Get(xmlIcon);
+
+		this->iconOrientation = LSG_Exif::GetOrientation(exif.tags);
 
 		this->textures[LSG_MENU_ITEM_TEXTURE_ICON] = this->getIcon(xmlIcon);
 	}
