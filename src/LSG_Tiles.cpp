@@ -1063,6 +1063,8 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 
 void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 {
+	this->destroyTextures();
+
 	this->tiles.clear();
 
 	for (const auto& tile : tiles)
