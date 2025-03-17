@@ -945,11 +945,6 @@ void LSG_UI::RemoveXmlChildNodes(LSG_Component* component)
 	if (!component)
 		throw std::invalid_argument("UI component cannot be null.");
 
-	auto xmlNode = component->GetXmlNode();
-
-	if (xmlNode)
-		LSG_XML::RemoveChildNodes(xmlNode);
-	
 	for (auto child : component->GetChildren())
 	{
 		LSG_UI::components.erase(child->GetID());
@@ -959,6 +954,11 @@ void LSG_UI::RemoveXmlChildNodes(LSG_Component* component)
 
 		component->RemoveChild(child);
 	}
+
+	auto xmlNode = component->GetXmlNode();
+
+	if (xmlNode)
+		LSG_XML::RemoveChildNodes(xmlNode);
 }
 
 void LSG_UI::RemoveXmlNode(LSG_Component* component)
