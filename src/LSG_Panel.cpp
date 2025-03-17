@@ -13,6 +13,29 @@ LSG_Panel::~LSG_Panel()
 		SDL_DestroyTexture(this->renderTarget);
 }
 
+void LSG_Panel::AddButton(const LSG_ButtonItem& button)
+{
+	auto buttonNode = LSG_XML::AddChildNode(this->xmlNode, "button");
+
+	if (!buttonNode)
+		return;
+
+	LSG_XML::SetAttribute(buttonNode, "id", button.id);
+
+	auto textNode = LSG_XML::AddChildNode(buttonNode, "text");
+
+	LSG_XML::SetValue(textNode, button.text);
+
+	auto buttonComponent = LSG_UI::AddXmlNode(buttonNode, this);
+
+	buttonComponent->SetAlignmentHorizontal(button.halign);
+	buttonComponent->SetAlignmentVertical(button.valign);
+
+	auto textComponent = LSG_UI::AddXmlNode(textNode, buttonComponent);
+
+	textComponent->SetColors();
+}
+
 SDL_Size LSG_Panel::GetSize()
 {
 	auto attributes  = this->GetXmlAttributes();
@@ -269,4 +292,12 @@ void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background,
 	};
 
 	this->renderFill(renderer, 0, this->backgroundColor, bottomRight);
+}
+
+void LSG_Panel::SetButtons(const LSG_Buttons& buttons)
+{
+	LSG_UI::RemoveXmlChildNodes(this);
+
+	for (const auto& button : buttons)
+		LSG_Panel::AddButton(button);
 }

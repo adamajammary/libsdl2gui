@@ -136,6 +136,22 @@ void LSG_AddListItem(const std::string& id, const std::string& item)
 	static_cast<LSG_List*>(component)->AddItem(item);
 }
 
+void LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsPanel())
+		throw std::invalid_argument(getErrorNoID("<panel>", id));
+
+	static_cast<LSG_Panel*>(component)->AddButton(button);
+
+	LSG_UI::LayoutParent(component);
+	LSG_UI::SetText(component);
+}
+
 void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
 {
 	if (!isRunning)
@@ -1638,6 +1654,22 @@ void LSG_SetPadding(const std::string& id, int padding)
 	component->SetPadding(padding);
 
 	LSG_UI::LayoutParent(component);
+}
+
+void LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsPanel())
+		throw std::invalid_argument(getErrorNoID("<panel>", id));
+
+	static_cast<LSG_Panel*>(component)->SetButtons(buttons);
+
+	LSG_UI::LayoutParent(component);
+	LSG_UI::SetText(component);
 }
 
 void LSG_SetPage(const std::string& id, int page)

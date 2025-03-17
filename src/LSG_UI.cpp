@@ -955,6 +955,8 @@ void LSG_UI::RemoveXmlChildNodes(LSG_Component* component)
 		LSG_UI::components.erase(child->GetID());
 		LSG_UI::componentsByLayer.erase(child->GetLayer());
 
+		LSG_UI::RemoveXmlChildNodes(child);
+
 		component->RemoveChild(child);
 	}
 }

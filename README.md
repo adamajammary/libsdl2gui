@@ -818,6 +818,17 @@ struct SDL_Size {
 };
 ```
 
+### LSG_ButtonItem
+
+```cpp
+struct LSG_ButtonItem
+{
+  std::string id     = "";
+  std::string text   = "";
+  LSG_HAlign  halign = LSG_HALIGN_CENTER;
+  LSG_VAlign  valign = LSG_VALIGN_MIDDLE;
+};```
+
 ### LSG_ExifData
 
 ```cpp
@@ -856,6 +867,12 @@ struct LSG_TileItem
   std::string image = "";
   std::string text  = "";
 };
+```
+
+### LSG_ButtonItems
+
+```cpp
+using LSG_ButtonItems = std::vector<LSG_ButtonItem>;
 ```
 
 ### LSG_ExifTags
@@ -910,6 +927,37 @@ Example
 
 ```cpp
 LSG_AddListItem("List", "My new list item");
+```
+
+### LSG_AddPanelButton
+
+```cpp
+void LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button);
+```
+
+Adds a new button to the panel.
+
+Parameters
+
+- **id** \<panel\> component ID
+- **button** Button item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_ButtonItem button = {
+  .id     = "ButtonIdButton1",
+  .text   = "Button 1",
+  .halign = LSG_HALIGN_CENTER,
+  .valign = LSG_VALIGN_MIDDLE
+};
+
+LSG_AddPanelButton("PanelIdButtons", button);
 ```
 
 ### LSG_AddSubMenuItem
@@ -3209,6 +3257,35 @@ Example
 LSG_Strings row = { "Updated Row", "My updated table row" };
 
 LSG_SetPageTableRow("Table", 6, row);
+```
+
+### LSG_SetPanelButtons
+
+```cpp
+void LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons);
+```
+
+Replaces all child compomonents of the panel with the provided buttons.
+
+Parameters
+
+- **id** \<panel\> component ID
+- **buttons** Button items
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_Buttons buttons = {
+  { .id = "ButtonIdButton1", .text = "Button 1" },
+  { .id = "ButtonIdButton2", .text = "Button 2" }
+};
+
+LSG_SetPanelButtons("PanelIdButtons", buttons);
 ```
 
 ### LSG_SetProgressValue

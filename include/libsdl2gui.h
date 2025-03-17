@@ -120,6 +120,16 @@ struct SDL_Size
 	int height = 0;
 };
 
+struct LSG_ButtonItem
+{
+	std::string id     = "";
+	std::string text   = "";
+	LSG_HAlign  halign = LSG_HALIGN_CENTER;
+	LSG_VAlign  valign = LSG_VALIGN_MIDDLE;
+};
+
+using LSG_Buttons = std::vector<LSG_ButtonItem>;
+
 using LSG_ExifTags = std::map<uint16_t, std::string>;
 
 struct LSG_ExifData
@@ -161,6 +171,15 @@ using LSG_TileItems = std::vector<LSG_TileItem>;
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_AddListItem(const std::string& id, const std::string& item);
+
+/**
+ * @brief Adds a new button to the panel.
+ * @param id    <panel> component ID
+ * @param button Button item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button);
 
 /**
  * @brief Adds a new item to the sub-menu.
@@ -1109,6 +1128,15 @@ DLLEXPORT void DLL LSG_SetPageListItem(const std::string& id, int row, const std
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
+
+/**
+ * @brief Replaces all child compomonents of the panel with the provided buttons.
+ * @param id    <panel> component ID
+ * @param buttons Button items
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons);
 
 /**
  * @brief Sets the value of the progress bar as a percent between 0 and 1.

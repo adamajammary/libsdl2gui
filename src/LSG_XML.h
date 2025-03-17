@@ -20,7 +20,7 @@ public:
 	static void             RemoveChildNodes(LibXml::xmlNode* xmlNode);
 	static void             RemoveNode(LibXml::xmlNode* xmlNode);
 	static void             SetAttribute(LibXml::xmlNode* xmlNode, const std::string& attribute, const std::string& value);
-
+	static void             SetValue(LibXml::xmlNode* node, const std::string& value);
 };
 
 #endif
