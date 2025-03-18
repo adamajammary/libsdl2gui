@@ -138,7 +138,7 @@ struct LSG_ConstDefaultColor
 
 struct LSG_ConstClickTime
 {
-	static inline const int DoubleClick = 300;
+	static inline const int DoubleClick = 500;
 	static inline const int RightClick  = 1000;
 };
 
