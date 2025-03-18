@@ -1,6 +1,6 @@
 #include "LSG_UI.h"
 
-LSG_UMapStrStr       LSG_UI::colorTheme        = {};
+LSG_ColorThemes      LSG_UI::colorThemes       = {};
 std::string          LSG_UI::colorThemeFile    = "";
 LSG_UMapStrComponent LSG_UI::components        = {};
 LSG_MapIntComponent  LSG_UI::componentsByLayer = {};
@@ -105,7 +105,7 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 
 void LSG_UI::Close()
 {
-	LSG_UI::colorTheme.clear();
+	LSG_UI::colorThemes.clear();
 	LSG_UI::components.clear();
 	LSG_UI::componentsByLayer.clear();
 
@@ -220,8 +220,11 @@ SDL_Rect LSG_UI::GetBackgroundArea()
 
 std::string LSG_UI::GetColorFromTheme(const std::string& componentID, const std::string& colorAttribute)
 {
+	if (!LSG_UI::colorThemes.contains(LSG_UI::colorThemeFile))
+		return "";
+
 	auto key   = LSG_Text::Format("%s.%s", componentID.c_str(), colorAttribute.c_str());
-	auto color = (LSG_UI::colorTheme.contains(key) ? LSG_UI::colorTheme[key] : "");
+	auto color = (LSG_UI::colorThemes[LSG_UI::colorThemeFile].contains(key) ? LSG_UI::colorThemes[LSG_UI::colorThemeFile][key] : "");
 
 	return color;
 }
@@ -1026,9 +1029,7 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile, bool sort)
 	if (!colorThemeFile.empty() && (colorThemeFile == LSG_UI::colorThemeFile))
 		return;
 
-	LSG_UI::colorTheme.clear();
-
-	if (!colorThemeFile.empty())
+	if (!colorThemeFile.empty() && !LSG_UI::colorThemes.contains(colorThemeFile))
 	{
 		auto filePath = LSG_Text::GetFullPath(colorThemeFile);
 		auto file     = std::ifstream(filePath);
@@ -1047,7 +1048,7 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile, bool sort)
 			auto value = std::strtok(nullptr, "");
 
 			if (key && value)
-				LSG_UI::colorTheme[key] = value;
+				LSG_UI::colorThemes[colorThemeFile][key] = value;
 		}
 
 		file.close();

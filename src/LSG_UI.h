@@ -10,7 +10,7 @@ private:
     ~LSG_UI() {}
 
 private:
-    static LSG_UMapStrStr       colorTheme;
+    static LSG_ColorThemes      colorThemes;
     static std::string          colorThemeFile;
     static LSG_UMapStrComponent components;
     static LSG_MapIntComponent  componentsByLayer;
