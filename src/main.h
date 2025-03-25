@@ -213,6 +213,7 @@ const char* LSG_GetBasePath();
 #include "LSG_MenuItem.h"
 #include "LSG_MenuSub.h"
 #include "LSG_Modal.h"
+#include "LSG_Navigation.h"
 #include "LSG_Panel.h"
 #include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"

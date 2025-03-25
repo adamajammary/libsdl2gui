@@ -39,7 +39,7 @@ class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, 
 {
 public:
 	LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
-	~LSG_Tiles() {}
+	~LSG_Tiles();
 
 public:
 	static const int LayerOffset = 100000000;
@@ -70,18 +70,19 @@ private:
 	std::string           xmlTileSize;
 
 public:
-	void             Activate();
+	void             Activate() const;
 	void             AddTile(const LSG_TileItem& tile);
 	void             AddTile(LibXml::xmlNode* node);
 	std::vector<int> GetSelectedTiles() const;
-	SDL_Size         GetSize();
-	LSG_TileItem     GetTile(int index);
-	LSG_TileItems    GetTiles();
+	SDL_Size         GetSize() const;
+	LSG_TileItem     GetTile(int index) const;
+	LSG_TileItems    GetTiles() const;
+	size_t           GetTilesCount() const;
 	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveTile(int index);
-	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void     Render(SDL_Renderer* renderer) override;
+	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void             Render(SDL_Renderer* renderer);
 	bool             Select(int index);
 	bool             Select(const std::vector<int>& indices);
 	void             SelectAll();
@@ -106,14 +107,14 @@ private:
 	virtual void  destroyTextures() override;
 	SDL_Rect      getGrid();
 	SDL_Rect      getImageDestination() const;
-	int           getRowCount();
-	int           getScrollOffsetX();
-	int           getScrollOffsetY();
-	int           getSelectedTile();
-	LSG_Alignment getTextAlignment(const LSG_UMapStrStr& xmlAttributes);
+	int           getRowCount() const;
+	int           getScrollOffsetX() const;
+	int           getScrollOffsetY() const;
+	int           getSelectedTile() const;
+	LSG_Alignment getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const;
 	SDL_Rect      getTextDestination();
-	int           getTileSize();
-	int           getTilesPerRow();
+	int           getTileSize() const;
+	int           getTilesPerRow() const;
 	bool          isTextVisible() const;
 	bool          isTileVisible() const;
 	void          render(SDL_Renderer* renderer);
@@ -123,7 +124,7 @@ private:
 	void          renderText(SDL_Renderer* renderer, const LSG_TileText& text);
 	void          reset(bool resetScroll = false);
 	void          resetScroll();
-	virtual void  sendEvent(LSG_EventType type) override;
+	virtual void  sendEvent(LSG_EventType type) const override;
 	void          selectCtrl(int index);
 	void          selectShift(int index);
 	void          setGrid();

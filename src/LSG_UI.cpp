@@ -63,6 +63,8 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		component = new LSG_List(id, layer, node, name, parent);
 	else if (name == "list-item")
 		static_cast<LSG_List*>(parent)->AddItem(LSG_XML::GetValue(node));
+	else if (name == "navigation")
+		component = new LSG_Navigation(id, layer, node, name, parent);
 	else if (name == "panel")
 		component = new LSG_Panel(id, layer, node, name, parent);
 	else if (name == "table")
@@ -385,7 +387,16 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 
 		if (component->highlighted)
 		{
-			if (component->IsTextInput())
+			if (component->IsButton())
+			{
+				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+			}
+			else if (component->IsTable())
+			{
+				if (static_cast<LSG_Table*>(component)->IsMouseOverColumnBorder(mousePosition))
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+			}
+			else if (component->IsTextInput())
 			{
 				auto textInput = static_cast<LSG_TextInput*>(component);
 
@@ -395,15 +406,6 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 				else
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
-			}
-			else if (component->IsTable())
-			{
-				if (static_cast<LSG_Table*>(component)->IsMouseOverColumnBorder(mousePosition))
-					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
-			}
-			else if (component->IsButton())
-			{
-				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 			}
 			else if (component->IsTiles())
 			{
@@ -533,6 +535,7 @@ void LSG_UI::Layout()
 
 	LSG_UI::setImages(LSG_UI::root);
 	LSG_UI::setListItems(LSG_UI::root);
+	LSG_UI::setNavigation(LSG_UI::root);
 	LSG_UI::setTableRows(LSG_UI::root);
 	LSG_UI::setTextLabels(LSG_UI::root);
 	LSG_UI::setTiles(LSG_UI::root);
@@ -566,6 +569,7 @@ void LSG_UI::layoutModal(LSG_Component* component)
 
 		LSG_UI::setImages(component);
 		LSG_UI::setListItems(component);
+		LSG_UI::setNavigation(component);
 		LSG_UI::setTableRows(component);
 		LSG_UI::setTextLabels(component);
 		LSG_UI::setTiles(component);
@@ -995,7 +999,7 @@ void LSG_UI::renderMenu(SDL_Renderer* renderer, LSG_Component* component)
 		return;
 
 	if (component->IsMenu())
-		component->Render(renderer);
+		static_cast<LSG_Menu*>(component)->Render(renderer);
 
 	for (auto child : component->GetChildren())
 		LSG_UI::renderMenu(renderer, child);
@@ -1007,7 +1011,7 @@ void LSG_UI::renderModal(SDL_Renderer* renderer, LSG_Component* component)
 		return;
 
 	if (component->IsModal())
-		component->Render(renderer);
+		static_cast<LSG_Modal*>(component)->Render(renderer);
 
 	for (auto child : component->GetChildren())
 		LSG_UI::renderModal(renderer, child);
@@ -1146,6 +1150,18 @@ void LSG_UI::setMenu(LSG_Component* component)
 		LSG_UI::setMenu(child);
 }
 
+void LSG_UI::setNavigation(LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsNavigation())
+		static_cast<LSG_Navigation*>(component)->Set();
+
+	for (auto child : component->GetChildren())
+		LSG_UI::setNavigation(child);
+}
+
 void LSG_UI::setTableRows(LSG_Component* component, bool sort)
 {
 	if (!component)
@@ -1193,6 +1209,7 @@ void LSG_UI::setTextLabels(LSG_Component* component)
 void LSG_UI::SetText(LSG_Component* component, bool sort)
 {
 	LSG_UI::setListItems(component, sort);
+	LSG_UI::setNavigation(component);
 	LSG_UI::setTableRows(component, sort);
 	LSG_UI::setTextLabels(component);
 	LSG_UI::setTiles(component);

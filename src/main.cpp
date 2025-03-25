@@ -10,7 +10,7 @@ const char* LSG_GetBasePath()
 	return basePath;
 }
 
-std::string getErrorNoID(const std::string& component, const std::string& id)
+static std::string getErrorNoID(const std::string& component, const std::string& id)
 {
 	return LSG_Text::Format("Failed to find a %s component with ID '%s'.", component.c_str(), id.c_str());
 }
@@ -19,7 +19,7 @@ std::string getErrorNoID(const std::string& component, const std::string& id)
 /**
  * @throws runtime_error
  */
-void initBasePath()
+static void initBasePath()
 {
 	if (basePath)
 		return;
@@ -71,13 +71,13 @@ void initBasePath()
 	}
 }
 #else
-void initBasePath()
+static void initBasePath()
 {
 	basePath = SDL_GetBasePath();
 }
 #endif
 
-SDL_Renderer* init(const std::string& title, int width, int height)
+static SDL_Renderer* init(const std::string& title, int width, int height)
 {
 	if (isRunning)
 		LSG_Quit();
@@ -331,6 +331,32 @@ int LSG_GetMargin(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("", id));
 
 	return component->margin;
+}
+
+size_t LSG_GetNavigationItemCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	return static_cast<LSG_Navigation*>(component)->GetItemsTotal();
+}
+
+int LSG_GetNavigationPosition(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	return static_cast<LSG_Navigation*>(component)->GetPosition();
 }
 
 int LSG_GetPadding(const std::string& id)
@@ -740,6 +766,19 @@ LSG_TileItems LSG_GetTiles(const std::string& id)
 	return static_cast<LSG_Tiles*>(component)->GetTiles();
 }
 
+size_t LSG_GetTilesCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsTiles())
+		throw std::invalid_argument(getErrorNoID("<tiles>", id));
+
+	return static_cast<LSG_Tiles*>(component)->GetTilesCount();
+}
+
 std::string LSG_GetTitle(const std::string& id)
 {
 	if (!isRunning)
@@ -864,6 +903,71 @@ void LSG_Layout()
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
 	LSG_UI::LayoutRoot();
+}
+
+void LSG_NavigateBack(const std::string& id, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateBack(text);
+}
+
+void LSG_NavigateEnd(const std::string& id, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateEnd(text);
+}
+
+void LSG_NavigateForward(const std::string& id, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateForward(text);
+}
+
+void LSG_NavigateHome(const std::string& id, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateHome(text);
+}
+
+void LSG_NavigateTo(const std::string& id, int position, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateTo(position, text);
 }
 
 #if defined _windows
@@ -1019,7 +1123,7 @@ void LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)> resultsCallb
 #endif
 
 #if defined _ios
-void LSG_PhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
+void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
 {
     if (!isRunning)
         throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1625,6 +1729,19 @@ void LSG_SetMenuItemValue(const std::string& id, const std::string& value)
 	component->text = value;
 }
 
+void LSG_SetNavigationItemCount(const std::string& id, size_t itemsTotal, size_t itemsPerNavigation)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->Set(itemsTotal, itemsPerNavigation);
+}
+
 void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation, bool layout)
 {
 	if (!isRunning)
@@ -2175,12 +2292,12 @@ void LSG_StartTest(const std::string& xmlFile, const std::string& workingDir)
 #endif
 
 #if defined _windows
-BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
+static BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     return TRUE;
 }
 #else
-int entry()
+static int entry()
 {
 	return 0;
 }

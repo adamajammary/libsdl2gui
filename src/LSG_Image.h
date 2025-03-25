@@ -18,16 +18,16 @@ private:
 
 public:
 	SDL_Size     GetImageSize() const;
-	SDL_Size     GetSize();
-	SDL_Size     GetTextureSize();
-	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void Render(SDL_Renderer* renderer) override;
+	SDL_Size     GetSize() const;
+	SDL_Size     GetTextureSize() const;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void         Render(SDL_Renderer* renderer);
 	void         SetImage(const std::string& file, bool fill = false);
 	void         SetImage();
 
 private:
 	virtual void destroyTextures() override;
-	SDL_Size     getMaxSize(const SDL_Rect& background);
+	SDL_Size     getMaxSize(const SDL_Rect& background) const;
 	void         render(SDL_Renderer* renderer);
 };
 

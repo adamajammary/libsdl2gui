@@ -26,7 +26,12 @@ LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->xmlTileSize   = (attributes.contains("tile-size") ? attributes["tile-size"] : "");
 }
 
-void LSG_Tiles::Activate()
+LSG_Tiles::~LSG_Tiles()
+{
+	this->destroyTextures();
+}
+
+void LSG_Tiles::Activate() const
 {
 	if (!this->selectedTiles.empty())
 		this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
@@ -282,7 +287,7 @@ SDL_Rect LSG_Tiles::getImageDestination() const
 	return imageDestination;
 }
 
-int LSG_Tiles::getRowCount()
+int LSG_Tiles::getRowCount() const
 {
 	if (!this->wrapTiles)
 		return (!this->tiles.empty() ? 1 : 0);
@@ -290,17 +295,17 @@ int LSG_Tiles::getRowCount()
 	return (((int)this->tiles.size() / this->tilesPerRow) + (((int)this->tiles.size() % this->tilesPerRow != 0) ? 1 : 0));
 }
 
-int LSG_Tiles::getScrollOffsetX()
+int LSG_Tiles::getScrollOffsetX() const
 {
 	return (this->showScrollX ? std::min(this->scrollOffsetX, (this->totalSize - this->fillArea.w)) : 0);
 }
 
-int LSG_Tiles::getScrollOffsetY()
+int LSG_Tiles::getScrollOffsetY() const
 {
 	return (this->showScrollY ? std::min(this->scrollOffsetY, (this->totalSize - this->fillArea.h)) : 0);
 }
 
-int LSG_Tiles::getSelectedTile()
+int LSG_Tiles::getSelectedTile() const
 {
 	return (!this->selectedTiles.empty() ? this->selectedTiles[this->selectedTiles.size() - 1] : -1);
 }
@@ -310,7 +315,7 @@ std::vector<int> LSG_Tiles::GetSelectedTiles() const
 	return this->selectedTiles;
 }
 
-SDL_Size LSG_Tiles::GetSize()
+SDL_Size LSG_Tiles::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto textureSize = this->getTextureSize();
@@ -330,7 +335,7 @@ SDL_Size LSG_Tiles::GetSize()
 	return textureSize;
 }
 
-LSG_Alignment LSG_Tiles::getTextAlignment(const LSG_UMapStrStr& xmlAttributes)
+LSG_Alignment LSG_Tiles::getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const
 {
 	auto halign = (xmlAttributes.contains("text-halign") ? xmlAttributes.at("text-halign") : "");
 	auto valign = (xmlAttributes.contains("text-valign") ? xmlAttributes.at("text-valign") : "");
@@ -403,7 +408,7 @@ SDL_Rect LSG_Tiles::getTextDestination()
 	return textDestination;
 }
 
-LSG_TileItem LSG_Tiles::GetTile(int index)
+LSG_TileItem LSG_Tiles::GetTile(int index) const
 {
 	if ((index < 0) || (index >= (int)this->tiles.size()))
 		return {};
@@ -416,7 +421,7 @@ LSG_TileItem LSG_Tiles::GetTile(int index)
 	return tile;
 }
 
-int LSG_Tiles::getTileSize()
+int LSG_Tiles::getTileSize() const
 {
 	int tileSize;
 
@@ -430,7 +435,7 @@ int LSG_Tiles::getTileSize()
 	return tileSize;
 }
 
-LSG_TileItems LSG_Tiles::GetTiles()
+LSG_TileItems LSG_Tiles::GetTiles() const
 {
 	LSG_TileItems tiles;
 
@@ -440,7 +445,12 @@ LSG_TileItems LSG_Tiles::GetTiles()
 	return tiles;
 }
 
-int LSG_Tiles::getTilesPerRow()
+size_t LSG_Tiles::GetTilesCount() const
+{
+	return this->tiles.size();
+}
+
+int LSG_Tiles::getTilesPerRow() const
 {
 	int tilesPerRow;
 
@@ -987,7 +997,7 @@ void LSG_Tiles::selectShift(int index)
 	this->sendEvent(LSG_EVENT_TILE_SELECTED);
 }
 
-void LSG_Tiles::sendEvent(LSG_EventType type)
+void LSG_Tiles::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
 		return;

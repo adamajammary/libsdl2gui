@@ -28,22 +28,23 @@ public:
 	void         Highlight(const SDL_Point& mousePosition);
 	bool         IsHighlightedIconClose() const;
 	bool         IsHighlightedNavBack() const;
-	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition);
+	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition) const;
 	bool         IsOpen() const;
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
+	void         Render(SDL_Renderer* renderer);
 	void         SetMenu();
 
 private:
-	SDL_Rect              getIconClose(const SDL_Rect& menu);
-	SDL_Rect              getIconOpen();
-	SDL_Rect              getMenu(const SDL_Rect& window);
-	std::vector<SDL_Rect> getMenuItems();
-	SDL_Rect              getNavBackHighlight(const SDL_Rect& menu);
-	int                   getTextureHeight(const SDL_Rect& background);
-	bool                  isMouseOverIconClose(const SDL_Point& mousePosition);
-	bool                  isMouseOverMenu(const SDL_Point&      mousePosition);
-	bool                  isMouseOverNavBack(const SDL_Point&   mousePosition);
+	SDL_Rect              getIconClose(const SDL_Rect& menu) const;
+	SDL_Rect              getIconOpen() const;
+	SDL_Rect              getMenu(const SDL_Rect& window) const;
+	std::vector<SDL_Rect> getMenuItems() const;
+	SDL_Rect              getNavBackHighlight(const SDL_Rect& menu) const;
+	int                   getTextureHeight(const SDL_Rect& background) const;
+	bool                  isMouseOverIconClose(const SDL_Point& mousePosition) const;
+	bool                  isMouseOverMenu(const SDL_Point&      mousePosition) const;
+	bool                  isMouseOverNavBack(const SDL_Point&   mousePosition) const;
 	void                  navigate(LSG_Component* component);
 	void                  open();
 	void                  renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu);
@@ -53,7 +54,7 @@ private:
 	void                  renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize);
 	void                  renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu);
 	void                  renderTitle(SDL_Renderer*   renderer, const SDL_Rect& menu);
-	virtual void          sendEvent(LSG_EventType type) override;
+	virtual void          sendEvent(LSG_EventType type) const override {};
 	void                  setMenuOpened();
 	void                  setMenuClosed();
 };

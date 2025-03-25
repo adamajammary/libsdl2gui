@@ -5,7 +5,7 @@ LSG_TextLabel::LSG_TextLabel(const std::string& id, int layer, LibXml::xmlNode* 
 {
 }
 
-SDL_Size LSG_TextLabel::GetSize()
+SDL_Size LSG_TextLabel::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto textureSize = this->getTextureSize();
@@ -25,7 +25,7 @@ SDL_Size LSG_TextLabel::GetSize()
 	return textureSize;
 }
 
-SDL_Size LSG_TextLabel::GetTextSize(const SDL_Size& maxSize)
+SDL_Size LSG_TextLabel::GetTextSize(const SDL_Size& maxSize) const
 {
 	if (this->text.empty())
 		return maxSize;
@@ -68,7 +68,7 @@ SDL_Size LSG_TextLabel::GetTextSize(const SDL_Size& maxSize)
 	return textSize;
 }
 
-SDL_Size LSG_TextLabel::GetTextureSize()
+SDL_Size LSG_TextLabel::GetTextureSize() const
 {
 	return this->getTextureSize();
 }

@@ -40,7 +40,7 @@ void LSG_Menu::Close()
 	this->scrollOffsetY = 0;
 }
 
-SDL_Rect LSG_Menu::getIconClose(const SDL_Rect& menu)
+SDL_Rect LSG_Menu::getIconClose(const SDL_Rect& menu) const
 {
 	auto size = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_TEXTURE_ICON_CLOSE]);
 
@@ -54,7 +54,7 @@ SDL_Rect LSG_Menu::getIconClose(const SDL_Rect& menu)
 	return icon;
 }
 
-SDL_Rect LSG_Menu::getIconOpen()
+SDL_Rect LSG_Menu::getIconOpen() const
 {
 	auto size = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_TEXTURE_ICON_OPEN]);
 	auto icon = LSG_Graphics::GetDestinationAligned(this->background, size, this->getAlignment());
@@ -62,7 +62,7 @@ SDL_Rect LSG_Menu::getIconOpen()
 	return icon;
 }
 
-SDL_Rect LSG_Menu::getMenu(const SDL_Rect& window)
+SDL_Rect LSG_Menu::getMenu(const SDL_Rect& window) const
 {
 	auto xmlWidth  = LSG_XML::GetAttribute(this->xmlNode, "width");
 	bool isPercent = (!xmlWidth.empty() && (xmlWidth[xmlWidth.length() - 1] == '%'));
@@ -79,7 +79,7 @@ SDL_Rect LSG_Menu::getMenu(const SDL_Rect& window)
 	return menu;
 }
 
-std::vector<SDL_Rect> LSG_Menu::getMenuItems()
+std::vector<SDL_Rect> LSG_Menu::getMenuItems() const
 {
 	auto background = LSG_UI::GetBackgroundArea();
 	auto menu       = this->getMenu(background);
@@ -110,7 +110,7 @@ std::vector<SDL_Rect> LSG_Menu::getMenuItems()
 	return items;
 }
 
-SDL_Rect LSG_Menu::getNavBackHighlight(const SDL_Rect& menu)
+SDL_Rect LSG_Menu::getNavBackHighlight(const SDL_Rect& menu) const
 {
 	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
 
@@ -124,7 +124,7 @@ SDL_Rect LSG_Menu::getNavBackHighlight(const SDL_Rect& menu)
 	return highlight;
 }
 
-int LSG_Menu::getTextureHeight(const SDL_Rect& background)
+int LSG_Menu::getTextureHeight(const SDL_Rect& background) const
 {
 	int height = 0;
 
@@ -150,7 +150,7 @@ bool LSG_Menu::IsHighlightedNavBack() const
 	return this->highlightedNavBack;
 }
 
-bool LSG_Menu::isMouseOverIconClose(const SDL_Point& mousePosition)
+bool LSG_Menu::isMouseOverIconClose(const SDL_Point& mousePosition) const
 {
 	if (!this->visible || !this->isOpen)
 		return false;
@@ -162,7 +162,7 @@ bool LSG_Menu::isMouseOverIconClose(const SDL_Point& mousePosition)
 	return SDL_PointInRect(&mousePosition, &icon);
 }
 
-bool LSG_Menu::IsMouseOverIconOpen(const SDL_Point& mousePosition)
+bool LSG_Menu::IsMouseOverIconOpen(const SDL_Point& mousePosition) const
 {
 	if (!this->visible || this->isOpen)
 		return false;
@@ -172,7 +172,7 @@ bool LSG_Menu::IsMouseOverIconOpen(const SDL_Point& mousePosition)
 	return SDL_PointInRect(&mousePosition, &icon);
 }
 
-bool LSG_Menu::isMouseOverMenu(const SDL_Point& mousePosition)
+bool LSG_Menu::isMouseOverMenu(const SDL_Point& mousePosition) const
 {
 	if (!this->visible || !this->isOpen)
 		return false;
@@ -183,7 +183,7 @@ bool LSG_Menu::isMouseOverMenu(const SDL_Point& mousePosition)
 	return SDL_PointInRect(&mousePosition, &menu);
 }
 
-bool LSG_Menu::isMouseOverNavBack(const SDL_Point& mousePosition)
+bool LSG_Menu::isMouseOverNavBack(const SDL_Point& mousePosition) const
 {
 	if (!this->visible || !this->subMenu->IsSubMenu())
 		return false;
@@ -439,10 +439,6 @@ void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu)
 	};
 
 	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_TITLE], &clip, &destination);
-}
-
-void LSG_Menu::sendEvent(LSG_EventType type)
-{
 }
 
 void LSG_Menu::setMenuClosed()

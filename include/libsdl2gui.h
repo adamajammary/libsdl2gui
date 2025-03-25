@@ -53,10 +53,14 @@ enum LSG_EventType
 	LSG_EVENT_COMPONENT_KEY_ENTERED,
 	LSG_EVENT_COMPONENT_SCROLLED,
 	LSG_EVENT_MENU_ITEM_SELECTED,
+	LSG_EVENT_NAVIGATE_BACK,
+	LSG_EVENT_NAVIGATE_END,
+	LSG_EVENT_NAVIGATE_FORWARD,
+	LSG_EVENT_NAVIGATE_HOME,
+	LSG_EVENT_PAGE_NAVIGATED,
 	LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_ROW_SELECTED,
 	LSG_EVENT_ROW_UNSELECTED,
-	LSG_EVENT_PAGE_NAVIGATED,
 	LSG_EVENT_SLIDER_VALUE_CHANGED,
 	LSG_EVENT_TABLE_COLUMN_RESIZED,
 	LSG_EVENT_TEXT_INPUT_CLEARED,
@@ -306,6 +310,22 @@ DLLEXPORT LSG_Strings DLL LSG_GetListItems(const std::string& id);
 DLLEXPORT int DLL LSG_GetMargin(const std::string& id);
 
 /**
+ * @returns the total number of items that can be navigated
+ * @param id <navigation> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetNavigationItemCount(const std::string& id);
+
+/**
+ * @returns the current 0-based position of the navigation component
+ * @param id <navigation> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetNavigationPosition(const std::string& id);
+
+/**
  * @returns the padding inside a component
  * @param id Component ID
  * @throws invalid_argument
@@ -544,6 +564,14 @@ DLLEXPORT LSG_TileItem DLL LSG_GetTile(const std::string& id, int index);
 DLLEXPORT LSG_TileItems DLL LSG_GetTiles(const std::string& id);
 
 /**
+ * @returns the number of tile items in the tiles grid
+ * @param id <tiles> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetTilesCount(const std::string& id);
+
+/**
  * @returns the header title of the modal, menu or sub-menu
  * @param id <modal>, <menu> or <menu-sub> component ID
  * @throws invalid_argument
@@ -629,6 +657,52 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_Layout();
+
+/**
+ * @brief Navigates backwards, and displays an updated text label.
+ * @param id   <navigation> component ID
+ * @param text Optional text label, shows "[new_position] / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateBack(const std::string& id, const std::string& text = "");
+
+/**
+ * @brief Navigates to the last item, and displays an updated text label.
+ * @param id   <navigation> component ID
+ * @param text Optional text label, shows "[last_position] / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+
+/**
+ * @brief Navigates forwards, and displays an updated text label.
+ * @param id   <navigation> component ID
+ * @param text Optional text label, shows "[new_position] / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateForward(const std::string& id, const std::string& text = "");
+
+/**
+ * @brief Navigates to the first item, and displays an updated text label.
+ * @param id   <navigation> component ID
+ * @param text Optional text label, shows "1 / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateHome(const std::string& id, const std::string& text = "");
+
+/**
+ * @brief Navigates to the position, and displays an updated text label.
+ * @param id       <navigation> component ID
+ * @param position 0-based position
+ * @param text     Optional text label, shows "[new_position] / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateTo(const std::string& id, int position, const std::string& text = "");
 
 /**
  * @brief Displays an Open File dialog where you can select a single file.
@@ -1080,6 +1154,16 @@ DLLEXPORT void DLL LSG_SetMenuItemSelected(const std::string& id, bool selected 
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetMenuItemValue(const std::string& id, const std::string& value);
+
+/**
+ * @brief Sets the item count of the navigation.
+ * @param id                 <navigation> component ID
+ * @param itemsTotal         Number of total items that can be navigated
+ * @param itemsPerNavigation Number of items to navigate by
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetNavigationItemCount(const std::string& id, size_t itemsTotal, size_t itemsPerNavigation = 1);
 
 /**
  * @brief Sets the layout orientation of the children of a component.

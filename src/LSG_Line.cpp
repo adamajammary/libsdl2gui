@@ -25,13 +25,13 @@ void LSG_Line::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_Line::Render(SDL_Renderer* renderer)
+void LSG_Line::Render(SDL_Renderer* renderer) const
 {
 	if (this->visible)
 		this->render(renderer);
 }
 
-void LSG_Line::render(SDL_Renderer* renderer)
+void LSG_Line::render(SDL_Renderer* renderer) const
 {
 	auto attributes  = LSG_XML::GetAttributes(xmlNode);
 	auto color       = (attributes.contains("color") ? LSG_Graphics::ToSdlColor(attributes["color"]) : LSG_Graphics::GetThumbColor(this->backgroundColor));

@@ -526,6 +526,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 				static_cast<LSG_List*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsMenu())
 				static_cast<LSG_Menu*>(component)->OnMouseClick(mousePosition);
+			else if (component->IsNavigation())
+				static_cast<LSG_Navigation*>(component)->OnMouseClick(mousePosition);
 			else if (component->IsSlider())
 				static_cast<LSG_Slider*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsTable())

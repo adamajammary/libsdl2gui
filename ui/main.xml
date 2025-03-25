@@ -107,7 +107,7 @@ Euismod lacinia at quis risus.</text>
       </panel>
     </panel>
 
-    <panel orientation="vertical" padding="10" border="1">
+    <panel orientation="vertical">
       <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
           <text underline="true">Tiles with wrapping:</text>
@@ -176,12 +176,7 @@ Euismod lacinia at quis risus.</text>
       </panel>
     </panel>
 
-    <panel height="60" orientation="vertical">
-      <panel height="30" halign="center" font-size="18" spacing="5">
-        <text>Slider:</text>
-        <text id="SliderValue">0.5</text>
-      </panel>
-
+    <panel height="40" valign="middle">
       <slider
         id="Slider"
         height="20"
@@ -193,6 +188,14 @@ Euismod lacinia at quis risus.</text>
         thumb-width="20"
         background-color="rgb(192, 192, 192)"
       />
+
+      <panel width="40" halign="right" valign="middle">
+        <text id="SliderValue" font-size="18">0.50</text>
+      </panel>
     </panel>
+
+    <line />
+
+    <navigation id="Navigation" items-total="10" items-per-navigation="1" height="30" />
   </panel>
 </window>

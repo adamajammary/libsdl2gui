@@ -34,39 +34,39 @@ private:
 	SDL_Texture* textureLabel;
 
 public:
-	LSG_TableGroup  GetGroup(const std::string& group);
-	LSG_TableGroups GetGroups();
-	LSG_Strings     GetHeader();
-	std::string     GetItem(int row);
-	LSG_Strings     GetItems();
-	int             GetLastPage();
+	LSG_TableGroup  GetGroup(const std::string& group) const;
+	LSG_TableGroups GetGroups() const;
+	LSG_Strings     GetHeader() const;
+	std::string     GetItem(int row) const;
+	LSG_Strings     GetItems() const;
+	int             GetLastPage() const;
 	int             GetPage() const;
-	LSG_TableGroups GetPageGroups();
-	std::string     GetPageItem(int row);
-	LSG_Strings     GetPageItems();
-	LSG_Strings     GetPageRow(int row);
-	LSG_TableRows   GetPageRows();
-	LSG_Strings     GetRow(int row);
-	size_t          GetRowCount();
-	LSG_TableRows   GetRows();
+	LSG_TableGroups GetPageGroups() const;
+	std::string     GetPageItem(int row) const;
+	LSG_Strings     GetPageItems() const;
+	LSG_Strings     GetPageRow(int row) const;
+	LSG_TableRows   GetPageRows() const;
+	LSG_Strings     GetRow(int row) const;
+	size_t          GetRowCount() const;
+	LSG_TableRows   GetRows() const;
 
 protected:
-	int  getLastRow();
+	int  getLastRow() const;
 	void initPagination(const SDL_Rect& background, const SDL_Color& backgroundColor);
-	bool isEmpty();
+	bool isEmpty() const;
 	bool isPageArrowClicked(const SDL_Point& mousePosition, const std::string& id);
-	bool isPaginationClicked(const SDL_Point& mousePosition);
+	bool isPaginationClicked(const SDL_Point& mousePosition) const;
 	bool navigate(int page, const std::string& id);
 	void renderPagination(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Color& backgroundColor);
-	bool showPagination();
+	bool showPagination() const;
 
 private:
 	void         destroyPageTextures();
-	SDL_Size     getArrowSize(const SDL_Rect& arrow);
-	SDL_Rect     getDestinationCenterAligned(const SDL_Rect& background, const SDL_Size& size);
-	std::string  getLabel();
-	SDL_Texture* getPaginationTexture(const std::string& text, const SDL_Color& color);
-	LSG_Strings  getRow(int row, int start, int end);
+	SDL_Size     getArrowSize(const SDL_Rect& arrow) const;
+	SDL_Rect     getDestinationCenterAligned(const SDL_Rect& background, const SDL_Size& size) const;
+	std::string  getLabel() const;
+	SDL_Texture* getPaginationTexture(const std::string& text, const SDL_Color& color) const;
+	LSG_Strings  getRow(int row, int start, int end) const;
 	void         updatePagination(const SDL_Rect& background);
 };
 

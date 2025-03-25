@@ -49,7 +49,7 @@ SDL_Size LSG_Image::GetImageSize() const
 	return imageSize;
 }
 
-SDL_Size LSG_Image::getMaxSize(const SDL_Rect& background)
+SDL_Size LSG_Image::getMaxSize(const SDL_Rect& background) const
 {
 	auto textureSize = this->getTextureSize();
 
@@ -106,7 +106,7 @@ SDL_Size LSG_Image::getMaxSize(const SDL_Rect& background)
 	return maxSize;
 }
 
-SDL_Size LSG_Image::GetSize()
+SDL_Size LSG_Image::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto textureSize = this->getTextureSize();
@@ -126,7 +126,7 @@ SDL_Size LSG_Image::GetSize()
 	return textureSize;
 }
 
-SDL_Size LSG_Image::GetTextureSize()
+SDL_Size LSG_Image::GetTextureSize() const
 {
 	return this->getTextureSize();
 }

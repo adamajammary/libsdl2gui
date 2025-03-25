@@ -57,6 +57,8 @@ LSG_Component::~LSG_Component()
 			delete static_cast<LSG_MenuSub*>(child);
 		else if (child->IsModal())
 			delete static_cast<LSG_Modal*>(child);
+		else if (child->IsNavigation())
+			delete static_cast<LSG_Navigation*>(child);
 		else if (child->IsPanel())
 			delete static_cast<LSG_Panel*>(child);
 		else if (child->IsProgressBar())
@@ -95,7 +97,7 @@ void LSG_Component::destroyTextures()
 	this->textures.clear();
 }
 
-LSG_Alignment LSG_Component::getAlignment()
+LSG_Alignment LSG_Component::getAlignment() const
 {
 	auto parentAttributes = (this->parent ? this->parent->GetXmlAttributes() : LSG_UMapStrStr());
 	auto attributes       = this->GetXmlAttributes();
@@ -124,7 +126,7 @@ LSG_Alignment LSG_Component::getAlignment()
 	return alignment;
 }
 
-SDL_Rect LSG_Component::getArea(const SDL_Rect& background)
+SDL_Rect LSG_Component::getArea(const SDL_Rect& background) const
 {
 	SDL_Rect area = background;
 
@@ -151,7 +153,7 @@ SDL_Rect LSG_Component::getArea(const SDL_Rect& background)
 	return area;
 }
 
-LSG_Component* LSG_Component::GetChild(int index)
+LSG_Component* LSG_Component::GetChild(int index) const
 {
 	if (!this->children.empty() && (index >= 0) && (index < (int)this->children.size()))
 		return this->children[index];
@@ -159,7 +161,7 @@ LSG_Component* LSG_Component::GetChild(int index)
 	return nullptr;
 }
 
-size_t LSG_Component::GetChildCount()
+size_t LSG_Component::GetChildCount() const
 {
 	return this->children.size();
 }
@@ -169,7 +171,7 @@ LSG_Components LSG_Component::GetChildren()
 	return this->children;
 }
 
-SDL_Rect LSG_Component::getFillArea(const SDL_Rect& background, int border)
+SDL_Rect LSG_Component::getFillArea(const SDL_Rect& background, int border) const
 {
 	SDL_Rect fillArea = background;
 
@@ -186,7 +188,7 @@ SDL_Rect LSG_Component::getFillArea(const SDL_Rect& background, int border)
 	return fillArea;
 }
 
-int LSG_Component::getFontSize()
+int LSG_Component::getFontSize() const
 {
 	auto xmlFontSize = LSG_XML::GetAttribute(this->xmlNode, "font-size");
 
@@ -199,7 +201,7 @@ int LSG_Component::getFontSize()
 	return LSG_DEFAULT_FONT_SIZE;
 }
 
-int LSG_Component::getFontStyle()
+int LSG_Component::getFontStyle() const
 {
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
@@ -231,7 +233,7 @@ int LSG_Component::getFontStyle()
 	return TTF_STYLE_NORMAL;
 }
 
-std::string LSG_Component::GetID()
+std::string LSG_Component::GetID() const
 {
 	return this->id;
 }
@@ -246,7 +248,7 @@ LSG_Component* LSG_Component::GetParent()
 	return this->parent;
 }
 
-LSG_Alignment LSG_Component::getParentAlignment()
+LSG_Alignment LSG_Component::getParentAlignment() const
 {
 	if (this->parent)
 		return this->parent->getAlignment();
@@ -254,14 +256,14 @@ LSG_Alignment LSG_Component::getParentAlignment()
 	return { LSG_HALIGN_LEFT, LSG_VALIGN_TOP };
 }
 
-int LSG_Component::GetSpacing()
+int LSG_Component::GetSpacing() const
 {
 	auto spacing = LSG_XML::GetAttribute(this->xmlNode, "spacing");
 
 	return (!spacing.empty() ? std::atoi(spacing.c_str()) : 0);
 }
 
-int LSG_Component::getTextureHeight()
+int LSG_Component::getTextureHeight() const
 {
 	if (this->texture)
 		return LSG_Graphics::GetTextureSize(this->texture).height;
@@ -272,7 +274,7 @@ int LSG_Component::getTextureHeight()
 	return 0;
 }
 
-SDL_Size LSG_Component::getTextureSize()
+SDL_Size LSG_Component::getTextureSize() const
 {
 	if (!this->texture)
 		return {};
@@ -280,17 +282,17 @@ SDL_Size LSG_Component::getTextureSize()
 	return LSG_Graphics::GetTextureSize(this->texture);
 }
 
-std::string LSG_Component::GetXmlAttribute(const std::string& attribute)
+std::string LSG_Component::GetXmlAttribute(const std::string& attribute) const
 {
 	return LSG_XML::GetAttribute(this->xmlNode, attribute);
 }
 
-LSG_UMapStrStr LSG_Component::GetXmlAttributes()
+LSG_UMapStrStr LSG_Component::GetXmlAttributes() const
 {
 	return LSG_XML::GetAttributes(this->xmlNode);
 }
 
-std::string LSG_Component::getXmlColor(const std::string& xmlAttribute, bool recursive)
+std::string LSG_Component::getXmlColor(const std::string& xmlAttribute, bool recursive) const
 {
 	auto color = LSG_UI::GetColorFromTheme(this->id, xmlAttribute);
 
@@ -308,7 +310,7 @@ std::string LSG_Component::getXmlColor(const std::string& xmlAttribute, bool rec
 	return "";
 }
 
-LibXml::xmlNode* LSG_Component::GetXmlNode()
+LibXml::xmlNode* LSG_Component::GetXmlNode() const
 {
 	return this->xmlNode;
 }
@@ -354,6 +356,11 @@ bool LSG_Component::IsMenuItem() const
 bool LSG_Component::IsModal() const
 {
 	return (this->xmlNodeName == "modal");
+}
+
+bool LSG_Component::IsNavigation() const
+{
+	return (this->xmlNodeName == "navigation");
 }
 
 bool LSG_Component::IsPanel() const
@@ -423,7 +430,7 @@ void LSG_Component::RemoveChild(LSG_Component* child)
 	}
 }
 
-void LSG_Component::Render(SDL_Renderer* renderer)
+void LSG_Component::Render(SDL_Renderer* renderer) const
 {
 	if (!this->visible)
 		return;
@@ -431,8 +438,25 @@ void LSG_Component::Render(SDL_Renderer* renderer)
 	this->renderFill(renderer);
 	this->renderBorder(renderer);
 
-	for (auto child : this->children) {
-		if (!child->IsMenu() && !child->IsModal())
+	for (auto child : this->children)
+	{
+		if (child->IsImage())
+			static_cast<LSG_Image*>(child)->Render(renderer);
+		else if (child->IsList())
+			static_cast<LSG_List*>(child)->Render(renderer);
+		else if (child->IsPanel())
+			static_cast<LSG_Panel*>(child)->Render(renderer);
+		else if (child->IsSlider())
+			static_cast<LSG_Slider*>(child)->Render(renderer);
+		else if (child->IsTable())
+			static_cast<LSG_Table*>(child)->Render(renderer);
+		else if (child->IsTextInput())
+			static_cast<LSG_TextInput*>(child)->Render(renderer);
+		else if (child->IsTextLabel())
+			static_cast<LSG_TextLabel*>(child)->Render(renderer);
+		else if (child->IsTiles())
+			static_cast<LSG_Tiles*>(child)->Render(renderer);
+		else if (!child->IsMenu() && !child->IsModal())
 			child->Render(renderer);
 	}
 
@@ -440,7 +464,7 @@ void LSG_Component::Render(SDL_Renderer* renderer)
 		this->renderDisabled(renderer);
 }
 
-void LSG_Component::renderBorder(SDL_Renderer* renderer)
+void LSG_Component::renderBorder(SDL_Renderer* renderer) const
 {
 	if (this->border < 1)
 		return;
@@ -448,7 +472,7 @@ void LSG_Component::renderBorder(SDL_Renderer* renderer)
 	this->renderBorder(renderer, this->border, this->borderColor, this->background);
 }
 
-void LSG_Component::renderBorder(SDL_Renderer* renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background)
+void LSG_Component::renderBorder(SDL_Renderer* renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background) const
 {
 	if (border < 1)
 		return;
@@ -489,12 +513,12 @@ void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
 	SDL_RenderFillRect(renderer, &this->background);
 }
 
-void LSG_Component::renderFill(SDL_Renderer* renderer)
+void LSG_Component::renderFill(SDL_Renderer* renderer) const
 {
 	this->renderFill(renderer, this->border, this->backgroundColor, this->background);
 }
 
-void LSG_Component::renderFill(SDL_Renderer* renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background)
+void LSG_Component::renderFill(SDL_Renderer* renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background) const
 {
 	auto fillArea = this->getFillArea(background, border);
 
@@ -504,12 +528,12 @@ void LSG_Component::renderFill(SDL_Renderer* renderer, int border, const SDL_Col
 	SDL_RenderFillRect(renderer, &fillArea);
 }
 
-void LSG_Component::renderHighlight(SDL_Renderer* renderer)
+void LSG_Component::renderHighlight(SDL_Renderer* renderer) const
 {
 	this->renderHighlight(renderer, this->background);
 }
 
-void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background)
+void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const
 {
 	auto fillArea  = this->getFillArea(background, this->border);
 	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
@@ -520,7 +544,7 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& back
 	SDL_RenderFillRect(renderer, &fillArea);
 }
 
-void LSG_Component::renderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
+void LSG_Component::renderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size) const
 {
 	SDL_Rect clip = { 0, 0, std::min(size.width, background.w), std::min(size.height, background.h) };
 	auto     dest = LSG_Graphics::GetDestinationAligned(background, size, alignment);

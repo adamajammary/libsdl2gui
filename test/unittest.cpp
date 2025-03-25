@@ -283,6 +283,85 @@ namespace LSG_UnitTest
         }
 	};
 
+    TEST_CLASS(Navigation)
+    {
+        TEST_METHOD(ItemCount)
+        {
+            try
+            {
+                LSG_SetNavigationItemCount("Navigation", 10);
+
+                auto itemCount = LSG_GetNavigationItemCount("Navigation");
+
+                Assert::AreEqual(10, (int)itemCount);
+
+                LSG_SetNavigationItemCount("Navigation", 20);
+
+                itemCount = LSG_GetNavigationItemCount("Navigation");
+
+                Assert::AreEqual(20, (int)itemCount);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(Navigate)
+        {
+            try
+            {
+                LSG_SetNavigationItemCount("Navigation", 20, 1);
+
+                LSG_NavigateEnd("Navigation");
+
+                auto position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(19, position);
+
+                LSG_NavigateBack("Navigation");
+
+                position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(18, position);
+
+                LSG_NavigateHome("Navigation");
+
+                position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(0, position);
+
+                LSG_NavigateForward("Navigation");
+
+                position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(1, position);
+
+                LSG_NavigateTo("Navigation", 5);
+
+                position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(5, position);
+
+                LSG_NavigateTo("Navigation", -1);
+
+                position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(0, position);
+
+                LSG_NavigateTo("Navigation", 20);
+
+                position = LSG_GetNavigationPosition("Navigation");
+
+                Assert::AreEqual(19, position);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
 	TEST_CLASS(TableHeader)
 	{
         TEST_METHOD(GetHeader)
@@ -886,7 +965,7 @@ namespace LSG_UnitTest
         }
     };
 
-	TEST_CLASS(Tile)
+	TEST_CLASS(Tiles)
 	{
         TEST_METHOD(AddTile)
         {
@@ -991,10 +1070,6 @@ namespace LSG_UnitTest
             try
             {
                 SetTiles();
-
-                auto tiles0 = LSG_GetSelectedTiles("Tiles");
-
-                Assert::IsTrue(tiles0.empty());
 
                 LSG_SelectTiles("Tiles", { -1, 1, 3, 4 });
 

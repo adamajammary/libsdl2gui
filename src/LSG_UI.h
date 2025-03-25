@@ -64,6 +64,7 @@ private:
     static void setImages(LSG_Component* component);
     static void setListItems(LSG_Component* component, bool sort = true);
     static void setMenu(LSG_Component* component);
+    static void setNavigation(LSG_Component* component);
     static void setTableRows(LSG_Component* component, bool sort = true);
     static void setTextLabels(LSG_Component* component);
     static void setTiles(LSG_Component* component);

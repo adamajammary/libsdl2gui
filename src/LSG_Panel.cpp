@@ -36,7 +36,7 @@ void LSG_Panel::AddButton(const LSG_ButtonItem& button)
 	textComponent->SetColors();
 }
 
-SDL_Size LSG_Panel::GetSize()
+SDL_Size LSG_Panel::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");

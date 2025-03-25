@@ -53,14 +53,14 @@ void LSG_Pagination::destroyPageTextures()
 	}
 }
 
-SDL_Size LSG_Pagination::getArrowSize(const SDL_Rect& arrow)
+SDL_Size LSG_Pagination::getArrowSize(const SDL_Rect& arrow) const
 {
 	auto padding = LSG_Graphics::GetDPIScaled(LSG_Pagination::ArrowPadding);
 
 	return { arrow.w - padding, arrow.h - padding };
 }
 
-SDL_Rect LSG_Pagination::getDestinationCenterAligned(const SDL_Rect& background, const SDL_Size& size)
+SDL_Rect LSG_Pagination::getDestinationCenterAligned(const SDL_Rect& background, const SDL_Size& size) const
 {
 	SDL_Rect destination = { background.x, background.y, size.width, size.height };
 
@@ -70,7 +70,7 @@ SDL_Rect LSG_Pagination::getDestinationCenterAligned(const SDL_Rect& background,
 	return destination;
 }
 
-LSG_TableGroup LSG_Pagination::GetGroup(const std::string& group)
+LSG_TableGroup LSG_Pagination::GetGroup(const std::string& group) const
 {
 	for (const auto& pageGroup : this->groups) {
 		if (pageGroup.group == group)
@@ -80,17 +80,17 @@ LSG_TableGroup LSG_Pagination::GetGroup(const std::string& group)
 	return {};
 }
 
-LSG_TableGroups LSG_Pagination::GetGroups()
+LSG_TableGroups LSG_Pagination::GetGroups() const
 {
 	return this->groups;
 }
 
-LSG_Strings LSG_Pagination::GetHeader()
+LSG_Strings LSG_Pagination::GetHeader() const
 {
 	return this->header;
 }
 
-std::string LSG_Pagination::GetItem(int row)
+std::string LSG_Pagination::GetItem(int row) const
 {
 	if (!this->items.empty() && (row >= 0) && (row < (int)this->items.size()))
 		return this->items[row];
@@ -98,12 +98,12 @@ std::string LSG_Pagination::GetItem(int row)
 	return "";
 }
 
-LSG_Strings LSG_Pagination::GetItems()
+LSG_Strings LSG_Pagination::GetItems() const
 {
 	return this->items;
 }
 
-std::string LSG_Pagination::getLabel()
+std::string LSG_Pagination::getLabel() const
 {
 	auto rows  = (int)this->GetRowCount();
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
@@ -114,7 +114,7 @@ std::string LSG_Pagination::getLabel()
 	return LSG_Text::Format("%d - %d / %d (%d / %d)", (start + 1), end, rows, page, last);
 }
 
-int LSG_Pagination::GetLastPage()
+int LSG_Pagination::GetLastPage() const
 {
 	auto rows      = (int)this->GetRowCount();
 	auto lastPage  = (rows / LSG_MAX_ROWS_PER_PAGE);
@@ -126,7 +126,7 @@ int LSG_Pagination::GetLastPage()
 	return lastPage;
 }
 
-int LSG_Pagination::getLastRow()
+int LSG_Pagination::getLastRow() const
 {
 	auto rows  = (int)this->GetRowCount();
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
@@ -140,7 +140,7 @@ int LSG_Pagination::GetPage() const
 	return this->page;
 }
 
-LSG_TableGroups LSG_Pagination::GetPageGroups()
+LSG_TableGroups LSG_Pagination::GetPageGroups() const
 {
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
 	auto end   = (start + LSG_MAX_ROWS_PER_PAGE);
@@ -164,7 +164,7 @@ LSG_TableGroups LSG_Pagination::GetPageGroups()
 	return groups;
 }
 
-std::string LSG_Pagination::GetPageItem(int row)
+std::string LSG_Pagination::GetPageItem(int row) const
 {
 	if (this->items.empty() || (row < 0) || (row > (int)this->getLastRow()))
 		return "";
@@ -174,7 +174,7 @@ std::string LSG_Pagination::GetPageItem(int row)
 	return this->items[rowOffset];
 }
 
-LSG_Strings LSG_Pagination::GetPageItems()
+LSG_Strings LSG_Pagination::GetPageItems() const
 {
 	if (this->items.size() <= LSG_MAX_ROWS_PER_PAGE)
 		return this->items;
@@ -186,7 +186,7 @@ LSG_Strings LSG_Pagination::GetPageItems()
 	return items;
 }
 
-LSG_Strings LSG_Pagination::GetPageRow(int row)
+LSG_Strings LSG_Pagination::GetPageRow(int row) const
 {
 	auto rowIndex = ((this->page * LSG_MAX_ROWS_PER_PAGE) + row);
 	auto start    = (this->page * LSG_MAX_ROWS_PER_PAGE);
@@ -195,7 +195,7 @@ LSG_Strings LSG_Pagination::GetPageRow(int row)
 	return this->getRow(rowIndex, start, end);
 }
 
-LSG_TableRows LSG_Pagination::GetPageRows()
+LSG_TableRows LSG_Pagination::GetPageRows() const
 {
 	auto start = (this->page * LSG_MAX_ROWS_PER_PAGE);
 	auto end   = (start + LSG_MAX_ROWS_PER_PAGE);
@@ -226,7 +226,7 @@ LSG_TableRows LSG_Pagination::GetPageRows()
 	return rows;
 }
 
-SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const SDL_Color& color)
+SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const SDL_Color& color) const
 {
 	if (text.empty())
 		return nullptr;
@@ -248,12 +248,12 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	return texture;
 }
 
-LSG_Strings LSG_Pagination::GetRow(int row)
+LSG_Strings LSG_Pagination::GetRow(int row) const
 {
 	return this->getRow(row, 0, (int)this->GetRowCount());
 }
 
-LSG_Strings LSG_Pagination::getRow(int row, int start, int end)
+LSG_Strings LSG_Pagination::getRow(int row, int start, int end) const
 {
 	int i = -1;
 
@@ -280,7 +280,7 @@ LSG_Strings LSG_Pagination::getRow(int row, int start, int end)
 	return {};
 }
 
-size_t LSG_Pagination::GetRowCount()
+size_t LSG_Pagination::GetRowCount() const
 {
 	if (!this->items.empty())
 		return this->items.size();
@@ -295,7 +295,7 @@ size_t LSG_Pagination::GetRowCount()
 	return rows;
 }
 
-LSG_TableRows LSG_Pagination::GetRows()
+LSG_TableRows LSG_Pagination::GetRows() const
 {
 	return this->rows;
 }
@@ -318,7 +318,7 @@ void LSG_Pagination::initPagination(const SDL_Rect& background, const SDL_Color&
 	this->textureLabel = this->getPaginationTexture(this->getLabel(), color);
 }
 
-bool LSG_Pagination::isEmpty()
+bool LSG_Pagination::isEmpty() const
 {
 	return (this->items.empty() && this->groups.empty() && this->rows.empty());
 }
@@ -337,7 +337,7 @@ bool LSG_Pagination::isPageArrowClicked(const SDL_Point& mousePosition, const st
 	return false;
 }
 
-bool LSG_Pagination::isPaginationClicked(const SDL_Point& mousePosition)
+bool LSG_Pagination::isPaginationClicked(const SDL_Point& mousePosition) const
 {
 	return (this->showPagination() && SDL_PointInRect(&mousePosition, &this->pagination));
 }
@@ -398,7 +398,7 @@ void LSG_Pagination::renderPagination(SDL_Renderer* renderer, const SDL_Rect& ba
 	SDL_RenderCopy(renderer, this->textureLabel, &labelClip, &labelDestination);
 }
 
-bool LSG_Pagination::showPagination()
+bool LSG_Pagination::showPagination() const
 {
 	return (this->GetRowCount() > LSG_MAX_ROWS_PER_PAGE);
 }

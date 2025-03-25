@@ -8,13 +8,13 @@ LSG_List::LSG_List(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	this->wrap         = true;
 }
 
-void LSG_List::Activate()
+void LSG_List::Activate() const
 {
 	if (!this->selectedRows.empty())
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
-void LSG_List::Activate(const SDL_Point& mousePosition)
+void LSG_List::Activate(const SDL_Point& mousePosition) const
 {
 	if (!this->isPaginationClicked(mousePosition))
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
@@ -30,7 +30,7 @@ void LSG_List::AddItem(const std::string& item)
 	this->reset();
 }
 
-int LSG_List::getRowHeight()
+int LSG_List::getRowHeight() const
 {
 	auto header = (!this->header.empty() ? 1 : 0);
 	auto rows   = (this->getLastRow() + header + 1);
@@ -46,12 +46,12 @@ std::vector<int> LSG_List::GetSelectedRows() const
 	return this->selectedRows;
 }
 
-LSG_SortOrder LSG_List::GetSortOrder()
+LSG_SortOrder LSG_List::GetSortOrder() const
 {
 	return LSG_ConstSortOrder::ToEnum(this->GetXmlAttribute("sort"));
 }
 
-SDL_Size LSG_List::GetSize()
+SDL_Size LSG_List::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto textureSize = this->getTextureSize();
@@ -237,7 +237,7 @@ void LSG_List::render(SDL_Renderer* renderer)
 		this->renderPagination(renderer, fillArea, this->backgroundColor);
 }
 
-void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)
+void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const
 {
 	if (this->selectedRows.empty())
 		return;
@@ -276,7 +276,7 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 	}
 }
 
-void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight)
+void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const
 {
 	if (rowHeight < 1)
 		return;
@@ -442,7 +442,7 @@ void LSG_List::SelectRow(int offset, bool multiSelect)
 		this->OnScrollVertical(std::abs(offset) * (-rowHeight));
 }
 
-void LSG_List::sendEvent(LSG_EventType type)
+void LSG_List::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
 		return;

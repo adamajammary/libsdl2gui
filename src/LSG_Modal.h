@@ -32,17 +32,18 @@ public:
 	bool         Highlight(const SDL_Point& mousePosition);
 	void         Layout();
 	bool         OnKeyDown(const SDL_KeyboardEvent& event);
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
+	virtual void Render(SDL_Renderer* renderer) const override;
 	void         Update();
 
 private:
-	SDL_Rect getCloseIcon();
+	SDL_Rect getCloseIcon() const;
 	void     highlight(LSG_Component* component, const SDL_Point& mousePosition);
-	bool     isMouseOverIconClose(const SDL_Point& mousePosition);
-	void     renderHeader(SDL_Renderer* renderer);
-	void     renderHeaderCloseIcon(SDL_Renderer* renderer);
-	void     renderHeaderLine(SDL_Renderer* renderer);
-	void     renderHeaderTitle(SDL_Renderer* renderer);
+	bool     isMouseOverIconClose(const SDL_Point& mousePosition) const;
+	void     renderHeader(SDL_Renderer* renderer) const;
+	void     renderHeaderCloseIcon(SDL_Renderer* renderer) const;
+	void     renderHeaderLine(SDL_Renderer* renderer) const;
+	void     renderHeaderTitle(SDL_Renderer* renderer) const;
 	void     setBorder(const LSG_UMapStrStr& attributes);
 	void     setHideCloseIcon(const LSG_UMapStrStr& attributes);
 	void     setMargin(const LSG_UMapStrStr& attributes);

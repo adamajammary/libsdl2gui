@@ -24,9 +24,9 @@ public:
 	void         AddGroup(LibXml::xmlNode* node);
 	void         AddRow(const LSG_Strings& row);
 	void         AddRow(LibXml::xmlNode* node);
-	int          GetColumnWidth(int column);
-	int          GetSortColumn();
-	SDL_Size     GetSize();
+	int          GetColumnWidth(int column) const;
+	int          GetSortColumn() const;
+	SDL_Size     GetSize() const;
 	bool         IsMouseOverColumnBorder(const SDL_Point& mousePosition);
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	bool         OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
@@ -35,8 +35,8 @@ public:
 	void         RemoveHeader();
 	void         RemoveRow(int row);
 	void         RemovePageRow(int row);
-	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void         Render(SDL_Renderer* renderer);
 	void         SetColumnWidth(int column, int width);
 	void         SetGroup(const LSG_TableGroup& group);
 	void         SetGroups(const LSG_TableGroups& groups);
@@ -51,10 +51,10 @@ public:
 
 private:
 	virtual void destroyTextures() override;
-	int          getColumnCount();
-	int          getMaxColumnWidth(size_t column);
-	int          getMinColumnWidth();
-	SDL_Size     getTextureSize();
+	int          getColumnCount() const;
+	int          getMaxColumnWidth(size_t column) const;
+	int          getMinColumnWidth() const;
+	SDL_Size     getTextureSize() const;
 	void         removeRow(int row, int start, int end);
 	void         removeRow();
 	void         render(SDL_Renderer* renderer);

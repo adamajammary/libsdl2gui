@@ -15,7 +15,7 @@ void LSG_MenuItem::Close()
 	this->destroyTextures();
 }
 
-SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile)
+SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile) const
 {
 	auto icon    = LSG_Window::ToTexture(imageFile);
 	auto size    = LSG_Graphics::GetTextureSize(icon);
@@ -65,7 +65,7 @@ void LSG_MenuItem::Open()
 	this->closed = false;
 }
 
-void LSG_MenuItem::Render(SDL_Renderer* renderer)
+void LSG_MenuItem::Render(SDL_Renderer* renderer) const
 {
 	if (!this->visible || (this->textures.size() < NR_OF_MENU_ITEM_TEXTURES))
 		return;
@@ -84,7 +84,7 @@ void LSG_MenuItem::Render(SDL_Renderer* renderer)
 		this->renderHighlight(renderer, this->background);
 }
 
-void LSG_MenuItem::renderIcon(SDL_Renderer* renderer)
+void LSG_MenuItem::renderIcon(SDL_Renderer* renderer) const
 {
 	auto texture = this->textures[LSG_MENU_ITEM_TEXTURE_ICON];
 
@@ -117,7 +117,7 @@ void LSG_MenuItem::renderIcon(SDL_Renderer* renderer)
 	);
 }
 
-void LSG_MenuItem::renderSelected(SDL_Renderer* renderer)
+void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 {
 	auto texture = this->textures[LSG_MENU_ITEM_TEXTURE_SELECTED];
 
@@ -144,7 +144,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer)
 	this->renderHighlight(renderer, this->background);
 }
 
-void LSG_MenuItem::renderKey(SDL_Renderer* renderer)
+void LSG_MenuItem::renderKey(SDL_Renderer* renderer) const
 {
 	auto texture = this->textures[LSG_MENU_ITEM_TEXTURE_KEY];
 
@@ -176,7 +176,7 @@ void LSG_MenuItem::renderKey(SDL_Renderer* renderer)
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
 }
 
-void LSG_MenuItem::renderText(SDL_Renderer* renderer, SDL_Texture* texture)
+void LSG_MenuItem::renderText(SDL_Renderer* renderer, SDL_Texture* texture) const
 {
 	if (!texture)
 		return;
@@ -200,7 +200,7 @@ void LSG_MenuItem::renderText(SDL_Renderer* renderer, SDL_Texture* texture)
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
 }
 
-void LSG_MenuItem::sendEvent(LSG_EventType type)
+void LSG_MenuItem::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
 		return;

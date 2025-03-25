@@ -470,6 +470,28 @@ min-width="int"
 min-height="int"
 ```
 
+### \<navigation\>
+
+[boolean](#boolean) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_NAVIGATE_BACK](#handle-events) and [LSG_EVENT_NAVIGATE_END](#handle-events), [LSG_EVENT_NAVIGATE_FORWARD](#handle-events) and [LSG_EVENT_NAVIGATE_HOME](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+font-size="int" # default="14"
+text-color="color"
+
+items-total="size_t"          # Number of total items that can be navigated, default is 0.
+items-per-navigation="size_t" # Number of items to navigate by, default is 1.
+```
+
 ### \<panel\>
 
 [alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
@@ -745,6 +767,10 @@ enum LSG_EventType {
   LSG_EVENT_COMPONENT_KEY_ENTERED,
   LSG_EVENT_COMPONENT_SCROLLED,
   LSG_EVENT_MENU_ITEM_SELECTED,
+  LSG_EVENT_NAVIGATE_BACK,
+  LSG_EVENT_NAVIGATE_END,
+  LSG_EVENT_NAVIGATE_FORWARD,
+  LSG_EVENT_NAVIGATE_HOME,
   LSG_EVENT_PAGE_NAVIGATED,
   LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
   LSG_EVENT_ROW_SELECTED,
@@ -1259,6 +1285,40 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetNavigationItemCount
+
+```cpp
+size_t LSG_GetNavigationItemCount(const std::string& id);
+```
+
+Returns the total number of items that can be navigated.
+
+Parameters
+
+- **id** \<navigation\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetNavigationPosition
+
+```cpp
+int LSG_GetNavigationPosition(const std::string& id);
+```
+
+Returns the current 0-based position of the navigation component.
+
+Parameters
+
+- **id** \<navigation\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetPadding
 
 ```cpp
@@ -1758,6 +1818,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetTilesCount
+
+```cpp
+size_t LSG_GetTilesCount(const std::string& id);
+```
+
+Returns the number of tile items in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetTitle
 
 ```cpp
@@ -1933,6 +2010,97 @@ Recalculates and redraws the window layout.
 
 Exceptions
 
+- runtime_error
+
+### LSG_NavigateBack
+
+```cpp
+void LSG_NavigateBack(const std::string& id, const std::string& text = "");
+```
+
+Navigates backwards, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[new_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateEnd
+
+```cpp
+void LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+```
+
+Navigates to the last item, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[last_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateForward
+
+```cpp
+void LSG_NavigateForward(const std::string& id, const std::string& text = "");
+```
+
+Navigates forwards, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[new_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateHome
+
+```cpp
+void LSG_NavigateHome(const std::string& id, const std::string& text = "");
+```
+
+Navigates to the first item, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "1 / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateTo
+
+```cpp
+void LSG_NavigateTo(const std::string& id, int position, const std::string& text = "");
+```
+
+Navigates to the position, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **position** 0-based position
+- **text** Optional text label, shows ""[new_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
 - runtime_error
 
 ### LSG_OpenFile
@@ -3134,6 +3302,31 @@ Example
 
 ```cpp
 LSG_SetMenuItemValue("MenuIdQuit", "Quit\\tCtrl+Q");
+```
+
+### LSG_SetNavigationItemCount
+
+```cpp
+void DLL LSG_SetNavigationItemCount(const std::string& id, size_t itemsTotal, size_t itemsPerNavigation = 1);
+```
+
+Sets the item count of the navigation.
+
+Parameters
+
+- **id** <\navigation\> component ID
+- **itemsTotal** Number of total items that can be navigated
+- **itemsPerNavigation** Number of items to navigate by
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetNavigationItemCount("Navigation", 10, 1);
 ```
 
 ### LSG_SetOrientation

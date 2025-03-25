@@ -25,10 +25,10 @@ private:
 public:
 	void         Clear();
 	void         Complete();
-	void         Copy();
+	void         Copy() const;
 	void         Delete();
-	SDL_Size     GetSize();
-	std::string  GetValue();
+	SDL_Size     GetSize() const;
+	std::string  GetValue() const;
 	void         Highlight(const SDL_Point& mousePosition);
 	void         Input(const std::string& text);
 	bool         IsHighlightedIconClear() const;
@@ -40,8 +40,8 @@ public:
 	bool         OnMouseMove(const SDL_Point& mousePosition);
 	void         Paste();
 	void         Remove();
-	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void         Render(SDL_Renderer* renderer);
 	void         SelectAll();
 	void         SelectEnd();
 	void         SelectHome();
@@ -54,7 +54,7 @@ public:
 
 private:
 	size_t       getCursorPosition(const SDL_Point& mousePosition);
-	SDL_Rect     getIconClear(const SDL_Rect& fillArea);
+	SDL_Rect     getIconClear(const SDL_Rect& fillArea) const;
 	bool         isMouseOverIconClear(const SDL_Point& mousePosition);
 	void         moveCursorTo(const SDL_Point& mousePosition);
 	void         render(SDL_Renderer* renderer);
@@ -62,7 +62,7 @@ private:
 	void         renderHighlightedText(SDL_Renderer* renderer, const SDL_Rect& background);
 	void         renderIconClear(SDL_Renderer* renderer, const SDL_Rect& icon);
 	void         renderText(SDL_Renderer* renderer, const SDL_Rect& background);
-	virtual void sendEvent(LSG_EventType type) override;
+	virtual void sendEvent(LSG_EventType type) const override;
 	void         setCursor();
 	void         setIconClear();
 	void         setPlaceholder();

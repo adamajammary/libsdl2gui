@@ -30,7 +30,7 @@ bool LSG_Modal::CloseOnMouseClick(const SDL_Point& mousePosition)
 	return close;
 }
 
-SDL_Rect LSG_Modal::getCloseIcon()
+SDL_Rect LSG_Modal::getCloseIcon() const
 {
 	auto textureSize = LSG_Graphics::GetTextureSize(this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE]);
 	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
@@ -83,7 +83,7 @@ bool LSG_Modal::IsModalChild(LSG_Component* component)
 	return LSG_Modal::IsModalChild(component->GetParent());
 }
 
-bool LSG_Modal::isMouseOverIconClose(const SDL_Point& mousePosition)
+bool LSG_Modal::isMouseOverIconClose(const SDL_Point& mousePosition) const
 {
 	if (!this->enabled || !this->visible || this->hideCloseIcon)
 		return false;
@@ -119,7 +119,7 @@ bool LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
 	return true;
 }
 
-void LSG_Modal::Render(SDL_Renderer* renderer)
+void LSG_Modal::Render(SDL_Renderer* renderer) const
 {
 	if (!this->visible)
 		return;
@@ -134,14 +134,14 @@ void LSG_Modal::Render(SDL_Renderer* renderer)
 	this->renderHeader(renderer);
 }
 
-void LSG_Modal::renderHeader(SDL_Renderer* renderer)
+void LSG_Modal::renderHeader(SDL_Renderer* renderer) const
 {
 	this->renderHeaderTitle(renderer);
 	this->renderHeaderCloseIcon(renderer);
 	this->renderHeaderLine(renderer);
 }
 
-void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer)
+void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer) const
 {
 	if (this->hideCloseIcon)
 		return;
@@ -154,7 +154,7 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer)
 		this->renderHighlight(renderer, closeIcon);
 }
 
-void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer)
+void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer) const
 {
 	auto height      = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
 	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
@@ -172,7 +172,7 @@ void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer)
 	SDL_RenderDrawLine(renderer, border.x, border.y, border.w, border.h);
 }
 
-void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer)
+void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer) const
 {
 	auto texture = this->textures[LSG_MODAL_TEXTURE_TITLE];
 

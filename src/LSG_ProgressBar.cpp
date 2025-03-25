@@ -33,24 +33,24 @@ void LSG_ProgressBar::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_ProgressBar::Render(SDL_Renderer* renderer)
+void LSG_ProgressBar::Render(SDL_Renderer* renderer) const
 {
 	if (this->visible)
 		this->render(renderer);
 }
 
-void LSG_ProgressBar::render(SDL_Renderer* renderer)
+void LSG_ProgressBar::render(SDL_Renderer* renderer) const
 {
-	auto minHeight = LSG_Graphics::GetDPIScaled(LSG_ProgressBar::MinHeight);
+	auto background = SDL_Rect(this->background);
+	auto minHeight  = LSG_Graphics::GetDPIScaled(LSG_ProgressBar::MinHeight);
 
-	if (this->background.h < minHeight)
-		this->background.h = minHeight;
+	if (background.h < minHeight)
+		background.h = minHeight;
 
-	auto backgroundArea = SDL_Rect(this->background);
-	auto fillArea       = this->getFillArea(backgroundArea, this->border);
+	auto fillArea       = this->getFillArea(background, this->border);
 
-	this->renderFill(renderer,   this->border, this->backgroundColor, backgroundArea);
-	this->renderBorder(renderer, this->border, this->borderColor,     backgroundArea);
+	this->renderFill(renderer,   this->border, this->backgroundColor, background);
+	this->renderBorder(renderer, this->border, this->borderColor,     background);
 
 	auto progressValue = (int)((double)fillArea.w * this->value);
 	auto progressArea  = SDL_Rect(fillArea);

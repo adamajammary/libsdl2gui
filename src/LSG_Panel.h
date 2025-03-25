@@ -15,10 +15,10 @@ private:
 
 public:
 	void         AddButton(const LSG_ButtonItem& button);
-	SDL_Size     GetSize();
+	SDL_Size     GetSize() const;
 	bool         IsScroll() const;
-	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void         Render(SDL_Renderer* renderer);
 	void         SetButtons(const LSG_Buttons& buttons);
 
 private:

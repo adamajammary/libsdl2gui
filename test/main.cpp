@@ -101,6 +101,18 @@ static void handleUserEvent(const SDL_UserEvent& event)
     case LSG_EVENT_MENU_ITEM_SELECTED:
         handleIdEvent(id);
         break;
+    case LSG_EVENT_NAVIGATE_BACK:
+        LSG_NavigateBack(id);
+        break;
+    case LSG_EVENT_NAVIGATE_END:
+        LSG_NavigateEnd(id);
+        break;
+    case LSG_EVENT_NAVIGATE_FORWARD:
+        LSG_NavigateForward(id);
+        break;
+    case LSG_EVENT_NAVIGATE_HOME:
+        LSG_NavigateHome(id);
+        break;
     case LSG_EVENT_ROW_SELECTED:
     case LSG_EVENT_ROW_UNSELECTED:
         handleRowEvent(id, *static_cast<std::vector<int>*>(event.data2));
