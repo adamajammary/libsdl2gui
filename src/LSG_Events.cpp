@@ -519,7 +519,7 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 			else if (isDoubleClick && component->IsTextInput())
 				static_cast<LSG_TextInput*>(component)->SelectWord(scrolledPosition);
 			else if (isDoubleClick && component->IsTiles())
-				static_cast<LSG_Tiles*>(component)->Activate();
+				static_cast<LSG_Tiles*>(component)->Activate(scrolledPosition);
 			else if (isDoubleClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
 			else if (component->IsList())
