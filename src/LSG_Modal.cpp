@@ -304,7 +304,7 @@ void LSG_Modal::setTextures(const std::string& title)
 	auto     iconSizeScaled = LSG_Graphics::GetDPIScaled(LSG_Modal::CloseIconSize);
 	SDL_Size closeIconSize  = { iconSizeScaled, iconSizeScaled };
 
-	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVectorClose(this->textColor, closeIconSize);
+	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, closeIconSize);
 
 	if (!title.empty())
 		this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, LSG_Modal::TitleFontSize);

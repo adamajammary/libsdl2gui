@@ -457,7 +457,7 @@ void LSG_Menu::setMenuClosed()
 		std::min(this->background.h, maxHeight)
 	};
 
-	this->textures[LSG_MENU_TEXTURE_ICON_OPEN] = LSG_Graphics::GetVectorMenu(this->textColor, maxIconSize);
+	this->textures[LSG_MENU_TEXTURE_ICON_OPEN] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_MENU, this->textColor, maxIconSize);
 
 	if (this->textures[LSG_MENU_TEXTURE_ICON_OPEN])
 		this->lastTextColor = SDL_Color(this->textColor);
@@ -487,7 +487,7 @@ void LSG_Menu::setMenuOpened()
 		auto     size      = (maxHeight - padding2x);
 		SDL_Size maxSize   = { size, size };
 
-		this->textures[LSG_MENU_TEXTURE_NAV_BACK] = LSG_Graphics::GetVectorBack(this->textColor, maxSize);
+		this->textures[LSG_MENU_TEXTURE_NAV_BACK] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_BACK, this->textColor, maxSize);
 
 		navTitle = LSG_XML::GetAttribute(this->subMenu->GetXmlNode(), "title");
 	} else if (this->IsMenu()) {
@@ -497,7 +497,7 @@ void LSG_Menu::setMenuOpened()
 	if (!navTitle.empty())
 		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle, 0, TTF_STYLE_BOLD, nullptr);
 
-	this->textures[LSG_MENU_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVectorClose(this->textColor, maxIconSize);
+	this->textures[LSG_MENU_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, maxIconSize);
 
 	if (this->textures[LSG_MENU_TEXTURE_ICON_CLOSE])
 		this->lastTextColor = SDL_Color(this->textColor);

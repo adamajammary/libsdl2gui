@@ -876,6 +876,19 @@ bool LSG_IsRunning()
 	return isRunning;
 }
 
+bool LSG_IsToggledOn(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsToggle())
+		throw std::invalid_argument(getErrorNoID("<toggle>", id));
+
+	return static_cast<LSG_Toggle*>(component)->IsOn();
+}
+
 bool LSG_IsVisible(const std::string& id)
 {
 	if (!isRunning)
@@ -2073,6 +2086,19 @@ void LSG_SetTitle(const std::string& id, const std::string& title)
 		static_cast<LSG_Menu*>(component)->SetMenu();
 	else if (component->IsSubMenu())
 		static_cast<LSG_MenuSub*>(component)->SetSubMenu(component->background);
+}
+
+void LSG_SetToggle(const std::string& id, bool on)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsToggle())
+		throw std::invalid_argument(getErrorNoID("<toggle>", id));
+
+	static_cast<LSG_Toggle*>(component)->Set(on);
 }
 
 void LSG_SetVisible(const std::string& id, bool visible, bool layout)

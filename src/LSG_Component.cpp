@@ -408,6 +408,11 @@ bool LSG_Component::IsTiles() const
 	return (this->xmlNodeName == "tiles");
 }
 
+bool LSG_Component::IsToggle() const
+{
+	return (this->xmlNodeName == "toggle");
+}
+
 bool LSG_Component::IsVertical() const
 {
 	return (this->orientation == LSG_ConstOrientation::Vertical);

@@ -67,7 +67,9 @@ enum LSG_EventType
 	LSG_EVENT_TEXT_INPUT_COMPLETED, // ENTER
 	LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_TILE_SELECTED,
-	LSG_EVENT_TILE_UNSELECTED
+	LSG_EVENT_TILE_UNSELECTED,
+	LSG_EVENT_TOGGLED_OFF,
+	LSG_EVENT_TOGGLED_ON
 };
 
 // https://www.media.mit.edu/pia/Research/deepview/exif.html
@@ -637,6 +639,14 @@ DLLEXPORT bool DLL LSG_IsPreferredDarkMode();
  * @returns true if the library has been initialized and window created
  */
 DLLEXPORT bool DLL LSG_IsRunning();
+
+/**
+ * @returns true if the toggle switch is toggled on
+ * @param id <toggle> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT bool DLL LSG_IsToggledOn(const std::string& id);
 
 /**
  * @returns true if the component is visible
@@ -1380,6 +1390,15 @@ DLLEXPORT void DLL LSG_SetTiles(const std::string& id, const LSG_TileItems& tile
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetTitle(const std::string& id, const std::string& title);
+
+/**
+ * @brief Toggles the switch on or off.
+ * @param id <toggle> component ID
+ * @param on true for on or false for off
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetToggle(const std::string& id, bool on);
 
 /**
  * @brief Shows or hides the component.

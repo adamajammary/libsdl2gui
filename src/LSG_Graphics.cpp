@@ -318,6 +318,48 @@ SDL_Color LSG_Graphics::GetThumbColor(const SDL_Color& backgroundColor)
 	return thumbColor;
 }
 
+SDL_Texture* LSG_Graphics::GetVector(LSG_VectorIcon icon, const SDL_Color& color, const SDL_Size& size)
+{
+	std::string svg = "";
+
+	switch (icon) {
+	case LSG_VECTOR_ICON_BACK:
+		svg = LSG_Graphics::getVectorBack(color, size);
+		break;
+	case LSG_VECTOR_ICON_CLOSE:
+		svg = LSG_Graphics::getVectorClose(color, size);
+		break;
+	case LSG_VECTOR_ICON_MENU:
+		svg = LSG_Graphics::getVectorMenu(color, size);
+		break;
+	case LSG_VECTOR_ICON_NEXT:
+		svg = LSG_Graphics::getVectorNext(color, size);
+		break;
+	case LSG_VECTOR_ICON_PAGE_BACK:
+		svg = LSG_Graphics::getVectorPageBack(color, size);
+		break;
+	case LSG_VECTOR_ICON_PAGE_END:
+		svg = LSG_Graphics::getVectorPageEnd(color, size);
+		break;
+	case LSG_VECTOR_ICON_PAGE_NEXT:
+		svg = LSG_Graphics::getVectorPageNext(color, size);
+		break;
+	case LSG_VECTOR_ICON_PAGE_START:
+		svg = LSG_Graphics::getVectorPageStart(color, size);
+		break;
+	case LSG_VECTOR_ICON_TOGGLE_ON:
+		svg = LSG_Graphics::getVectorToggleOn(color, size);
+		break;
+	case LSG_VECTOR_ICON_TOGGLE_OFF:
+		svg = LSG_Graphics::getVectorToggleOff(color, size);
+		break;
+	default:
+		break;
+	}
+
+	return LSG_Graphics::getVector(svg);
+}
+
 SDL_Texture* LSG_Graphics::getVector(const std::string& svg)
 {
 	if (svg.empty())
@@ -336,78 +378,97 @@ SDL_Texture* LSG_Graphics::getVector(const std::string& svg)
 	return texture;
 }
 
-SDL_Texture* LSG_Graphics::GetVectorBack(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorBack(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 24 24' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<polygon points='17.2,23.7 5.4,12 17.2,0.3 18.5,1.7 8.4,12 18.5,22.3' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorClose(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorClose(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 24 24' width='%dpx' height='%dpx' stroke='rgb(%u,%u,%u)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<path d='M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorMenu(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorMenu(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 24 24' width='%dpx' height='%dpx' stroke='rgb(%u,%u,%u)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<path d='M4 6H20M4 12H20M4 18H20' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorNext(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorNext(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 24 24' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<polygon points='6.8, 23.7 5.4, 22.3 15.7, 12 5.4, 1.7 6.8, 0.3 18.5, 12' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorPageBack(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorPageBack(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 192.701 192.701' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<path d='M29.641,96.345l74.54-75.61c4.704-4.74,4.704-12.439,0-17.179c-4.704-4.74-12.319-4.74-17.011,0l-82.997,84.2 c-4.511,4.559-4.535,12.608,0,17.191l83.009,84.2c4.692,4.74,12.319,4.74,17.011,0c4.704-4.74,4.704-12.439,0-17.179 L29.641,96.345z' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorPageEnd(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorPageEnd(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 192.689 192.689' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<path d='M188.527,87.755l-83.009-84.2c-4.692-4.74-12.319-4.74-17.011,0c-4.704,4.74-4.704,12.439,0,17.179l74.54,75.61 l-74.54,75.61c-4.704,4.74-4.704,12.439,0,17.179c4.704,4.74,12.319,4.74,17.011,0l82.997-84.2 C193.05,100.375,193.062,92.327,188.527,87.755z' />" \
 		"<path d='M104.315,87.755l-82.997-84.2c-4.704-4.74-12.319-4.74-17.011,0c-4.704,4.74-4.704,12.439,0,17.179l74.528,75.61 l-74.54,75.61c-4.704,4.74-4.704,12.439,0,17.179s12.319,4.74,17.011,0l82.997-84.2C108.838,100.375,108.85,92.327,104.315,87.755 z' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorPageNext(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorPageNext(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 192.689 192.689' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<path d='M104.315,87.755l-82.997-84.2c-4.704-4.74-12.319-4.74-17.011,0c-4.704,4.74-4.704,12.439,0,17.179l74.528,75.61 l-74.54,75.61c-4.704,4.74-4.704,12.439,0,17.179s12.319,4.74,17.011,0l82.997-84.2C108.838,100.375,108.85,92.327,104.315,87.755 z' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorPageStart(const SDL_Color& color, const SDL_Size& size)
+std::string LSG_Graphics::getVectorPageStart(const SDL_Color& color, const SDL_Size& size)
 {
 	auto svg = "<svg viewBox='0 0 192.701 192.701' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' stroke-linecap='round' stroke-linejoin='round'>" \
 		"<path d='M29.641,96.345l74.54-75.61c4.704-4.74,4.704-12.439,0-17.179c-4.704-4.74-12.319-4.74-17.011,0l-82.997,84.2 c-4.511,4.559-4.535,12.608,0,17.191l83.009,84.2c4.692,4.74,12.319,4.74,17.011,0c4.704-4.74,4.704-12.439,0-17.179 L29.641,96.345z' />" \
 		"<path d='M113.853,96.345l74.54-75.61c4.704-4.74,4.704-12.439,0-17.179c-4.704-4.74-12.319-4.74-17.011,0l-82.997,84.2 c-4.511,4.559-4.535,12.608,0,17.191l82.997,84.2c4.704,4.74,12.319,4.74,17.011,0c4.704-4.74,4.704-12.439,0-17.179 L113.853,96.345z' />" \
 		"</svg>";
 
-	return LSG_Graphics::getVector(LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b));
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
+}
+
+std::string LSG_Graphics::getVectorToggleOff(const SDL_Color& color, const SDL_Size& size)
+{
+	auto svg = "<svg viewBox='0 0 64 64' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' style='fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;'>" \
+		"<path style='fill-rule:nonzero;' d='M41.309,17.112c9.416,0.179 17.545,10.374 13.732,20.395c-2.105,5.532 -7.689,9.487 -13.732,9.602c-6.201,0.04 -12.402,0.04 -18.603,0c-9.653,-0.183 -17.944,-11.153 -13.383,-21.233c2.32,-5.128 7.685,-8.656 13.383,-8.764c6.201,-0.04 12.402,-0.04 18.603,0Zm-18.398,3.998c-7.151,0.046 -13.348,8.061 -9.944,15.586c1.694,3.744 5.614,6.334 9.789,6.413c6.168,0.039 12.335,0.039 18.503,0c6.934,-0.131 12.825,-7.661 10.043,-14.973c-1.54,-4.049 -5.615,-6.941 -10.044,-7.025c-6.115,-0.039 -12.231,-0.001 -18.347,-0.001Z' />" \
+		"<circle cx='41.117' cy='32.11' r='10.015' />" \
+		"</svg>";
+
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
+}
+
+std::string LSG_Graphics::getVectorToggleOn(const SDL_Color& color, const SDL_Size& size)
+{
+	auto svg = "<svg viewBox='0 0 64 64' width='%dpx' height='%dpx' fill='rgb(%u,%u,%u)' style='fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;'>" \
+		"<path style='fill-rule:nonzero;' d='M25.022,17.099c2.715,-0.012 12.015,0.058 13.952,0c22.08,-0.662 22.961,30.643 0,30.023c-3.488,0.015 -12.792,-0.064 -13.952,0c-10.359,0.572 -17.04,-6.822 -16.997,-15.272c0.042,-8.451 7.53,-15.72 16.997,-14.751Zm7.882,15.011c0.143,-5.363 -4.664,-10.096 -10.015,-10.015c-7.31,0.111 -10.482,6.7 -10.016,10.947c0.625,5.691 5.193,9.06 10.016,9.084c5.536,0.026 9.862,-4.308 10.015,-10.016Z' />" \
+		"</svg>";
+
+	return LSG_Text::Format(svg, size.width, size.height, color.r, color.g, color.b);
 }
 
 bool LSG_Graphics::IsColorEquals(const SDL_Color& a, const SDL_Color& b)

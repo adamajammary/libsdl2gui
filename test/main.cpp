@@ -26,14 +26,23 @@ static void setColorTheme(const std::string& menuItemId, const std::string& colo
 
     LSG_SetMenuItemSelected(menuItemId, true);
 
-    if (menuItemId == "MenuIdColorThemeDark") {
+    if (menuItemId == "MenuIdColorThemeDark")
+    {
         LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-white-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-white-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-white-512.png");
-    } else {
+
+        if (LSG_IsToggledOn("Toggle"))
+            LSG_SetToggle("Toggle", false);
+    }
+    else
+    {
         LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-black-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-black-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-black-512.png");
+
+        if (!LSG_IsToggledOn("Toggle"))
+            LSG_SetToggle("Toggle", true);
     }
 }
 
@@ -124,6 +133,12 @@ static void handleUserEvent(const SDL_UserEvent& event)
     case LSG_EVENT_TILE_SELECTED:
     case LSG_EVENT_TILE_UNSELECTED:
         handleTileEvent(id, *static_cast<std::vector<int>*>(event.data2));
+        break;
+    case LSG_EVENT_TOGGLED_OFF:
+        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+        break;
+    case LSG_EVENT_TOGGLED_ON:
+        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
         break;
     default:
         break;

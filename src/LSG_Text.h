@@ -28,10 +28,23 @@ public:
 		if (!formatString)
 			return "";
 
-		char buffer[1024];
-		std::snprintf(buffer, 1024, formatString, args...);
+		char buffer[1024] = {};
 
-		return std::string(buffer);
+		auto result = std::snprintf(buffer, 1024, formatString, args...);
+
+		if (result < 1024)
+			return std::string(buffer);
+
+		auto bufferSize    = (size_t)(result + 1);
+		auto dynamicBuffer = (char*)std::malloc(bufferSize);
+
+		std::snprintf(dynamicBuffer, bufferSize, formatString, args...);
+
+		auto resultString = std::string(dynamicBuffer != NULL ? dynamicBuffer : "");
+
+		std::free(dynamicBuffer);
+
+		return resultString;
 	}
 
 	#if defined _windows

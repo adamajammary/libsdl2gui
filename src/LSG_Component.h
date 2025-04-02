@@ -64,6 +64,7 @@ public:
 	bool             IsTextInput() const;
 	bool             IsTextLabel() const;
 	bool             IsTiles() const;
+	bool             IsToggle() const;
 	bool             IsVertical() const;
 	void             RemoveChild(LSG_Component* child);
 	virtual void     Render(SDL_Renderer* renderer) const override;

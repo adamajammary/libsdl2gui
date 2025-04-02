@@ -295,17 +295,19 @@ void LSG_Navigation::set()
 
 	this->arrow.size = this->getFontSize();
 
+	SDL_Size size = { this->arrow.size, this->arrow.size };
+
 	if (!this->arrow.home)
-		this->arrow.home = LSG_Graphics::GetVectorPageStart(colorPrev, { this->arrow.size, this->arrow.size });
+		this->arrow.home = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_START, colorPrev, size);
 
 	if (!this->arrow.back)
-		this->arrow.back = LSG_Graphics::GetVectorPageBack(colorPrev, { this->arrow.size, this->arrow.size });
+		this->arrow.back = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_BACK, colorPrev, size);
 
 	if (!this->arrow.forward)
-		this->arrow.forward = LSG_Graphics::GetVectorPageNext(colorNext, { this->arrow.size, this->arrow.size });
+		this->arrow.forward = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_NEXT, colorNext, size);
 
 	if (!this->arrow.end)
-		this->arrow.end = LSG_Graphics::GetVectorPageEnd(colorNext, { this->arrow.size, this->arrow.size });
+		this->arrow.end = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_END, colorNext, size);
 
 	if (!this->texture)
 	{

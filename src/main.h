@@ -117,6 +117,20 @@ enum LSG_TriangleOrientation
 	LSG_TRIANGLE_ORIENTATION_DOWN
 };
 
+enum LSG_VectorIcon
+{
+	LSG_VECTOR_ICON_BACK,
+	LSG_VECTOR_ICON_CLOSE,
+	LSG_VECTOR_ICON_MENU,
+	LSG_VECTOR_ICON_NEXT,
+	LSG_VECTOR_ICON_PAGE_BACK,
+	LSG_VECTOR_ICON_PAGE_END,
+	LSG_VECTOR_ICON_PAGE_NEXT,
+	LSG_VECTOR_ICON_PAGE_START,
+	LSG_VECTOR_ICON_TOGGLE_OFF,
+	LSG_VECTOR_ICON_TOGGLE_ON
+};
+
 #if defined _android
 struct LSG_ConstAndroid
 {
@@ -221,6 +235,7 @@ const char* LSG_GetBasePath();
 #include "LSG_TextInput.h"
 #include "LSG_TextLabel.h"
 #include "LSG_Tiles.h"
+#include "LSG_Toggle.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"
 #include "LSG_XML.h"

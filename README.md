@@ -658,6 +658,29 @@ tile-size="size"
 wrap="boolean" # default="true"
 ```
 
+### \<toggle\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_TOGGLED_OFF](#handle-events) and [LSG_EVENT_TOGGLED_ON](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+font-size="int" # default="14"
+text-color="color"
+
+on="boolean"
+```
+
 ### \<window\>
 
 [boolean](#boolean) | [file_path](#file_path)
@@ -781,7 +804,9 @@ enum LSG_EventType {
   LSG_EVENT_TEXT_INPUT_COMPLETED, // ENTER
   LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
   LSG_EVENT_TILE_SELECTED,
-  LSG_EVENT_TILE_UNSELECTED
+  LSG_EVENT_TILE_UNSELECTED,
+  LSG_EVENT_TOGGLED_OFF,
+  LSG_EVENT_TOGGLED_ON
 };
 ```
 
@@ -1970,6 +1995,23 @@ bool LSG_IsRunning();
 ```
 
 Returns true if the library has been initialized and window created.
+
+### LSG_IsToggledOn
+
+```cpp
+bool LSG_IsToggledOn(const std::string& id);
+```
+
+Returns true if the toggle switch is toggled on.
+
+Parameters
+
+- **id** \<toggle\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_IsVisible
 
@@ -3947,6 +3989,24 @@ Example
 ```cpp
 LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
 ```
+
+### LSG_SetToggle
+
+```cpp
+void LSG_SetToggle(const std::string& id, bool on);
+```
+
+Toggles the switch on or off.
+
+Parameters
+
+- **id** \<toggle\> component ID
+- **on** true for on or false for off
+
+Exceptions
+
+- invalid_argument
+- runtime_error
 
 ### LSG_SetVisible
 

@@ -68,6 +68,7 @@ private:
     static void setTableRows(LSG_Component* component, bool sort = true);
     static void setTextLabels(LSG_Component* component);
     static void setTiles(LSG_Component* component);
+    static void setToggle(LSG_Component* component);
 };
 
 #endif

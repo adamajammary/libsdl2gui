@@ -89,6 +89,8 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		component = new LSG_TextInput(id, layer, node, name, parent);
 	else if (name == "text")
 		component = new LSG_TextLabel(id, layer, node, name, parent);
+	else if (name == "toggle")
+		component = new LSG_Toggle(id, layer, node, name, parent);
 
 	if (!component)
 		return nullptr;
@@ -411,6 +413,11 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			{
 				static_cast<LSG_Tiles*>(component)->OnMouseOver(mousePosition);
 			}
+			else if (component->IsToggle())
+			{
+				if (static_cast<LSG_Toggle*>(component)->IsMouseOver(mousePosition))
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+			}
 
 			break;
 		}
@@ -544,6 +551,8 @@ void LSG_UI::Layout()
 	LSG_UI::layoutRelative(LSG_UI::root);
 	LSG_UI::layoutModal(LSG_UI::root);
 
+	LSG_UI::setToggle(LSG_UI::root);
+
 	LSG_UI::setMenu(LSG_UI::root);
 }
 
@@ -584,6 +593,8 @@ void LSG_UI::layoutModal(LSG_Component* component)
 
 		component->background.y -= height;
 		component->background.h += height;
+
+		LSG_UI::setToggle(component);
 
 		return;
 	}
@@ -1213,6 +1224,7 @@ void LSG_UI::SetText(LSG_Component* component, bool sort)
 	LSG_UI::setTableRows(component, sort);
 	LSG_UI::setTextLabels(component);
 	LSG_UI::setTiles(component);
+	LSG_UI::setToggle(component);
 
 	LSG_UI::setMenu(component);
 
@@ -1229,6 +1241,18 @@ void LSG_UI::setTiles(LSG_Component* component)
 
 	for (auto child : component->GetChildren())
 		LSG_UI::setTiles(child);
+}
+
+void LSG_UI::setToggle(LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsToggle())
+		static_cast<LSG_Toggle*>(component)->Set();
+
+	for (auto child : component->GetChildren())
+		LSG_UI::setToggle(child);
 }
 
 void LSG_UI::UnhighlightComponents()

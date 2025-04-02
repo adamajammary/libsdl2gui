@@ -534,6 +534,8 @@ void LSG_Events::handleMouseUp(const SDL_Event& event)
 				static_cast<LSG_Table*>(component)->OnMouseClick(scrolledPosition);
 			else if (component->IsTiles())
 				static_cast<LSG_Tiles*>(component)->OnMouseClick(scrolledPosition);
+			else if (component->IsToggle())
+				static_cast<LSG_Toggle*>(component)->OnMouseClick(scrolledPosition);
 			else
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_CLICKED, component->GetID());
 		}
