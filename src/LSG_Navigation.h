@@ -43,6 +43,7 @@ private:
 public:
 	size_t       GetItemsTotal() const;
 	int          GetPosition() const;
+	bool         IsMouseOverArrow(const SDL_Point& mousePosition) const;
 	void         NavigateBack(const std::string& text);
 	void         NavigateEnd(const std::string& text);
 	void         NavigateForward(const std::string& text);

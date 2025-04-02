@@ -393,6 +393,11 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			{
 				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 			}
+			else if (component->IsNavigation())
+			{
+				if (static_cast<LSG_Navigation*>(component)->IsMouseOverArrow(mousePosition))
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+			}
 			else if (component->IsTable())
 			{
 				if (static_cast<LSG_Table*>(component)->IsMouseOverColumnBorder(mousePosition))

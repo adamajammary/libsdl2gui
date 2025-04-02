@@ -104,6 +104,41 @@ std::string LSG_Navigation::getText() const
 	return LSG_Text::Format("%d / %llu", start, this->items.total);
 }
 
+bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
+{
+	auto fillArea = this->getFillArea(this->background, this->border);
+	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+
+	auto destination = this->getArrowDestination(fillArea, padding);
+	auto arrow       = this->getArrow(destination, padding);
+
+	if (this->canNavigate.back && SDL_PointInRect(&mousePosition, &arrow))
+		return true;
+
+	destination.x += (this->arrow.size + padding);
+
+	arrow = this->getArrow(destination, padding);
+
+	if (this->canNavigate.back && SDL_PointInRect(&mousePosition, &arrow))
+		return true;
+
+	destination.x = (fillArea.x + fillArea.w - padding - this->arrow.size);
+
+	arrow = this->getArrow(destination, padding);
+
+	if (this->canNavigate.forward && SDL_PointInRect(&mousePosition, &arrow))
+		return true;
+
+	destination.x -= (this->arrow.size + padding);
+
+	arrow = this->getArrow(destination, padding);
+
+	if (this->canNavigate.forward && SDL_PointInRect(&mousePosition, &arrow))
+		return true;
+
+	return false;
+}
+
 void LSG_Navigation::NavigateBack(const std::string& text)
 {
 	auto position = (this->position - (int)this->items.perNavigation);
