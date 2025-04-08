@@ -35,22 +35,28 @@ struct LSG_URational
 	uint32_t denominator = 0;
 };
 
+using LSG_Rationals  = std::vector<LSG_Rational>;
+using LSG_URationals = std::vector<LSG_URational>;
+
 struct LSG_IFD_DataValue
 {
-	int32_t       integer    = 0;
-	LSG_Rational  rational   = {};
-	std::string   string     = "";
-	uint32_t      uinteger   = 0;
-	LSG_URational urational  = {};
-	uint32_t      nrOfValues = 0;
+	int32_t        integer    = 0;
+	LSG_Rational   rational   = {};
+	LSG_Rationals  rationals  = {};
+	std::string    string     = "";
+	LSG_Strings    strings    = {};
+	uint32_t       uinteger   = 0;
+	LSG_URational  urational  = {};
+	LSG_URationals urationals = {};
 };
 
 struct LSG_IFD
 {
-	uint8_t           data[12]  = {};
-	LSG_IFD_DataType  dataType  = LSG_IFD_DATA_TYPE_NONE;
-	LSG_IFD_DataValue dataValue = {};
-	uint16_t          tagID     = 0;
+	uint8_t           data[12]   = {};
+	LSG_IFD_DataType  dataType   = LSG_IFD_DATA_TYPE_NONE;
+	LSG_IFD_DataValue dataValue  = {};
+	uint32_t          nrOfValues = 0;
+	uint16_t          tagID      = 0;
 };
 
 class LSG_Exif
@@ -63,25 +69,30 @@ private:
 	static FILE* file;
 	static bool  isByteOrderIntel;
 	static long  offsetHeader;
+	static long  offsetGPSInfo;
 	static long  offsetSubIFD;
 
 public:
 	static LSG_ExifData         Get(const std::string& filePath);
+	static LSG_GPS              GetGPS(const LSG_ExifTags& gps);
 	static LSG_ImageOrientation GetOrientation(const LSG_ExifTags& tags);
 
 private:
-	static void          addTags(LSG_ExifTags& tags);
-	static LSG_IFD       getIFD();
-	static long          getOffsetIFD();
-	static uint16_t      getNrOfDirectories();
-	static SDL_Surface*  getThumbnail();
-	static std::string   getValueString(const LSG_IFD& ifd);
-	static LSG_Rational  getValueRational(const LSG_IFD& ifd);
-	static LSG_URational getValueURational(const LSG_IFD& ifd);
-	static bool          isExif();
-	static bool          isMarker();
-	static bool          isValid();
-	static void          seekToHeader();
+	static void              addTags(LSG_ExifTags& tags);
+	static double            getDouble(const LSG_Rational& rational);
+	static double            getDouble(const std::string& rational);
+	static LSG_GPSCoordinate getGPSCoordinate(const std::string& rational, const std::string& ref);
+	static LSG_IFD           getIFD();
+	static long              getOffsetIFD();
+	static uint16_t          getNrOfDirectories();
+	static SDL_Surface*      getThumbnail();
+	static std::string       getValueString(const LSG_IFD& ifd);
+	static LSG_Rationals     getValueRationals(const LSG_IFD& ifd);
+	static LSG_URationals    getValueURationals(const LSG_IFD& ifd);
+	static bool              isExif();
+	static bool              isMarker();
+	static bool              isValid();
+	static void              seekToHeader();
 };
 
 #endif

@@ -19,6 +19,7 @@ public:
 	static TTF_Font*           GetFontArial(int fontSize);
 	static std::string         GetFullPath(const std::string& path);
 	static LSG_TableRowCompare GetTableRowCompare(int column);
+	static std::string         Join(const LSG_Strings& strings, const std::string& separator);
 	static uint16_t*           ToUTF16(const std::string& text);
 	static std::wstring        ToWide(const std::string& text);
 

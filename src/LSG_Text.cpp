@@ -129,6 +129,21 @@ bool LSG_Text::hasChanged()
 	return (isColorChanged || isFontSizeChanged || isFontStyleChanged);
 }
 
+std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separator)
+{
+	std::string result = "";
+
+	for (size_t i = 0; i < strings.size(); i++)
+	{
+		result.append(strings[i]);
+
+		if (i < (strings.size() - 1))
+			result.append(separator);
+	}
+
+	return result;
+}
+
 std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
 {
 	auto result        = std::string(text);

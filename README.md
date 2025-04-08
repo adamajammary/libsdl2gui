@@ -810,6 +810,37 @@ enum LSG_EventType {
 };
 ```
 
+### LSG_ExifTagID
+
+<https://www.media.mit.edu/pia/Research/deepview/exif.html>
+
+<https://exiftool.org/TagNames/EXIF.html>
+
+```cpp
+enum LSG_ExifTagID
+{
+  LSG_EXIF_TAG_ID_CAMERA_FOCAL_LENGTH  = 0x920a,
+  LSG_EXIF_TAG_ID_CAMERA_MAKE          = 0x010f,
+  LSG_EXIF_TAG_ID_CAMERA_MODEL         = 0x0110,
+  LSG_EXIF_TAG_ID_CAMERA_FSTOP         = 0x829d,
+  LSG_EXIF_TAG_ID_CAMERA_EXPOSURE_TIME = 0x829a,
+  LSG_EXIF_TAG_ID_CAMERA_ISO           = 0x8827,
+  LSG_EXIF_TAG_ID_DATE_TIME_ORIGINAL   = 0x9003,
+  LSG_EXIF_TAG_ID_GPS_LATITUDE_REF     = 0x0001,
+  LSG_EXIF_TAG_ID_GPS_LATITUDE         = 0x0002,
+  LSG_EXIF_TAG_ID_GPS_LONGITUDE_REF    = 0x0003,
+  LSG_EXIF_TAG_ID_GPS_LONGITUDE        = 0x0004,
+  LSG_EXIF_TAG_ID_GPS_ALTITUDE_REF     = 0x0005,
+  LSG_EXIF_TAG_ID_GPS_ALTITUDE         = 0x0006,
+  LSG_EXIF_TAG_ID_OFFSET_GPS_INFO      = 0x8825,
+  LSG_EXIF_TAG_ID_OFFSET_SUB_IFD       = 0x8769,
+  LSG_EXIF_TAG_ID_ORIENTATION          = 0x0112,
+  LSG_EXIF_TAG_ID_THUMB_JPEG_OFFSET    = 0x0201,
+  LSG_EXIF_TAG_ID_THUMB_JPEG_SIZE      = 0x0202,
+  LSG_EXIF_TAG_ID_THUMB_COMPRESSION    = 0x0103
+};
+```
+
 ### LSG_HAlign
 
 ```cpp
@@ -885,6 +916,7 @@ struct LSG_ButtonItem
 ```cpp
 struct LSG_ExifData
 {
+  LSG_ExifTags gps       = {};
   LSG_ExifTags tags      = {};
   SDL_Surface* thumbnail = nullptr;
 };
@@ -897,6 +929,29 @@ struct LSG_ImageOrientation
 {
   SDL_RendererFlip flip     = SDL_FLIP_NONE;
   double           rotation = 0.0;
+};
+```
+
+### LSG_GPSCoordinate
+
+```cpp
+struct LSG_GPSCoordinate
+{
+  double degrees = 0.0;
+  double minutes = 0.0;
+  double seconds = 0.0;
+  double decimal = 0.0;
+};
+```
+
+### LSG_GPS
+
+```cpp
+struct LSG_GPS
+{
+  LSG_GPSCoordinate latitude  = {};
+  LSG_GPSCoordinate longitude = {};
+  double            altitude  = {};
 };
 ```
 
@@ -1188,6 +1243,22 @@ Parameters
 Exceptions
 
 - invalid_argument
+- runtime_error
+
+### LSG_GetImageGPS
+
+```cpp
+LSG_GPS LSG_GetImageGPS(const LSG_ExifTags& gps);
+```
+
+Returns GPS coordinates from the EXIF GPS tags (if they exist).
+
+Parameters
+
+- **gps** EXIF GPS tags
+
+Exceptions
+
 - runtime_error
 
 ### LSG_GetImageOrientation

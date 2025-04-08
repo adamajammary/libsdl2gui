@@ -249,6 +249,14 @@ LSG_ExifData LSG_GetImageExif(const std::string& filePath)
 	return LSG_Exif::Get(filePath);
 }
 
+LSG_GPS LSG_GetImageGPS(const LSG_ExifTags& gps)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	return LSG_Exif::GetGPS(gps);
+}
+
 LSG_ImageOrientation LSG_GetImageOrientation(const LSG_ExifTags& tags)
 {
 	if (!isRunning)

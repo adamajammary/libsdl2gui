@@ -84,6 +84,13 @@ enum LSG_ExifTagID
 	LSG_EXIF_TAG_ID_CAMERA_EXPOSURE_TIME = 0x829a,
 	LSG_EXIF_TAG_ID_CAMERA_ISO           = 0x8827,
 	LSG_EXIF_TAG_ID_DATE_TIME_ORIGINAL   = 0x9003,
+	LSG_EXIF_TAG_ID_GPS_LATITUDE_REF     = 0x0001,
+	LSG_EXIF_TAG_ID_GPS_LATITUDE         = 0x0002,
+	LSG_EXIF_TAG_ID_GPS_LONGITUDE_REF    = 0x0003,
+	LSG_EXIF_TAG_ID_GPS_LONGITUDE        = 0x0004,
+	LSG_EXIF_TAG_ID_GPS_ALTITUDE_REF     = 0x0005,
+	LSG_EXIF_TAG_ID_GPS_ALTITUDE         = 0x0006,
+	LSG_EXIF_TAG_ID_OFFSET_GPS_INFO      = 0x8825,
 	LSG_EXIF_TAG_ID_OFFSET_SUB_IFD       = 0x8769,
 	LSG_EXIF_TAG_ID_ORIENTATION          = 0x0112,
 	LSG_EXIF_TAG_ID_THUMB_JPEG_OFFSET    = 0x0201,
@@ -140,6 +147,7 @@ using LSG_ExifTags = std::map<uint16_t, std::string>;
 
 struct LSG_ExifData
 {
+	LSG_ExifTags gps       = {};
 	LSG_ExifTags tags      = {};
 	SDL_Surface* thumbnail = nullptr;
 };
@@ -148,6 +156,21 @@ struct LSG_ImageOrientation
 {
 	SDL_RendererFlip flip     = SDL_FLIP_NONE;
 	double           rotation = 0.0;
+};
+
+struct LSG_GPSCoordinate
+{
+    double degrees = 0.0;
+    double minutes = 0.0;
+    double seconds = 0.0;
+	double decimal = 0.0;
+};
+
+struct LSG_GPS
+{
+	LSG_GPSCoordinate latitude  = {};
+	LSG_GPSCoordinate longitude = {};
+	double            altitude  = {};
 };
 
 using LSG_Strings   = std::vector<std::string>;
@@ -253,6 +276,13 @@ DLLEXPORT std::string DLL LSG_GetColorTheme();
  * @throws runtime_error
  */
 DLLEXPORT LSG_ExifData DLL LSG_GetImageExif(const std::string& filePath);
+
+/**
+ * @returns GPS coordinates from the EXIF tags (if they exist)
+ * @param gps EXIF GPS tags
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_GPS DLL LSG_GetImageGPS(const LSG_ExifTags& gps);
 
 /**
  * @returns the orientation of the image from the EXIF tags (if it exists)
