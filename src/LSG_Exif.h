@@ -79,6 +79,7 @@ public:
 
 private:
 	static void              addTags(LSG_ExifTags& tags);
+	static void              close();
 	static double            getDouble(const LSG_Rational& rational);
 	static double            getDouble(const std::string& rational);
 	static LSG_GPSCoordinate getGPSCoordinate(const std::string& rational, const std::string& ref);

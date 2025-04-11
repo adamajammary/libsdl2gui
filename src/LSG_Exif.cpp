@@ -25,27 +25,44 @@ void LSG_Exif::addTags(LSG_ExifTags& tags)
 	}
 }
 
+void LSG_Exif::close()
+{
+	if (LSG_Exif::file) {
+		std::fclose(LSG_Exif::file);
+		LSG_Exif::file = nullptr;
+	}
+
+	LSG_Exif::isByteOrderIntel = false;
+	LSG_Exif::offsetHeader     = 0;
+	LSG_Exif::offsetGPSInfo    = 0;
+	LSG_Exif::offsetSubIFD     = 0;
+}
+
 LSG_ExifData LSG_Exif::Get(const std::string& filePath)
 {
+	LSG_Exif::close();
+
 	#if defined _windows
 		LSG_Exif::file = _wfopen(LSG_Text::ToWide(filePath).c_str(), L"rb");
 	#else
 		LSG_Exif::file = std::fopen(filePath.c_str(), "rb");
 	#endif
 
-	if (!LSG_Exif::file)
+	if (!LSG_Exif::file) {
+		LSG_Exif::close();
 		return {};
+	}
 
 	LSG_Exif::seekToHeader();
 
-	if (!LSG_Exif::isValid())
+	if (!LSG_Exif::isValid()) {
+		LSG_Exif::close();
 		return {};
+	}
 
 	LSG_ExifData data = {};
 
 	// IFD0 (main image)
-
-	LSG_Exif::offsetSubIFD = 0;
 
 	long offsetIFD1 = 0;
 	auto offsetIFD0 = LSG_Exif::getOffsetIFD();
@@ -86,9 +103,7 @@ LSG_ExifData LSG_Exif::Get(const std::string& filePath)
 		data.thumbnail = LSG_Exif::getThumbnail();
 	}
 
-	std::fclose(LSG_Exif::file);
-
-	LSG_Exif::file = nullptr;
+	LSG_Exif::close();
 
 	return data;
 }
