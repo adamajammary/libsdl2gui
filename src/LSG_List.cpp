@@ -486,8 +486,6 @@ void LSG_List::SetItems(const LSG_Strings& items)
 	this->items = items;
 
 	this->setItems();
-
-	this->Select(!this->items.empty() ? 0 : -1);
 }
 
 void LSG_List::SetItems()
@@ -546,8 +544,6 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 	this->scrollOffsetY = 0;
 
 	this->reset();
-
-	this->Select(!this->items.empty() ? 0 : -1);
 }
 
 void LSG_List::sort()

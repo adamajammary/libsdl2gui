@@ -690,8 +690,6 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 	this->rows = rows;
 
 	this->reset();
-
-	this->Select(!this->rows.empty() ? 0 : -1);
 }
 
 void LSG_Table::SetRows()
@@ -801,8 +799,6 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 	this->scrollOffsetY = 0;
 
 	this->reset();
-
-	this->Select(!this->rows.empty() ? 0 : -1);
 }
 
 void LSG_Table::sort()
