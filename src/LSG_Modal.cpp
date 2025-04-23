@@ -4,7 +4,6 @@ LSG_Modal::LSG_Modal(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->hideCloseIcon        = false;
-	this->highlightedChild     = false;
 	this->highlightedCloseIcon = false;
 	this->visible              = false;
 
@@ -45,31 +44,42 @@ SDL_Rect LSG_Modal::getCloseIcon() const
 	return closeIcon;
 }
 
-bool LSG_Modal::Highlight(const SDL_Point& mousePosition)
+SDL_Cursor* LSG_Modal::Highlight(const SDL_Point& mousePosition)
 {
 	this->highlightedCloseIcon = this->isMouseOverIconClose(mousePosition);
-	this->highlightedChild     = false;
 
-	this->highlight(this, mousePosition);
+	if (this->highlightedCloseIcon)
+		return SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 
-	return (this->highlightedCloseIcon || this->highlightedChild);
+	auto cursor = this->highlight(this, mousePosition);
+
+	return cursor;
 }
 
-void LSG_Modal::highlight(LSG_Component* component, const SDL_Point& mousePosition)
+SDL_Cursor* LSG_Modal::highlight(LSG_Component* component, const SDL_Point& mousePosition)
 {
-	if (!component)
-		return;
+	if (!component || !component->visible || !component->enabled)
+		return nullptr;
 
-	if (component->visible && component->enabled)
-	{
-		component->highlighted = SDL_PointInRect(&mousePosition, &component->background);
+	component->highlighted = SDL_PointInRect(&mousePosition, &component->background);
 
-		if (component->highlighted && component->IsButton())
-			this->highlightedChild = true;
-	}
+	if (!component->highlighted)
+		return nullptr;
+
+	auto cursor = LSG_UI::GetCursor(component, mousePosition);
+
+	if (cursor)
+		return cursor;
 
 	for (auto child : component->GetChildren())
-		this->highlight(child, mousePosition);
+	{
+		cursor = this->highlight(child, mousePosition);
+
+		if (cursor)
+			return cursor;
+	}
+
+	return nullptr;
 }
 
 bool LSG_Modal::IsModalChild(LSG_Component* component)

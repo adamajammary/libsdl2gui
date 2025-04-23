@@ -284,6 +284,48 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 	return nullptr;
 }
 
+SDL_Cursor* LSG_UI::GetCursor(LSG_Component* component, const SDL_Point& mousePosition)
+{
+	SDL_Cursor* cursor = nullptr;
+
+	if (component->IsButton())
+	{
+		cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+	}
+	else if (component->IsNavigation())
+	{
+		if (static_cast<LSG_Navigation*>(component)->IsMouseOverArrow(mousePosition))
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+	}
+	else if (component->IsTable())
+	{
+		if (static_cast<LSG_Table*>(component)->IsMouseOverColumnBorder(mousePosition))
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+	}
+	else if (component->IsTextInput())
+	{
+		auto textInput = static_cast<LSG_TextInput*>(component);
+
+		textInput->Highlight(mousePosition);
+
+		if (textInput->IsHighlightedIconClear())
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		else
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+	}
+	else if (component->IsTiles())
+	{
+		static_cast<LSG_Tiles*>(component)->OnMouseOver(mousePosition);
+	}
+	else if (component->IsToggle())
+	{
+		if (static_cast<LSG_Toggle*>(component)->IsMouseOver(mousePosition))
+			cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+	}
+
+	return cursor;
+}
+
 SDL_Rect LSG_UI::GetScrolledBackground(LSG_Component* component)
 {
 	if (!component)
@@ -387,43 +429,8 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 
 		component->highlighted = SDL_PointInRect(&mousePosition, &background);
 
-		if (component->highlighted)
-		{
-			if (component->IsButton())
-			{
-				cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-			}
-			else if (component->IsNavigation())
-			{
-				if (static_cast<LSG_Navigation*>(component)->IsMouseOverArrow(mousePosition))
-					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-			}
-			else if (component->IsTable())
-			{
-				if (static_cast<LSG_Table*>(component)->IsMouseOverColumnBorder(mousePosition))
-					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
-			}
-			else if (component->IsTextInput())
-			{
-				auto textInput = static_cast<LSG_TextInput*>(component);
-
-				textInput->Highlight(mousePosition);
-
-				if (textInput->IsHighlightedIconClear())
-					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-				else
-					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
-			}
-			else if (component->IsTiles())
-			{
-				static_cast<LSG_Tiles*>(component)->OnMouseOver(mousePosition);
-			}
-			else if (component->IsToggle())
-			{
-				if (static_cast<LSG_Toggle*>(component)->IsMouseOver(mousePosition))
-					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-			}
-
+		if (component->highlighted) {
+			cursor = LSG_UI::GetCursor(component, mousePosition);
 			break;
 		}
 	}
