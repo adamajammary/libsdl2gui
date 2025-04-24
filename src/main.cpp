@@ -108,7 +108,7 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
-	if (IMG_Init(IMG_INIT_PNG) < IMG_INIT_PNG)
+	if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP) < 15)
 		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_image: %s", IMG_GetError()));
 
 	if (TTF_Init() < 0)

@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD          "20")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # libsdl2gui depends on the following third-party libraries:
-# - sdl2, sdl2_image, sdl2_ttf, libxml2
+# - sdl2, sdl2_image, sdl2_ttf, libtiff, libwebp, libxml2
 
 if (ANDROID)
     set(EXT_LIB_SDL  libSDL2.so)
@@ -169,6 +169,8 @@ if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-sdl2.txt       ${DIST_DIR}/)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-sdl2_ttf.txt   ${DIST_DIR}/)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-sdl2_image.txt ${DIST_DIR}/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-libtiff.txt    ${DIST_DIR}/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-libwebp.txt    ${DIST_DIR}/)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-libxml2.txt    ${DIST_DIR}/)
 endif()
 
