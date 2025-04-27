@@ -6,6 +6,7 @@
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <set>
 #include <unordered_map>
