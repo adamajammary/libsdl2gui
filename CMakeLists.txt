@@ -55,7 +55,12 @@ if (WIN32)
 else()
     set(LIB_PREP "lib")
 
-    set(LIBS      "-lSDL2" "-lSDL2_image" "-lSDL2_ttf" "-lxml2")
+    if (IOS)
+        set(LIBS "-lSDL2" "-lSDL2_image" "-lwebpdecoder" "-lwebpdemux" "-lSDL2_ttf" "-lxml2")
+    else()
+        set(LIBS "-lSDL2" "-lSDL2_image" "-lSDL2_ttf" "-lxml2")
+    endif()
+    
     set(TEST_LIBS "-lSDL2")
 endif()
 
