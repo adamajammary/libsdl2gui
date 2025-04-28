@@ -5,7 +5,6 @@
 #include <cstdio>    // snprintf()
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
-#include <filesystem>
 #include <format>
 #include <fstream>
 #include <set>
@@ -20,7 +19,8 @@
     #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
     #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _linux
-	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(), gtk_dialog_run(), gtk_file_chooser_get_uri()
+	#include <filesystem> // exists()
+	#include <gtk/gtk.h>  // gtk_file_chooser_dialog_new(), gtk_dialog_run(), gtk_file_chooser_get_uri()
 #elif defined _macosx
 	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
 	#include <Foundation/Foundation.h> // NSString, NSUserDefaults
