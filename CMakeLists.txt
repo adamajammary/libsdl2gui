@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project (sdl2gui)
 
-set(EXT_LIB_DIR "${EXT_LIB_DIR}")
+set(EXT_LIB_DIR "${LSG_EXT_LIB_DIR}")
 set(INC_DIR     "${EXT_LIB_DIR}/include")
 set(LIB_DIR     "${EXT_LIB_DIR}/lib")
 set(SRC_DIR     "${CMAKE_SOURCE_DIR}")
