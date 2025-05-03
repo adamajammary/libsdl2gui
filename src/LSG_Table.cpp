@@ -76,7 +76,7 @@ void LSG_Table::destroyTextures()
 	this->headerTextures.clear();
 }
 
-int LSG_Table::getColumnCount()
+int LSG_Table::getColumnCount() const
 {
 	auto columns = (int)this->header.size();
 
@@ -91,7 +91,7 @@ int LSG_Table::getColumnCount()
 	return columns;
 }
 
-int LSG_Table::getMaxColumnWidth(size_t column)
+int LSG_Table::getMaxColumnWidth(size_t column) const
 {
 	auto columnSize  = LSG_Graphics::GetTextureSize(this->textures[column]);
 	auto headerSize  = LSG_Graphics::GetTextureSize(this->headerTextures[column]);
@@ -100,14 +100,14 @@ int LSG_Table::getMaxColumnWidth(size_t column)
 	return columnWidth;
 }
 
-int LSG_Table::getMinColumnWidth()
+int LSG_Table::getMinColumnWidth() const
 {
 	auto minWidth = (LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing) * 2);
 
 	return minWidth;
 }
 
-int LSG_Table::GetColumnWidth(int column)
+int LSG_Table::GetColumnWidth(int column) const
 {
 	if ((column < 0) || (column >= (int)this->columnWidths.size()))
 		return 0;
@@ -115,14 +115,14 @@ int LSG_Table::GetColumnWidth(int column)
 	return this->columnWidths[column];
 }
 
-int LSG_Table::GetSortColumn()
+int LSG_Table::GetSortColumn() const
 {
 	auto sortColumn = this->GetXmlAttribute("sort-column");
 
 	return (!sortColumn.empty() ? std::atoi(sortColumn.c_str()) : -1);
 }
 
-SDL_Size LSG_Table::GetSize()
+SDL_Size LSG_Table::GetSize() const
 {
 	auto attributes    = this->GetXmlAttributes();
 	auto columnSpacing = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
@@ -145,7 +145,7 @@ SDL_Size LSG_Table::GetSize()
 	return textureSize;
 }
 
-SDL_Size LSG_Table::getTextureSize()
+SDL_Size LSG_Table::getTextureSize() const
 {
 	if (this->textures.empty())
 		return {};
@@ -209,7 +209,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 
 	if (this->isPaginationClicked(mousePosition))
 	{
-		if (this->isPageArrowClicked(mousePosition)) {
+		if (this->isPageArrowClicked(mousePosition, this->id)) {
 			this->Update();
 			this->SelectFirstRow();
 		}
@@ -690,8 +690,6 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 	this->rows = rows;
 
 	this->reset();
-
-	this->Select(!this->rows.empty() ? 0 : -1);
 }
 
 void LSG_Table::SetRows()
@@ -801,8 +799,6 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 	this->scrollOffsetY = 0;
 
 	this->reset();
-
-	this->Select(!this->rows.empty() ? 0 : -1);
 }
 
 void LSG_Table::sort()

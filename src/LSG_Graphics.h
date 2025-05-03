@@ -11,32 +11,36 @@ private:
 
 public:
 	static SDL_Rect                GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment);
-	static SDL_Size                GetDownscaledSize(const SDL_Size& oldSize, const SDL_Size& newSize);
+	static SDL_Point               GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize);
+	static SDL_Texture*            GetDownScaledTexture(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static int                     GetDPIScaled(int value);
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
-	static LSG_ImageOrientation    GetImageOrientation(const std::string& imageFile);
 	static SDL_Color               GetInverseColor(const SDL_Color& color);
 	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
-	static SDL_Texture*            GetTextureDownScaled(const std::string& imageFile, const SDL_Size& newSize);
 	static SDL_Size                GetTextureSize(SDL_Texture* texture);
+	static SDL_Surface*            GetThumbnail(const std::string& imageFile, const SDL_Size& maxSize);
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
-	static SDL_Texture*            GetVectorBack(const SDL_Color& color,  const SDL_Size& size);
-	static SDL_Texture*            GetVectorClose(const SDL_Color& color, const SDL_Size& size);
-	static SDL_Texture*            GetVectorMenu(const SDL_Color& color,  const SDL_Size& size);
-	static SDL_Texture*            GetVectorNext(const SDL_Color& color,  const SDL_Size& size);
-	static SDL_Texture*            GetVectorPageBack(const SDL_Color& color, const SDL_Size& size);
-	static SDL_Texture*            GetVectorPageEnd(const SDL_Color& color, const SDL_Size& size);
-	static SDL_Texture*            GetVectorPageNext(const SDL_Color& color, const SDL_Size& size);
-	static SDL_Texture*            GetVectorPageStart(const SDL_Color& color, const SDL_Size& size);
+	static SDL_Texture*            GetVector(LSG_VectorIcon icon, const SDL_Color& color, const SDL_Size& size);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
 	static SDL_Color               ToSdlColor(const std::string& color);
 	static std::string             ToXmlAttribute(const SDL_Color& color);
 
 private:
+	static SDL_Surface*            getDownScaledSurface(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, int paddingX, int paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static SDL_Texture*            getVector(const std::string& svg);
+	static std::string             getVectorBack(const  SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorClose(const SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorMenu(const  SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorNext(const  SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorPageBack(const  SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorPageEnd(const   SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorPageNext(const  SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorPageStart(const SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorToggleOff(const SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorToggleOn(const  SDL_Color& color, const SDL_Size& size);
 };
 
 #endif

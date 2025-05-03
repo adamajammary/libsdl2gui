@@ -22,13 +22,13 @@ private:
 
 public:
 	double       GetValue() const;
-	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	virtual void Render(SDL_Renderer* renderer) const override;
 	virtual void SetColors() override;
 	void         SetValue(double value);
 
 private:
-	void render(SDL_Renderer* renderer);
+	void render(SDL_Renderer* renderer) const;
 };
 
 #endif

@@ -13,7 +13,30 @@ LSG_Panel::~LSG_Panel()
 		SDL_DestroyTexture(this->renderTarget);
 }
 
-SDL_Size LSG_Panel::GetSize()
+void LSG_Panel::AddButton(const LSG_ButtonItem& button)
+{
+	auto buttonNode = LSG_XML::AddChildNode(this->xmlNode, "button");
+
+	if (!buttonNode)
+		return;
+
+	LSG_XML::SetAttribute(buttonNode, "id", button.id);
+
+	auto textNode = LSG_XML::AddChildNode(buttonNode, "text");
+
+	LSG_XML::SetValue(textNode, button.text);
+
+	auto buttonComponent = LSG_UI::AddXmlNode(buttonNode, this);
+
+	buttonComponent->SetAlignmentHorizontal(button.halign);
+	buttonComponent->SetAlignmentVertical(button.valign);
+
+	auto textComponent = LSG_UI::AddXmlNode(textNode, buttonComponent);
+
+	textComponent->SetColors();
+}
+
+SDL_Size LSG_Panel::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
@@ -45,6 +68,8 @@ SDL_Size LSG_Panel::GetSize()
 			childSize = static_cast<LSG_TextInput*>(child)->GetSize();
 		else if (child->IsTextLabel())
 			childSize = static_cast<LSG_TextLabel*>(child)->GetSize();
+		else if (child->IsTiles())
+			childSize = static_cast<LSG_Tiles*>(child)->GetSize();
 
 		if (isVertical) {
 			totalSize.height += (childSize.height + childMargin2x);
@@ -204,6 +229,8 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, 
 			static_cast<LSG_TextInput*>(child)->Render(renderer, renderPosition);
 		else if (child->IsTextLabel())
 			static_cast<LSG_TextLabel*>(child)->Render(renderer, renderPosition);
+		else if (child->IsTiles())
+			static_cast<LSG_Tiles*>(child)->Render(renderer, renderPosition);
 
 		if (isVertical)
 			offsetPosition.y += (child->background.h + child->margin + spacing);
@@ -265,4 +292,12 @@ void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background,
 	};
 
 	this->renderFill(renderer, 0, this->backgroundColor, bottomRight);
+}
+
+void LSG_Panel::SetButtons(const LSG_Buttons& buttons)
+{
+	LSG_UI::RemoveXmlChildNodes(this);
+
+	for (const auto& button : buttons)
+		LSG_Panel::AddButton(button);
 }

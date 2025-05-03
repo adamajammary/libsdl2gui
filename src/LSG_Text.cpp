@@ -4,6 +4,7 @@ LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->lastFontSize  = 0;
+	this->lastFontStyle = -1;
 	this->lastTextColor = {};
 
 	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
@@ -86,9 +87,9 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	if (text.empty())
 		return nullptr;
 
-	auto color = (!textColor     ? this->textColor     : *textColor);
-	auto size  = (fontSize  == 0 ? this->getFontSize() : fontSize);
-	auto style = (fontStyle < 0  ? this->fontStyle     : fontStyle);
+	auto color = (!textColor    ? this->textColor      : *textColor);
+	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
+	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
 
 	auto font = LSG_Text::GetFontArial(size);
 
@@ -113,6 +114,7 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	SDL_FreeSurface(surface);
 
 	this->lastFontSize  = size;
+	this->lastFontStyle = style;
 	this->lastTextColor = SDL_Color(color);
 
 	return texture;
@@ -120,10 +122,26 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 
 bool LSG_Text::hasChanged()
 {
-	bool isColorChanged    = !LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor);
-	bool isFontSizeChanged = (this->getFontSize() != this->lastFontSize);
+	bool isColorChanged     = !LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor);
+	bool isFontSizeChanged  = (this->getFontSize()  != this->lastFontSize);
+	bool isFontStyleChanged = (this->getFontStyle() != this->lastFontStyle);
 
-	return (isColorChanged || isFontSizeChanged);
+	return (isColorChanged || isFontSizeChanged || isFontStyleChanged);
+}
+
+std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separator)
+{
+	std::string result = "";
+
+	for (size_t i = 0; i < strings.size(); i++)
+	{
+		result.append(strings[i]);
+
+		if (i < (strings.size() - 1))
+			result.append(separator);
+	}
+
+	return result;
 }
 
 std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
@@ -150,7 +168,17 @@ uint16_t* LSG_Text::ToUTF16(const std::string& text)
 	#endif
 
 	if (!textUTF16)
-		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text: %s", SDL_GetError()));
+		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text '%s'", formattedText.c_str()));
 
 	return textUTF16;
+}
+
+std::wstring LSG_Text::ToWide(const std::string& text)
+{
+	auto utf16 = LSG_Text::ToUTF16(text);
+	auto wide  = std::wstring(reinterpret_cast<const wchar_t*>(utf16));
+
+	SDL_free(utf16);
+
+    return wide;
 }

@@ -14,16 +14,18 @@ private:
 	bool         scrollable;
 
 public:
-	SDL_Size     GetSize();
+	void         AddButton(const LSG_ButtonItem& button);
+	SDL_Size     GetSize() const;
 	bool         IsScroll() const;
-	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void         Render(SDL_Renderer* renderer);
+	void         SetButtons(const LSG_Buttons& buttons);
 
 private:
-	void     renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, const SDL_Size& maxSize);
-	void     renderContent(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize);
-	void     renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& maxSize);
-	void     renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize);
+	void renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, const SDL_Size& maxSize);
+	void renderContent(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize);
+	void renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& maxSize);
+	void renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize);
 };
 
 #endif

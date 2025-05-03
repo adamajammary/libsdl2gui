@@ -26,14 +26,23 @@ static void setColorTheme(const std::string& menuItemId, const std::string& colo
 
     LSG_SetMenuItemSelected(menuItemId, true);
 
-    if (menuItemId == "MenuIdColorThemeDark") {
+    if (menuItemId == "MenuIdColorThemeDark")
+    {
         LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-white-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-white-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-white-512.png");
-    } else {
+
+        if (LSG_IsToggledOn("Toggle"))
+            LSG_SetToggle("Toggle", false);
+    }
+    else
+    {
         LSG_SetMenuItemIcon("MenuIdAbout",           "img/info-black-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeDark",  "img/dark-black-512.png");
         LSG_SetMenuItemIcon("MenuIdColorThemeLight", "img/light-black-512.png");
+
+        if (!LSG_IsToggledOn("Toggle"))
+            LSG_SetToggle("Toggle", true);
     }
 }
 
@@ -74,29 +83,62 @@ static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
 
     if (id == "List")
         LSG_SetText("ListRow", rowText);
-    else if (id == "Table")
-        LSG_SetText("TableRow", rowText);
     else if (id == "TableWithGroups")
         LSG_SetText("TableWithGroupsRow", rowText);
+}
+
+static void handleTileEvent(const std::string& id, const std::vector<int>& tiles)
+{
+    std::string tileText = (!tiles.empty() ? std::to_string(tiles[0]) : "");
+
+    for (size_t i = 1; i < tiles.size(); i++) {
+        if (tiles[i] >= 0)
+            tileText.append("," + std::to_string(tiles[i]));
+    }
+
+    if (id == "Tiles")
+        LSG_SetText("Tile", tileText);
 }
 
 static void handleUserEvent(const SDL_UserEvent& event)
 {
     auto type = (LSG_EventType)event.code;
-    auto id   = static_cast<const char*>(event.data1);
+    auto id   = std::string(static_cast<const char*>(event.data1));
 
     switch (type) {
     case LSG_EVENT_BUTTON_CLICKED:
     case LSG_EVENT_MENU_ITEM_SELECTED:
         handleIdEvent(id);
         break;
+    case LSG_EVENT_NAVIGATE_BACK:
+        LSG_NavigateBack(id);
+        break;
+    case LSG_EVENT_NAVIGATE_END:
+        LSG_NavigateEnd(id);
+        break;
+    case LSG_EVENT_NAVIGATE_FORWARD:
+        LSG_NavigateForward(id);
+        break;
+    case LSG_EVENT_NAVIGATE_HOME:
+        LSG_NavigateHome(id);
+        break;
     case LSG_EVENT_ROW_SELECTED:
     case LSG_EVENT_ROW_UNSELECTED:
         handleRowEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
-        if (std::string(id) == "Slider")
+        if (id == "Slider")
             LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
+        break;
+    case LSG_EVENT_TILE_SELECTED:
+    case LSG_EVENT_TILE_UNSELECTED:
+        handleTileEvent(id, *static_cast<std::vector<int>*>(event.data2));
+        break;
+    case LSG_EVENT_TOGGLED_OFF:
+        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+        break;
+    case LSG_EVENT_TOGGLED_ON:
+        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
         break;
     default:
         break;

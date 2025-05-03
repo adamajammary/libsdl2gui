@@ -10,8 +10,8 @@ public:
 	virtual ~LSG_IRenderable() {}
 
 public:
-	virtual void Render(SDL_Renderer* renderer) = 0;
-
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) = 0;
+	virtual void Render(SDL_Renderer* renderer) const = 0;
 };
 
 #endif

@@ -52,12 +52,12 @@ public:
 	int  GetScrollY() const;
 	bool OnScrollEnd();
 	bool OnScrollHome();
-	bool OnScrollHorizontal(int offset);
 	bool OnScrollMouseClick(const SDL_Point& mousePosition);
 	bool OnScrollMouseDown(const SDL_Point&  mousePosition);
 	bool OnScrollMouseMove(const SDL_Point&  mousePosition, const SDL_Point& lastEventPosition);
 	void OnScrollMouseUp();
-	bool OnScrollVertical(int offset);
+	bool OnScrollHorizontal(int offset, bool forceScroll = false);
+	bool OnScrollVertical(int   offset, bool forceScroll = false);
 
 protected:
 	SDL_Rect getClipWithOffset(const SDL_Rect& clip, const SDL_Size& textureSize);

@@ -1,28 +1,32 @@
 #ifndef LSG_MAIN_H
 #define LSG_MAIN_H
 
-#include <algorithm> // min/max(x)
-#include <cstdio>    // snprintf(x)
-#include <cstring>   // strtok(x)
-#include <filesystem>
+#include <algorithm> // min/max()
+#include <cstdio>    // snprintf()
+#include <cstring>   // strlen(), strtok()
+#include <cwchar>    // wcslen()
+#include <format>
 #include <fstream>
-#include <functional>
-#include <map>
 #include <set>
 #include <unordered_map>
 
 #if defined _android
 	#include <android/asset_manager_jni.h> // AAsset*, JNI*, j*
-	#include <sys/stat.h>                  // mkdir(x)
+	#include <sys/stat.h>                  // mkdir()
 #elif defined _ios
-	#include <UIKit/UIKit.h> // UIScreen, UIUserInterfaceStyle*
+    #include <Photos/Photos.h>     // PHPhotoLibrary
+    #include <StoreKit/StoreKit.h> // SKCloudServiceController
+    #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
+    #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _linux
-	#include <gtk/gtk.h> // gtk_file_chooser_dialog_new(x), gtk_dialog_run(x), gtk_file_chooser_get_uri(x)
+	#include <filesystem> // exists()
+	#include <gtk/gtk.h>  // gtk_file_chooser_dialog_new(), gtk_dialog_run(), gtk_file_chooser_get_uri()
 #elif defined _macosx
 	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
 	#include <Foundation/Foundation.h> // NSString, NSUserDefaults
+	#include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _windows
-	#include <shobjidl_core.h> // GetOpenFileNameW(x), IFileOpenDialog
+	#include <shobjidl_core.h> // IFileOpenDialog, IFileSaveDialog
 #endif
 
 #ifndef LIB_SDL2_SYSWM_H
@@ -36,13 +40,6 @@ extern "C" {
 #define LIB_SDL2_IMAGE_H
 extern "C" {
 	#include <SDL2/SDL_image.h>
-}
-#endif
-
-#ifndef LIB_SDL2_TTF_H
-#define LIB_SDL2_TTF_H
-extern "C" {
-	#include <SDL2/SDL_ttf.h>
 }
 #endif
 
@@ -63,12 +60,14 @@ namespace LibXml {
 
 class LSG_Component;
 
-using LSG_Components       = std::vector<LSG_Component*>;
-using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
-using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
 using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
 using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
 using LSG_UmapStrSize      = std::unordered_map<std::string, SDL_Size>;
+
+using LSG_ColorThemes      = std::unordered_map<std::string, LSG_UMapStrStr>;
+using LSG_Components       = std::vector<LSG_Component*>;
+using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
+using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
 using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
 
 enum LSG_MenuTexture
@@ -119,38 +118,26 @@ enum LSG_TriangleOrientation
 	LSG_TRIANGLE_ORIENTATION_DOWN
 };
 
+enum LSG_VectorIcon
+{
+	LSG_VECTOR_ICON_BACK,
+	LSG_VECTOR_ICON_CLOSE,
+	LSG_VECTOR_ICON_MENU,
+	LSG_VECTOR_ICON_NEXT,
+	LSG_VECTOR_ICON_PAGE_BACK,
+	LSG_VECTOR_ICON_PAGE_END,
+	LSG_VECTOR_ICON_PAGE_NEXT,
+	LSG_VECTOR_ICON_PAGE_START,
+	LSG_VECTOR_ICON_TOGGLE_OFF,
+	LSG_VECTOR_ICON_TOGGLE_ON
+};
+
 #if defined _android
 struct LSG_ConstAndroid
 {
 	static inline const std::string ActivityClassPath = "com/libsdl2gui/lib/Sdl2GuiActivity";
 };
 #endif
-
-struct LSG_ConstBytes
-{
-private:
-	static inline const auto FirstByte  = (1 + 0x0);
-	static inline const auto SecondByte = (1 + 0xFF);
-	static inline const auto ThirdByte  = (1 + 0xFFFF);
-	static inline const auto FourthByte = (1 + 0xFFFFFF);
-
-public:
-	static inline const int ToInt(uint8_t a, uint8_t b, bool littleEndian = true)
-	{
-		if (littleEndian)
-			return ((b * SecondByte) + (a * FirstByte));
-
-		return ((a * SecondByte) + (b * FirstByte));
-	}
-
-	static inline const int ToInt(uint8_t a, uint8_t b, uint8_t c, uint8_t d, bool littleEndian = true)
-	{
-		if (littleEndian)
-			return ((d * FourthByte) + (c * ThirdByte) + (b * SecondByte) + (a * FirstByte));
-
-		return ((a * FourthByte) + (b * ThirdByte) + (c * SecondByte) + (d * FirstByte));
-	}
-};
 
 struct LSG_Cursor
 {
@@ -166,7 +153,7 @@ struct LSG_ConstDefaultColor
 
 struct LSG_ConstClickTime
 {
-	static inline const int DoubleClick = 300;
+	static inline const int DoubleClick = 500;
 	static inline const int RightClick  = 1000;
 };
 
@@ -215,12 +202,6 @@ struct LSG_Alignment
 	LSG_VAlign valign = LSG_VALIGN_TOP;
 };
 
-struct LSG_ImageOrientation
-{
-	SDL_RendererFlip flip     = SDL_FLIP_NONE;
-	double           rotation = 0.0;
-};
-
 const char* LSG_GetBasePath();
 
 #if defined _android
@@ -237,6 +218,8 @@ const char* LSG_GetBasePath();
 #include "LSG_Text.h"
 
 #include "LSG_Button.h"
+#include "LSG_Bytes.h"
+#include "LSG_Exif.h"
 #include "LSG_Events.h"
 #include "LSG_Image.h"
 #include "LSG_Line.h"
@@ -245,12 +228,15 @@ const char* LSG_GetBasePath();
 #include "LSG_MenuItem.h"
 #include "LSG_MenuSub.h"
 #include "LSG_Modal.h"
+#include "LSG_Navigation.h"
 #include "LSG_Panel.h"
 #include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"
 #include "LSG_Table.h"
 #include "LSG_TextInput.h"
 #include "LSG_TextLabel.h"
+#include "LSG_Tiles.h"
+#include "LSG_Toggle.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"
 #include "LSG_XML.h"

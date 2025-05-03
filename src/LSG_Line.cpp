@@ -25,13 +25,13 @@ void LSG_Line::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_Line::Render(SDL_Renderer* renderer)
+void LSG_Line::Render(SDL_Renderer* renderer) const
 {
 	if (this->visible)
 		this->render(renderer);
 }
 
-void LSG_Line::render(SDL_Renderer* renderer)
+void LSG_Line::render(SDL_Renderer* renderer) const
 {
 	auto attributes  = LSG_XML::GetAttributes(xmlNode);
 	auto color       = (attributes.contains("color") ? LSG_Graphics::ToSdlColor(attributes["color"]) : LSG_Graphics::GetThumbColor(this->backgroundColor));
@@ -42,11 +42,14 @@ void LSG_Line::render(SDL_Renderer* renderer)
 
 	LSG_Alignment alignment = { LSG_HALIGN_CENTER, LSG_VALIGN_MIDDLE };
 	
-	if (orientation == "vertical") {
+	if (orientation == "vertical")
+	{
 		auto dest = LSG_Graphics::GetDestinationAligned(this->background, { 1, this->background.h }, alignment);
 
 		SDL_RenderDrawLine(renderer, dest.x, dest.y, dest.x, (dest.y + dest.h - 1));
-	} else {
+	}
+	else
+	{
 		auto dest = LSG_Graphics::GetDestinationAligned(this->background, { this->background.w, 1 }, alignment);
 
 		SDL_RenderDrawLine(renderer, dest.x, dest.y, (dest.x + dest.w - 1), dest.y);

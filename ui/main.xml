@@ -3,8 +3,9 @@
 <window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
   <panel id="Root" orientation="vertical" padding="10" spacing="10">
     <modal id="ModalIdAbout" title="SDL2 GUI Library" width="65%" min-width="380" max-width="500" height="150" border="1">
-      <panel halign="center" valign="middle" padding="10">
-        <text wrap="true">libsdl2gui is a free cross-platform user interface library using SDL2.\n\n(c) 2021 Adam A. Jammary (Jammary Studio)</text>
+      <panel orientation="vertical" halign="center" valign="middle" spacing="10">
+        <text>A free cross-platform user interface library using SDL2.</text>
+        <text>(c) 2021 Adam A. Jammary (Jammary Studio)</text>
       </panel>
     </modal>
 
@@ -33,20 +34,18 @@
 
     <line />
 
-    <panel height="80" orientation="vertical">
-      <text font-size="18" height="30" halign="center">Color Theme</text>
+    <panel height="50" spacing="10" font-size="18" halign="center" valign="middle">
+      <button id="ButtonIdColorThemeDark" width="150" halign="center" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
+        <image file="img/dark-512.png" width="24" height="24" />
+        <text>Dark</text>
+      </button>
 
-      <panel spacing="10" font-size="18">
-        <button id="ButtonIdColorThemeDark" halign="center" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
-          <image file="img/dark-512.png" width="48" height="48" />
-          <text>Dark</text>
-        </button>
+      <toggle id="Toggle" width="50" />
 
-        <button id="ButtonIdColorThemeLight" halign="center" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
-          <image file="img/light-512.png" width="48" height="48" />
-          <text>Light</text>
-        </button>
-      </panel>
+      <button id="ButtonIdColorThemeLight" width="150" halign="center" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
+        <image file="img/light-512.png" width="24" height="24" />
+        <text>Light</text>
+      </button>
     </panel>
 
     <panel orientation="vertical">
@@ -110,8 +109,8 @@ Euismod lacinia at quis risus.</text>
     <panel orientation="vertical">
       <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
-          <text underline="true">Table:</text>
-          <text id="TableRow" />
+          <text underline="true">Tiles with wrapping:</text>
+          <text id="Tile" />
         </panel>
 
         <panel spacing="5">
@@ -121,42 +120,21 @@ Euismod lacinia at quis risus.</text>
       </panel>
 
       <panel spacing="10">
-        <panel id="PanelIdTable" padding="10" border="1">
-          <table id="Table" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
-            <table-header>
-              <table-column>Dolor</table-column>
-              <table-column>Magna</table-column>
-            </table-header>
-
-            <table-row>
-              <table-column>Adipiscing</table-column>
-              <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Congue</table-column>
-              <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Consequat</table-column>
-              <table-column>Ac felis donec et odio pellentesque diam volutpat commodo</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Blandit</table-column>
-              <table-column>Imperdiet nulla malesuada</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Cursus</table-column>
-              <table-column>Pellentesque elit eget gravida</table-column>
-            </table-row>
-            <table-row>
-              <table-column>Risus</table-column>
-              <table-column>Sociis natoque penatibus</table-column>
-            </table-row>
-          </table>
+        <panel id="PanelIdTiles" padding="10" border="1">
+          <tiles id="Tiles" tile-size="128" spacing="5" font-size="12" text-color="#FFFFFF" text-halign="center" text-valign="bottom" wrap="true">
+            <tile image="img/tile-1.jpg" text="Tile #1" />
+            <tile image="img/tile-2.jpg" text="Tile #2" />
+            <tile image="img/tile-3.jpg" text="Tile #3" />
+            <tile image="img/tile-4.jpg" text="Tile #4" />
+            <tile image="img/tile-1.jpg" text="Tile #5" />
+            <tile image="img/tile-2.jpg" text="Tile #6" />
+            <tile image="img/tile-3.jpg" text="Tile #7" />
+            <tile image="img/tile-4.jpg" text="Tile #8" />
+          </tiles>
         </panel>
 
         <panel id="PanelIdTableWithGroups" padding="10" border="1">
-          <table id="TableWithGroups" sort="ascending" sort-column="0">
+          <table id="TableWithGroups" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
             <table-header>
               <table-column>Dolor</table-column>
               <table-column>Magna</table-column>
@@ -197,11 +175,8 @@ Euismod lacinia at quis risus.</text>
       </panel>
     </panel>
 
-    <panel height="60" orientation="vertical">
-      <panel height="30" halign="center" font-size="18" spacing="5">
-        <text>Slider:</text>
-        <text id="SliderValue">0.5</text>
-      </panel>
+    <panel height="40" valign="middle" spacing="10" font-size="18">
+      <text>Slider</text>
 
       <slider
         id="Slider"
@@ -214,6 +189,14 @@ Euismod lacinia at quis risus.</text>
         thumb-width="20"
         background-color="rgb(192, 192, 192)"
       />
+
+      <panel width="40" halign="right" valign="middle">
+        <text id="SliderValue">0.50</text>
+      </panel>
     </panel>
+
+    <line />
+
+    <navigation id="Navigation" items-total="10" items-per-navigation="1" height="30" />
   </panel>
 </window>

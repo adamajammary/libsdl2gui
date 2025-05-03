@@ -13,8 +13,8 @@ public:
 	static const int Height = 32;
 
 private:
-	static const int PaddingIcon   = 5;
-	static const int PaddingIcon2x = 10;
+	static const int PaddingIcon         = 14;
+	static const int PaddingIconSelected = 5;
 
 private:
 	bool                 closed;
@@ -27,20 +27,21 @@ public:
 	bool         IsSelected() const;
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
 	void         Open();
-	virtual void Render(SDL_Renderer* renderer) override;
+	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
+	virtual void Render(SDL_Renderer* renderer) const override;
 	void         SetMenuItem(const SDL_Rect& background);
 	void         SetSelected(bool selected = true);
 
 protected:
-	void renderText(SDL_Renderer* renderer, SDL_Texture* texture);
+	void renderText(SDL_Renderer* renderer, SDL_Texture* texture) const;
 
 private:
-	SDL_Texture* getIcon(const std::string& imageFile);
+	SDL_Texture* getIcon(const std::string& imageFile) const;
 	int          getMaxHeightIcon() const;
-	void         renderIcon(SDL_Renderer*     renderer);
-	void         renderKey(SDL_Renderer*      renderer);
-	void         renderSelected(SDL_Renderer* renderer);
-	virtual void sendEvent(LSG_EventType type) override;
+	void         renderIcon(SDL_Renderer* renderer) const;
+	void         renderKey(SDL_Renderer* renderer) const;
+	void         renderSelected(SDL_Renderer* renderer) const;
+	virtual void sendEvent(LSG_EventType type) const override;
 };
 
 #endif

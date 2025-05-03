@@ -13,8 +13,7 @@ public:
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) = 0;
 
 protected:
-	virtual void sendEvent(LSG_EventType type) = 0;
-
+	virtual void sendEvent(LSG_EventType type) const = 0;
 };
 
 #endif

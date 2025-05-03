@@ -123,36 +123,36 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 	if (!this->visible)
 		return;
 
+	auto background = SDL_Rect(this->background);
 	auto minHeight  = LSG_Graphics::GetDPIScaled(LSG_Slider::MinHeight);
 	bool isVertical = this->IsVertical();
 
 	if (isVertical)
-		this->background.w = std::max(minHeight, this->background.w);
+		background.w = std::max(minHeight, background.w);
 	else
-		this->background.h = std::max(minHeight, this->background.h);
+		background.h = std::max(minHeight, background.h);
 
-	auto backgroundArea = SDL_Rect(this->background);
 	auto thumbWidth     = std::max(this->thumbWidthDefault, this->thumbWidth);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (isVertical) {
-		backgroundArea.y += thumbWidthHalf;
-		backgroundArea.h -= thumbWidth;
-		backgroundArea.x += (this->thumbWidthDefault / 2);
-		backgroundArea.w -= this->thumbWidthDefault;
+		background.y += thumbWidthHalf;
+		background.h -= thumbWidth;
+		background.x += (this->thumbWidthDefault / 2);
+		background.w -= this->thumbWidthDefault;
 	} else {
-		backgroundArea.x += thumbWidthHalf;
-		backgroundArea.w -= thumbWidth;
-		backgroundArea.y += (this->thumbWidthDefault / 2);
-		backgroundArea.h -= this->thumbWidthDefault;
+		background.x += thumbWidthHalf;
+		background.w -= thumbWidth;
+		background.y += (this->thumbWidthDefault / 2);
+		background.h -= this->thumbWidthDefault;
 	}
 
-	auto fillArea = this->getFillArea(backgroundArea, this->border);
+	auto fillArea = this->getFillArea(background, this->border);
 
-	this->renderFill(renderer,   this->border, this->backgroundColor, backgroundArea);
-	this->renderBorder(renderer, this->border, this->borderColor,     backgroundArea);
+	this->renderFill(renderer,   this->border, this->backgroundColor, background);
+	this->renderBorder(renderer, this->border, this->borderColor, background);
 
-	auto progressValue = (int)((double)(isVertical ? backgroundArea.h : backgroundArea.w) * this->value);
+	auto progressValue = (int)((double)(isVertical ? background.h : background.w) * this->value);
 
 	if (this->fillProgress)
 	{
@@ -160,7 +160,7 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 
 		if (isVertical) {
 			progressArea.h  = progressValue;
-			progressArea.y += (backgroundArea.h - progressValue);
+			progressArea.y += (background.h - progressValue);
 		} else {
 			progressArea.w = progressValue;
 		}
@@ -168,10 +168,10 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		this->renderFill(renderer, 0, this->progressColor, progressArea);
 	}
 
-	this->thumb = SDL_Rect(backgroundArea);
+	this->thumb = SDL_Rect(background);
 
 	if (isVertical) {
-		this->thumb.y += (backgroundArea.h - progressValue - thumbWidthHalf);
+		this->thumb.y += (background.h - progressValue - thumbWidthHalf);
 		this->thumb.h  = thumbWidth;
 		this->thumb.x  = this->background.x;
 		this->thumb.w  = this->background.w;
@@ -189,12 +189,10 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		this->renderDisabled(renderer);
 }
 
-void LSG_Slider::sendEvent(LSG_EventType type)
+void LSG_Slider::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
 		return;
-
-	this->value = std::max(0.0, std::min(1.0, this->value));
 
 	SDL_Event sliderEvent = {};
 
@@ -223,20 +221,28 @@ void LSG_Slider::SetColors()
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)
 {
+	double value;
+
 	if (this->IsVertical())
-		this->value = (double)((double)(this->background.y + this->background.h - mousePosition.y) / (double)this->background.h);
+		value = (double)((double)(this->background.y + this->background.h - mousePosition.y) / (double)this->background.h);
 	else
-		this->value = (double)((double)(mousePosition.x - this->background.x) / (double)this->background.w);
+		value = (double)((double)(mousePosition.x - this->background.x) / (double)this->background.w);
+
+	this->SetValue(value);
 
 	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
 }
 
 void LSG_Slider::setValue(int offset)
 {
+	double value;
+
 	if (this->IsVertical())
-		this->value = (double)((double)((int)((double)this->background.h * this->value) - offset) / (double)this->background.h);
+		value = (double)((double)((int)((double)this->background.h * this->value) - offset) / (double)this->background.h);
 	else
-		this->value = (double)((double)((int)((double)this->background.w * this->value) - offset) / (double)this->background.w);
+		value = (double)((double)((int)((double)this->background.w * this->value) - offset) / (double)this->background.w);
+
+	this->SetValue(value);
 
 	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
 }

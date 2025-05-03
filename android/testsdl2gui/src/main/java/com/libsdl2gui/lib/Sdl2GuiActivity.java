@@ -2,14 +2,33 @@
 
 package com.libsdl2gui.lib;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.Manifest.permission;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.Settings;
 
 import org.libsdl.app.SDLActivity;
 
 public class Sdl2GuiActivity extends SDLActivity
 {
+	private static final int REQUEST_CODE_OPEN_FILE     = 1000;
+	private static final int REQUEST_CODE_OPEN_FOLDER   = 2000;
+	private static final int REQUEST_CODE_SAVE_FILE     = 3000;
+	private static final int REQUEST_CODE_READ_STORAGE  = 4000;
+	private static final int REQUEST_CODE_WRITE_STORAGE = 5000;
+
+	public static String  ContentPath      = "";
+	public static boolean IsPickingContent = false;
+
+	private static Uri contentUri = null;
+
 	public static boolean IsAutoRotate()
 	{
 		ContentResolver contentResolver = mSingleton.getContentResolver();
@@ -25,5 +44,152 @@ public class Sdl2GuiActivity extends SDLActivity
 		int           nightMask = (config.uiMode & Configuration.UI_MODE_NIGHT_MASK);
 
 		return (nightMask == Configuration.UI_MODE_NIGHT_YES);
+	}
+
+	public static void OpenFile(String filter)
+	{
+		pickContentFile(filter, Intent.ACTION_OPEN_DOCUMENT, REQUEST_CODE_OPEN_FILE);
+	}
+
+	public static void OpenFolder()
+	{
+		IsPickingContent = true;
+
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FOLDER);
+	}
+
+	public static void SaveFile(String filter)
+	{
+		pickContentFile(filter, Intent.ACTION_CREATE_DOCUMENT, REQUEST_CODE_SAVE_FILE);
+	}
+
+	private static void getPermission(String permission, int requestCode)
+	{
+		mSingleton.requestPermissions(new String[]{ permission }, requestCode);
+	}
+
+	private static void handleContentInvalid()
+	{
+		ContentPath      = "";
+		IsPickingContent = false;
+	}
+
+	private static void handleContentRequest()
+	{
+		String   uriPath     = contentUri.getPath();
+		boolean  isDir       = ((uriPath != null) && uriPath.startsWith("/tree/"));
+		String   docAuth     = contentUri.getAuthority();
+		String   docId       = (isDir ? DocumentsContract.getTreeDocumentId(contentUri) : DocumentsContract.getDocumentId(contentUri));
+		String[] docProps    = docId.split(":");
+		String   docPath     = (docProps.length > 1 ? ("/" + docProps[1]) : "");
+		String   docType     = (docProps.length > 0 ? docProps[0] : "");
+		String   docsDir     = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+		String   storageDir  = Environment.getExternalStorageDirectory().getAbsolutePath();
+		boolean  isHomeDocs  = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
+		String   storagePath = (isHomeDocs ? docsDir : storageDir);
+
+		ContentPath      = (storagePath + docPath);
+		IsPickingContent = false;
+	}
+
+	private static void handleContentUri()
+	{
+		ContentPath      = (contentUri.getScheme() + "://" + contentUri.getAuthority() + contentUri.getPath());
+		IsPickingContent = false;
+	}
+
+	private static boolean isMissingPermission(String permission)
+	{
+		return (mSingleton.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED);
+	}
+
+	private static boolean isRequestStorage(int requestCode)
+	{
+		return ((requestCode == REQUEST_CODE_READ_STORAGE) || (requestCode == REQUEST_CODE_WRITE_STORAGE));
+	}
+
+	private static boolean isPermissionGranted(int[] grantResults)
+	{
+		return (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED);
+	}
+
+	private static void pickContentFile(String filter, String intentAction, int requestCode)
+	{
+		IsPickingContent = true;
+
+		Intent intent = new Intent(intentAction);
+
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("*/*");
+
+		String[] filters = (!filter.isEmpty() ? filter.split(" ") : new String[]{});
+
+		if (filters.length > 0)
+			intent.putExtra(Intent.EXTRA_MIME_TYPES, filters);
+
+		mSingleton.startActivityForResult(intent, requestCode);
+	}
+
+	@SuppressLint("WrongConstant")
+    @Override
+	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
+	{
+		if (resultCode != RESULT_OK) {
+			handleContentInvalid();
+			return;
+		}
+
+		contentUri = resultData.getData();
+
+		ContentResolver contentResolver = mSingleton.getContentResolver();
+
+		int flags = (resultData.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
+
+		if (flags > 0)
+			contentResolver.takePersistableUriPermission(contentUri, flags);
+
+		boolean isRequestRead  = ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));
+		boolean isRequestWrite = (requestCode == REQUEST_CODE_SAVE_FILE);
+
+		String  mediaType = contentResolver.getType(contentUri);
+		boolean isAudio   = (mediaType != null && mediaType.startsWith("audio"));
+		boolean isImage   = (mediaType != null && mediaType.startsWith("image"));
+		boolean isVideo   = (mediaType != null && mediaType.startsWith("video"));
+
+		boolean isApi34 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+		boolean isApi33 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
+		boolean isApi30 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
+
+		if (isRequestRead && isApi34 && (isImage || isVideo) && isMissingPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED))
+			getPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && isAudio && isMissingPermission(permission.READ_MEDIA_AUDIO))
+			getPermission(permission.READ_MEDIA_AUDIO, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && isImage && isMissingPermission(permission.READ_MEDIA_IMAGES))
+			getPermission(permission.READ_MEDIA_IMAGES, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && isVideo && isMissingPermission(permission.READ_MEDIA_VIDEO))
+			getPermission(permission.READ_MEDIA_VIDEO, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestRead && isApi33 && (isAudio || isImage || isVideo))
+			handleContentRequest();
+		else if (isRequestRead && isApi33)
+			handleContentUri();
+		else if (isRequestRead && isMissingPermission(permission.READ_EXTERNAL_STORAGE))
+			getPermission(permission.READ_EXTERNAL_STORAGE, REQUEST_CODE_READ_STORAGE);
+		else if (isRequestWrite && isApi30)
+			handleContentUri();
+		else if (isRequestWrite && isMissingPermission(permission.WRITE_EXTERNAL_STORAGE))
+			getPermission(permission.WRITE_EXTERNAL_STORAGE, REQUEST_CODE_WRITE_STORAGE);
+		else
+			handleContentRequest();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	{
+		if (isRequestStorage(requestCode) && isPermissionGranted(grantResults))
+			handleContentRequest();
+		else
+			handleContentInvalid();
 	}
 }

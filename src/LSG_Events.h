@@ -34,7 +34,6 @@ private:
 	static void      handleTextInput(const SDL_TextInputEvent& event);
 	static void      handleWindowEvent(const SDL_WindowEvent& event);
 	static void      sendEvent(LSG_EventType type, const std::string& id, SDL_Keycode key = SDLK_UNKNOWN);
-
 };
 
 #endif

@@ -17,17 +17,17 @@ protected:
 	std::vector<int> selectedRows;
 
 public:
-	void             AddItem(const std::string& item, bool reset = true);
-	void             Activate();
-	void             Activate(const SDL_Point& mousePosition);
+	void             Activate() const;
+	void             Activate(const SDL_Point& mousePosition) const;
+	void             AddItem(const std::string& item);
 	std::vector<int> GetSelectedRows() const;
-	LSG_SortOrder    GetSortOrder();
-	SDL_Size         GetSize();
+	LSG_SortOrder    GetSortOrder() const;
+	SDL_Size         GetSize() const;
 	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
 	void             RemoveItem(int row);
 	void             RemovePageItem(int row);
-	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
-	virtual void     Render(SDL_Renderer* renderer) override;
+	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void             Render(SDL_Renderer* renderer);
 	bool             Select(int row);
 	bool             Select(int start, int end);
 	bool             Select(const std::vector<int>& rows);
@@ -46,11 +46,11 @@ public:
 	void             Update();
 
 protected:
-	int          getRowHeight();
-	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight);
-	void         renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight);
+	int          getRowHeight() const;
+	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const;
+	void         renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const;
 	virtual void reset();
-	virtual void sendEvent(LSG_EventType type) override;
+	virtual void sendEvent(LSG_EventType type) const override;
 
 private:
 	void removeItem(int row, int lastRow);

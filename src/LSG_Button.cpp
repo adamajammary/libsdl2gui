@@ -6,7 +6,7 @@ LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 	this->selected = false;
 }
 
-SDL_Size LSG_Button::GetSize()
+SDL_Size LSG_Button::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
@@ -145,7 +145,7 @@ void LSG_Button::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_Button::Render(SDL_Renderer* renderer)
+void LSG_Button::Render(SDL_Renderer* renderer) const
 {
 	if (!this->visible)
 		return;
@@ -155,7 +155,7 @@ void LSG_Button::Render(SDL_Renderer* renderer)
 	this->render(renderer);
 }
 
-void LSG_Button::render(SDL_Renderer* renderer)
+void LSG_Button::render(SDL_Renderer* renderer) const
 {
 	if (this->selected)
 		this->renderHighlight(renderer);
@@ -164,7 +164,7 @@ void LSG_Button::render(SDL_Renderer* renderer)
 		this->renderHighlight(renderer);
 }
 
-void LSG_Button::sendEvent(LSG_EventType type)
+void LSG_Button::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
 		return;

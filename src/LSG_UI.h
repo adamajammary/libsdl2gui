@@ -10,7 +10,7 @@ private:
     ~LSG_UI() {}
 
 private:
-    static LSG_UMapStrStr       colorTheme;
+    static LSG_ColorThemes      colorThemes;
     static std::string          colorThemeFile;
     static LSG_UMapStrComponent components;
     static LSG_MapIntComponent  componentsByLayer;
@@ -28,6 +28,7 @@ public:
     static std::string     GetColorTheme();
     static LSG_Component*  GetComponent(const std::string& id);
     static LSG_Component*  GetComponent(const SDL_Point& mousePosition, bool skipModalChildren = false);
+    static SDL_Cursor*     GetCursor(LSG_Component* component, const SDL_Point& mousePosition);
     static SDL_Rect        GetScrolledBackground(LSG_Component* component);
     static SDL_Point       GetScrolledPosition(const SDL_Point& mousePosition, LSG_Component* component);
     static LibXml::xmlDoc* GetXmlDocument();
@@ -44,7 +45,10 @@ public:
     static void            Render(SDL_Renderer* renderer);
     static void            SetColorTheme(const std::string& colorThemeFile, bool sort = false);
     static void            SetEnabled(LSG_Component* component, bool enabled = true);
+    static void            SetFontSize(LSG_Component* component, int size);
+    static void            SetFontStyle(LSG_Component* component, int style);
     static void            SetText(LSG_Component* component, bool sort = false);
+    static void            SetTextColor(LSG_Component* component, const SDL_Color& color);
     static void            UnhighlightComponents();
 
 private:
@@ -61,8 +65,11 @@ private:
     static void setImages(LSG_Component* component);
     static void setListItems(LSG_Component* component, bool sort = true);
     static void setMenu(LSG_Component* component);
+    static void setNavigation(LSG_Component* component);
     static void setTableRows(LSG_Component* component, bool sort = true);
     static void setTextLabels(LSG_Component* component);
+    static void setTiles(LSG_Component* component);
+    static void setToggle(LSG_Component* component);
 };
 
 #endif

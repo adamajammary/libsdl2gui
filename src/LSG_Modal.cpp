@@ -4,7 +4,6 @@ LSG_Modal::LSG_Modal(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->hideCloseIcon        = false;
-	this->highlightedChild     = false;
 	this->highlightedCloseIcon = false;
 	this->visible              = false;
 
@@ -30,7 +29,7 @@ bool LSG_Modal::CloseOnMouseClick(const SDL_Point& mousePosition)
 	return close;
 }
 
-SDL_Rect LSG_Modal::getCloseIcon()
+SDL_Rect LSG_Modal::getCloseIcon() const
 {
 	auto textureSize = LSG_Graphics::GetTextureSize(this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE]);
 	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
@@ -45,31 +44,42 @@ SDL_Rect LSG_Modal::getCloseIcon()
 	return closeIcon;
 }
 
-bool LSG_Modal::Highlight(const SDL_Point& mousePosition)
+SDL_Cursor* LSG_Modal::Highlight(const SDL_Point& mousePosition)
 {
 	this->highlightedCloseIcon = this->isMouseOverIconClose(mousePosition);
-	this->highlightedChild     = false;
 
-	this->highlight(this, mousePosition);
+	if (this->highlightedCloseIcon)
+		return SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 
-	return (this->highlightedCloseIcon || this->highlightedChild);
+	auto cursor = this->highlight(this, mousePosition);
+
+	return cursor;
 }
 
-void LSG_Modal::highlight(LSG_Component* component, const SDL_Point& mousePosition)
+SDL_Cursor* LSG_Modal::highlight(LSG_Component* component, const SDL_Point& mousePosition)
 {
-	if (!component)
-		return;
+	if (!component || !component->visible || !component->enabled)
+		return nullptr;
 
-	if (component->visible && component->enabled)
-	{
-		component->highlighted = SDL_PointInRect(&mousePosition, &component->background);
+	component->highlighted = SDL_PointInRect(&mousePosition, &component->background);
 
-		if (component->highlighted && component->IsButton())
-			this->highlightedChild = true;
-	}
+	if (!component->highlighted)
+		return nullptr;
+
+	auto cursor = LSG_UI::GetCursor(component, mousePosition);
+
+	if (cursor)
+		return cursor;
 
 	for (auto child : component->GetChildren())
-		this->highlight(child, mousePosition);
+	{
+		cursor = this->highlight(child, mousePosition);
+
+		if (cursor)
+			return cursor;
+	}
+
+	return nullptr;
 }
 
 bool LSG_Modal::IsModalChild(LSG_Component* component)
@@ -83,7 +93,7 @@ bool LSG_Modal::IsModalChild(LSG_Component* component)
 	return LSG_Modal::IsModalChild(component->GetParent());
 }
 
-bool LSG_Modal::isMouseOverIconClose(const SDL_Point& mousePosition)
+bool LSG_Modal::isMouseOverIconClose(const SDL_Point& mousePosition) const
 {
 	if (!this->enabled || !this->visible || this->hideCloseIcon)
 		return false;
@@ -119,7 +129,7 @@ bool LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
 	return true;
 }
 
-void LSG_Modal::Render(SDL_Renderer* renderer)
+void LSG_Modal::Render(SDL_Renderer* renderer) const
 {
 	if (!this->visible)
 		return;
@@ -134,14 +144,14 @@ void LSG_Modal::Render(SDL_Renderer* renderer)
 	this->renderHeader(renderer);
 }
 
-void LSG_Modal::renderHeader(SDL_Renderer* renderer)
+void LSG_Modal::renderHeader(SDL_Renderer* renderer) const
 {
 	this->renderHeaderTitle(renderer);
 	this->renderHeaderCloseIcon(renderer);
 	this->renderHeaderLine(renderer);
 }
 
-void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer)
+void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer) const
 {
 	if (this->hideCloseIcon)
 		return;
@@ -154,7 +164,7 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer)
 		this->renderHighlight(renderer, closeIcon);
 }
 
-void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer)
+void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer) const
 {
 	auto height      = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
 	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
@@ -172,7 +182,7 @@ void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer)
 	SDL_RenderDrawLine(renderer, border.x, border.y, border.w, border.h);
 }
 
-void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer)
+void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer) const
 {
 	auto texture = this->textures[LSG_MODAL_TEXTURE_TITLE];
 
@@ -180,8 +190,10 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer)
 		return;
 
 	auto height      = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
+	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
 	auto textureSize = LSG_Graphics::GetTextureSize(texture);
-	auto maxWidth    = (this->background.w - this->padding - (!this->hideCloseIcon ? height : 0) - this->padding);
+	auto iconSize    = (!this->hideCloseIcon ? height : 0);
+	auto maxWidth    = (this->background.w - this->padding - iconSize - this->padding);
 
 	SDL_Rect clip = {
 		0,
@@ -191,10 +203,10 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer)
 	};
 
 	SDL_Rect destination = {
-		(this->background.x + ((maxWidth - textureSize.width)  / 2)),
-		(this->background.y + (((this->padding + height + this->padding) - textureSize.height) / 2)),
-		textureSize.width,
-		textureSize.height
+		(this->background.x + padding + ((maxWidth - clip.w) / 2)),
+		(this->background.y + ((height - clip.h) / 2)),
+		clip.w,
+		clip.h
 	};
 
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
@@ -302,7 +314,7 @@ void LSG_Modal::setTextures(const std::string& title)
 	auto     iconSizeScaled = LSG_Graphics::GetDPIScaled(LSG_Modal::CloseIconSize);
 	SDL_Size closeIconSize  = { iconSizeScaled, iconSizeScaled };
 
-	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVectorClose(this->textColor, closeIconSize);
+	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, closeIconSize);
 
 	if (!title.empty())
 		this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, LSG_Modal::TitleFontSize);

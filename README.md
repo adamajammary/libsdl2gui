@@ -10,20 +10,28 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://www.libsdl.org/) | [2.30.7](https://www.libsdl.org/release/SDL2-2.30.7.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.2](https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.8.2.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.22.0](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.22.0.tar.gz) | [zlib license](https://www.libsdl.org/license.php)
-[libXML2](https://github.com/GNOME/libxml2) | [2.12.9](https://github.com/GNOME/libxml2/archive/refs/tags/v2.12.9.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[SDL2](https://github.com/libsdl-org/SDL) | [2.32.4](https://github.com/libsdl-org/SDL/releases/download/release-2.32.4/SDL2-2.32.4.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
+[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.8](https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.8/SDL2_image-2.8.8.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_image#Zlib-1-ov-file)
+[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.24.0](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-2.24.0.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
+[libtiff](https://github.com/libsdl-org/libtiff) | [4.7.0](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.0.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
+[libwebp](https://github.com/webmproject/libwebp) | [2.14.2](https://github.com/webmproject/libwebp/archive/refs/tags/v1.5.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
+[libXML2](https://github.com/GNOME/libxml2) | [2.14.2](https://github.com/GNOME/libxml2/archive/refs/tags/v2.14.2.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
 Platform | Header | Package
 -------- | ------ | -------
-Android | android/asset_manager_jni.h | Android NDK
-Android | sys/stat.h | Android NDK
+Android | android/asset_manager_jni.h | [Android NDK](https://developer.android.com/ndk/downloads)
+Android | sys/stat.h | [Android NDK](https://developer.android.com/ndk/downloads)
+iOS | MediaPlayer/MediaPlayer.h | Media Player Framework
+iOS | Photos/Photos.h | Photos Framework
+iOS | PhotosUI/PhotosUI.h | PhotosUI Kit Framework
+iOS | StoreKit/StoreKit.h | StoreKit Framework
 iOS | UIKit/UIKit.h | UIKit Framework
+iOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
 Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
+macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
 Windows | shobjidl_core.h | Win32 API
 Windows | windows.h | WinMain
 
@@ -34,7 +42,7 @@ libsdlgui uses modern [C++20](https://en.cppreference.com/w/cpp/compiler_support
 Compiler | Version
 -------- | -------
 CLANG | 14
-GCC | 11.4
+GCC | 13
 MSVC | 2019
 
 ## How to build
@@ -65,12 +73,14 @@ Make sure the correct Android SDK path is set as either
 
 ```bash
 cmake .. -G "Unix Makefiles" \
+-D ANDROID_ABI="arm64-v8a" \
+-D ANDROID_HOME="/path/to/ANDROID_SDK" \
+-D ANDROID_NDK="/path/to/ANDROID_NDK" \
+-D ANDROID_PLATFORM="android-29" \
+-D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_SYSTEM_NAME="Android" \
 -D CMAKE_TOOLCHAIN_FILE="/path/to/ANDROID_NDK/build/cmake/android.toolchain.cmake" \
--D ANDROID_NDK="/path/to/ANDROID_NDK" \
--D ANDROID_ABI="arm64-v8a" \
--D ANDROID_PLATFORM="android-29" \
--D EXT_LIB_DIR="/path/to/libs"
+-D LSG_EXT_LIB_DIR="/path/to/libs"
 
 make
 ```
@@ -107,15 +117,16 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
--D CMAKE_SYSTEM_NAME="iOS" \
+-D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_OSX_ARCHITECTURES="arm64" \
--D CMAKE_OSX_DEPLOYMENT_TARGET="12.5" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="16.5" \
 -D CMAKE_OSX_SYSROOT="/path/to/IOS_SDK" \
+-D CMAKE_SYSTEM_NAME="iOS" \
 -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="YOUR_DEVELOPMENT_TEAM_ID" \
--D EXT_LIB_DIR="/path/to/libs" \
--D IOS_SDK="iphoneos"
+-D IOS_SDK="iphoneos" \
+-D LSG_EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="12.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
 ```
 
 #### Xcode - Devices
@@ -144,12 +155,13 @@ You can get the macOS SDK path with the following command: `xcrun --sdk macosx -
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
+-D CMAKE_BUILD_TYPE=Release \
 -D CMAKE_OSX_ARCHITECTURES="x86_64" \
--D CMAKE_OSX_DEPLOYMENT_TARGET="12.6" \
+-D CMAKE_OSX_DEPLOYMENT_TARGET="13.4" \
 -D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
--D EXT_LIB_DIR="/path/to/libs"
+-D LSG_EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -project sdl2gui.xcodeproj -configuration Release
+xcodebuild MACOSX_DEPLOYMENT_TARGET="13.4" -project sdl2gui.xcodeproj -configuration Release
 ```
 
 ![Screenshot of Test project on macOS](screenshots/macos_480p.png)
@@ -157,7 +169,9 @@ xcodebuild MACOSX_DEPLOYMENT_TARGET="12.6" -project sdl2gui.xcodeproj -configura
 ### Linux
 
 ```bash
-cmake .. -G "Unix Makefiles" -D EXT_LIB_DIR="/path/to/libs"
+cmake .. -G "Unix Makefiles" \
+-D CMAKE_BUILD_TYPE=Release \
+-D LSG_EXT_LIB_DIR="/path/to/libs"
 
 make
 ```
@@ -167,7 +181,9 @@ make
 ### Windows
 
 ```bash
-cmake .. -G "Visual Studio 17 2022" -D EXT_LIB_DIR="/path/to/libs"
+cmake .. -G "Visual Studio 17 2022" \
+-D CMAKE_BUILD_TYPE=Release \
+-D LSG_EXT_LIB_DIR="/path/to/libs"
 
 devenv.com sdl2gui.sln -build "Release|x64"
 ```
@@ -195,7 +211,7 @@ try {
   }
 
   LSG_Quit();
-} catch (const std::exception &e) {
+} catch (const std::exception& e) {
   LSG_ShowError(e.what());
   LSG_Quit();
 }
@@ -455,6 +471,28 @@ min-width="int"
 min-height="int"
 ```
 
+### \<navigation\>
+
+[boolean](#boolean) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_NAVIGATE_BACK](#handle-events) and [LSG_EVENT_NAVIGATE_END](#handle-events), [LSG_EVENT_NAVIGATE_FORWARD](#handle-events) and [LSG_EVENT_NAVIGATE_HOME](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+font-size="int" # default="14"
+text-color="color"
+
+items-total="size_t"          # Number of total items that can be navigated, default is 0.
+items-per-navigation="size_t" # Number of items to navigate by, default is 1.
+```
+
 ### \<panel\>
 
 [alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
@@ -596,6 +634,54 @@ placeholder="string"
 value="string"
 ```
 
+### \<tiles\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_TILE_ACTIVATED](#handle-events), [LSG_EVENT_TILE_SELECTED](#handle-events) and [LSG_EVENT_TILE_UNSELECTED](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+spacing="int"
+font-size="int" # default="14"
+text-color="color"
+
+text-halign="alignment_horizontal"
+text-valign="alignment_vertical"
+tile-size="size"
+wrap="boolean" # default="true"
+```
+
+### \<toggle\>
+
+[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_TOGGLED_OFF](#handle-events) and [LSG_EVENT_TOGGLED_ON](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border="int"
+border-color="color"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+font-size="int" # default="14"
+text-color="color"
+
+on="boolean"
+```
+
 ### \<window\>
 
 [boolean](#boolean) | [file_path](#file_path)
@@ -705,13 +791,55 @@ enum LSG_EventType {
   LSG_EVENT_COMPONENT_KEY_ENTERED,
   LSG_EVENT_COMPONENT_SCROLLED,
   LSG_EVENT_MENU_ITEM_SELECTED,
+  LSG_EVENT_NAVIGATE_BACK,
+  LSG_EVENT_NAVIGATE_END,
+  LSG_EVENT_NAVIGATE_FORWARD,
+  LSG_EVENT_NAVIGATE_HOME,
+  LSG_EVENT_PAGE_NAVIGATED,
   LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
   LSG_EVENT_ROW_SELECTED,
   LSG_EVENT_ROW_UNSELECTED,
   LSG_EVENT_SLIDER_VALUE_CHANGED,
   LSG_EVENT_TABLE_COLUMN_RESIZED,
   LSG_EVENT_TEXT_INPUT_CLEARED,
-  LSG_EVENT_TEXT_INPUT_COMPLETED // ENTER
+  LSG_EVENT_TEXT_INPUT_COMPLETED, // ENTER
+  LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
+  LSG_EVENT_TILE_SELECTED,
+  LSG_EVENT_TILE_UNSELECTED,
+  LSG_EVENT_TOGGLED_OFF,
+  LSG_EVENT_TOGGLED_ON
+};
+```
+
+### LSG_ExifTagID
+
+<https://www.media.mit.edu/pia/Research/deepview/exif.html>
+
+<https://exiftool.org/TagNames/EXIF.html>
+
+```cpp
+enum LSG_ExifTagID
+{
+  LSG_EXIF_TAG_ID_CAMERA_FOCAL_LENGTH  = 0x920a,
+  LSG_EXIF_TAG_ID_CAMERA_MAKE          = 0x010f,
+  LSG_EXIF_TAG_ID_CAMERA_MODEL         = 0x0110,
+  LSG_EXIF_TAG_ID_CAMERA_FSTOP         = 0x829d,
+  LSG_EXIF_TAG_ID_CAMERA_EXPOSURE_TIME = 0x829a,
+  LSG_EXIF_TAG_ID_CAMERA_ISO           = 0x8827,
+  LSG_EXIF_TAG_ID_DATE_TIME_ORIGINAL   = 0x9003,
+  LSG_EXIF_TAG_ID_DATE_TIME_OFFSET     = 0x9011,
+  LSG_EXIF_TAG_ID_GPS_LATITUDE_REF     = 0x0001,
+  LSG_EXIF_TAG_ID_GPS_LATITUDE         = 0x0002,
+  LSG_EXIF_TAG_ID_GPS_LONGITUDE_REF    = 0x0003,
+  LSG_EXIF_TAG_ID_GPS_LONGITUDE        = 0x0004,
+  LSG_EXIF_TAG_ID_GPS_ALTITUDE_REF     = 0x0005,
+  LSG_EXIF_TAG_ID_GPS_ALTITUDE         = 0x0006,
+  LSG_EXIF_TAG_ID_OFFSET_GPS_INFO      = 0x8825,
+  LSG_EXIF_TAG_ID_OFFSET_SUB_IFD       = 0x8769,
+  LSG_EXIF_TAG_ID_ORIENTATION          = 0x0112,
+  LSG_EXIF_TAG_ID_THUMB_JPEG_OFFSET    = 0x0201,
+  LSG_EXIF_TAG_ID_THUMB_JPEG_SIZE      = 0x0202,
+  LSG_EXIF_TAG_ID_THUMB_COMPRESSION    = 0x0103
 };
 ```
 
@@ -765,16 +893,6 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
-### LSG_TableGroup
-
-```cpp
-struct LSG_TableGroup
-{
-  std::string   group;
-  LSG_TableRows rows;
-};
-```
-
 ### SDL_Size
 
 ```cpp
@@ -784,16 +902,97 @@ struct SDL_Size {
 };
 ```
 
+### LSG_ButtonItem
+
+```cpp
+struct LSG_ButtonItem
+{
+  std::string id     = "";
+  std::string text   = "";
+  LSG_HAlign  halign = LSG_HALIGN_CENTER;
+  LSG_VAlign  valign = LSG_VALIGN_MIDDLE;
+};```
+
+### LSG_ExifData
+
+```cpp
+struct LSG_ExifData
+{
+  LSG_ExifTags gps       = {};
+  LSG_ExifTags tags      = {};
+  SDL_Surface* thumbnail = nullptr;
+};
+```
+
+### LSG_ImageOrientation
+
+```cpp
+struct LSG_ImageOrientation
+{
+  SDL_RendererFlip flip     = SDL_FLIP_NONE;
+  double           rotation = 0.0;
+};
+```
+
+### LSG_GPSCoordinate
+
+```cpp
+struct LSG_GPSCoordinate
+{
+  double degrees = 0.0;
+  double minutes = 0.0;
+  double seconds = 0.0;
+  double decimal = 0.0;
+};
+```
+
+### LSG_GPS
+
+```cpp
+struct LSG_GPS
+{
+  LSG_GPSCoordinate latitude  = {};
+  LSG_GPSCoordinate longitude = {};
+  double            altitude  = {};
+};
+```
+
+### LSG_TableGroup
+
+```cpp
+struct LSG_TableGroup
+{
+  std::string   group = "";
+  LSG_TableRows rows  = {};
+};
+```
+
+### LSG_TileItem
+
+```cpp
+struct LSG_TileItem
+{
+  std::string image = "";
+  std::string text  = "";
+};
+```
+
+### LSG_ButtonItems
+
+```cpp
+using LSG_ButtonItems = std::vector<LSG_ButtonItem>;
+```
+
+### LSG_ExifTags
+
+```cpp
+using LSG_ExifTags = std::map<uint16_t, std::string>;
+```
+
 ### LSG_Strings
 
 ```cpp
 using LSG_Strings = std::vector<std::string>;
-```
-
-### LSG_TableGroups
-
-```cpp
-using LSG_TableGroups = std::vector<LSG_TableGroup>;
 ```
 
 ### LSG_TableRows
@@ -802,10 +1001,22 @@ using LSG_TableGroups = std::vector<LSG_TableGroup>;
 using LSG_TableRows = std::vector<LSG_Strings>;
 ```
 
+### LSG_TableGroups
+
+```cpp
+using LSG_TableGroups = std::vector<LSG_TableGroup>;
+```
+
+### LSG_TileItems
+
+```cpp
+using LSG_TileItems = std::vector<LSG_TileItem>;
+```
+
 ### LSG_AddListItem
 
 ```cpp
-void LSG_AddListItem(const std::string& id, const std::string& item)
+void LSG_AddListItem(const std::string& id, const std::string& item);
 ```
 
 Adds a new item to the list.
@@ -826,10 +1037,41 @@ Example
 LSG_AddListItem("List", "My new list item");
 ```
 
+### LSG_AddPanelButton
+
+```cpp
+void LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button);
+```
+
+Adds a new button to the panel.
+
+Parameters
+
+- **id** \<panel\> component ID
+- **button** Button item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_ButtonItem button = {
+  .id     = "ButtonIdButton1",
+  .text   = "Button 1",
+  .halign = LSG_HALIGN_CENTER,
+  .valign = LSG_VALIGN_MIDDLE
+};
+
+LSG_AddPanelButton("PanelIdButtons", button);
+```
+
 ### LSG_AddSubMenuItem
 
 ```cpp
-void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
+void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId);
 ```
 
 Adds a new item to the sub-menu.
@@ -905,9 +1147,41 @@ Exceptions
 Example
 
 ```cpp
-LSG_Strings row = { "New row - Column A", "New row - Column B" };
+LSG_Strings row = {
+  "New row - Column A",
+  "New row - Column B"
+};
 
 LSG_AddTableRow("Table", row);
+```
+
+### LSG_AddTile
+
+```cpp
+void LSG_AddTile(const std::string& id, const LSG_TileItem& tile);
+```
+
+Adds a new tile to the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **tile** Tile item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TileItem tile = {
+  .image = "/path/to/image/file1.jpg",
+  .text  = "Image 1"
+};
+
+LSG_AddTile("Tiles", tile);
 ```
 
 ### LSG_ClearTextInput
@@ -954,6 +1228,73 @@ Returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" i
 
 Exceptions
 
+- runtime_error
+
+### LSG_GetImageExif
+
+```cpp
+LSG_ExifData LSG_GetImageExif(const std::string& filePath);
+```
+
+Returns EXIF (Exchangeable Image File Format) data from the image file (if it exists).
+
+Parameters
+
+- **filePath** Image file path
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetImageGPS
+
+```cpp
+LSG_GPS LSG_GetImageGPS(const LSG_ExifTags& gps);
+```
+
+Returns GPS coordinates from the EXIF GPS tags (if they exist).
+
+Parameters
+
+- **gps** EXIF GPS tags
+
+Exceptions
+
+- runtime_error
+
+### LSG_GetImageOrientation
+
+```cpp
+LSG_ImageOrientation LSG_GetImageOrientation(const LSG_ExifTags& tags);
+```
+
+Returns the orientation of the image from the EXIF tags (if it exists).
+
+Parameters
+
+- **tags** EXIF data tags
+
+Exceptions
+
+- runtime_error
+
+### LSG_GetImageThumbnail
+
+```cpp
+SDL_Surface* LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
+```
+
+Returns a downscaled thumbnail of the original image.
+
+Parameters
+
+- **filePath** Image file path
+- **maxSize** Max size of thumbnail
+
+Exceptions
+
+- invalid_argument
 - runtime_error
 
 ### LSG_GetLastPage
@@ -1036,6 +1377,40 @@ Returns the margin around a component.
 Parameters
 
 - **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetNavigationItemCount
+
+```cpp
+size_t LSG_GetNavigationItemCount(const std::string& id);
+```
+
+Returns the total number of items that can be navigated.
+
+Parameters
+
+- **id** \<navigation\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetNavigationPosition
+
+```cpp
+int LSG_GetNavigationPosition(const std::string& id);
+```
+
+Returns the current 0-based position of the navigation component.
+
+Parameters
+
+- **id** \<navigation\> component ID
 
 Exceptions
 
@@ -1207,7 +1582,7 @@ Returns the horizontal scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -1224,14 +1599,14 @@ Returns the vertical scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
 - invalid_argument
 - runtime_error
 
-### LSG_GetSelectedRow
+### LSG_GetSelectedRows
 
 ```cpp
 std::vector<int> LSG_GetSelectedRows(const std::string& id);
@@ -1242,6 +1617,23 @@ Returns the selected 0-based row indices (-1 for unselected) of the list or tabl
 Parameters
 
 - **id** \<list\> or \<table\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSelectedTiles
+
+```cpp
+std::vector<int> LSG_GetSelectedTiles(const std::string& id);
+```
+
+Returns the selected 0-based tile indices (-1 for unselected) of the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
 
 Exceptions
 
@@ -1489,6 +1881,58 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetTile
+
+```cpp
+LSG_TileItem LSG_GetTile(const std::string& id, int index);
+```
+
+Returns the tile item from the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTiles
+
+```cpp
+LSG_TileItems LSG_GetTiles(const std::string& id);
+```
+
+Returns all the tile items from the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetTilesCount
+
+```cpp
+size_t LSG_GetTilesCount(const std::string& id);
+```
+
+Returns the number of tile items in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetTitle
 
 ```cpp
@@ -1625,6 +2069,23 @@ bool LSG_IsRunning();
 
 Returns true if the library has been initialized and window created.
 
+### LSG_IsToggledOn
+
+```cpp
+bool LSG_IsToggledOn(const std::string& id);
+```
+
+Returns true if the toggle switch is toggled on.
+
+Parameters
+
+- **id** \<toggle\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_IsVisible
 
 ```cpp
@@ -1654,49 +2115,186 @@ Exceptions
 
 - runtime_error
 
+### LSG_Layout
+
+```cpp
+void LSG_Layout();
+```
+
+Recalculates and redraws the window layout.
+
+Exceptions
+
+- runtime_error
+
+### LSG_NavigateBack
+
+```cpp
+void LSG_NavigateBack(const std::string& id, const std::string& text = "");
+```
+
+Navigates backwards, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[new_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateEnd
+
+```cpp
+void LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+```
+
+Navigates to the last item, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[last_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateForward
+
+```cpp
+void LSG_NavigateForward(const std::string& id, const std::string& text = "");
+```
+
+Navigates forwards, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[new_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateHome
+
+```cpp
+void LSG_NavigateHome(const std::string& id, const std::string& text = "");
+```
+
+Navigates to the first item, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "1 / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateTo
+
+```cpp
+void LSG_NavigateTo(const std::string& id, int position, const std::string& text = "");
+```
+
+Navigates to the position, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **position** 0-based position
+- **text** Optional text label, shows ""[new_position] / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_OpenFile
 
-> Only supported on Windows, Linux and MacOS.
+```cpp
+std::string LSG_OpenFile(const LSG_Strings& filters = {}); // Android, Linux, macOS and Windows
+```
+
+> Only supported on Android, Linux, macOS and Windows.
 
 Displays an Open File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
 
-```cpp
-std::string LSG_OpenFile();
-```
+Parameters
+
+- **filters** Optional filter by file type
 
 Exceptions
 
 - runtime_error
 
+Android
+
+```cpp
+LSG_OpenFile({ "application/*", "audio/*", "image/*", "text/*", "video/*" });
+```
+
+Linux
+
+```cpp
+LSG_OpenFile({ "*.pdf", "*.txt" });
+```
+
+macOS
+
+```cpp
+LSG_OpenFile({ ".pdf", ".txt" });
+```
+
+Windows
+
+```cpp
+LSG_OpenFile({ "*.pdf", "*.txt" });
+```
+
 ### LSG_OpenFiles
 
-> Only supported on Windows, Linux and MacOS.
+```cpp
+LSG_Strings LSG_OpenFiles(const LSG_Strings& filters = {}); // Linux, macOS and Windows
+```
+
+> Only supported on Linux, macOS and Windows.
 
 Displays an Open File dialog where you can select multiple files.
 
 Returns the selected file paths or an empty list if cancelled.
 
-```cpp
-std::vector<std::string> LSG_OpenFiles();
-```
+Parameters
+
+- **filters** Optional filter by file type
 
 Exceptions
 
 - runtime_error
 
+See [LSG_OpenFile](#lsg_openfile) for examples.
+
 ### LSG_OpenFolder
-
-> Only supported on Windows, Linux and MacOS.
-
-Displays an Open Folder dialog where you can select a single folder.
-
-Returns the selected folder path or an empty string if cancelled.
 
 ```cpp
 std::string LSG_OpenFolder();
 ```
+
+> Only supported on Android, Linux, macOS and Windows.
+
+Displays an Open Folder dialog where you can select a single folder.
+
+Returns the selected folder path or an empty string if cancelled.
 
 Exceptions
 
@@ -1704,19 +2302,221 @@ Exceptions
 
 ### LSG_OpenFolders
 
-> Only supported on Windows, Linux and MacOS.
+```cpp
+LSG_Strings LSG_OpenFolders();
+```
+
+> Only supported on Linux, macOS and Windows.
 
 Displays an Open Folder dialog where you can select multiple folders.
 
 Returns the selected folder paths or an empty list if cancelled.
 
+Exceptions
+
+- runtime_error
+
+### LSG_OpenFile (iOS)
+
 ```cpp
-std::vector<std::string> LSG_OpenFolders();
+void LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback); // iOS
 ```
+
+> Only supported on iOS.
+
+ Displays asynchronously a Document Picker dialog where you can select a single item file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
 
 Exceptions
 
 - runtime_error
+
+iOS
+
+See [Accessing items outside the app's sandbox](https://developer.apple.com/documentation/uikit/providing-access-to-directories?language=objc) for more details.
+
+```cpp
+LSG_OpenFile([](NSArray<NSURL*>* urls) -> void {
+  for (NSURL* url in urls) {
+    if (![url startAccessingSecurityScopedResource])
+      continue;
+
+    NSData* bookmarkData = [url bookmarkDataWithOptions: NSURLBookmarkCreationMinimalBookmark includingResourceValuesForKeys: nil relativeToURL: nil error: nil];
+
+    // TODO: save bookmark data for future access
+
+    [url stopAccessingSecurityScopedResource];
+  }
+});
+```
+
+### LSG_OpenFiles (iOS)
+
+```cpp
+void LSG_OpenFiles(std::function<void(NSArray<<NSURL*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously a Document Picker dialog where you can select multiple item files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenFile (iOS)](#lsg_openfile-ios) for examples.
+
+### LSG_OpenFolder (iOS)
+
+```cpp
+void LSG_OpenFolder(std::function<void(NSArray<<NSURL*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously a Document Picker dialog where you can select a single folder.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected folder, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [Accessing directory content outside the app's sandbox](https://developer.apple.com/documentation/uikit/providing-access-to-directories?language=objc) for more details.
+
+```cpp
+LSG_OpenFolder([](NSArray<NSURL*>* urls) -> void {
+  for (NSURL* url in urls) {
+    if (![url startAccessingSecurityScopedResource])
+      continue;
+
+    NSData* folderBookmarkData = [url bookmarkDataWithOptions: NSURLBookmarkCreationMinimalBookmark includingResourceValuesForKeys: nil relativeToURL: nil error: nil];
+
+    // TODO: save bookmark data for future folder access
+
+    NSArray<NSURL*>* files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL: url includingPropertiesForKeys: nil options: NSDirectoryEnumerationSkipsHiddenFiles error: nil];
+
+    for (NSURL* file in files) {
+      NSData* fileBookmarkData = [file bookmarkDataWithOptions: NSURLBookmarkCreationMinimalBookmark includingResourceValuesForKeys: nil relativeToURL: nil error: nil];
+
+      // TODO: save bookmark data for future file access
+    }
+
+    [url stopAccessingSecurityScopedResource];
+  }
+});
+```
+
+### LSG_OpenMediaFile
+
+```cpp
+void LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Music dialog where you can select a single media file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+iOS
+
+See [MPMediaItem](https://developer.apple.com/documentation/mediaplayer/mpmediaitem?language=objc), [valueForProperty:](https://developer.apple.com/documentation/mediaplayer/mpmediaentity/value(forproperty:)?language=objc) and [General media item property keys](https://developer.apple.com/documentation/mediaplayer/general-media-item-property-keys?language=objc) for more details.
+
+```cpp
+LSG_OpenMediaFile([](NSArray<MPMediaItem*>* items) -> void {
+  for (MPMediaItem* item in items) {
+    NSString* title = [item valueForProperty: MPMediaItemPropertyTitle];
+    NSURL*    url   = [item valueForProperty: MPMediaItemPropertyAssetURL];
+  }
+});
+```
+
+### LSG_OpenMediaFiles
+
+```cpp
+void LSG_OpenMediaFiles(std::function<void(NSArray<<MPMediaItem*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Music dialog where you can select multiple media files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenMediaFile](#lsg_openmediafile) for examples.
+
+### LSG_OpenPhotoFile
+
+```cpp
+void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Photo dialog where you can select a single image file.
+
+Parameters
+
+- **resultsCallback** Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+iOS
+
+See [PHPickerResult](https://developer.apple.com/documentation/photokit/phpickerresult?language=objc), [NSItemProvider](https://developer.apple.com/documentation/foundation/nsitemprovider?language=objc) and [Fetching Assets](https://developer.apple.com/documentation/photokit/phasset/fetching_assets?language=objc) for more details.
+
+```cpp
+LSG_OpenPhotoFile([](NSArray<PHPickerResult*>* results) -> void {
+  for (PHPickerResult* result in results) {
+    NSString*       localIdentifier = [result assetIdentifier];
+    NSItemProvider* provider        = [result itemProvider];
+  }
+});
+```
+
+### LSG_OpenPhotoFiles
+
+```cpp
+void LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback); // iOS
+```
+
+> Only supported on iOS.
+
+Displays asynchronously an Open Photo dialog where you can select multiple image files.
+
+Parameters
+
+- **resultsCallback** Callback function with an array of selected files, or an empty array if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenPhotoFile](#lsg_openphotofile) for examples.
 
 ### LSG_Present
 
@@ -1759,7 +2559,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemoveListItem("List", 12);
+LSG_RemoveListItem("List", 0);
 ```
 
 ### LSG_RemoveMenuItem
@@ -1806,7 +2606,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemovePageListItem("List", 12);
+LSG_RemovePageListItem("List", 0);
 ```
 
 ### LSG_RemovePageTableRow
@@ -1830,7 +2630,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemoveTableRow("Table", 6);
+LSG_RemoveTableRow("Table", 0);
 ```
 
 ### LSG_RemoveTableHeader
@@ -1901,7 +2701,31 @@ Exceptions
 Example
 
 ```cpp
-LSG_RemoveTableRow("Table", 6);
+LSG_RemoveTableRow("Table", 0);
+```
+
+### LSG_RemoveTile
+
+```cpp
+void LSG_RemoveTile(const std::string& id, int index);
+```
+
+Removes the tile item from the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemoveTile("Tiles", 0);
 ```
 
 ### LSG_Run
@@ -1920,15 +2744,25 @@ Exceptions
 
 ### LSG_SaveFile
 
-> Only supported on Windows, Linux and MacOS.
+```cpp
+std::string LSG_SaveFile(const LSG_Strings& filters = {}); // Android, Linux, macOS and Windows
+```
+
+> Only supported on Android, Linux, macOS and Windows.
 
 Displays a Save File dialog where you can select a single file.
 
 Returns the selected file path or an empty string if cancelled.
 
-```cpp
-std::string LSG_SaveFile();
-```
+Parameters
+
+- **filters** Optional filter by file type
+
+Exceptions
+
+- runtime_error
+
+See [LSG_OpenFile](#lsg_openfile) for examples.
 
 ### LSG_ScrollHorizontal
 
@@ -1940,7 +2774,7 @@ Scrolls the component horizontally by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 - **scroll** Horizontal scroll offset
 
 Exceptions
@@ -1958,7 +2792,7 @@ Scrolls the component vertically by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 - **scroll** Vertical scroll offset
 
 Exceptions
@@ -1976,7 +2810,7 @@ Scrolls to the bottom of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -1993,7 +2827,7 @@ Scrolls to the top of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\> or \<text\> component ID
+- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -2021,7 +2855,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_SelectRow("List", 2);
+LSG_SelectRow("List", 0);
 ```
 
 ### LSG_SelectRowByOffset
@@ -2069,7 +2903,55 @@ Exceptions
 Example
 
 ```cpp
-LSG_SelectRows("List", { 1, 2 });
+LSG_SelectRows("List", { 0, 1 });
+```
+
+### LSG_SelectTile
+
+```cpp
+void LSG_SelectTile(const std::string& id, int index);
+```
+
+Selects the tile item in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position (-1 for unselected)
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectTile("Tiles", 0);
+```
+
+### LSG_SelectTiles
+
+```cpp
+void LSG_SelectTiles(const std::string& id, const std::vector<int>& indices);
+```
+
+Selects the tile items in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **indices** 0-based tile index positions
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectTiles("Tiles", { 0, 1 });
 ```
 
 ### LSG_SetAlignmentHorizontal
@@ -2265,7 +3147,7 @@ LSG_SetEnabled("ButtonIdColorThemeLight");
 void LSG_SetFontSize(const std::string& id, int size);
 ```
 
-Sets the font size of a component.
+Sets the font size of a component and sub-components.
 
 Parameters
 
@@ -2283,18 +3165,18 @@ Example
 LSG_SetFontSize("TextIdColorTheme", 40);
 ```
 
-### LSG_SetHeight
+### LSG_SetFontStyle
 
 ```cpp
-void LSG_SetHeight(const std::string& id, int height);
+void LSG_SetFontStyle(const std::string& id, int style);
 ```
 
-Sets the height of a component.
+Sets the font style of a component and sub-components.
 
 Parameters
 
 - **id** Component ID
-- **height** Height in pixels
+- **size** Font style
 
 Exceptions
 
@@ -2304,7 +3186,58 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetHeight("MenuIdMenu", 100);
+LSG_SetFontStyle("TextIdColorTheme", (TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_STRIKETHROUGH | TTF_STYLE_UNDERLINE));
+LSG_SetFontStyle("TextIdColorTheme", TTF_STYLE_NORMAL);
+```
+
+### LSG_SetHeight
+
+```cpp
+void LSG_SetHeight(const std::string& id, int height, bool layout = true);
+```
+
+Sets the height of a component.
+
+Parameters
+
+- **id** Component ID
+- **height** Height in pixels
+- **layout** Recalculates and redraws the window layout after applying the change
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetHeight("ButtonIdColorThemeDark", 100);
+```
+
+### LSG_SetHeight (percent)
+
+```cpp
+void LSG_SetHeight(const std::string& id, double percent, bool layout = true);
+```
+
+Sets the height of a component as a percent between 0 and 1.
+
+Parameters
+
+- **id** Component ID
+- **percent** [0.0 - 1.0]
+- **layout** Recalculates and redraws the window layout after applying the change
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetHeight("ButtonIdColorThemeDark", 0.5);
 ```
 
 ### LSG_SetImage
@@ -2486,10 +3419,35 @@ Example
 LSG_SetMenuItemValue("MenuIdQuit", "Quit\\tCtrl+Q");
 ```
 
+### LSG_SetNavigationItemCount
+
+```cpp
+void DLL LSG_SetNavigationItemCount(const std::string& id, size_t itemsTotal, size_t itemsPerNavigation = 1);
+```
+
+Sets the item count of the navigation.
+
+Parameters
+
+- **id** <\navigation\> component ID
+- **itemsTotal** Number of total items that can be navigated
+- **itemsPerNavigation** Number of items to navigate by
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetNavigationItemCount("Navigation", 10, 1);
+```
+
 ### LSG_SetOrientation
 
 ```cpp
-void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation);
+void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation, bool layout = true);
 ```
 
 Sets the layout orientation of the children of a component.
@@ -2498,6 +3456,7 @@ Parameters
 
 - **id** Component ID
 - **orientation** Horizontal or vertical
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -2608,6 +3567,35 @@ LSG_Strings row = { "Updated Row", "My updated table row" };
 LSG_SetPageTableRow("Table", 6, row);
 ```
 
+### LSG_SetPanelButtons
+
+```cpp
+void LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons);
+```
+
+Replaces all child compomonents of the panel with the provided buttons.
+
+Parameters
+
+- **id** \<panel\> component ID
+- **buttons** Button items
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_Buttons buttons = {
+  { .id = "ButtonIdButton1", .text = "Button 1" },
+  { .id = "ButtonIdButton2", .text = "Button 2" }
+};
+
+LSG_SetPanelButtons("PanelIdButtons", buttons);
+```
+
 ### LSG_SetProgressValue
 
 ```cpp
@@ -2635,7 +3623,7 @@ LSG_SetProgressValue("ProgressBar", 0.5);
 ### LSG_SetSize
 
 ```cpp
-void LSG_SetSize(const std::string& id, const SDL_Size& size);
+void LSG_SetSize(const std::string& id, const SDL_Size& size, bool layout = true);
 ```
 
 Sets the size of a component.
@@ -2644,6 +3632,7 @@ Parameters
 
 - **id** Component ID
 - **size** Width and height in pixels
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -2654,6 +3643,32 @@ Example
 
 ```cpp
 LSG_SetSize("MenuIdMenu", SDL_Size(300, 100));
+```
+
+### LSG_SetSize (percent)
+
+```cpp
+void LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
+```
+
+Sets the size of a component as a percent between 0 and 1.
+
+Parameters
+
+- **id** Component ID
+- **width** [0.0 - 1.0]
+- **height** [0.0 - 1.0]
+- **layout** Recalculates and redraws the window layout after applying the change
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetSize("ButtonIdColorThemeDark", 0.25, 0.75);
 ```
 
 ### LSG_SetSliderValue
@@ -2921,7 +3936,7 @@ LSG_SetText("TextIdColorTheme", "Color Theme");
 void LSG_SetTextColor(const std::string& id, const SDL_Color& color);
 ```
 
-Sets the text color of a component.
+Sets the text color of a component and all sub-components.
 
 Parameters
 
@@ -2963,6 +3978,67 @@ Example
 LSG_SetTextInputValue("TextInput", "Initial text input value");
 ```
 
+### LSG_SetTile
+
+```cpp
+void LSG_SetTile(const std::string& id, int index, const LSG_TileItem& tile);
+```
+
+Updates and overwrites the tile item in the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **index** 0-based tile index position
+- **tile** New tile item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TileItem tile = {
+  .image = "/path/to/image/file2.jpg",
+  .text  = "Image 2"
+};
+
+LSG_SetTile("Tiles", 0, tile);
+```
+
+### LSG_SetTiles
+
+```cpp
+void LSG_SetTiles(const std::string& id, const LSG_TileItems& tiles);
+```
+
+Sets the tile items of the tiles grid.
+
+Parameters
+
+- **id** \<tiles\> component ID
+- **tiles** Tile items
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_TileItems tiles = {
+  { .image = "", .text = "" },
+  { .image = "", .text = "No image" },
+  { .image = "/path/to/image/file.jpg",  .text  = "" },
+  { .image = "/path/to/image/file1.jpg", .text  = "Image 1" }
+};
+
+LSG_SetTiles("Tiles", tiles);
+```
+
 ### LSG_SetTitle
 
 ```cpp
@@ -2987,10 +4063,28 @@ Example
 LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
 ```
 
+### LSG_SetToggle
+
+```cpp
+void LSG_SetToggle(const std::string& id, bool on);
+```
+
+Toggles the switch on or off.
+
+Parameters
+
+- **id** \<toggle\> component ID
+- **on** true for on or false for off
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_SetVisible
 
 ```cpp
-void LSG_SetVisible(const std::string& id, bool visible = true);
+void LSG_SetVisible(const std::string& id, bool visible = true, bool layout = true);
 ```
 
 Shows or hides the component.
@@ -2999,6 +4093,7 @@ Parameters
 
 - **id** Component ID
 - **visible** true to show or false to hide
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -3014,7 +4109,7 @@ LSG_SetVisible("MenuIdMenu", false);
 ### LSG_SetWidth
 
 ```cpp
-void LSG_SetWidth(const std::string& id, int width);
+void LSG_SetWidth(const std::string& id, int width, bool layout = true);
 ```
 
 Sets the width of a component.
@@ -3023,6 +4118,7 @@ Parameters
 
 - **id** Component ID
 - **width** Width in pixels
+- **layout** Recalculates and redraws the window layout after applying the change
 
 Exceptions
 
@@ -3032,7 +4128,32 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetWidth("MenuIdMenu", 300);
+LSG_SetWidth("ButtonIdColorThemeDark", 300);
+```
+
+### LSG_SetWidth (percent)
+
+```cpp
+void LSG_SetWidth(const std::string& id, double percent, bool layout = true);
+```
+
+Sets the width of a component as a percent between 0 and 1.
+
+Parameters
+
+- **id** Component ID
+- **percent** [0.0 - 1.0]
+- **layout** Recalculates and redraws the window layout after applying the change
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetWidth("ButtonIdColorThemeDark", 0.5);
 ```
 
 ### LSG_SetWindowMaximized

@@ -1,7 +1,8 @@
 #include "LSG_Window.h"
 
-SDL_Renderer* LSG_Window::renderer = nullptr;
-SDL_Window*   LSG_Window::window   = nullptr;
+SDL_Renderer* LSG_Window::renderer  = nullptr;
+SDL_SysWMinfo LSG_Window::sysWmInfo = {};
+SDL_Window*   LSG_Window::window    = nullptr;
 
 void LSG_Window::Close()
 {
@@ -25,6 +26,24 @@ float LSG_Window::GetDPI()
 
 	return dpi;
 }
+
+#if defined _windows
+std::vector<std::wstring> LSG_Window::getFiltersWide(const LSG_Strings& filters)
+{
+	std::vector<std::wstring> filtersWide;
+
+	for (const auto& filter : filters)
+	{
+		auto filterWide = (wchar_t*)SDL_iconv_string("WCHAR_T", "UTF-8", filter.c_str(), (filter.size() + 1));
+
+		filtersWide.push_back(std::wstring(filterWide));
+
+		SDL_free(filterWide);
+	}
+
+	return filtersWide;
+}
+#endif
 
 SDL_Size LSG_Window::GetMinimumSize()
 {
@@ -132,6 +151,9 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 
 	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Window::MinSize, LSG_Window::MinSize);
 
+    SDL_VERSION(&LSG_Window::sysWmInfo.version);
+    SDL_GetWindowWMInfo(LSG_Window::window, &LSG_Window::sysWmInfo);
+
 	LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_ACCELERATED);
 
 	if (!LSG_Window::renderer)
@@ -162,15 +184,15 @@ void LSG_Window::OpenTest()
 #endif
 
 #if defined _linux
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection)
+LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
-	if (strlen(std::getenv("DISPLAY")) == 0)
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
 		return {};
 
-	GtkWidget* dialog = gtk_file_chooser_dialog_new(
+	auto dialog = gtk_file_chooser_dialog_new(
 		(openFolder ? "Select a folder" : "Select a file"),
 		nullptr,
 		(openFolder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN),
@@ -181,9 +203,19 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 		nullptr
 	);
 
+	if (!filters.empty())
+	{
+		auto fileFilter = gtk_file_filter_new();
+
+		for (const auto& filter : filters)
+			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+	}
+
 	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
 
-	std::vector<std::string> filePaths;
+	LSG_Strings filePaths;
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
@@ -219,27 +251,37 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _macosx
-std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection)
+LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
-	NSOpenPanel* panel = [NSOpenPanel openPanel];
+	auto panel = [NSOpenPanel openPanel];
 
 	if (!panel)
 		return {};
 
 	[panel setAllowsMultipleSelection: (allowMultipleSelection ? YES : NO)];
-	[panel setCanChooseDirectories: (openFolder ? YES : NO)];
-	[panel setCanChooseFiles: (openFolder ? NO : YES)];
+	[panel setCanChooseDirectories:    (openFolder ? YES : NO)];
+	[panel setCanChooseFiles:          (openFolder ? NO : YES)];
 
-	if ([panel runModal] != NSOKButton)
+	if (!filters.empty())
+	{
+		auto types = [NSMutableArray arrayWithCapacity: (NSUInteger)filters.size()];
+
+		for (const auto& filter : filters)
+			[types addObject: [UTType typeWithFilenameExtension: [NSString stringWithFormat: @"%s", filter.c_str()]]];
+
+		[panel setAllowedContentTypes: types];
+	}
+
+	if ([panel runModal] != NSModalResponseOK)
 		return {};
 
 	const int MAX_FILE_PATH = 260;
 
-	std::vector<std::string> filePaths;
+	LSG_Strings filePaths;
 
 	for (id url in [panel URLs])
 	{
-		CFURLRef selectedURL = (CFURLRef)url;
+		auto selectedURL = (CFURLRef)url;
 
 		if (!selectedURL)
 			continue;
@@ -261,85 +303,94 @@ std::vector<std::string> LSG_Window::openFiles(bool openFolder, bool allowMultip
 	return filePaths;
 }
 #elif defined _windows
-std::vector<std::wstring> LSG_Window::openFiles(const wchar_t* filter, bool allowMultipleSelection)
+std::vector<std::wstring> LSG_Window::openFiles(bool allowMultipleSelection, const LSG_Strings& filters)
 {
-	const int MAX_FILE_PATH = 2048;
+	IFileOpenDialog* browseDialog = nullptr;
 
-	OPENFILENAMEW browseDialog                = {};
-	wchar_t       selectedPath[MAX_FILE_PATH] = {};
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
 
-	// https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
-
-	browseDialog.lStructSize  = sizeof(browseDialog);
-	browseDialog.lpstrFile    = selectedPath;
-	browseDialog.lpstrFile[0] = '\0';
-	browseDialog.nMaxFile     = sizeof(selectedPath);
-	browseDialog.Flags        = (OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
-	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
-	browseDialog.nFilterIndex = 1;
-
-	if (allowMultipleSelection)
-		browseDialog.Flags |= OFN_ALLOWMULTISELECT;
-
-	if (filter && (wcslen(filter) > 0))
-		browseDialog.lpstrFilter = filter;
-
-	if (!GetOpenFileNameW(&browseDialog))
+	if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&browseDialog))) || !browseDialog)
 		return {};
 
-	std::wstring directory = L"";
+	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
 
-	for (int i = 0; i < browseDialog.nFileOffset - 1; i++)
-		directory.push_back(selectedPath[i]);
+	auto options = (FOS_DONTADDTORECENT | FOS_FILEMUSTEXIST | FOS_NOCHANGEDIR | FOS_NODEREFERENCELINKS);
+
+	if (allowMultipleSelection)
+		options |= FOS_ALLOWMULTISELECT;
+
+	browseDialog->SetOptions(options);
+
+	std::vector<COMDLG_FILTERSPEC> filterSpecs;
+
+	auto filtersWide = LSG_Window::getFiltersWide(filters);
+
+	for (const auto& filterType : filtersWide)
+		filterSpecs.push_back({ .pszName = filterType.c_str(), .pszSpec = filterType.c_str() });
+
+	if (!filterSpecs.empty())
+		browseDialog->SetFileTypes(filterSpecs.size(), filterSpecs.data());
 
 	std::vector<std::wstring> filePaths;
 
-	std::wstring filePath = L"";
+	IShellItemArray* shellItems     = nullptr;
+	DWORD            shellItemCount = 0;
 
-	for (int i = browseDialog.nFileOffset; i < MAX_FILE_PATH; i++)
+	if (SUCCEEDED(browseDialog->Show(nullptr)) && SUCCEEDED(browseDialog->GetResults(&shellItems)) && SUCCEEDED(shellItems->GetCount(&shellItemCount)))
 	{
-		if (selectedPath[i] != '\0') {
-			filePath.push_back(selectedPath[i]);
-			continue;
+		for (DWORD i = 0; i < shellItemCount; i++)
+		{
+			IShellItem* shellItem = nullptr;
+
+			if (FAILED(shellItems->GetItemAt(i, &shellItem)))
+				continue;
+
+			LPWSTR selectedPath = nullptr;
+
+			if (SUCCEEDED(shellItem->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &selectedPath)) && selectedPath)
+				filePaths.push_back(std::wstring(selectedPath));
+
+			if (selectedPath)
+				CoTaskMemFree(selectedPath);
+
+			if (shellItem)
+				shellItem->Release();
 		}
-
-		if (filePath.empty())
-			break;
-
-		if (directory.ends_with('\\'))
-			filePaths.push_back(LSG_Text::FormatW(L"%s%s", directory.c_str(), filePath.c_str()));
-		else
-			filePaths.push_back(LSG_Text::FormatW(L"%s\\%s", directory.c_str(), filePath.c_str()));
-
-		filePath.clear();
 	}
+
+	if (shellItems)
+		shellItems->Release();
+
+	if (browseDialog)
+		browseDialog->Release();
 
 	return filePaths;
 }
 #endif
 
 #if defined _windows
-std::wstring LSG_Window::OpenFile(const wchar_t* filter)
+std::wstring LSG_Window::OpenFile(const LSG_Strings& filters)
 {
-	auto files = LSG_Window::openFiles(filter);
+	auto files = LSG_Window::openFiles(false, filters);
 
 	return (!files.empty() ? files[0] : L"");
 }
 
-std::vector<std::wstring> LSG_Window::OpenFiles(const wchar_t* filter)
+std::vector<std::wstring> LSG_Window::OpenFiles(const LSG_Strings& filters)
 {
-	return LSG_Window::openFiles(filter, true);
+	return LSG_Window::openFiles(true, filters);
 }
 
 std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
 {
 	IFileOpenDialog* browseDialog = nullptr;
 
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
+
 	if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&browseDialog))) || !browseDialog)
 		return {};
 
 	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
-	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileopendialog
 
 	auto options = (FOS_DONTADDTORECENT | FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR | FOS_PATHMUSTEXIST | FOS_PICKFOLDERS);
 
@@ -386,7 +437,7 @@ std::vector<std::wstring> LSG_Window::openFolders(bool allowMultipleSelection)
 
 std::wstring LSG_Window::OpenFolder()
 {
-	auto folders = LSG_Window::openFolders();
+	auto folders = LSG_Window::openFolders(false);
 
 	return (!folders.empty() ? folders[0] : L"");
 }
@@ -396,28 +447,243 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 	return LSG_Window::openFolders(true);
 }
 #elif defined _linux || defined _macosx
-std::string LSG_Window::OpenFile()
+std::string LSG_Window::OpenFile(const LSG_Strings& filters)
 {
-	auto files = LSG_Window::openFiles();
+	auto files = LSG_Window::openFiles(false, false, filters);
 
 	return (!files.empty() ? files[0] : "");
 }
 
-std::vector<std::string> LSG_Window::OpenFiles()
+LSG_Strings LSG_Window::OpenFiles(const LSG_Strings& filters)
 {
-	return LSG_Window::openFiles(false, true);
+	return LSG_Window::openFiles(false, true, filters);
 }
 
 std::string LSG_Window::OpenFolder()
 {
-	auto folders = LSG_Window::openFiles(true);
+	auto folders = LSG_Window::openFiles(true, false, {});
 
 	return (!folders.empty() ? folders[0] : "");
 }
 
-std::vector<std::string> LSG_Window::OpenFolders()
+LSG_Strings LSG_Window::OpenFolders()
 {
-	return LSG_Window::openFiles(true, true);
+	return LSG_Window::openFiles(true, true, {});
+}
+#elif defined _android
+std::string LSG_Window::OpenFile(const LSG_Strings& filters)
+{
+	return LSG_Window::pickFile(filters);
+}
+
+std::string LSG_Window::OpenFolder()
+{
+	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
+	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity,  "ContentPath",      "Ljava/lang/String;");
+	auto jniOpenFolder       = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder",       "()V");
+
+	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
+
+	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
+		SDL_Delay(10);
+
+	auto openedFolder   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
+	auto folderUTF8     = jniEnvironment->GetStringUTFChars(openedFolder, nullptr);
+	auto selectedFolder = std::string(folderUTF8);
+
+	jniEnvironment->ReleaseStringUTFChars(openedFolder, folderUTF8);
+	jniEnvironment->DeleteLocalRef(jniActivity);
+
+	return selectedFolder;
+}
+
+std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
+{
+	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity, "IsPickingContent", "Z");
+	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath",      "Ljava/lang/String;");
+	auto jniPickMethod       = (saveFile ? "SaveFile" : "OpenFile");
+	auto jniPickFile         = jniEnvironment->GetStaticMethodID(jniActivity, jniPickMethod, "(Ljava/lang/String;)V");
+
+	std::string filter = "";
+
+	for (size_t i = 0; i < filters.size(); i++)
+		filter.append(filters[i]).append(i < (filters.size() - 1) ? " " : "");
+
+	auto jniFilter = jniEnvironment->NewStringUTF(filter.c_str());
+
+	jniEnvironment->CallStaticVoidMethod(jniActivity, jniPickFile, jniFilter);
+
+	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
+		SDL_Delay(10);
+
+	auto pickedFile   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
+	auto fileUTF8     = jniEnvironment->GetStringUTFChars(pickedFile, nullptr);
+	auto selectedFile = std::string(fileUTF8);
+
+	jniEnvironment->ReleaseStringUTFChars(pickedFile, fileUTF8);
+	jniEnvironment->DeleteLocalRef(jniFilter);
+	jniEnvironment->DeleteLocalRef(jniActivity);
+
+	return selectedFile;
+}
+#elif defined _ios
+@interface MyDocumentPicker : UIViewController<UIDocumentPickerDelegate>
+@property std::function<void(NSArray<NSURL*>*)> resultsCallback;
+@end
+
+@implementation MyDocumentPicker
+- (void)documentPicker: (UIDocumentPickerViewController*)picker didPickDocumentsAtURLs: (NSArray<NSURL*>*)urls
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback(urls);
+}
+
+- (void)documentPickerWasCancelled: (UIDocumentPickerViewController*)picker
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback([NSArray array]);
+}
+@end
+
+@interface MyMediaPicker : UIViewController<MPMediaPickerControllerDelegate>
+@property std::function<void(NSArray<MPMediaItem*>*)> resultsCallback;
+@end
+
+@implementation MyMediaPicker
+- (void)mediaPicker: (MPMediaPickerController*)picker didPickMediaItems: (MPMediaItemCollection*)itemCollection
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback(itemCollection.items);
+}
+
+- (void)mediaPickerDidCancel: (MPMediaPickerController*)picker
+{
+    [picker dismissViewControllerAnimated: true completion: nil];
+
+    self.resultsCallback([NSArray array]);
+}
+@end
+
+@interface MyPhotoPicker : UIViewController<PHPickerViewControllerDelegate>
+@property std::function<void(NSArray<PHPickerResult*>*)> resultsCallback;
+@end
+
+@implementation MyPhotoPicker
+- (void)picker: (PHPickerViewController*)picker didFinishPicking: (NSArray<PHPickerResult*>*)results
+{
+	[picker dismissViewControllerAnimated: true completion: nil];
+
+	self.resultsCallback(results);
+}
+@end
+
+void LSG_Window::OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> resultsCallback, bool allowMultipleSelection)
+{
+    auto documentPicker = [[MyDocumentPicker alloc] init];
+
+    documentPicker.resultsCallback = resultsCallback;
+
+    auto picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes: [NSArray arrayWithObject: UTTypeItem]];
+
+    picker.allowsMultipleSelection = (allowMultipleSelection ? YES : NO);
+
+    picker.delegate = documentPicker;
+
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
+}
+
+void LSG_Window::OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback, bool allowMultipleSelection)
+{
+    auto authStatus = [SKCloudServiceController authorizationStatus];
+    
+    if (authStatus == SKCloudServiceAuthorizationStatusNotDetermined)
+    {
+        [SKCloudServiceController requestAuthorization: ^(SKCloudServiceAuthorizationStatus status) {}];
+
+        do {
+            SDL_Delay(10);
+            authStatus = [SKCloudServiceController authorizationStatus];
+        } while (authStatus == SKCloudServiceAuthorizationStatusNotDetermined);
+    }
+
+    if ((authStatus != SKCloudServiceAuthorizationStatusAuthorized) && (authStatus != SKCloudServiceAuthorizationStatusRestricted)) {
+        resultsCallback([NSArray array]);
+        return;
+    }
+
+    auto mediaPicker = [[MyMediaPicker alloc] init];
+
+    mediaPicker.resultsCallback = resultsCallback;
+
+    auto picker = [[MPMediaPickerController alloc] init];
+
+    picker.allowsPickingMultipleItems = (allowMultipleSelection ? YES : NO);
+
+    picker.delegate = mediaPicker;
+
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
+}
+
+void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* results)> resultsCallback, bool allowMultipleSelection)
+{
+    auto authStatus = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
+
+    if (authStatus == PHAuthorizationStatusNotDetermined)
+    {
+        [PHPhotoLibrary requestAuthorizationForAccessLevel: PHAccessLevelReadWrite handler: ^(PHAuthorizationStatus status) {}];
+
+        do {
+            SDL_Delay(10);
+            authStatus = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
+        } while (authStatus == PHAuthorizationStatusNotDetermined);
+    }
+
+    if ((authStatus != PHAuthorizationStatusAuthorized) && (authStatus != PHAuthorizationStatusLimited)) {
+        resultsCallback([NSArray array]);
+        return;
+    }
+
+    auto photoPicker = [[MyPhotoPicker alloc] init];
+
+    photoPicker.resultsCallback = resultsCallback;
+
+    auto pickerConfig = [[PHPickerConfiguration alloc] initWithPhotoLibrary: [PHPhotoLibrary sharedPhotoLibrary]];
+
+    pickerConfig.selectionLimit = (allowMultipleSelection ? 0 : 1);
+
+    auto picker = [[PHPickerViewController alloc] initWithConfiguration: pickerConfig];
+
+    picker.delegate = photoPicker;
+    
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
+}
+
+void LSG_Window::OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback)
+{
+    auto documentPicker = [[MyDocumentPicker alloc] init];
+
+    documentPicker.resultsCallback = resultsCallback;
+
+    auto picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes: [NSArray arrayWithObject: UTTypeFolder]];
+
+    picker.delegate = documentPicker;
+
+    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+
+    [viewController presentViewController: picker animated: true completion: nil];
 }
 #endif
 
@@ -435,16 +701,37 @@ void LSG_Window::Render()
 	LSG_UI::Render(LSG_Window::renderer);
 }
 
-#if defined _linux
-std::string LSG_Window::SaveFile()
+SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format)
 {
-	if (strlen(std::getenv("DISPLAY")) == 0)
+	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
+	auto newTexture   = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, size.width, size.height);
+
+	SDL_SetRenderTarget(LSG_Window::renderer, newTexture);
+
+	SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
+
+	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
+
+	SDL_DestroyTexture(texture);
+
+	return newTexture;
+}
+
+#if defined _android
+std::string LSG_Window::SaveFile(const LSG_Strings& filters)
+{
+	return LSG_Window::pickFile(filters, true);
+}
+#elif defined _linux
+std::string LSG_Window::SaveFile(const LSG_Strings& filters)
+{
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
 		return "";
 
-	GtkWidget* dialog = gtk_file_chooser_dialog_new(
+	auto dialog = gtk_file_chooser_dialog_new(
 		"Save File",
 		nullptr,
 		GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -455,11 +742,21 @@ std::string LSG_Window::SaveFile()
 		nullptr
 	);
 
+	if (!filters.empty())
+	{
+		auto fileFilter = gtk_file_filter_new();
+
+		for (const auto& filter : filters)
+			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+	}
+
 	std::string filePath = "";
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
-		gchar* selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
 		filePath = std::string(selectedPath);
 
@@ -477,14 +774,24 @@ std::string LSG_Window::SaveFile()
 	return filePath;
 }
 #elif defined _macosx
-std::string LSG_Window::SaveFile()
+std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	NSSavePanel* panel = [NSSavePanel savePanel];
 
 	if (!panel)
 		return "";
 
-	if ([panel runModal] != NSOKButton)
+	if (!filters.empty())
+	{
+		auto types = [NSMutableArray arrayWithCapacity: (NSUInteger)filters.size()];
+
+		for (const auto& filter : filters)
+			[types addObject: [UTType typeWithFilenameExtension: [NSString stringWithFormat: @"%s", filter.c_str()]]];
+
+		[panel setAllowedContentTypes: types];
+	}
+
+	if ([panel runModal] != NSModalResponseOK)
 		return "";
 
 	CFURLRef selectedURL = (CFURLRef)[panel URL];
@@ -506,28 +813,55 @@ std::string LSG_Window::SaveFile()
 	return filePath;
 }
 #elif defined _windows
-std::wstring LSG_Window::SaveFile(const wchar_t* filter)
+std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 {
-	OPENFILENAMEW browseDialog           = {};
-	wchar_t       selectedPath[MAX_PATH] = {};
+	IFileSaveDialog* browseDialog = nullptr;
 
-	// https://learn.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
 
-	browseDialog.lStructSize  = sizeof(browseDialog);
-	browseDialog.lpstrFile    = selectedPath;
-	browseDialog.lpstrFile[0] = '\0';
-	browseDialog.nMaxFile     = sizeof(selectedPath);
-	browseDialog.Flags        = (OFN_CREATEPROMPT | OFN_DONTADDTORECENT | OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS);
-	browseDialog.lpstrFilter  = L"All Files (*)\0*.*\00";
-	browseDialog.nFilterIndex = 1;
+	if (FAILED(CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&browseDialog))) || !browseDialog)
+		return {};
 
-	if (filter && (wcslen(filter) > 0))
-		browseDialog.lpstrFilter = filter;
+	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/ne-shobjidl_core-_fileopendialogoptions
 
-	if (!GetSaveFileNameW(&browseDialog))
-		return L"";
-	
-	return std::wstring(selectedPath);
+	auto options = (FOS_CREATEPROMPT | FOS_DONTADDTORECENT | FOS_NOCHANGEDIR | FOS_NODEREFERENCELINKS | FOS_OVERWRITEPROMPT);
+
+	if (!filters.empty())
+		options |= FOS_STRICTFILETYPES;
+
+	browseDialog->SetOptions(options);
+
+	std::vector<COMDLG_FILTERSPEC> filterSpecs;
+
+	auto filtersWide = LSG_Window::getFiltersWide(filters);
+
+	for (const auto& filterType : filtersWide)
+		filterSpecs.push_back({ .pszName = filterType.c_str(), .pszSpec = filterType.c_str() });
+
+	if (!filterSpecs.empty())
+		browseDialog->SetFileTypes(filterSpecs.size(), filterSpecs.data());
+
+	std::wstring filePath  = L"";
+	IShellItem*  shellItem = nullptr;
+
+	if (SUCCEEDED(browseDialog->Show(nullptr)) && SUCCEEDED(browseDialog->GetResult(&shellItem)))
+	{
+		LPWSTR selectedPath = nullptr;
+
+		if (SUCCEEDED(shellItem->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &selectedPath)) && selectedPath)
+			filePath = std::wstring(selectedPath);
+
+		if (selectedPath)
+			CoTaskMemFree(selectedPath);
+	}
+
+	if (shellItem)
+		shellItem->Release();
+
+	if (browseDialog)
+		browseDialog->Release();
+
+	return filePath;
 }
 #endif
 
@@ -567,7 +901,7 @@ void LSG_Window::ShowMessage(const std::string& message, uint32_t flags)
 SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 {
 	if (imageFile.empty())
-		throw std::invalid_argument("imageFile cannot be empty.");
+		return nullptr;
 
 	auto filePath = LSG_Text::GetFullPath(imageFile);
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
@@ -581,7 +915,7 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 {
 	if (!surface)
-		throw std::invalid_argument("surface cannot be null.");
+		return nullptr;
 
 	auto texture = SDL_CreateTextureFromSurface(LSG_Window::renderer, surface);
 
@@ -590,4 +924,3 @@ SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 
 	return texture;
 }
-

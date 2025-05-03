@@ -40,7 +40,7 @@ void LSG_TextInput::Complete()
 	this->sendEvent(LSG_EVENT_TEXT_INPUT_COMPLETED);
 }
 
-void LSG_TextInput::Copy()
+void LSG_TextInput::Copy() const
 {
 	if (!this->active)
 		return;
@@ -140,7 +140,7 @@ size_t LSG_TextInput::getCursorPosition(const SDL_Point& mousePosition)
 	return i;
 }
 
-SDL_Rect LSG_TextInput::getIconClear(const SDL_Rect& fillArea)
+SDL_Rect LSG_TextInput::getIconClear(const SDL_Rect& fillArea) const
 {
 	auto textureSize = LSG_Graphics::GetTextureSize(this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR]);
 
@@ -154,7 +154,7 @@ SDL_Rect LSG_TextInput::getIconClear(const SDL_Rect& fillArea)
 	return iconClear;
 }
 
-SDL_Size LSG_TextInput::GetSize()
+SDL_Size LSG_TextInput::GetSize() const
 {
 	auto attributes  = this->GetXmlAttributes();
 	auto showValue   = (this->active || !this->value.empty());
@@ -176,7 +176,7 @@ SDL_Size LSG_TextInput::GetSize()
 	return textureSize;
 }
 
-std::string LSG_TextInput::GetValue()
+std::string LSG_TextInput::GetValue() const
 {
 	return this->value;
 }
@@ -649,7 +649,7 @@ void LSG_TextInput::SelectWord(const SDL_Point& mousePosition)
 	this->setCursor();
 }
 
-void LSG_TextInput::sendEvent(LSG_EventType type)
+void LSG_TextInput::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
 		return;
@@ -708,7 +708,7 @@ void LSG_TextInput::setIconClear()
 	SDL_Size maxSize = { this->maxIconSize, this->maxIconSize };
 
 	if (this->maxIconSize > 0)
-		this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR] = LSG_Graphics::GetVectorClose(this->textColor, maxSize);
+		this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, maxSize);
 }
 
 void LSG_TextInput::setPlaceholder()
