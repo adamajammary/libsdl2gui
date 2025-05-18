@@ -302,7 +302,7 @@ endif()
 
 # install
 
-file(GLOB LICENSES "${DIST_DIR}/LICENSE*.txt")
+file(GLOB LICENSES "${DIST_DIR}/*.txt")
 
 install(FILES ${LICENSES} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
