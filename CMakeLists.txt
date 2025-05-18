@@ -172,7 +172,7 @@ add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/include/*.
 
 # licenses
 
-set(LICENSES "${SRC_DIR}/LICENSE")
+add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/LICENSE ${DIST_DIR}/LICENSE-libsdl2gui.txt)
 
 if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
@@ -184,6 +184,8 @@ if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
 endif()
 
 add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LICENSES} ${DIST_DIR}/)
+
+list(APPEND LICENSES "${DIST_DIR}/LICENSE-libsdl2gui.txt")
 
 # testsdl2gui
 
@@ -300,12 +302,9 @@ endif()
 # install
 
 foreach(LICENSE ${LICENSES})
-    cmake_path(NORMAL_PATH LICENSE OUTPUT_VARIABLE LICENSE2)
-    cmake_path(ABSOLUTE_PATH LICENSE NORMALIZE OUTPUT_VARIABLE LICENSE3)
-    message("LICENSE: '${LICENSE}'")
-    message("LICENSE2: '${LICENSE2}'")
-    message("LICENSE3: '${LICENSE3}'")
-    install(FILES ${LICENSE2} DESTINATION ${CMAKE_INSTALL_PREFIX})
+    cmake_path(NORMAL_PATH LICENSE OUTPUT_VARIABLE LICENSE_NORMALIZED)
+    message("LICENSE_NORMALIZED: '${LICENSE_NORMALIZED}'")
+    install(FILES "${LICENSE_NORMALIZED}" DESTINATION ${CMAKE_INSTALL_PREFIX})
 endforeach()
 
 install(DIRECTORY ${DIST_DIR}/bin/     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/testsdl2gui)
