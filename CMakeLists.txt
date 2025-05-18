@@ -299,12 +299,9 @@ endif()
 
 # install
 
-list(JOIN LICENSES " " LICENSES_TXT)
-
-message("LICENSES: ${LICENSES}")
-message("LICENSES_TXT: ${LICENSES_TXT}")
-
-install(FILES ${LICENSES_TXT} DESTINATION ${CMAKE_INSTALL_PREFIX})
+foreach(LICENSE ${LICENSES})
+    install(FILES ${LICENSE} DESTINATION ${CMAKE_INSTALL_PREFIX})
+endforeach()
 
 install(DIRECTORY ${DIST_DIR}/bin/     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/testsdl2gui)
 install(DIRECTORY ${DIST_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/libsdl2gui)
