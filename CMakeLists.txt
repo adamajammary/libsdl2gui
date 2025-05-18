@@ -147,19 +147,21 @@ if (OS STREQUAL "_linux")
     set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
 endif()
 
+# dist dir
+
 if (WIN32)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if exist \"${DIST_DIR}\" rmdir /s /q \"${DIST_DIR}\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/bin\"     mkdir \"${DIST_DIR}/bin\")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/include\" mkdir \"${DIST_DIR}/include\")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"     mkdir \"${DIST_DIR}/lib\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/bin/testsdl2gui\" mkdir \"${DIST_DIR}/bin/testsdl2gui\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/include\"         mkdir \"${DIST_DIR}/include\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"             mkdir \"${DIST_DIR}/lib\")
 
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.lib ${DIST_DIR}/lib/)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll ${DIST_DIR}/lib/)
 else()
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND rm -rf \"${DIST_DIR}\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/bin\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/bin/testsdl2gui\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/include\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/lib\")
 
@@ -168,16 +170,20 @@ endif()
 
 add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/include/*.h ${DIST_DIR}/include/)
 
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/LICENSE ${DIST_DIR}/LICENSE-libsdl2gui.txt)
+# licenses
+
+set(LICENSES "${SRC_DIR}/LICENSE")
 
 if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-sdl2.txt       ${DIST_DIR}/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-sdl2_ttf.txt   ${DIST_DIR}/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-sdl2_image.txt ${DIST_DIR}/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-libtiff.txt    ${DIST_DIR}/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-libwebp.txt    ${DIST_DIR}/)
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${EXT_LIB_DIR}/LICENSE-libxml2.txt    ${DIST_DIR}/)
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2_ttf.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2_image.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libtiff.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libwebp.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libxml2.txt")
 endif()
+
+add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LICENSES} ${DIST_DIR}/)
 
 # testsdl2gui
 
@@ -234,10 +240,7 @@ if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/${ANDROID_ABI}/libmain.so)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${OUT_DIR}/libs/${ANDROID_ABI}/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${OUT_DIR}/libs/${ANDROID_ABI}/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${OUT_DIR}/libs/${ANDROID_ABI}/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND chmod a+x ${CMAKE_BINARY_DIR}/android/gradlew)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew --stop)
@@ -258,10 +261,7 @@ elseif (WIN32)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui.exe ${DIST_DIR}/bin/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll     ${DIST_DIR}/bin/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${DIST_DIR}/bin/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${DIST_DIR}/bin/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${DIST_DIR}/bin/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${DIST_DIR}/bin/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img   ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/ui    ${OUT_DIR}/)
@@ -273,10 +273,7 @@ else()
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui           ${DIST_DIR}/bin/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/bin/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL}  ${DIST_DIR}/bin/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLI} ${DIST_DIR}/bin/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDLT} ${DIST_DIR}/bin/)
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_XML}  ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${DIST_DIR}/bin/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img          ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/ui           ${OUT_DIR}/)
@@ -302,14 +299,12 @@ endif()
 
 # install
 
-file(GLOB LICENSES_TXT "${DIST_DIR}/LICENSE*.txt")
-list(JOIN LICENSES_TXT " " LICENSES)
-string(JOIN " " LICENSES2 ${LICENSES_TXT})
+list(JOIN LICENSES " " LICENSES_TXT)
 
 message("LICENSES: ${LICENSES}")
-message("LICENSES2: ${LICENSES2}")
+message("LICENSES_TXT: ${LICENSES_TXT}")
 
-install(FILES ${LICENSES2} DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES ${LICENSES} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 install(DIRECTORY ${DIST_DIR}/bin/     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/testsdl2gui)
 install(DIRECTORY ${DIST_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/libsdl2gui)
