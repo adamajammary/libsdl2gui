@@ -152,27 +152,27 @@ endif()
 if (WIN32)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if exist \"${DIST_DIR}\" rmdir /s /q \"${DIST_DIR}\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/bin/testsdl2gui\" mkdir \"${DIST_DIR}/bin/testsdl2gui\")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/include\"         mkdir \"${DIST_DIR}/include\")
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"             mkdir \"${DIST_DIR}/lib\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/bin\"     mkdir \"${DIST_DIR}/bin\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/include\" mkdir \"${DIST_DIR}/include\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND if not exist \"${DIST_DIR}/lib\"     mkdir \"${DIST_DIR}/lib\")
 
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.lib ${DIST_DIR}/lib/)
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll ${DIST_DIR}/lib/)
 else()
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND rm -rf \"${DIST_DIR}\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/bin/testsdl2gui\")
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/bin\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/include\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/lib\")
 
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}${LIB_PREP}sdl2gui.${DLL_EXT} ${DIST_DIR}/lib/)
 endif()
 
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/include/*.h ${DIST_DIR}/include/)
+# includes
+
+add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${INC_H} ${DIST_DIR}/include/)
 
 # licenses
-
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/LICENSE ${DIST_DIR}/LICENSE-libsdl2gui.txt)
 
 if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
@@ -183,7 +183,8 @@ if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libxml2.txt")
 endif()
 
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LICENSES} ${DIST_DIR}/)
+add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LICENSES}        ${DIST_DIR}/)
+add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/LICENSE ${DIST_DIR}/LICENSE-libsdl2gui.txt)
 
 list(APPEND LICENSES "${DIST_DIR}/LICENSE-libsdl2gui.txt")
 
@@ -303,8 +304,7 @@ endif()
 
 foreach(LICENSE ${LICENSES})
     cmake_path(NORMAL_PATH LICENSE OUTPUT_VARIABLE LICENSE_NORMALIZED)
-    message("LICENSE_NORMALIZED: '${LICENSE_NORMALIZED}'")
-    install(FILES "${LICENSE_NORMALIZED}" DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES ${LICENSE_NORMALIZED} DESTINATION ${CMAKE_INSTALL_PREFIX}/docs)
 endforeach()
 
 install(DIRECTORY ${DIST_DIR}/bin/     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/testsdl2gui)
