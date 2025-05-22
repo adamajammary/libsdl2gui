@@ -115,6 +115,8 @@ else()
 
     execute_process(COMMAND pkg-config --cflags --keep-system-cflags gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(COMMAND pkg-config --libs   --keep-system-libs   gtk+-3.0 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+     set(OS_TEST_LIBS "-lharfbuzz")
 endif()
 
 file(GLOB INC_H "${SRC_DIR}/include/*.h")
