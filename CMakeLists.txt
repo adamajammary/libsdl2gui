@@ -113,10 +113,8 @@ else()
     set(DLL_EXT "so")
     set(OUT_DIR ".")
 
-    execute_process(COMMAND pkg-config --cflags --keep-system-cflags gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND pkg-config --libs   --keep-system-libs   gtk+-3.0 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-     set(OS_TEST_LIBS "-lharfbuzz")
+    execute_process(COMMAND pkg-config --cflags --keep-system-cflags gtk4 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --libs   --keep-system-libs   gtk4 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 file(GLOB INC_H "${SRC_DIR}/include/*.h")
@@ -141,13 +139,10 @@ endif()
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
+target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS})
 
 if (OS STREQUAL "_linux")
     set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
-
-    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} "-lfreetype" ${LIBS})
-else()
-    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
 endif()
 
 # dist dir
