@@ -56,7 +56,7 @@ else()
     set(LIB_PREP "lib")
 
     if (IOS)
-        set(LIBS "-lSDL2" "-lSDL2_image" "-lwebpdecoder" "-lwebpdemux" "-lSDL2_ttf" "-lxml2")
+        set(LIBS "-lSDL2" "-lSDL2_image" "-lwebpdecoder" "-lwebpdemux" "-lSDL2_ttf" "-lfreetype" "-lxml2")
     else()
         set(LIBS "-lSDL2" "-lSDL2_image" "-lSDL2_ttf" "-lxml2")
     endif()
@@ -84,8 +84,6 @@ elseif (IOS)
     set(FONT_ARIAL "/System/Library/Fonts/Supplemental/Arial Unicode.ttf")
     set(INFO_PLIST "${SRC_DIR}/ios/MacOSXBundleInfo.plist.in")
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
-
-    set(LIBS ${LIBS} "-lfreetype")
 
     set(OS_LIBS      "-framework MediaPlayer" "-framework Photos" "-framework PhotosUI" "-framework StoreKit" "-framework UIKit" "-framework UniformTypeIdentifiers")
     set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
@@ -141,10 +139,13 @@ endif()
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
-target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS})
 
 if (OS STREQUAL "_linux")
     set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
+
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} "-lfreetype" ${LIBS})
+else()
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
 endif()
 
 # dist dir
