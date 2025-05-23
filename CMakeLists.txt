@@ -218,6 +218,8 @@ if (IOS)
         MACOSX_BUNDLE_LONG_VERSION_STRING  "1.0.0"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
     )
+elseif (OS STREQUAL "_linux")
+    set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS "${OS_LDFLAGS}")
 elseif (WIN32)
     set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS_DEBUG   "-SUBSYSTEM:CONSOLE,5.02")
     set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS_RELEASE "-SUBSYSTEM:WINDOWS,5.02")
