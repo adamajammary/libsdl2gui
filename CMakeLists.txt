@@ -113,9 +113,8 @@ else()
     set(DLL_EXT "so")
     set(OUT_DIR ".")
 
-    execute_process(COMMAND pkg-config --cflags gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    #execute_process(COMMAND pkg-config --cflags --keep-system-cflags gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    #execute_process(COMMAND pkg-config --libs   --keep-system-libs   gtk+-3.0 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --cflags                  gtk+-3.0 OUTPUT_VARIABLE OS_CFLAGS  OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --libs --keep-system-libs gtk+-3.0 OUTPUT_VARIABLE OS_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 file(GLOB INC_H "${SRC_DIR}/include/*.h")
@@ -144,6 +143,7 @@ target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS})
 
 if (OS STREQUAL "_linux")
     set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
+    set_property(TARGET sdl2gui PROPERTY LINK_FLAGS    "${OS_LDFLAGS}")
 endif()
 
 # dist dir
