@@ -139,11 +139,10 @@ endif()
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
-target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS})
+target_link_libraries(sdl2gui      PRIVATE ${OS_LDFLAGS} ${OS_LIBS} ${LIBS})
 
 if (OS STREQUAL "_linux")
     set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
-    set_property(TARGET sdl2gui PROPERTY LINK_FLAGS    "${OS_LDFLAGS}")
 endif()
 
 # dist dir
@@ -202,7 +201,7 @@ endif()
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
 target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
 target_link_directories(testsdl2gui    PRIVATE ${LIB_DIR})
-target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${OS_TEST_LIBS} ${TEST_LIBS})
+target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${OS_LDFLAGS} ${OS_TEST_LIBS} ${TEST_LIBS})
 
 if (IOS)
     set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdl2gui.test")
@@ -218,8 +217,6 @@ if (IOS)
         MACOSX_BUNDLE_LONG_VERSION_STRING  "1.0.0"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
     )
-elseif (OS STREQUAL "_linux")
-    set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS "${OS_LDFLAGS}")
 elseif (WIN32)
     set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS_DEBUG   "-SUBSYSTEM:CONSOLE,5.02")
     set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS_RELEASE "-SUBSYSTEM:WINDOWS,5.02")
