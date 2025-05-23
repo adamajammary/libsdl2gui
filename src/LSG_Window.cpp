@@ -196,9 +196,9 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 		(openFolder ? "Select a folder" : "Select a file"),
 		nullptr,
 		(openFolder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN),
-		GTK_STOCK_CANCEL,
+		_("_Cancel"),
 		GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN,
+		_("_Open"),
 		GTK_RESPONSE_ACCEPT,
 		nullptr
 	);
@@ -735,9 +735,9 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 		"Save File",
 		nullptr,
 		GTK_FILE_CHOOSER_ACTION_SAVE,
-		GTK_STOCK_CANCEL,
+		_("_Cancel"),
 		GTK_RESPONSE_CANCEL,
-		GTK_STOCK_SAVE_AS,
+		_("_Save"),
 		GTK_RESPONSE_ACCEPT,
 		nullptr
 	);
