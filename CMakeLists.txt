@@ -203,7 +203,7 @@ endif()
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
 #target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
 #target_link_directories(testsdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
-target_link_libraries(testsdl2gui      PRIVATE "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}" sdl2gui)
+target_link_libraries(testsdl2gui      PRIVATE sdl2gui "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}")
 
 #target_link_options(testsdl2gui PRIVATE sdl2gui "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}")
 
