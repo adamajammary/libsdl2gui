@@ -136,11 +136,15 @@ else()
     add_library(sdl2gui SHARED ${SOURCES_CPP} ${SOURCES_H} ${INC_H} ${RC})
 endif()
 
-string(STRIP "${OS_LIBS} -L${LIB_DIR} ${LIBS}" OS_LDFLAGS)
+if (WIN32)
+    string(STRIP "${OS_LIBS} -LIBPATH:${LIB_DIR} ${LIBS}" OS_LDFLAGS)
+else()
+    string(STRIP "${OS_LIBS} -L${LIB_DIR} ${LIBS}" OS_LDFLAGS)
+endif()
 
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 #target_include_directories(sdl2gui PRIVATE ${INCS})
-#target_link_directories(sdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
+target_link_directories(sdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
 target_link_libraries(sdl2gui      PRIVATE "${OS_LDFLAGS}")
 
 #target_link_options(sdl2gui PRIVATE "${OS_LIBS} -L${LIB_DIR} ${LIBS}")
@@ -202,12 +206,16 @@ else()
     add_executable(testsdl2gui ${TEST_CPP} ${INC_H} ${IMG} ${UI})
 endif()
 
-string(STRIP "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}" OS_TEST_LDFLAGS)
+if (WIN32)
+    string(STRIP "${OS_TEST_LIBS} -LIBPATH:${LIB_DIR} ${TEST_LIBS}" OS_TEST_LDFLAGS)
+else()
+    string(STRIP "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}" OS_TEST_LDFLAGS)
+endif()
 
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
 #target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
 #target_link_directories(testsdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
-target_link_libraries(testsdl2gui      PRIVATE "${OS_TEST_LDFLAGS}" sdl2gui)
+target_link_libraries(testsdl2gui      PRIVATE sdl2gui "${OS_TEST_LDFLAGS}")
 
 #target_link_options(testsdl2gui PRIVATE sdl2gui "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}")
 
