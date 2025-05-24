@@ -186,7 +186,7 @@ void LSG_Window::OpenTest()
 #if defined _linux
 LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
-	if (std::strlen(std::getenv("DISPLAY")) == 0)
+	/*if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
@@ -213,11 +213,11 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
 	}
 
-	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
+	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);*/
 
 	LSG_Strings filePaths;
 
-	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	/*if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		GSList* paths = nullptr;
 
@@ -246,7 +246,7 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
 	while (gtk_events_pending())
-		gtk_main_iteration();
+		gtk_main_iteration();*/
 
 	return filePaths;
 }
@@ -725,7 +725,7 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 #elif defined _linux
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
-	if (std::strlen(std::getenv("DISPLAY")) == 0)
+	/*if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
@@ -750,11 +750,11 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-	}
+	}*/
 
 	std::string filePath = "";
 
-	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	/*if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
@@ -769,7 +769,7 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
 	while (gtk_events_pending())
-		gtk_main_iteration();
+		gtk_main_iteration();*/
 
 	return filePath;
 }
