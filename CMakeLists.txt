@@ -144,8 +144,8 @@ target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMA
 #target_link_options(sdl2gui PRIVATE ${OS_LIBS} "-L${LIB_DIR}" ${LIBS})
 
 set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS} ${INCS}")
-set_property(TARGET sdl2gui PROPERTY LINK_FLAGS    "${OS_LIBS} -L${LIB_DIR} ${LIBS}")
-#set_property(TARGET sdl2gui PROPERTY LINK_OPTIONS  ${OS_LIBS} "-L${LIB_DIR}" ${LIBS})
+#set_property(TARGET sdl2gui PROPERTY LINK_FLAGS    "${OS_LIBS} -L${LIB_DIR} ${LIBS}")
+set_property(TARGET sdl2gui PROPERTY LINK_OPTIONS  "${OS_LIBS} -L${LIB_DIR} ${LIBS}")
 
 # dist dir
 
@@ -204,10 +204,10 @@ target_compile_definitions(testsdl2gui PRIVATE ${OS})
 #target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
 #target_link_directories(testsdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
 #target_link_libraries(testsdl2gui      PRIVATE ${OS_TEST_LIBS} "-L${LIB_DIR}" ${TEST_LIBS} sdl2gui)
-target_link_libraries(testsdl2gui      PRIVATE sdl2gui)
+#target_link_libraries(testsdl2gui      PRIVATE sdl2gui)
 
 set_property(TARGET testsdl2gui PROPERTY COMPILE_FLAGS "${OS_TEST_INCS} ${TEST_INCS}")
-set_property(TARGET testsdl2gui PROPERTY LINK_FLAGS    "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}")
+set_property(TARGET testsdl2gui PROPERTY LINK_OPTIONS  "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}" sdl2gui)
 
 if (IOS)
     set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdl2gui.test")
