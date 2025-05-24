@@ -746,11 +746,12 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	LSG_ShowError(LSG_Text::Format("RESPONSE: %s", filePath.c_str()));
 }*/
 
-static void on_open_response(GObject* source_object, GAsyncResult* res, gpointer data)
+static void on_open_response(GObject* source, GAsyncResult* result, gpointer data)
 {
 	std::string filePath = "";
 
-	auto file = gtk_file_dialog_save_finish(source_object, res, nullptr);
+	auto dialog = GTK_FILE_DIALOG(source);
+	auto file   = gtk_file_dialog_save_finish(dialog, res, nullptr);
 
 	if (file)
 	{
