@@ -751,7 +751,7 @@ static void on_open_response(GObject* source, GAsyncResult* result, gpointer dat
 	std::string filePath = "";
 
 	auto dialog = GTK_FILE_DIALOG(source);
-	auto file   = gtk_file_dialog_save_finish(dialog, res, nullptr);
+	auto file   = gtk_file_dialog_save_finish(dialog, result, nullptr);
 
 	if (file)
 	{
