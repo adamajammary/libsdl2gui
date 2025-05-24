@@ -138,7 +138,7 @@ endif()
 
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
-#target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
+target_link_directories(sdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
 target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} "-L${LIB_DIR}" ${LIBS})
 
 if (OS STREQUAL "_linux")
@@ -200,8 +200,8 @@ endif()
 
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
 target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
-#target_link_directories(testsdl2gui    PRIVATE ${LIB_DIR})
-target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${OS_TEST_LIBS} "-L${LIB_DIR}" ${TEST_LIBS})
+target_link_directories(testsdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
+target_link_libraries(testsdl2gui      PRIVATE ${OS_TEST_LIBS} "-L${LIB_DIR}" ${TEST_LIBS} sdl2gui)
 
 if (IOS)
     set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdl2gui.test")
