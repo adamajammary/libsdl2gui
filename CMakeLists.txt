@@ -139,7 +139,7 @@ endif()
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 #target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
-target_link_libraries(sdl2gui      PRIVATE ${LIBS} ${OS_LIBS})
+target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} "-L${LIB_DIR}" ${LIBS})
 
 if (OS STREQUAL "_linux")
     set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
