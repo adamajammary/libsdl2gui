@@ -723,12 +723,33 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	return LSG_Window::pickFile(filters, true);
 }
 #elif defined _linux
+static void on_open_response(GtkDialog* dialog, int response)
+{
+	std::string filePath = "";
+
+	if (response == GTK_RESPONSE_ACCEPT)
+	{
+		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+		filePath = std::string(selectedPath);
+
+		if (filePath.substr(0, 7) == "file://")
+			filePath = filePath.substr(7);
+
+		g_free(selectedPath);
+	}
+
+	gtk_window_destroy(GTK_WINDOW(dialog));
+
+	LSG_ShowError(LSG_Text::Format("RESPONSE: %s", filePath.c_str()));
+}
+
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
-	/*if (std::strlen(std::getenv("DISPLAY")) == 0)
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
-	if (!gtk_init_check(0, nullptr))
+	if (!gtk_init())
 		return "";
 
 	auto dialog = gtk_file_chooser_dialog_new(
@@ -750,9 +771,16 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-	}*/
+	}
 
 	std::string filePath = "";
+
+	gtk_window_set_modal(GTK_WINDOW(dialog), true);
+
+	gtk_window_present(GTK_WINDOW(dialog));
+	//gtk_widget_show(dialog);
+
+	g_signal_connect(dialog, "response", G_CALLBACK(on_open_response), nullptr);
 
 	/*if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
@@ -770,6 +798,8 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 
 	while (gtk_events_pending())
 		gtk_main_iteration();*/
+
+	LSG_ShowError("SAVE_FILE_DONE");
 
 	return filePath;
 }
