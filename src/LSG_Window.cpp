@@ -723,7 +723,7 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	return LSG_Window::pickFile(filters, true);
 }
 #elif defined _linux
-static void on_open_response(GtkDialog* dialog, int response)
+/*static void on_open_response(GtkDialog* dialog, int response)
 {
 	std::string filePath = "";
 
@@ -744,6 +744,28 @@ static void on_open_response(GtkDialog* dialog, int response)
 	gtk_window_destroy(GTK_WINDOW(dialog));
 
 	LSG_ShowError(LSG_Text::Format("RESPONSE: %s", filePath.c_str()));
+}*/
+
+static void on_open_response(GObject* source_object, GAsyncResult* res, gpointer data)
+{
+	std::string filePath = "";
+
+	auto file = gtk_file_dialog_save_finish(source_object, res, nullptr);
+
+	if (file)
+	{
+		auto selectedPath = g_file_get_path(file);
+
+		filePath = std::string(selectedPath);
+
+		if (filePath.substr(0, 7) == "file://")
+			filePath = filePath.substr(7);
+
+		g_free(selectedPath);
+		g_object_unref(file);
+	}
+
+	LSG_ShowError(LSG_Text::Format("RESPONSE: %s", filePath.c_str()));
 }
 
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)
@@ -754,7 +776,21 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	if (!gtk_init_check())
 		return "";
 
-	auto dialog = gtk_file_chooser_dialog_new(
+	auto dialog = gtk_file_dialog_new();
+
+	gtk_file_dialog_set_modal(dialog, true);
+
+	auto cancellable = g_cancellable_new();
+
+	gtk_file_dialog_save(
+		dialog,
+		nullptr,
+		cancellable,
+		on_open_response,
+		nullptr
+	);
+
+	/*auto dialog = gtk_file_chooser_dialog_new(
 		"Save File",
 		nullptr,
 		GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -773,16 +809,9 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-	}
+	}*/
 
 	std::string filePath = "";
-
-	gtk_window_set_modal(GTK_WINDOW(dialog), true);
-
-	gtk_window_present(GTK_WINDOW(dialog));
-	//gtk_widget_show(dialog);
-
-	g_signal_connect(dialog, "response", G_CALLBACK(on_open_response), nullptr);
 
 	/*if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
