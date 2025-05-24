@@ -46,19 +46,19 @@ find_file(LIB_SDLI ${EXT_LIB_SDLI} PATHS ${LIB_DIR} NO_CACHE REQUIRED CMAKE_FIND
 find_file(LIB_SDLT ${EXT_LIB_SDLT} PATHS ${LIB_DIR} NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 find_file(LIB_XML  ${EXT_LIB_XML}  PATHS ${LIB_DIR} NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 
-set(INCS      "include" ${INC_DIR} "${INC_DIR}/libxml2")
-set(TEST_INCS "include" ${INC_DIR})
+set(INCS      "-Iinclude -I${INC_DIR} -I${INC_DIR}/libxml2")
+set(TEST_INCS "-Iinclude -I${INC_DIR}")
 
 if (WIN32)
-    set(LIBS      SDL2.lib SDL2_image.lib SDL2_ttf.lib libxml2.lib)
-    set(TEST_LIBS SDL2.lib)
+    set(LIBS      "SDL2.lib SDL2_image.lib SDL2_ttf.lib libxml2.lib")
+    set(TEST_LIBS "SDL2.lib")
 else()
     set(LIB_PREP "lib")
 
     if (IOS)
-        set(LIBS "-lSDL2" "-lSDL2_image" "-lwebpdecoder" "-lwebpdemux" "-lSDL2_ttf" "-lfreetype" "-lxml2")
+        set(LIBS "-lSDL2 -lSDL2_image -lwebpdecoder -lwebpdemux -lSDL2_ttf -lfreetype -lxml2")
     else()
-        set(LIBS "-lSDL2" "-lSDL2_image" "-lSDL2_ttf" "-lxml2")
+        set(LIBS "-lSDL2 -lSDL2_image -lSDL2_ttf -lxml2")
     endif()
     
     set(TEST_LIBS "-lSDL2")
@@ -85,8 +85,8 @@ elseif (IOS)
     set(INFO_PLIST "${SRC_DIR}/ios/MacOSXBundleInfo.plist.in")
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 
-    set(OS_LIBS      "-framework MediaPlayer" "-framework Photos" "-framework PhotosUI" "-framework StoreKit" "-framework UIKit" "-framework UniformTypeIdentifiers")
-    set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
+    set(OS_LIBS      "-framework MediaPlayer -framework Photos -framework PhotosUI -framework StoreKit -framework UIKit -framework UniformTypeIdentifiers")
+    set(OS_TEST_LIBS "-framework AudioToolbox -framework AVFoundation -framework CoreBluetooth -framework CoreFoundation -framework CoreGraphics -framework CoreHaptics -framework CoreMotion -framework CoreServices -framework Foundation -framework GameController -framework ImageIO -framework Metal -framework OpenGLES -framework QuartzCore -framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")
 
@@ -97,7 +97,7 @@ elseif (APPLE)
     set(DLL_EXT "dylib")
     set(OUT_DIR "$<CONFIG>")
 
-    set(OS_LIBS "-framework AppKit" "-framework Foundation" "-framework UniformTypeIdentifiers")
+    set(OS_LIBS "-framework AppKit -framework Foundation -framework UniformTypeIdentifiers")
 elseif (WIN32)
     set(OS "_windows")
 
@@ -113,8 +113,8 @@ else()
     set(DLL_EXT "so")
     set(OUT_DIR ".")
 
-    execute_process(COMMAND pkg-config --cflags                  gtk4 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND pkg-config --libs --keep-system-libs gtk4 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --cflags --keep-system-cflags gtk4 OUTPUT_VARIABLE OS_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND pkg-config --libs   --keep-system-libs   gtk4 OUTPUT_VARIABLE OS_LIBS   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 file(GLOB INC_H "${SRC_DIR}/include/*.h")
