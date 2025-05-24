@@ -139,7 +139,7 @@ endif()
 set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS} ${INCS}")
 
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
-target_link_directories(sdl2gui    PRIVATE "/usr/lib/x86_64-linux-gnu" ${LIB_DIR})
+target_link_directories(sdl2gui    PRIVATE ${LIB_DIR})
 
 if (WIN32)
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
