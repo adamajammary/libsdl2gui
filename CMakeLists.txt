@@ -205,10 +205,10 @@ endif()
 set_property(TARGET testsdl2gui PROPERTY COMPILE_FLAGS "${OS_TEST_INCS} ${TEST_INCS}")
 
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
-target_link_directories(testsdl2gui    PRIVATE ${LIB_DIR})
 
 if (WIN32)
-    target_link_libraries(testsdl2gui PRIVATE sdl2gui ${OS_TEST_LIBS} ${TEST_LIBS})
+    target_link_directories(testsdl2gui PRIVATE ${LIB_DIR})
+    target_link_libraries(testsdl2gui   PRIVATE sdl2gui ${OS_TEST_LIBS} ${TEST_LIBS})
 else()
     string(STRIP "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}" OS_TEST_LDFLAGS)
 
