@@ -200,8 +200,8 @@ endif()
 
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
 target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
-target_link_directories(testsdl2gui    PRIVATE ${LIB_DIR})
-target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${TEST_LIBS} ${OS_TEST_LIBS})
+#target_link_directories(testsdl2gui    PRIVATE ${LIB_DIR})
+target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${OS_TEST_LIBS} "-L${LIB_DIR}" ${TEST_LIBS})
 
 if (IOS)
     set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdl2gui.test")
