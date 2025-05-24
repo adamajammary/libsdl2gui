@@ -729,7 +729,8 @@ static void on_open_response(GtkDialog* dialog, int response)
 
 	if (response == GTK_RESPONSE_ACCEPT)
 	{
-		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		auto file         = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+		auto selectedPath = g_file_get_path(file);
 
 		filePath = std::string(selectedPath);
 
@@ -737,6 +738,7 @@ static void on_open_response(GtkDialog* dialog, int response)
 			filePath = filePath.substr(7);
 
 		g_free(selectedPath);
+		g_object_unref(file);
 	}
 
 	gtk_window_destroy(GTK_WINDOW(dialog));
@@ -749,7 +751,7 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
-	if (!gtk_init())
+	if (!gtk_init_check())
 		return "";
 
 	auto dialog = gtk_file_chooser_dialog_new(
