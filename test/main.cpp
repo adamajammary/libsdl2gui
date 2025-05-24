@@ -230,11 +230,6 @@ int SDL_main(int argc, char* argv[])
 
         std::vector<SDL_Event> events;
 
-
-        auto file = LSG_SaveFile();
-        LSG_ShowError(TextFormat("MAIN: %s", file.c_str()));
-
-
         while (LSG_IsRunning())
         {
             events = LSG_Run();

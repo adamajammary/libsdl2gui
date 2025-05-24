@@ -186,7 +186,7 @@ void LSG_Window::OpenTest()
 #if defined _linux
 LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
-	/*if (std::strlen(std::getenv("DISPLAY")) == 0)
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
@@ -213,11 +213,11 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
 	}
 
-	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);*/
+	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
 
 	LSG_Strings filePaths;
 
-	/*if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		GSList* paths = nullptr;
 
@@ -246,7 +246,7 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
 	while (gtk_events_pending())
-		gtk_main_iteration();*/
+		gtk_main_iteration();
 
 	return filePaths;
 }
@@ -723,75 +723,15 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	return LSG_Window::pickFile(filters, true);
 }
 #elif defined _linux
-/*static void on_open_response(GtkDialog* dialog, int response)
-{
-	std::string filePath = "";
-
-	if (response == GTK_RESPONSE_ACCEPT)
-	{
-		auto file         = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
-		auto selectedPath = g_file_get_path(file);
-
-		filePath = std::string(selectedPath);
-
-		if (filePath.substr(0, 7) == "file://")
-			filePath = filePath.substr(7);
-
-		g_free(selectedPath);
-		g_object_unref(file);
-	}
-
-	gtk_window_destroy(GTK_WINDOW(dialog));
-
-	LSG_ShowError(LSG_Text::Format("RESPONSE: %s", filePath.c_str()));
-}*/
-
-static void on_open_response(GObject* source, GAsyncResult* result, gpointer data)
-{
-	std::string filePath = "";
-
-	auto dialog = GTK_FILE_DIALOG(source);
-	auto file   = gtk_file_dialog_save_finish(dialog, result, nullptr);
-
-	if (file)
-	{
-		auto selectedPath = g_file_get_path(file);
-
-		filePath = std::string(selectedPath);
-
-		if (filePath.substr(0, 7) == "file://")
-			filePath = filePath.substr(7);
-
-		g_free(selectedPath);
-		g_object_unref(file);
-	}
-
-	LSG_ShowError(LSG_Text::Format("RESPONSE: %s", filePath.c_str()));
-}
-
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv("DISPLAY", ":0", 1);
 
-	if (!gtk_init_check())
+	if (!gtk_init_check(0, nullptr))
 		return "";
 
-	auto dialog = gtk_file_dialog_new();
-
-	gtk_file_dialog_set_modal(dialog, true);
-
-	auto cancellable = g_cancellable_new();
-
-	gtk_file_dialog_save(
-		dialog,
-		nullptr,
-		cancellable,
-		on_open_response,
-		nullptr
-	);
-
-	/*auto dialog = gtk_file_chooser_dialog_new(
+	auto dialog = gtk_file_chooser_dialog_new(
 		"Save File",
 		nullptr,
 		GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -810,11 +750,11 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-	}*/
+	}
 
 	std::string filePath = "";
 
-	/*if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
@@ -829,9 +769,7 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
 	while (gtk_events_pending())
-		gtk_main_iteration();*/
-
-	LSG_ShowError("SAVE_FILE_DONE");
+		gtk_main_iteration();
 
 	return filePath;
 }
