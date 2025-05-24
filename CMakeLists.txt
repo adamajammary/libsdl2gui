@@ -46,8 +46,8 @@ find_file(LIB_SDLI ${EXT_LIB_SDLI} PATHS ${LIB_DIR} NO_CACHE REQUIRED CMAKE_FIND
 find_file(LIB_SDLT ${EXT_LIB_SDLT} PATHS ${LIB_DIR} NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 find_file(LIB_XML  ${EXT_LIB_XML}  PATHS ${LIB_DIR} NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 
-set(INCS      "-Iinclude -I${INC_DIR} -I${INC_DIR}/libxml2")
-set(TEST_INCS "-Iinclude -I${INC_DIR}")
+set(INCS      "-I${SRC_DIR}/include -I${INC_DIR} -I${INC_DIR}/libxml2")
+set(TEST_INCS "-I${SRC_DIR}/include -I${INC_DIR}")
 
 if (WIN32)
     set(LIBS      "SDL2.lib SDL2_image.lib SDL2_ttf.lib libxml2.lib")
