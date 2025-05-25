@@ -57,8 +57,8 @@ if (WIN32)
     find_file(LIB_XMLL ${EXT_LIB_XMLL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 endif()
 
-set(INCS      "-I${SRC_DIR}/include -I${INC_DIR} -I${INC_DIR}/libxml2")
-set(TEST_INCS "-I${SRC_DIR}/include -I${INC_DIR}")
+set(INCS      "${SRC_DIR}/include" "${INC_DIR}" "${INC_DIR}/libxml2")
+set(TEST_INCS "${SRC_DIR}/include" "${INC_DIR}")
 
 if (WIN32)
     set(LIBS      "${LIB_SDLL}" "${LIB_SDIL}" "${LIB_SDTL}" "${LIB_XMLL}")
@@ -66,13 +66,13 @@ if (WIN32)
 else()
     set(LIB_PREP "lib")
 
+    set(LIBS      "${LIB_SDL}" "${LIB_SDLI}" "${LIB_SDLT}" "${LIB_XML}")
+    set(TEST_LIBS "${LIB_SDL}")
+
     if (IOS)
-        set(LIBS "${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} -lfreetype -lwebpdecoder -lwebpdemux")
-    else()
-        set(LIBS "${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML}")
+        set(LIBS ${LIBS} "-lfreetype" "-lwebpdecoder" "-lwebpdemux")
     endif()
     
-    set(TEST_LIBS "${LIB_SDL}")
 endif()
 
 if (ANDROID)
@@ -96,8 +96,8 @@ elseif (IOS)
     set(INFO_PLIST "${SRC_DIR}/ios/MacOSXBundleInfo.plist.in")
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 
-    set(OS_LIBS      "-framework MediaPlayer -framework Photos -framework PhotosUI -framework StoreKit -framework UIKit -framework UniformTypeIdentifiers")
-    set(OS_TEST_LIBS "-framework AudioToolbox -framework AVFoundation -framework CoreBluetooth -framework CoreFoundation -framework CoreGraphics -framework CoreHaptics -framework CoreMotion -framework CoreServices -framework Foundation -framework GameController -framework ImageIO -framework Metal -framework OpenGLES -framework QuartzCore -framework UIKit")
+    set(OS_LIBS      "-framework MediaPlayer" "-framework Photos" "-framework PhotosUI" "-framework StoreKit" "-framework UIKit" "-framework UniformTypeIdentifiers")
+    set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")
 
@@ -108,7 +108,7 @@ elseif (APPLE)
     set(DLL_EXT "dylib")
     set(OUT_DIR "$<CONFIG>")
 
-    set(OS_LIBS "-framework AppKit -framework Foundation -framework UniformTypeIdentifiers")
+    set(OS_LIBS "-framework AppKit" "-framework Foundation" "-framework UniformTypeIdentifiers")
 elseif (WIN32)
     set(OS "_windows")
 
@@ -147,17 +147,11 @@ else()
     add_library(sdl2gui SHARED ${SOURCES_CPP} ${SOURCES_H} ${INC_H} ${RC})
 endif()
 
-set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS} ${INCS}")
+set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
 
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
-
-if (WIN32)
-    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
-else()
-    string(STRIP "${OS_LIBS} ${LIBS}" OS_LDFLAGS)
-
-    target_link_libraries(sdl2gui PRIVATE "${OS_LDFLAGS}")
-endif()
+target_include_directories(sdl2gui PRIVATE ${INCS})
+target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS})
 
 # dist dir
 
@@ -212,17 +206,9 @@ else()
     add_executable(testsdl2gui ${TEST_CPP} ${INC_H} ${IMG} ${UI})
 endif()
 
-set_property(TARGET testsdl2gui PROPERTY COMPILE_FLAGS "${OS_TEST_INCS} ${TEST_INCS}")
-
 target_compile_definitions(testsdl2gui PRIVATE ${OS})
-
-if (WIN32)
-    target_link_libraries(testsdl2gui PRIVATE sdl2gui ${OS_TEST_LIBS} ${TEST_LIBS})
-else()
-    string(STRIP "${OS_LDFLAGS} ${OS_TEST_LIBS} ${TEST_LIBS}" OS_TEST_LDFLAGS)
-
-    target_link_libraries(testsdl2gui PRIVATE sdl2gui "${OS_TEST_LDFLAGS}")
-endif()
+target_include_directories(testsdl2gui PRIVATE ${OS_TEST_INCS} ${TEST_INCS})
+target_link_libraries(testsdl2gui      PRIVATE sdl2gui ${OS_LIBS} ${LIBS} ${OS_TEST_LIBS} ${TEST_LIBS})
 
 if (IOS)
     set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdl2gui.test")
@@ -339,8 +325,7 @@ endif()
 if (WIN32)
     add_library(unittest SHARED "${SRC_DIR}/test/unittest.cpp")
 
-    set_property(TARGET unittest PROPERTY COMPILE_FLAGS "${TEST_INCS}")
-
     target_compile_definitions(unittest PRIVATE ${OS})
+    target_include_directories(unittest PRIVATE ${TEST_INCS})
     target_link_libraries(unittest      PRIVATE sdl2gui)
 endif()
