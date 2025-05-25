@@ -154,7 +154,7 @@ target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMA
 if (WIN32)
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
 else()
-    string(STRIP "${OS_LIBS} -L${LIB_DIR} ${LIBS}" OS_LDFLAGS)
+    string(STRIP "${OS_LIBS} ${LIBS}" OS_LDFLAGS)
 
     target_link_libraries(sdl2gui PRIVATE "${OS_LDFLAGS}")
 endif()
@@ -219,7 +219,7 @@ target_compile_definitions(testsdl2gui PRIVATE ${OS})
 if (WIN32)
     target_link_libraries(testsdl2gui PRIVATE sdl2gui ${OS_TEST_LIBS} ${TEST_LIBS})
 else()
-    string(STRIP "${OS_TEST_LIBS} -L${LIB_DIR} ${TEST_LIBS}" OS_TEST_LDFLAGS)
+    string(STRIP "${OS_TEST_LIBS} ${TEST_LIBS}" OS_TEST_LDFLAGS)
 
     target_link_libraries(testsdl2gui PRIVATE sdl2gui "${OS_TEST_LDFLAGS}")
 endif()
