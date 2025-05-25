@@ -219,7 +219,7 @@ target_compile_definitions(testsdl2gui PRIVATE ${OS})
 if (WIN32)
     target_link_libraries(testsdl2gui PRIVATE sdl2gui ${OS_TEST_LIBS} ${TEST_LIBS})
 else()
-    string(STRIP "${OS_TEST_LIBS} ${TEST_LIBS}" OS_TEST_LDFLAGS)
+    string(STRIP "${OS_LIBS} ${OS_TEST_LIBS} ${TEST_LIBS}" OS_TEST_LDFLAGS)
 
     target_link_libraries(testsdl2gui PRIVATE sdl2gui "${OS_TEST_LDFLAGS}")
 endif()
