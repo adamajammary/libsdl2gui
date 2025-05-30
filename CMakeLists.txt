@@ -323,6 +323,9 @@ foreach(LICENSE ${LICENSES})
     install(FILES ${LICENSE_NORMALIZED} DESTINATION ${CMAKE_INSTALL_PREFIX})
 endforeach()
 
+file(REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/bin/testsdl2gui)
+file(REMOVE         ${CMAKE_INSTALL_PREFIX}/include/libsdl2gui)
+
 install(DIRECTORY ${DIST_DIR}/bin/     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/testsdl2gui)
 install(DIRECTORY ${DIST_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/libsdl2gui)
 install(DIRECTORY ${DIST_DIR}/lib/     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
