@@ -69,9 +69,9 @@ else()
     set(LIBS      "${LIB_SDL}" "${LIB_SDLI}" "${LIB_SDLT}" "${LIB_XML}")
     set(TEST_LIBS "${LIB_SDL}")
 
-    if (IOS)
-        set(LIBS ${LIBS} "-lfreetype" "-lwebpdecoder" "-lwebpdemux")
-    endif()
+    #if (IOS)
+    #    set(LIBS ${LIBS} "-lfreetype" "-lwebpdecoder" "-lwebpdemux")
+    #endif()
     
 endif()
 
