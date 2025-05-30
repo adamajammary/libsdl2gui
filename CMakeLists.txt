@@ -189,7 +189,12 @@ if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libxml2.txt")
 endif()
 
-add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LICENSES}        ${DIST_DIR}/)
+list(LENGTH LICENSES NR_OF_LICENSES)
+
+if (NR_OF_LICENSES GREATER 0)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${LICENSES} ${DIST_DIR}/)
+endif()
+
 add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${SRC_DIR}/LICENSE ${DIST_DIR}/LICENSE-libsdl2gui.txt)
 
 list(APPEND LICENSES "${DIST_DIR}/LICENSE-libsdl2gui.txt")
