@@ -33,7 +33,7 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 	auto font = TTF_OpenFont(FONT_PATH, LSG_Graphics::GetDPIScaled(fontSize));
 
 	if (!font)
-		throw std::invalid_argument(LSG_Text::Format("Failed to open default font '%s': %s", FONT_PATH, TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to open default font '{}': {}", FONT_PATH, TTF_GetError()));
 
 	return font;
 }
@@ -41,9 +41,9 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 std::string LSG_Text::GetFullPath(const std::string& path)
 {
 	#if defined _windows
-		return (path.size() > 1 && path[1] != ':' ? LSG_Text::Format("%s%s", LSG_GetBasePath(), path.c_str()) : path);
+		return (path.size() > 1 && path[1] != ':' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
 	#else
-		return (!path.empty() && path[0] != '/' ? LSG_Text::Format("%s%s", LSG_GetBasePath(), path.c_str()) : path);
+		return (!path.empty() && path[0] != '/' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
 	#endif
 }
 
@@ -107,7 +107,7 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	SDL_free(textUTF16);
 
 	if (!surface)
-		throw std::invalid_argument(LSG_Text::Format("Failed to create a Unicode surface: %s", TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to create a Unicode surface: {}", TTF_GetError()));
 
 	auto texture = LSG_Window::ToTexture(surface);
 
@@ -168,7 +168,7 @@ uint16_t* LSG_Text::ToUTF16(const std::string& text)
 	#endif
 
 	if (!textUTF16)
-		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text '%s'", formattedText.c_str()));
+		throw std::invalid_argument(std::format("Failed to convert UTF8 text '{}'", formattedText));
 
 	return textUTF16;
 }

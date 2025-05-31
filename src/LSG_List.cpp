@@ -511,7 +511,7 @@ void LSG_List::setItems(bool sort)
 	std::string text  = "";
 
 	for (const auto& item : items)
-		text.append(LSG_Text::Format("%s\n", (!item.empty() ? item.c_str() : " ")));
+		text.append(std::format("{}\n", (!item.empty() ? item : " ")));
 
 	if (!text.empty())
 		this->texture = this->getTexture(text);

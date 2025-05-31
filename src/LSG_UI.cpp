@@ -40,10 +40,10 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 	if ((name != "modal") && LSG_Modal::IsModalChild(parent))
 		layer += LSG_Modal::LayerOffsetMin;
 
-	auto id = (!xmlID.empty() ? xmlID : LSG_Text::Format("%s_%d", name.c_str(), layer));
+	auto id = (!xmlID.empty() ? xmlID : std::format("{}_{}", name, layer));
 
 	if (LSG_UI::components.contains(id))
-		throw std::invalid_argument(LSG_Text::Format("Duplicate XML ID '%s' already exists.", id.c_str()));
+		throw std::invalid_argument(std::format("Duplicate XML ID '{}' already exists.", id));
 
 	LSG_Component* component = nullptr;
 
@@ -227,7 +227,7 @@ std::string LSG_UI::GetColorFromTheme(const std::string& componentID, const std:
 	if (!LSG_UI::colorThemes.contains(LSG_UI::colorThemeFile))
 		return "";
 
-	auto key   = LSG_Text::Format("%s.%s", componentID.c_str(), colorAttribute.c_str());
+	auto key   = std::format("{}.{}", componentID, colorAttribute);
 	auto color = (LSG_UI::colorThemes[LSG_UI::colorThemeFile].contains(key) ? LSG_UI::colorThemes[LSG_UI::colorThemeFile][key] : "");
 
 	return color;
@@ -950,12 +950,12 @@ LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 	LSG_UI::xmlDocument = LSG_XML::Open(filePath);
 
 	if (!LSG_UI::xmlDocument)
-		throw std::runtime_error(LSG_Text::Format("Failed to load XML file: %s", filePath.c_str()));
+		throw std::runtime_error(std::format("Failed to load XML file: {}", filePath));
 
 	LSG_UI::windowNode = LSG_XML::GetNode("/window");
 
 	if (!LSG_UI::windowNode)
-		throw std::runtime_error(LSG_Text::Format("Failed to find path '/window' in XML file: %s", filePath.c_str()));
+		throw std::runtime_error(std::format("Failed to find path '/window' in XML file: {}", filePath));
 
 	auto windowAttribs = LSG_XML::GetAttributes(LSG_UI::windowNode);
 
@@ -1062,7 +1062,7 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile, bool sort)
 		auto file     = std::ifstream(filePath);
 
 		if (!file.is_open())
-			throw std::runtime_error(LSG_Text::Format("Failed to open Color Theme file: %s", filePath.c_str()));
+			throw std::runtime_error(std::format("Failed to open Color Theme file: {}", filePath));
 
 		std::string line;
 

@@ -12,7 +12,7 @@ const char* LSG_GetBasePath()
 
 static std::string getErrorNoID(const std::string& component, const std::string& id)
 {
-	return LSG_Text::Format("Failed to find a %s component with ID '%s'.", component.c_str(), id.c_str());
+	return std::format("Failed to find a {} component with ID '{}'.", component, id);
 }
 
 #if defined _android
@@ -34,28 +34,28 @@ static void initBasePath()
 
 	for (auto dir : dirs)
 	{
-		auto dirPath = LSG_Text::Format("%s%s", basePath, dir);
+		auto dirPath = std::format("{}{}", basePath, dir);
 		auto result  = mkdir(dirPath.c_str(), (S_IRWXU | S_IRWXG));
 
 		if ((result != 0) && (errno != EEXIST))
-			throw std::runtime_error(LSG_Text::Format("Failed to create asset directory '%s': %s", dirPath.c_str(), std::strerror(errno)));
+			throw std::runtime_error(std::format("Failed to create asset directory '{}': {}", dirPath, std::strerror(errno)));
 
 		auto        assetDir  = AAssetManager_openDir(jniAssetManager, dir);
 		const char* assetFile = nullptr;
 
 		while ((assetFile = AAssetDir_getNextFileName(assetDir)))
 		{
-			auto sourcePath  = LSG_Text::Format("%s/%s", dir, assetFile);
+			auto sourcePath  = std::format("{}/{}", dir, assetFile);
 			auto sourceAsset = AAssetManager_open(jniAssetManager, sourcePath.c_str(), AASSET_MODE_STREAMING);
 
 			if (!sourceAsset)
-				throw std::runtime_error(LSG_Text::Format("Failed to open asset: %s", sourcePath.c_str()));
+				throw std::runtime_error(std::format("Failed to open asset: {}", sourcePath));
 
-			auto destinationPath = LSG_Text::Format("%s%s", basePath, sourcePath.c_str());
+			auto destinationPath = std::format("{}{}", basePath, sourcePath);
 			auto destinationFile = SDL_RWFromFile(destinationPath.c_str(), "w");
 
 			if (!destinationFile)
-				throw std::runtime_error(LSG_Text::Format("Failed to write file '%s': %s", destinationPath.c_str(), SDL_GetError()));
+				throw std::runtime_error(std::format("Failed to write file '{}': {}", destinationPath, SDL_GetError()));
 
 			char destinationBuffer[BUFSIZ] = {};
 			int  fileReadSize = 0;
@@ -104,15 +104,15 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
 	if ((SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) || (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0))
-		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL2: {}", SDL_GetError()));
 
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
 	if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP) < 15)
-		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_image: %s", IMG_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL2_image: {}", IMG_GetError()));
 
 	if (TTF_Init() < 0)
-		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_ttf: %s", TTF_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL2_ttf: {}", TTF_GetError()));
 
 	auto renderer = LSG_Window::Open(title, width, height);
 
@@ -1647,7 +1647,7 @@ void LSG_SetHeight(const std::string& id, double percent, bool layout)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	auto height = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
+	auto height = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", height);
 
@@ -1892,8 +1892,8 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	auto w = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, width))  * 100.0));
-	auto h = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, height)) * 100.0));
+	auto w = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, width))  * 100.0));
+	auto h = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, height)) * 100.0));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width",  w);
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", h);
@@ -2151,7 +2151,7 @@ void LSG_SetWidth(const std::string& id, double percent, bool layout)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	auto width = LSG_Text::Format("%d%%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
+	auto width = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width", width);
 
@@ -2310,10 +2310,10 @@ void LSG_StartTest(const std::string& xmlFile, const std::string& workingDir)
 	auto windowAttribs = LSG_UI::OpenWindow(xmlFile);
 
 	if (IMG_Init(IMG_INIT_PNG) < IMG_INIT_PNG)
-		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_image: %s", IMG_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL2_image: {}", IMG_GetError()));
 
 	if (TTF_Init() < 0)
-		throw std::runtime_error(LSG_Text::Format("Failed to initialize SDL2_ttf: %s", TTF_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL2_ttf: {}", TTF_GetError()));
 
 	LSG_Window::OpenTest();
 

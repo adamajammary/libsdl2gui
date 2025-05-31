@@ -197,7 +197,7 @@ void LSG_TextInput::Input(const std::string& text)
 	auto value1 = this->value.substr(0, this->cursorPosition);
 	auto value2 = this->value.substr(this->cursorPosition);
 
-	this->value = LSG_Text::Format("%s%s%s", value1.c_str(), text.c_str(), value2.c_str());
+	this->value = std::format("{}{}{}", value1, text, value2);
 
 	this->cursorPosition       += text.size();
 	this->highlightedTextLength = 0;

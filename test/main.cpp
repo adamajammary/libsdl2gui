@@ -1,24 +1,13 @@
 #define SDL_MAIN_HANDLED
 
 #include <cstdio> // snprintf(x)
+#include <format>
 
 #if defined _windows
 	#include <windows.h> // WinMain(x)
 #endif
 
 #include <libsdl2gui.h>
-
-template<typename... Args>
-static std::string TextFormat(const char* formatString, const Args&... args)
-{
-    if (!formatString)
-        return "";
-
-    char buffer[1024] = {};
-    std::snprintf(buffer, 1024, formatString, args...);
-
-    return std::string(buffer);
-}
 
 static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile)
 {
@@ -128,7 +117,7 @@ static void handleUserEvent(const SDL_UserEvent& event)
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
         if (id == "Slider")
-            LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
+            LSG_SetText("SliderValue", std::format("{:.2f}", *static_cast<double*>(event.data2)));
         break;
     case LSG_EVENT_TILE_SELECTED:
     case LSG_EVENT_TILE_UNSELECTED:

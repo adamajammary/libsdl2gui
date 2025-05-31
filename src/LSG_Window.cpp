@@ -139,7 +139,7 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 	);
 
 	if (!LSG_Window::window)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a window: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a window: {}", SDL_GetError()));
 
 	#if defined _linux || defined _macosx || defined _windows
 		auto iconFile    = LSG_Text::GetFullPath("img/icon.png");
@@ -160,7 +160,7 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_SOFTWARE);
 
 	if (!LSG_Window::renderer)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
 
 	return LSG_Window::renderer;
 }
@@ -174,12 +174,12 @@ void LSG_Window::OpenTest()
 	auto surface = SDL_CreateRGBSurfaceWithFormat(0, 800, 600, 24, SDL_PIXELFORMAT_RGB24);
 
 	if (!surface)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a surface: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a surface: {}", SDL_GetError()));
 
 	LSG_Window::renderer = SDL_CreateSoftwareRenderer(surface);
 
 	if (!LSG_Window::renderer)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
 }
 #endif
 
@@ -907,7 +907,7 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
 	
 	if (!texture)
-		throw std::runtime_error(LSG_Text::Format("Failed to create texture from image '%s': %s", filePath.c_str(), SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create texture from image '{}': {}", filePath, SDL_GetError()));
 
 	return texture;
 }
@@ -920,7 +920,7 @@ SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 	auto texture = SDL_CreateTextureFromSurface(LSG_Window::renderer, surface);
 
 	if (!texture)
-		throw std::runtime_error(LSG_Text::Format("Failed to create texture from surface: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create texture from surface: {}", SDL_GetError()));
 
 	return texture;
 }

@@ -99,9 +99,9 @@ std::string LSG_Navigation::getText() const
 	auto end   = std::min((this->position + (int)this->items.perNavigation), (int)this->items.total);
 
 	if (end > start)
-		return LSG_Text::Format("%d - %d / %llu", start, end, this->items.total);
+		return std::format("{} - {} / {}", start, end, this->items.total);
 
-	return LSG_Text::Format("%d / %llu", start, this->items.total);
+	return std::format("{} / {}", start, this->items.total);
 }
 
 bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const

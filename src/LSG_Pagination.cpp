@@ -111,7 +111,7 @@ std::string LSG_Pagination::getLabel() const
 	auto page  = (this->page + 1);
 	auto last  = (this->GetLastPage() + 1);
 
-	return LSG_Text::Format("%d - %d / %d (%d / %d)", (start + 1), end, rows, page, last);
+	return std::format("{} - {} / {} ({} / {})", (start + 1), end, rows, page, last);
 }
 
 int LSG_Pagination::GetLastPage() const

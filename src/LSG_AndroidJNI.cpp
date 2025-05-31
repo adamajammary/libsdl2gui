@@ -43,7 +43,7 @@ jclass LSG_AndroidJNI::GetClass(const std::string& classPath, JNIEnv* jniEnviron
 	auto jniClass = jniEnvironment->FindClass(classPath.c_str());
 
 	if (!jniClass)
-		throw std::runtime_error(LSG_Text::Format("Failed to find class: '%s'", classPath.c_str()));
+		throw std::runtime_error(std::format("Failed to find class: '{}'", classPath));
 
 	return jniClass;
 }

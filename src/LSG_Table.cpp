@@ -744,7 +744,7 @@ void LSG_Table::setRows(bool sort)
 	for (const auto& group : pageGroups)
 	{
 		if (!columns.empty())
-			columns[0].append(LSG_Text::Format("%s\n", group.group.c_str()));
+			columns[0].append(std::format("{}\n", group.group));
 
 		for (size_t i = 1; i < columns.size(); i++)
 			columns[i].append("\n");
@@ -754,7 +754,7 @@ void LSG_Table::setRows(bool sort)
 			for (size_t i = 0; i < columns.size(); i++)
 			{
 				if (i < row.size())
-					columns[i].append(i > 0 ? row[i] : LSG_Text::Format("   %s", (!row[0].empty() ? row[0].c_str() : " ")));
+					columns[i].append(i > 0 ? row[i] : std::format("   {}", (!row[0].empty() ? row[0] : " ")));
 
 				columns[i].append("\n");
 			}
