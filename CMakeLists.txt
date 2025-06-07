@@ -312,6 +312,7 @@ elseif (OS STREQUAL "_macosx")
     add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_XML}  @executable_path/${EXT_LIB_XML}  ${DIST_DIR}/bin/libsdl2gui.dylib)
 
     add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/libsdl2gui.dylib @executable_path/libsdl2gui.dylib ${DIST_DIR}/bin/testsdl2gui)
+    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_SDL}   @executable_path/${EXT_LIB_SDL}   ${DIST_DIR}/bin/testsdl2gui)
 endif()
 
 # install
