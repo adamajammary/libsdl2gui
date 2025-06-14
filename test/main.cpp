@@ -147,18 +147,6 @@ static void handleUserEvent(const SDL_UserEvent& event)
     }
 }
 
-#if defined _android || defined _ios
-static int handleMobileEvents(void* userdata, SDL_Event* event)
-{
-    if (event->type == SDL_APP_TERMINATING) {
-        LSG_Quit();
-        return 0;
-    }
-
-    return 1;
-}
-#endif
-
 static void handleEvents(const std::vector<SDL_Event>& events)
 {
     for (const auto& event : events)
@@ -204,10 +192,6 @@ int SDL_main(int argc, char* argv[])
     try
     {
         SDL_Renderer* renderer = LSG_Start("ui/main.xml");
-
-	    #if defined _android || defined _ios
-		    SDL_SetEventFilter(handleMobileEvents, nullptr);
-	    #endif
 
         if (LSG_IsRunning())
         {
