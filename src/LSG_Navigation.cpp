@@ -328,7 +328,7 @@ void LSG_Navigation::set()
 	auto colorPrev = (this->canNavigate.back    ? color : LSG_ScrollBar::DefaultThumbColor);
 	auto colorNext = (this->canNavigate.forward ? color : LSG_ScrollBar::DefaultThumbColor);
 
-	this->arrow.size = this->getFontSize();
+	this->arrow.size = LSG_Graphics::GetDPIScaled(this->getFontSize());
 
 	SDL_Size size = { this->arrow.size, this->arrow.size };
 
