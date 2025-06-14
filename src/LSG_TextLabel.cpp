@@ -123,10 +123,10 @@ void LSG_TextLabel::render(SDL_Renderer* renderer)
 		return;
 	}
 
-	this->renderScrollableTexture(renderer, fillArea, this->border, alignment, this->texture, textureSize);
-
 	if (fillArea.h < scrollBarSize2x)
 		return;
+
+	this->renderScrollableTexture(renderer, fillArea, this->border, alignment, this->texture, textureSize);
 
 	if (this->showScrollX)
 		this->renderScrollBarHorizontal(renderer, fillArea, textureSize.width, this->backgroundColor, this->highlighted);

@@ -612,6 +612,11 @@ void LSG_Tiles::render(SDL_Renderer* renderer)
 
 	this->setGrid();
 
+	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
+
+	if (this->fillArea.h < scrollBarSize2x)
+		return;
+
 	for (int i = 0; i < (int)this->tiles.size(); i++)
 	{
 		if (this->offset >= this->gridEnd)
