@@ -9,9 +9,6 @@ private:
     LSG_Window()  {}
     ~LSG_Window() {}
 
-public:
-    static const int MinSize = 400;
-
 private:
     static SDL_Renderer* renderer;
     static SDL_SysWMinfo sysWmInfo;

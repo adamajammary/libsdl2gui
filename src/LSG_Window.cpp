@@ -149,8 +149,6 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		SDL_FreeSurface(iconSurface);
 	#endif
 
-	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Window::MinSize, LSG_Window::MinSize);
-
     SDL_VERSION(&LSG_Window::sysWmInfo.version);
     SDL_GetWindowWMInfo(LSG_Window::window, &LSG_Window::sysWmInfo);
 
