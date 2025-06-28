@@ -104,7 +104,8 @@ std::vector<SDL_Rect> LSG_Menu::getMenuItems() const
 
 		items.push_back(background);
 
-		offsetY += background.h;
+		if (child->visible)
+			offsetY += background.h;
 	}
 
 	return items;

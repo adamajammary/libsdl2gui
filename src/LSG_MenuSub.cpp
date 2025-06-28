@@ -68,6 +68,9 @@ void LSG_MenuSub::renderArrow(SDL_Renderer* renderer) const
 
 void LSG_MenuSub::SetSubMenu(const SDL_Rect& background)
 {
+	if (!this->visible)
+		return;
+
 	this->background = background;
 
 	this->destroyTextures();

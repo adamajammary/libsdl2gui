@@ -216,6 +216,9 @@ void LSG_MenuItem::sendEvent(LSG_EventType type) const
 
 void LSG_MenuItem::SetMenuItem(const SDL_Rect& background)
 {
+	if (!this->visible)
+		return;
+
 	this->background = background;
 
 	this->destroyTextures();
