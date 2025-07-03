@@ -417,29 +417,26 @@ void LSG_List::SelectRow(int offset, bool multiSelect)
 		return;
 
 	auto selectedRow = (!multiSelect ? this->selectedRows[0] : this->selectedRows[this->selectedRows.size() - 1]);
-	auto nextRow     = std::max(0, std::min(this->getLastRow(), (selectedRow + offset)));
+
+	auto nextRow = std::max(0, std::min(this->getLastRow(), (selectedRow + offset)));
 
 	if (!multiSelect)
 		this->Select(nextRow);
 	else
 		this->Select(this->selectedRows[0], nextRow);
 
-	if (!this->showScrollY)
+	if (this->selectedRows[0] < 0)
 		return;
 
-	auto background    = this->getFillArea(this->background, this->border);
-	auto rowHeight     = this->getRowHeight();
-	auto rowY          = (background.y + (selectedRow * rowHeight));
-	auto scrollBarSize = LSG_ScrollBar::GetSize();
-	auto pagination    = (this->showPagination() ? scrollBarSize : 0);
-	auto scrollX       = (this->showScrollX ? scrollBarSize : 0);
-	auto topY          = (background.y + this->scrollOffsetY);
-	auto bottomY       = (topY + background.h - scrollX - pagination);
+	auto list       = this->getFillArea(this->background, this->border);
+	auto listBottom = (list.y + list.h);
 
-	if ((rowY + rowHeight) >= bottomY)
-		this->OnScrollVertical(std::abs(offset) * rowHeight);
-	else if (rowY < topY)
-		this->OnScrollVertical(std::abs(offset) * (-rowHeight));
+	auto rowHeight = this->getRowHeight();
+	auto rowTop    = (list.y + (this->selectedRows[0] * rowHeight));
+	auto rowBottom = (rowTop + rowHeight);
+
+	if ((rowBottom > listBottom) || (rowTop < list.y))
+		this->scrollOffsetY = (this->selectedRows[0] * rowHeight);
 }
 
 void LSG_List::sendEvent(LSG_EventType type) const
