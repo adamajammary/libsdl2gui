@@ -2,7 +2,7 @@
 
 package com.libsdl2gui.test;
 
-import com.libsdl2gui.lib.Sdl2GuiActivity;
+import com.libsdl2gui.app.Sdl2GuiActivity;
 
 public class MainActivity extends Sdl2GuiActivity
 {

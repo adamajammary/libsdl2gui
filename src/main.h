@@ -135,7 +135,7 @@ enum LSG_VectorIcon
 #if defined _android
 struct LSG_ConstAndroid
 {
-	static inline const std::string ActivityClassPath = "com/libsdl2gui/lib/Sdl2GuiActivity";
+	static inline const std::string ActivityClassPath = "com/libsdl2gui/app/Sdl2GuiActivity";
 };
 #endif
 
