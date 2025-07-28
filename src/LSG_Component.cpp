@@ -201,7 +201,12 @@ int LSG_Component::getFontSize() const
 	return LSG_DEFAULT_FONT_SIZE;
 }
 
-int LSG_Component::getFontStyle() const
+int LSG_Component::GetFontStyle() const
+{
+	return this->getFontStyle(false);
+}
+
+int LSG_Component::getFontStyle(bool checkParent) const
 {
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
@@ -227,7 +232,7 @@ int LSG_Component::getFontStyle() const
 	if (style > TTF_STYLE_NORMAL)
 		return style;
 
-	if (this->parent)
+	if (checkParent && this->parent)
 		return this->parent->getFontStyle();
 
 	return TTF_STYLE_NORMAL;

@@ -271,6 +271,14 @@ DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetColorTheme();
 
 /**
+ * @returns the font style of the component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetFontStyle(const std::string& id);
+
+/**
  * @returns EXIF (Exchangeable Image File Format) data from the image file (if it exists)
  * @param filePath Image file path
  * @throws invalid_argument

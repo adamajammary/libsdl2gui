@@ -39,6 +39,7 @@ public:
 	size_t           GetChildCount() const;
 	LSG_Component*   GetChild(int index) const;
 	LSG_Components   GetChildren();
+	int              GetFontStyle() const;
 	std::string      GetID() const;
 	int              GetLayer() const;
 	LSG_Component*   GetParent();
@@ -90,7 +91,7 @@ protected:
 	SDL_Rect      getArea(const SDL_Rect& background) const;
 	SDL_Rect      getFillArea(const SDL_Rect& background, int border) const;
 	int           getFontSize() const;
-	int           getFontStyle() const;
+	int           getFontStyle(bool checkParent = true) const;
 	LSG_Alignment getParentAlignment() const;
 	int           getTextureHeight() const;
 	SDL_Size      getTextureSize() const;

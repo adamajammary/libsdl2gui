@@ -1229,6 +1229,23 @@ Exceptions
 
 - runtime_error
 
+### LSG_GetFontStyle
+
+```cpp
+int LSG_GetFontStyle(const std::string& id);
+```
+
+Returns the font style of the component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetImageExif
 
 ```cpp

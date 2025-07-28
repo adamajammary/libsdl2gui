@@ -238,6 +238,19 @@ std::string LSG_GetColorTheme()
 	return LSG_UI::GetColorTheme();
 }
 
+int LSG_GetFontStyle(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetFontStyle();
+}
+
 LSG_ExifData LSG_GetImageExif(const std::string& filePath)
 {
 	if (!isRunning)
