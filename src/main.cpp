@@ -328,6 +328,17 @@ SDL_Surface* LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& 
 	return LSG_Graphics::GetThumbnail(filePath, maxSize);
 }
 
+SDL_Surface* LSG_GetImageThumbnail(SDL_Surface* surface, const SDL_Size& maxSize)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	if (!surface)
+		throw std::invalid_argument("surface cannot be null.");
+
+	return LSG_Graphics::GetThumbnail(surface, maxSize);
+}
+
 int LSG_GetLastPage(const std::string& id)
 {
 	if (!isRunning)

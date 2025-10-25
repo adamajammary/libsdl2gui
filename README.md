@@ -1360,7 +1360,7 @@ Exceptions
 
 - runtime_error
 
-### LSG_GetImageThumbnail
+### LSG_GetImageThumbnail (filePath)
 
 ```cpp
 SDL_Surface* LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
@@ -1371,6 +1371,24 @@ Returns a downscaled thumbnail of the original image.
 Parameters
 
 - **filePath** Image file path
+- **maxSize** Max size of thumbnail
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetImageThumbnail (surface)
+
+```cpp
+SDL_Surface* LSG_GetImageThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
+```
+
+Returns a downscaled thumbnail of the original image.
+
+Parameters
+
+- **surface** Image surface
 - **maxSize** Max size of thumbnail
 
 Exceptions

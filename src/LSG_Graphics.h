@@ -21,6 +21,7 @@ public:
 	static SDL_Color               GetOffsetColor(const SDL_Color& color, int offset);
 	static SDL_Size                GetTextureSize(SDL_Texture* texture);
 	static SDL_Surface*            GetThumbnail(const std::string& imageFile, const SDL_Size& maxSize);
+	static SDL_Surface*            GetThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static SDL_Texture*            GetVector(LSG_VectorIcon icon, const SDL_Color& color, const SDL_Size& size);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
@@ -29,6 +30,7 @@ public:
 
 private:
 	static SDL_Surface*            getDownScaledSurface(const std::string& imageFile, const SDL_Point& downscaleFactor);
+	static SDL_Surface*            getDownScaledSurface(SDL_Surface* surface, const SDL_Point& downscaleFactor);
 	static std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, int paddingX, int paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static SDL_Texture*            getVector(const std::string& svg);
 	static std::string             getVectorBack(const  SDL_Color& color, const SDL_Size& size);

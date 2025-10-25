@@ -52,6 +52,14 @@ SDL_Surface* LSG_Graphics::getDownScaledSurface(const std::string& imageFile, co
 	if (!surface)
 		throw std::runtime_error(std::format("Failed to load image '{}': {}", filePath, SDL_GetError()));
 
+	return LSG_Graphics::getDownScaledSurface(surface, downscaleFactor);
+}
+
+SDL_Surface* LSG_Graphics::getDownScaledSurface(SDL_Surface* surface, const SDL_Point& downscaleFactor)
+{
+	if (!surface)
+		return nullptr;
+
 	// https://github.com/sabdul-khabir/SDL3_gfx/blob/master/SDL3_rotozoom.c#L87
 
 	auto srcSurface = surface;
@@ -297,6 +305,19 @@ SDL_Surface* LSG_Graphics::GetThumbnail(const std::string& imageFile, const SDL_
 
 		surface = LSG_Graphics::getDownScaledSurface(imageFile, downscaleFactor);
 	}
+
+	return surface;
+}
+
+SDL_Surface* LSG_Graphics::GetThumbnail(SDL_Surface* surface, const SDL_Size& maxSize)
+{
+	if (!surface)
+		return nullptr;
+
+	auto downscaleFactor = LSG_Graphics::GetDownscaleFactor({ surface->w, surface->h }, maxSize);
+
+	if ((downscaleFactor.x > 1) || (downscaleFactor.y > 1))
+		surface = LSG_Graphics::getDownScaledSurface(surface, downscaleFactor);
 
 	return surface;
 }

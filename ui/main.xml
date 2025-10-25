@@ -9,7 +9,7 @@
       </panel>
     </modal>
 
-    <panel height="30">
+    <panel height="35">
       <panel width="50" valign="middle">
         <menu title="Menu">
           <menu-sub title="Color Theme">

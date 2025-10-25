@@ -345,6 +345,15 @@ DLLEXPORT LSG_ImageOrientation DLL LSG_GetImageOrientation(const LSG_ExifTags& t
 DLLEXPORT SDL_Surface* DLL LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
 
 /**
+ * @returns a downscaled thumbnail of the original image
+ * @param surface Image surface
+ * @param maxSize  Max size of thumbnail
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT SDL_Surface* DLL LSG_GetImageThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
+
+/**
  * @returns the last 0-based page index of the list or table
  * @param id <list> or <table> component ID
  * @throws invalid_argument
