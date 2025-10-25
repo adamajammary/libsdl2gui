@@ -43,6 +43,8 @@ LSG_Component::~LSG_Component()
 
 		if (child->IsButton())
 			delete static_cast<LSG_Button*>(child);
+		else if (child->IsCards())
+			delete static_cast<LSG_Cards*>(child);
 		else if (child->IsImage())
 			delete static_cast<LSG_Image*>(child);
 		else if (child->IsLine())
@@ -333,6 +335,11 @@ bool LSG_Component::IsButton() const
 	return (this->xmlNodeName == "button");
 }
 
+bool LSG_Component::IsCards() const
+{
+	return (this->xmlNodeName == "cards");
+}
+
 bool LSG_Component::IsImage() const
 {
 	return (this->xmlNodeName == "image");
@@ -450,7 +457,9 @@ void LSG_Component::Render(SDL_Renderer* renderer) const
 
 	for (auto child : this->children)
 	{
-		if (child->IsImage())
+		if (child->IsCards())
+			static_cast<LSG_Cards*>(child)->Render(renderer);
+		else if (child->IsImage())
 			static_cast<LSG_Image*>(child)->Render(renderer);
 		else if (child->IsList())
 			static_cast<LSG_List*>(child)->Render(renderer);

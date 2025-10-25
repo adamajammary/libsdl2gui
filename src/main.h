@@ -146,9 +146,11 @@ struct LSG_Cursor
 
 struct LSG_ConstDefaultColor
 {
+	static inline const SDL_Color Black = { 0, 0, 0, 255 };
+
 	static inline const SDL_Color Background = { 245, 245, 245, 255 };
-	static inline const SDL_Color Border     = { 0, 0, 0, 255 };
-	static inline const SDL_Color Text       = { 0, 0, 0, 255 };
+	static inline const SDL_Color Border     = Black;
+	static inline const SDL_Color Text       = Black;
 };
 
 struct LSG_ConstClickTime
@@ -219,6 +221,7 @@ const char* LSG_GetBasePath();
 
 #include "LSG_Button.h"
 #include "LSG_Bytes.h"
+#include "LSG_Cards.h"
 #include "LSG_Exif.h"
 #include "LSG_Events.h"
 #include "LSG_Image.h"

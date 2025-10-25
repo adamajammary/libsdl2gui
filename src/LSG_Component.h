@@ -49,6 +49,7 @@ public:
 	LSG_UMapStrStr   GetXmlAttributes() const;
 	LibXml::xmlNode* GetXmlNode() const;
 	bool             IsButton() const;
+	bool             IsCards() const;
 	bool             IsImage() const;
 	bool             IsLine() const;
 	bool             IsList() const;

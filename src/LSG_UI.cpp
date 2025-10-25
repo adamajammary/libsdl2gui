@@ -24,14 +24,16 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 	auto layer = LSG_UI::id++;
 	auto name  = std::string(reinterpret_cast<const char*>(node->name));
 
-	if (name == "modal")
-		layer += LSG_Modal::LayerOffsetMax;
-	else if (name == "menu")
-		layer += LSG_Menu::LayerOffset;
-	else if (name == "button")
+	if (name == "button")
 		layer += LSG_Button::LayerOffset;
+	else if (name == "cards")
+		layer += LSG_Cards::LayerOffset;
 	else if (name == "list")
 		layer += LSG_List::LayerOffset;
+	else if (name == "menu")
+		layer += LSG_Menu::LayerOffset;
+	else if (name == "modal")
+		layer += LSG_Modal::LayerOffsetMax;
 	else if (name == "table")
 		layer += LSG_Table::LayerOffset;
 	else if (name == "tiles")
@@ -49,8 +51,18 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 
 	if (name == "button")
 		component = new LSG_Button(id, layer, node, name, parent);
+	else if (name == "cards")
+		component = new LSG_Cards(id, layer, node, name, parent);
+	else if (name == "card")
+		static_cast<LSG_Cards*>(parent)->AddCard(node);
+	else if (name == "image")
+		component = new LSG_Image(id, layer, node, name, parent);
 	else if (name == "line")
 		component = new LSG_Line(id, layer, node, name, parent);
+	else if (name == "list")
+		component = new LSG_List(id, layer, node, name, parent);
+	else if (name == "list-item")
+		static_cast<LSG_List*>(parent)->AddItem(LSG_XML::GetValue(node));
 	else if (name == "menu")
 		component = new LSG_Menu(id, layer, node, name, parent);
 	else if (name == "menu-item")
@@ -59,14 +71,14 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		component = new LSG_MenuSub(id, layer, node, name, parent);
 	else if (name == "modal")
 		component = new LSG_Modal(id, layer, node, name, parent);
-	else if (name == "list")
-		component = new LSG_List(id, layer, node, name, parent);
-	else if (name == "list-item")
-		static_cast<LSG_List*>(parent)->AddItem(LSG_XML::GetValue(node));
 	else if (name == "navigation")
 		component = new LSG_Navigation(id, layer, node, name, parent);
 	else if (name == "panel")
 		component = new LSG_Panel(id, layer, node, name, parent);
+	else if (name == "progress-bar")
+		component = new LSG_ProgressBar(id, layer, node, name, parent);
+	else if (name == "slider")
+		component = new LSG_Slider(id, layer, node, name, parent);
 	else if (name == "table")
 		component = new LSG_Table(id, layer, node, name, parent);
 	else if (name == "table-group")
@@ -75,20 +87,14 @@ LSG_Component* LSG_UI::AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent)
 		static_cast<LSG_Table*>(parent)->SetHeader(node);
 	else if (name == "table-row")
 		static_cast<LSG_Table*>(parent)->AddRow(node);
-	else if (name == "tiles")
-		component = new LSG_Tiles(id, layer, node, name, parent);
-	else if (name == "tile")
-		static_cast<LSG_Tiles*>(parent)->AddTile(node);
-	else if (name == "image")
-		component = new LSG_Image(id, layer, node, name, parent);
-	else if (name == "progress-bar")
-		component = new LSG_ProgressBar(id, layer, node, name, parent);
-	else if (name == "slider")
-		component = new LSG_Slider(id, layer, node, name, parent);
 	else if (name == "text-input")
 		component = new LSG_TextInput(id, layer, node, name, parent);
 	else if (name == "text")
 		component = new LSG_TextLabel(id, layer, node, name, parent);
+	else if (name == "tiles")
+		component = new LSG_Tiles(id, layer, node, name, parent);
+	else if (name == "tile")
+		static_cast<LSG_Tiles*>(parent)->AddTile(node);
 	else if (name == "toggle")
 		component = new LSG_Toggle(id, layer, node, name, parent);
 
@@ -291,6 +297,10 @@ SDL_Cursor* LSG_UI::GetCursor(LSG_Component* component, const SDL_Point& mousePo
 	if (component->IsButton())
 	{
 		cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+	}
+	else if (component->IsCards())
+	{
+		static_cast<LSG_Cards*>(component)->OnMouseOver(mousePosition);
 	}
 	else if (component->IsNavigation())
 	{
@@ -552,6 +562,7 @@ void LSG_UI::Layout()
 
 	LSG_UI::root->background = LSG_UI::GetBackgroundArea();
 
+	LSG_UI::setCards(LSG_UI::root);
 	LSG_UI::setImages(LSG_UI::root);
 	LSG_UI::setListItems(LSG_UI::root);
 	LSG_UI::setNavigation(LSG_UI::root);
@@ -588,6 +599,7 @@ void LSG_UI::layoutModal(LSG_Component* component)
 	{
 		static_cast<LSG_Modal*>(component)->Layout();
 
+		LSG_UI::setCards(component);
 		LSG_UI::setImages(component);
 		LSG_UI::setListItems(component);
 		LSG_UI::setNavigation(component);
@@ -1051,6 +1063,18 @@ void LSG_UI::resetSize(LSG_Component* component)
 		LSG_UI::resetSize(child);
 }
 
+void LSG_UI::setCards(LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->SetCards();
+
+	for (auto child : component->GetChildren())
+		LSG_UI::setCards(child);
+}
+
 void LSG_UI::SetColorTheme(const std::string& colorThemeFile, bool sort)
 {
 	if (!colorThemeFile.empty() && (colorThemeFile == LSG_UI::colorThemeFile))
@@ -1231,6 +1255,7 @@ void LSG_UI::setTextLabels(LSG_Component* component)
 
 void LSG_UI::SetText(LSG_Component* component, bool sort)
 {
+	LSG_UI::setCards(component);
 	LSG_UI::setListItems(component, sort);
 	LSG_UI::setNavigation(component);
 	LSG_UI::setTableRows(component, sort);

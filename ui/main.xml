@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
-  <panel id="Root" orientation="vertical" padding="10" spacing="10">
+  <panel id="Root" orientation="vertical" padding="10" spacing="10" font-size="16">
     <modal id="ModalIdAbout" title="SDL2 GUI Library" width="65%" min-width="380" max-width="500" height="150" border="1">
       <panel orientation="vertical" halign="center" valign="middle" spacing="10">
         <text>A free cross-platform user interface library using SDL2.</text>
@@ -11,7 +11,7 @@
 
     <panel height="30">
       <panel width="50" valign="middle">
-        <menu font-size="15" title="Menu">
+        <menu title="Menu">
           <menu-sub title="Color Theme">
             <menu-item id="MenuIdColorThemeDark"  icon="img/dark-white-512.png"  key="Ctrl+D">Dark</menu-item>
             <menu-item id="MenuIdColorThemeLight" icon="img/light-white-512.png" key="Ctrl+L">Light</menu-item>
@@ -50,8 +50,9 @@
 
     <panel orientation="vertical">
       <panel height="30" font-size="18" spacing="10">
-        <panel>
-          <text bold="true">Text with wrapping</text>
+        <panel spacing="5">
+          <text>Cards:</text>
+          <text id="Card" />
         </panel>
 
         <panel spacing="5">
@@ -61,30 +62,41 @@
       </panel>
 
       <panel spacing="10">
-        <panel id="PanelIdTextWrap" padding="10" border="1">
-          <text id="TextWrap" wrap="true">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-Risus sed vulputate odio ut.
-Volutpat commodo sed egestas egestas fringilla.
-Pretium lectus quam id leo in.
-Morbi non arcu risus quis varius.
-Tellus mauris a diam maecenas sed.
-
-Nibh tortor id aliquet lectus proin nibh nisl condimentum id.
-Donec massa sapien faucibus et molestie.
-Dignissim diam quis enim lobortis scelerisque fermentum.
-Dolor sit amet consectetur adipiscing elit duis.
-Elementum nisi quis eleifend quam adipiscing vitae.
-Nam libero justo laoreet sit amet cursus sit amet.
-
-Vitae semper quis lectus nulla at volutpat diam.
-Aliquam faucibus purus in massa tempor nec feugiat.
-A erat nam at lectus urna.
-Cursus vitae congue mauris rhoncus aenean vel.
-Libero enim sed faucibus turpis.
-Ullamcorper eget nulla facilisi etiam.
-Ac auctor augue mauris augue neque.
-Euismod lacinia at quis risus.</text>
+        <panel id="PanelIdCards" padding="10" border="1">
+          <cards id="Cards" card-height="128">
+            <card thumbnail="img/tile-1.jpg"
+              title="Card #1 - Risus sed vulputate odio ut"
+              description="Nibh tortor id aliquet lectus proin nibh nisl condimentum id.\nVitae semper quis lectus nulla at volutpat diam."
+            />
+            <card thumbnail="img/tile-2.jpg"
+              title="Card #2 - Volutpat commodo sed egestas egestas fringilla"
+              description="Donec massa sapien faucibus et molestie."
+            />
+            <card thumbnail="img/tile-3.jpg"
+              title="Card #3 - Pretium lectus quam id leo in."
+              description="Dignissim diam quis enim lobortis scelerisque fermentum.\n\nAliquam faucibus purus in massa tempor nec feugiat."
+            />
+            <card thumbnail="img/tile-4.jpg"
+              title="Card #4 - Morbi non arcu risus quis varius"
+              description="Dolor sit amet consectetur adipiscing elit duis."
+            />
+            <card thumbnail="img/tile-1.jpg"
+              title="Card #5 - Tellus mauris a diam maecenas sed."
+              description="Elementum nisi quis eleifend quam adipiscing vitae."
+            />
+            <card thumbnail="img/tile-2.jpg"
+              title="Card #6 - A erat nam at lectus urna."
+              description="Nam libero justo laoreet sit amet cursus sit amet."
+            />
+            <card thumbnail="img/tile-3.jpg"
+              title="Card #7 - Cursus vitae congue mauris rhoncus aenean vel."
+              description="Libero enim sed faucibus turpis.\nUllamcorper eget nulla facilisi etiam."
+            />
+            <card thumbnail="img/tile-4.jpg"
+              title="Card #8 - Ac auctor augue mauris augue neque."
+              description="Euismod lacinia at quis risus."
+            />
+          </cards>
         </panel>
 
         <panel id="PanelIdList" padding="10" border="1">

@@ -70,7 +70,9 @@ static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
             rowText.append("," + std::to_string(rows[i]));
     }
 
-    if (id == "List")
+    if (id == "Cards")
+        LSG_SetText("Card", rowText);
+    else if (id == "List")
         LSG_SetText("ListRow", rowText);
     else if (id == "TableWithGroups")
         LSG_SetText("TableWithGroupsRow", rowText);

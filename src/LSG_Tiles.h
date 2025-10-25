@@ -44,7 +44,7 @@ public:
 public:
 	static const int LayerOffset = 100000000;
 	static const int TextPadding = 2;
-	static const int TileBorder  = 2;
+	static const int TileBorder  = 3;
 
 private:
 	static inline const SDL_Color TextBackground = { 0, 0, 0, 196 };
@@ -107,7 +107,6 @@ private:
 	void          destroyTextures(LSG_Tile& tile);
 	virtual void  destroyTextures() override;
 	SDL_Rect      getGrid();
-	SDL_Rect      getImageDestination() const;
 	int           getRowCount() const;
 	int           getScrollOffsetX() const;
 	int           getScrollOffsetY() const;

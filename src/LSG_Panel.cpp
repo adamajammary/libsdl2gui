@@ -56,6 +56,8 @@ SDL_Size LSG_Panel::GetSize() const
 
 		if (child->IsButton())
 			childSize = static_cast<LSG_Button*>(child)->GetSize();
+		else if (child->IsCards())
+			childSize = static_cast<LSG_Cards*>(child)->GetSize();
 		else if (child->IsImage())
 			childSize = static_cast<LSG_Image*>(child)->GetSize();
 		else if (child->IsList())
@@ -211,6 +213,8 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, 
 
 		if (child->IsButton())
 			static_cast<LSG_Button*>(child)->Render(renderer, renderPosition);
+		else if (child->IsCards())
+			static_cast<LSG_Cards*>(child)->Render(renderer, renderPosition);
 		else if (child->IsImage())
 			static_cast<LSG_Image*>(child)->Render(renderer, renderPosition);
 		else if (child->IsLine())

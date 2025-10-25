@@ -144,6 +144,15 @@ struct LSG_ButtonItem
 
 using LSG_Buttons = std::vector<LSG_ButtonItem>;
 
+struct LSG_CardItem
+{
+	std::string description = "";
+	std::string thumbnail   = "";
+	std::string title       = "";
+};
+
+using LSG_CardItems = std::vector<LSG_CardItem>;
+
 using LSG_ExifTags = std::map<uint16_t, std::string>;
 
 struct LSG_ExifData
@@ -192,6 +201,15 @@ struct LSG_TileItem
 };
 
 using LSG_TileItems = std::vector<LSG_TileItem>;
+
+/**
+ * @brief Adds a new card to the cards list.
+ * @param id   <cards> component ID
+ * @param card Card item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_AddCard(const std::string& id, const LSG_CardItem& card);
 
 /**
  * @brief Adds a new item to the list.
@@ -263,6 +281,23 @@ DLLEXPORT void DLL LSG_ClearTextInput(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
+
+/**
+ * @returns the card item from the cards list
+ * @param id    <cards> component ID
+ * @param index 0-based card index position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_CardItem DLL LSG_GetCard(const std::string& id, int index);
+
+/**
+ * @returns all the card items from the cards list
+ * @param id <cards> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_CardItems DLL LSG_GetCards(const std::string& id);
 
 /**
  * @returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
@@ -455,6 +490,14 @@ DLLEXPORT int DLL LSG_GetScrollHorizontal(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetScrollVertical(const std::string& id);
+
+/**
+ * @returns the selected 0-based row indices (-1 for unselected) of the cards list
+ * @param id <cards> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::vector<int> DLL LSG_GetSelectedCards(const std::string& id);
 
 /**
  * @returns the selected 0-based row indices (-1 for unselected) of the list or table
@@ -866,6 +909,15 @@ DLLEXPORT void DLL LSG_Present();
 DLLEXPORT void DLL LSG_Quit();
 
 /**
+ * @brief Removes the card from the cards list.
+ * @param id  <cards> component ID
+ * @param row 0-based row index
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_RemoveCard(const std::string& id, int row);
+
+/**
  * @brief Removes the item from the list.
  * @param id  <list> component ID
  * @param row 0-based row index
@@ -987,6 +1039,24 @@ DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
 DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
 
 /**
+ * @brief Selects the row in the cards list.
+ * @param id  <cards> component ID
+ * @param row 0-based row index (-1 for unselected)
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectCard(const std::string& id, int row);
+
+/**
+ * @brief Selects the rows in the cards list.
+ * @param id   <cards> component ID
+ * @param rows 0-based row indices
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectCards(const std::string& id, const std::vector<int>& rows);
+
+/**
  * @brief Selects the row in the list or table.
  * @param id  <list> or <table> component ID
  * @param row 0-based row index (-1 for unselected)
@@ -1084,6 +1154,25 @@ DLLEXPORT void DLL LSG_SetBorderColor(const std::string& id, const SDL_Color& co
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetButtonSelected(const std::string& id, bool selected = true);
+
+/**
+ * @brief Updates and overwrites the card item in the cards list.
+ * @param id    <cards> component ID
+ * @param index 0-based card index position
+ * @param card  New card item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card);
+
+/**
+ * @brief Sets the card items of the cards list.
+ * @param id    <cards> component ID
+ * @param cards Card items
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetCards(const std::string& id, const LSG_CardItems& cards);
 
 /**
  * @brief Tries to load and apply the color theme file.

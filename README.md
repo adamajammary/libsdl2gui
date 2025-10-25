@@ -1012,6 +1012,36 @@ using LSG_TableGroups = std::vector<LSG_TableGroup>;
 using LSG_TileItems = std::vector<LSG_TileItem>;
 ```
 
+### LSG_AddCard
+
+```cpp
+void LSG_AddCard(const std::string& id, const LSG_CardItem& card);
+```
+
+Adds a new card to the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **card** Card item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CardItem card = {
+  .description = "The first card.",
+  .thumbnail   = "/path/to/image/file1.jpg",
+  .title       = "Card #1"
+};
+
+LSG_AddCard("Cards", card);
+```
+
 ### LSG_AddListItem
 
 ```cpp
@@ -1211,6 +1241,41 @@ Returns the background color of the component.
 Parameters
 
 - **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetCard
+
+```cpp
+LSG_CardItem LSG_GetCard(const std::string& id, int index);
+```
+
+Returns the card item from the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **index** 0-based card index position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetCards
+
+```cpp
+LSG_CardItems LSG_GetCards(const std::string& id);
+```
+
+Returns all the card items from the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
 
 Exceptions
 
@@ -1616,6 +1681,23 @@ Returns the vertical scroll offset of the component.
 Parameters
 
 - **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSelectedCards
+
+```cpp
+std::vector<int> LSG_GetSelectedCards(const std::string& id);
+```
+
+Returns the selected 0-based row indices (-1 for unselected) of the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
 
 Exceptions
 
@@ -2554,6 +2636,30 @@ void LSG_Quit();
 
 Cleans up allocated resources and closes the window.
 
+### LSG_RemoveCard
+
+```cpp
+void LSG_RemoveCard(const std::string& id, int row);
+```
+
+Removes the card from the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemoveCard("Cards", 0);
+```
+
 ### LSG_RemoveListItem
 
 ```cpp
@@ -2850,6 +2956,54 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_SelectCard
+
+```cpp
+void LSG_SelectCard(const std::string& id, int row);
+```
+
+Selects the row in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **row** 0-based row index (-1 for unselected)
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectCard("Cards", 0);
+```
+
+### LSG_SelectCards
+
+```cpp
+void LSG_SelectCards(const std::string& id, const std::vector<int>& rows);
+```
+
+ elects the rows in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **rows** 0-based row indices
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectCards("Cards", { 0, 1 });
+```
+
 ### LSG_SelectRow
 
 ```cpp
@@ -3112,6 +3266,68 @@ Example
 
 ```cpp
 LSG_SetButtonSelected("ButtonIdColorThemeDark", true);
+```
+
+### LSG_SetCard
+
+```cpp
+void LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card);
+```
+
+Updates and overwrites the card item in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **index** 0-based card index position
+- **card** New card item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CardItem cardItem = {
+  .description = "The updated first card.",
+  .thumbnail   = "/path/to/image/file1a.jpg",
+  .title       = "Card #1a"
+};
+
+LSG_SetCard("Cards", 0, cardItem);
+```
+
+### LSG_SetCards
+
+```cpp
+void LSG_SetCards(const std::string& id, const LSG_CardItems& cards);
+```
+
+Sets the card items of the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **cards** Card items
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CardItems cardItems = {
+  { .description = "", .thumbnail = "", .title = ""},
+  { .description = "", .thumbnail = "", .title = "Card #2" },
+  { .description = "", .thumbnail = "/path/to/image/file3.jpg", .title = "Card #3" },
+  { .description = "The fourth card.", .thumbnail = "/path/to/image/file4.jpg", .title = "Card #4" }
+};
+
+LSG_SetCards("Cards", cardItems);
 ```
 
 ### LSG_SetColorTheme

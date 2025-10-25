@@ -66,8 +66,8 @@ void LSG_Tiles::AddTile(LibXml::xmlNode* node)
 	auto attributes = LSG_XML::GetAttributes(node);
 
 	this->tiles.push_back({
-		.image = { .filePath = (attributes.contains("image") ? attributes.at("image") : "") },
-		.text  = { .text     = (attributes.contains("text")  ? attributes.at("text")  : "") }
+		.image = { .filePath = (attributes.contains("image") ? attributes["image"] : "") },
+		.text  = { .text     = (attributes.contains("text")  ? attributes["text"] : "") }
 	});
 }
 
@@ -277,28 +277,6 @@ SDL_Rect LSG_Tiles::getGrid()
 	this->text.destination = SDL_Rect(this->image.destination);
 
 	return grid;
-}
-
-SDL_Rect LSG_Tiles::getImageDestination() const
-{
-	auto imageDestination = SDL_Rect(this->image.destination);
-
-	if (this->text.destination.h > 0)
-	{
-		switch (this->textAlignment.valign) {
-		case LSG_VALIGN_TOP:
-			imageDestination.y += this->text.destination.h;
-			imageDestination.h -= this->text.destination.h;
-			break;
-		case LSG_VALIGN_BOTTOM:
-			imageDestination.h -= this->text.destination.h;
-			break;
-		default:
-			break;
-		}
-	}
-
-	return imageDestination;
 }
 
 int LSG_Tiles::getRowCount() const
@@ -671,9 +649,24 @@ void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_TileImage& image)
 	if (!image.texture.texture)
 		return;
 
-	auto imageDestination = this->getImageDestination();
+	auto destination = SDL_Rect(this->image.destination);
 
-	SDL_RenderCopy(renderer, image.texture.texture, &this->image.clip, &imageDestination);
+	if (this->text.destination.h > 0)
+	{
+		switch (this->textAlignment.valign) {
+		case LSG_VALIGN_TOP:
+			destination.y += this->text.destination.h;
+			destination.h -= this->text.destination.h;
+			break;
+		case LSG_VALIGN_BOTTOM:
+			destination.h -= this->text.destination.h;
+			break;
+		default:
+			break;
+		}
+	}
+
+	SDL_RenderCopy(renderer, image.texture.texture, &this->image.clip, &destination);
 }
 
 void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_TileText& text)
@@ -686,9 +679,9 @@ void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_TileText& text)
 	if (!text.texture.texture)
 		return;
 
-	auto textDestination = this->getTextDestination();
+	auto destination = this->getTextDestination();
 
-	SDL_RenderCopy(renderer, text.texture.texture, &this->text.clip, &textDestination);
+	SDL_RenderCopy(renderer, text.texture.texture, &this->text.clip, &destination);
 }
 
 void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)

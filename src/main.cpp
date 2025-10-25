@@ -204,6 +204,19 @@ void LSG_AddTile(const std::string& id, const LSG_TileItem& tile)
 	static_cast<LSG_Tiles*>(component)->AddTile(tile);
 }
 
+void LSG_AddCard(const std::string& id, const LSG_CardItem& card)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->AddCard(card);
+}
+
 void LSG_ClearTextInput(const std::string& id)
 {
 	if (!isRunning)
@@ -228,6 +241,32 @@ SDL_Color LSG_GetBackgroundColor(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("", id));
 
 	return component->backgroundColor;
+}
+
+LSG_CardItem LSG_GetCard(const std::string& id, int index)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	return static_cast<LSG_Cards*>(component)->GetCard(index);
+}
+
+LSG_CardItems LSG_GetCards(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	return static_cast<LSG_Cards*>(component)->GetCards();
 }
 
 std::string LSG_GetColorTheme()
@@ -547,6 +586,19 @@ int LSG_GetScrollVertical(const std::string& id)
 		return static_cast<LSG_Tiles*>(component)->GetScrollY();
 
 	return 0;
+}
+
+std::vector<int> LSG_GetSelectedCards(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	return static_cast<LSG_Cards*>(component)->GetSelectedCards();
 }
 
 std::vector<int> LSG_GetSelectedRows(const std::string& id)
@@ -1206,6 +1258,19 @@ void LSG_Quit()
 	SDL_Quit();
 }
 
+void LSG_RemoveCard(const std::string& id, int row)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->RemoveCard(row);
+}
+
 void LSG_RemoveListItem(const std::string& id, int row)
 {
 	if (!isRunning)
@@ -1434,6 +1499,32 @@ void LSG_ScrollToTop(const std::string& id)
 		static_cast<LSG_Tiles*>(component)->OnScrollHome();
 }
 
+void LSG_SelectCard(const std::string& id, int row)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->Select(row);
+}
+
+void LSG_SelectCards(const std::string& id, const std::vector<int>& rows)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->Select(rows);
+}
+
 void LSG_SelectRow(const std::string& id, int row)
 {
 	if (!isRunning)
@@ -1581,6 +1672,32 @@ void LSG_SetButtonSelected(const std::string& id, bool selected)
 		throw std::invalid_argument(getErrorNoID("<button>", id));
 
 	static_cast<LSG_Button*>(component)->SetSelected(selected);
+}
+
+void LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->SetCard(index, card);
+}
+
+void LSG_SetCards(const std::string& id, const LSG_CardItems& cards)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->SetCards(cards);
 }
 
 void LSG_SetColorTheme(const std::string& colorThemeFile)
