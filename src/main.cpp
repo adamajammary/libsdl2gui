@@ -1443,9 +1443,11 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || (!component->IsScrollable()))
-		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
-	if (component->IsList())
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->OnScrollHorizontal(scroll, true);
+	else if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollHorizontal(scroll, true);
 	else if (component->IsPanel())
 		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(scroll, true);
@@ -1465,9 +1467,11 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
-	if (component->IsList())
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->OnScrollVertical(scroll, true);
+	else if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollVertical(scroll, true);
 	else if (component->IsPanel())
 		static_cast<LSG_Panel*>(component)->OnScrollVertical(scroll, true);
@@ -1487,9 +1491,11 @@ void LSG_ScrollToBottom(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
-	if (component->IsList())
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->OnScrollEnd();
+	else if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollEnd();
 	else if (component->IsPanel())
 		static_cast<LSG_Panel*>(component)->OnScrollEnd();
@@ -1509,9 +1515,11 @@ void LSG_ScrollToTop(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
-	if (component->IsList())
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->OnScrollHome();
+	else if (component->IsList())
 		static_cast<LSG_List*>(component)->OnScrollHome();
 	else if (component->IsPanel())
 		static_cast<LSG_Panel*>(component)->OnScrollHome();

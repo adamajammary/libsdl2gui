@@ -2931,7 +2931,7 @@ Scrolls the component horizontally by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 - **scroll** Horizontal scroll offset
 
 Exceptions
@@ -2949,7 +2949,7 @@ Scrolls the component vertically by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 - **scroll** Vertical scroll offset
 
 Exceptions
@@ -2967,7 +2967,7 @@ Scrolls to the bottom of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -2984,7 +2984,7 @@ Scrolls to the top of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 

@@ -387,7 +387,7 @@ bool LSG_Component::IsProgressBar() const
 
 bool LSG_Component::IsScrollable() const
 {
-	return (this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel() || this->IsTiles());
+	return (this->IsCards() || this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel() || this->IsTiles());
 }
 
 bool LSG_Component::IsSlider() const
