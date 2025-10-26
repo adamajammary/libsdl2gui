@@ -319,15 +319,17 @@ void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSiz
 		offsetY += (this->cardHeight + this->cardSpacing);
 	}
 
-	auto border3x = (this->cardBorder * 3);
-	auto color    = LSG_Graphics::GetInverseColor(this->backgroundColor);
+	auto border3x     = (this->cardBorder * 3);
+	auto inverseColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
+
+	SDL_Color selectColor    = { this->borderColor.r, this->borderColor.g, this->borderColor.b, 255 };
+	SDL_Color highlightColor = { inverseColor.r, inverseColor.g, inverseColor.b, 32 };
 
 	for (auto row : this->selectedRows)
-		this->renderBorder(renderer, border3x, { color.r, color.g, color.b, 255 }, this->cards[row].background);
+		this->renderBorder(renderer, border3x, selectColor, this->cards[row].background);
 
 	if (this->highlighted && (this->highlightedRow >= 0))
-		this->renderFill(renderer, 0, { color.r, color.g, color.b, 32 }, this->cards[this->highlightedRow].background);
-
+		this->renderFill(renderer, 0, highlightColor, this->cards[this->highlightedRow].background);
 }
 
 void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) const
