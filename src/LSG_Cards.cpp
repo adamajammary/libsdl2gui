@@ -655,7 +655,7 @@ void LSG_Cards::SelectRow(int offset)
 		return;
 
 	auto currentRow = this->selectedRows[0];
-	auto nextRow    = std::max(0, std::min(this->getLastRow(), (currentRow + offset)));
+	auto nextRow    = std::max(0, std::min((int)(this->cards.size() - 1), (currentRow + offset)));
 
 	this->Select(nextRow);
 
