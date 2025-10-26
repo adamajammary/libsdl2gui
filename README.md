@@ -3015,6 +3015,30 @@ Example
 LSG_SelectCard("Cards", 0);
 ```
 
+### LSG_SelectCardRowByOffset
+
+```cpp
+void LSG_SelectCardRowByOffset(const std::string& id, int offset);
+```
+
+Selects a row relative to the currently selected row in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **offset** 0-based offset from current row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectCardRowByOffset("Cards", -2);
+```
+
 ### LSG_SelectCards
 
 ```cpp

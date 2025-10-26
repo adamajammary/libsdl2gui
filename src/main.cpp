@@ -1536,6 +1536,19 @@ void LSG_SelectCard(const std::string& id, int row)
 	static_cast<LSG_Cards*>(component)->Select(row);
 }
 
+void LSG_SelectCardRowByOffset(const std::string& id, int offset)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || (!component->IsCards()))
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	static_cast<LSG_Cards*>(component)->SelectRow(offset);
+}
+
 void LSG_SelectCards(const std::string& id, const std::vector<int>& rows)
 {
 	if (!isRunning)

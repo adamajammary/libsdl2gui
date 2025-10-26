@@ -81,6 +81,7 @@ public:
 	void             SelectNextRow(bool keyShift = false);
 	void             SelectPreviousPage(bool keyShift = false);
 	void             SelectPreviousRow(bool keyShift = false);
+	void             SelectRow(int offset);
 	void             SetCard(int row, const LSG_CardItem& cardItem);
 	void             SetCards(const LSG_CardItems& cardItems);
 	void             SetCards();

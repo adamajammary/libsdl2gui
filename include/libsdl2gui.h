@@ -1065,6 +1065,15 @@ DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
 DLLEXPORT void DLL LSG_SelectCard(const std::string& id, int row);
 
 /**
+ * @brief Selects a row relative to the currently selected row in the cards list.
+ * @param id     <cards> component ID
+ * @param offset 0-based offset from current row index
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectCardRowByOffset(const std::string& id, int offset);
+
+/**
  * @brief Selects the rows in the cards list.
  * @param id   <cards> component ID
  * @param rows 0-based row indices

@@ -647,6 +647,29 @@ void LSG_Cards::SelectPreviousRow(bool keyShift)
 		this->Select(previousRow);
 }
 
+void LSG_Cards::SelectRow(int offset)
+{
+	if (!this->enabled || this->selectedRows.empty() || this->cards.empty())
+		return;
+
+	auto currentRow = this->selectedRows[0];
+	auto nextRow    = std::max(0, std::min(this->getLastRow(), (currentRow + offset)));
+
+	this->Select(nextRow);
+
+	if (this->selectedRows[0] < 0)
+		return;
+
+	auto areaBottom = (this->background.y + this->background.h);
+	auto areaTop    = this->background.y;
+
+	auto rowTop    = (areaTop + (this->selectedRows[0] * this->cardHeight));
+	auto rowBottom = (rowTop + this->cardHeight);
+
+	if ((rowBottom > areaBottom) || (rowTop < areaTop))
+		this->scrollOffsetY = (this->selectedRows[0] * this->cardHeight);
+}
+
 void LSG_Cards::selectShift(int row)
 {
 	if (!this->enabled || (row < 0) || (row >= (int)this->cards.size()))
