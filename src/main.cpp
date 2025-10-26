@@ -269,6 +269,19 @@ LSG_CardItems LSG_GetCards(const std::string& id)
 	return static_cast<LSG_Cards*>(component)->GetCards();
 }
 
+size_t LSG_GetCardsCount(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsCards())
+		throw std::invalid_argument(getErrorNoID("<cards>", id));
+
+	return static_cast<LSG_Cards*>(component)->GetCardsCount();
+}
+
 std::string LSG_GetColorTheme()
 {
 	if (!isRunning)

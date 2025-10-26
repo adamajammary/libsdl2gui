@@ -300,6 +300,14 @@ DLLEXPORT LSG_CardItem DLL LSG_GetCard(const std::string& id, int index);
 DLLEXPORT LSG_CardItems DLL LSG_GetCards(const std::string& id);
 
 /**
+ * @returns the number of card rows in the cards list
+ * @param id <cards> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetCardsCount(const std::string& id);
+
+/**
  * @returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
  * @throws runtime_error
  */

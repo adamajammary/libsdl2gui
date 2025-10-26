@@ -1282,6 +1282,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetCardsCount
+
+```cpp
+size_t LSG_GetCardsCount(const std::string& id);
+```
+
+Returns the number of card rows in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetColorTheme
 
 ```cpp

@@ -140,6 +140,11 @@ LSG_CardItems LSG_Cards::GetCards() const
 	return cards;
 }
 
+size_t LSG_Cards::GetCardsCount() const
+{
+	return this->cards.size();
+}
+
 std::vector<int> LSG_Cards::GetSelectedCards() const
 {
 	return this->selectedRows;

@@ -64,6 +64,7 @@ public:
 	void             AddCard(LibXml::xmlNode* node);
 	LSG_CardItem     GetCard(int row) const;
 	LSG_CardItems    GetCards() const;
+	size_t           GetCardsCount() const;
 	std::vector<int> GetSelectedCards() const;
 	SDL_Size         GetSize() const;
 	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
