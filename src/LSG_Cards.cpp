@@ -4,6 +4,7 @@ LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
 	this->border         = 0;
+	this->cardBorderType = LSG_CARD_BORDER_NONE;
 	this->highlightedRow = -1;
 	this->margin         = 0;
 	this->offset         = {};
@@ -19,8 +20,14 @@ LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->cardSpacing = LSG_Graphics::GetDPIScaled(LSG_Cards::CardSpacing);
 
 	auto xmlCardHeight = LSG_XML::GetAttribute(xmlNode, "card-height");
+	auto xmlCardBorder = LSG_XML::GetAttribute(xmlNode, "card-border");
 
 	this->cardHeight = LSG_Graphics::GetDPIScaled(!xmlCardHeight.empty() ? std::atoi(xmlCardHeight.c_str()) : LSG_Cards::CardHeight);
+
+	if (xmlCardBorder == "full")
+		this->cardBorderType = LSG_CARD_BORDER_FULL;
+	else if (xmlCardBorder == "line")
+		this->cardBorderType = LSG_CARD_BORDER_LINE;
 }
 
 LSG_Cards::~LSG_Cards()
@@ -263,6 +270,13 @@ void LSG_Cards::Render(SDL_Renderer* renderer)
 
 void LSG_Cards::render(SDL_Renderer* renderer)
 {
+	this->background.w = std::min(this->background.w, this->parent->background.w);
+	this->background.h = std::min(this->background.h, this->parent->background.h);
+
+	auto parentFillArea = LSG_Graphics::GetFillArea(this->parent->background, this->parent->border, this->parent->padding);
+
+	this->background = LSG_Graphics::GetDestinationAligned(parentFillArea, { this->background.w, this->background.h }, this->getAlignment());
+
 	LSG_Component::Render(renderer);
 
 	if (this->cards.empty())
@@ -277,7 +291,7 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 	if (renderToTarget)
 		this->renderToTarget(renderer, textureSize);
 
-	this->renderFill(renderer, 0, this->backgroundColor, this->background);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, this->background);
 
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
@@ -298,23 +312,76 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 	this->renderScrollBar(renderer, textureSize);
 }
 
+void LSG_Cards::renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect& background) const
+{
+	switch (this->cardBorderType) {
+	case LSG_CARD_BORDER_FULL:
+		LSG_Graphics::RenderBorder(renderer, this->cardBorder, this->borderColor, this->cards[row].background);
+		break;
+	case LSG_CARD_BORDER_LINE:
+		this->renderCardBorderLine(renderer, row, background);
+		break;
+	default:
+		break;
+	}
+}
+
+void LSG_Cards::renderCardBorderLine(SDL_Renderer* renderer, int row, const SDL_Rect& background) const
+{
+	if (this->highlighted && ((this->highlightedRow == row) || (this->highlightedRow == (row + 1))))
+		return;
+
+	for (auto selectedRow : this->selectedRows) {
+		if ((selectedRow == row) || (selectedRow == (row + 1)))
+			return;
+	}
+
+	auto bottom      = (background.y + background.h);
+	auto spacingHalf = (this->cardSpacing / 2);
+
+	auto y  = (this->cards[row].background.y + this->cards[row].background.h + spacingHalf);
+	auto x2 = (this->cards[row].background.x + this->cards[row].background.w);
+
+	if (y <= bottom)
+		LSG_Graphics::RenderLine(renderer, this->borderColor, this->cards[row].background.x, y, x2, y);
+}
+
 void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSize)
 {
-	SDL_Rect background = { this->offset.x, this->offset.y, textureSize.width, textureSize.height };
+	SDL_Rect background = {
+		this->offset.x,
+		this->offset.y,
+		textureSize.width,
+		textureSize.height
+	};
 
-	this->renderFill(renderer, 0, this->backgroundColor, background);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
-	int offsetY = this->offset.y;
+	auto offsetY = this->offset.y;
 
-	for (auto& card : this->cards)
+	for (int i = 0; i < (int)this->cards.size(); i++)
 	{
-		card.background = { this->offset.x, offsetY, textureSize.width, this->cardHeight };
+		this->cards[i].background = {
+			this->offset.x,
+			offsetY,
+			textureSize.width,
+			this->cardHeight
+		};
 
-		this->renderThumbnail(renderer,   card);
-		this->renderTitle(renderer,       card);
-		this->renderDescription(renderer, card);
+		this->renderThumbnail(renderer,   this->cards[i]);
+		this->renderTitle(renderer,       this->cards[i]);
+		this->renderDescription(renderer, this->cards[i]);
 
-		this->renderBorder(renderer, this->cardBorder, this->borderColor, card.background);
+		SDL_Rect spacingArea = {
+			this->cards[i].background.x,
+			(this->cards[i].background.y + this->cards[i].background.h),
+			this->cards[i].background.w,
+			this->cardSpacing
+		};
+
+		LSG_Graphics::RenderFill(renderer, 0, this->parent->backgroundColor, spacingArea);
+
+		this->renderCardBorder(renderer, i, background);
 
 		offsetY += (this->cardHeight + this->cardSpacing);
 	}
@@ -326,10 +393,10 @@ void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSiz
 	SDL_Color highlightColor = { inverseColor.r, inverseColor.g, inverseColor.b, 32 };
 
 	for (auto row : this->selectedRows)
-		this->renderBorder(renderer, border3x, selectColor, this->cards[row].background);
+		LSG_Graphics::RenderBorder(renderer, border3x, selectColor, this->cards[row].background);
 
 	if (this->highlighted && (this->highlightedRow >= 0))
-		this->renderFill(renderer, 0, highlightColor, this->cards[this->highlightedRow].background);
+		LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->cards[this->highlightedRow].background);
 }
 
 void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) const

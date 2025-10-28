@@ -106,7 +106,7 @@ std::string LSG_Navigation::getText() const
 
 bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
 {
-	auto fillArea = this->getFillArea(this->background, this->border);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
@@ -191,7 +191,7 @@ bool LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->enabled || LSG_Events::IsMouseDown() || !this->items.total)
 		return false;
 
-	auto fillArea = this->getFillArea(this->background, this->border);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
@@ -248,7 +248,7 @@ void LSG_Navigation::render(SDL_Renderer* renderer) const
 	if (!this->arrow.back || !this->arrow.end || !this->arrow.forward || !this->arrow.home || !this->texture)
 		return;
 
-	auto fillArea = this->getFillArea(this->background, this->border);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	LSG_Navigation::renderArrows(renderer, fillArea, padding);

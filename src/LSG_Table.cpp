@@ -170,7 +170,7 @@ bool LSG_Table::IsMouseOverColumnBorder(const SDL_Point& mousePosition)
 	if (!this->visible || !this->enabled || this->header.empty())
 		return false;
 
-	auto background = this->getFillArea(this->background, this->border);
+	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto rowHeight  = this->getRowHeight();
 
 	if ((mousePosition.y < background.y) || (mousePosition.y > (background.y + rowHeight)))
@@ -222,7 +222,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	if (rowHeight < 1)
 		return false;
 
-	auto background = this->getFillArea(this->background, this->border);
+	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto positionY  = (mousePosition.y - background.y);
 
 	if (!this->header.empty() && ((positionY / rowHeight) == 0))
@@ -434,7 +434,7 @@ void LSG_Table::render(SDL_Renderer* renderer)
 		return;
 
 	auto columnSpacing   = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
-	auto fillArea        = this->getFillArea(this->background, this->border);
+	auto fillArea        = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	auto textureSize     = this->getTextureSize();
 
@@ -704,7 +704,7 @@ void LSG_Table::SetRows()
 void LSG_Table::setRows(bool sort)
 {
 	if (this->showPagination())
-		this->initPagination(this->getFillArea(this->background, this->border), this->backgroundColor);
+		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
 
 	auto sortOrder = this->GetXmlAttribute("sort");
 

@@ -300,8 +300,7 @@ void LSG_Menu::renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu)
 		positionY
 	};
 
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-	SDL_RenderDrawLine(renderer, border.x, border.y, border.w, border.h);
+	LSG_Graphics::RenderLine(renderer, color, border.x, border.y, border.w, border.h);
 }
 
 void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu)
@@ -335,8 +334,8 @@ void LSG_Menu::renderMenu(SDL_Renderer* renderer)
 	auto background = LSG_UI::GetBackgroundArea();
 	auto menu       = this->getMenu(background);
 
-	this->renderFill(renderer, 0, { 0, 0, 0, 128 },      background);
-	this->renderFill(renderer, 0, this->backgroundColor, menu);
+	LSG_Graphics::RenderFill(renderer, 0, { 0, 0, 0, 128 },      background);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, menu);
 
 	this->renderNavBack(renderer,    menu);
 	this->renderTitle(renderer,      menu);
@@ -384,7 +383,7 @@ void LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, c
 		textureSize.height
 	};
 
-	this->renderFill(renderer, 0, this->backgroundColor, background);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
 	for (auto child : this->subMenu->GetChildren())
 		child->Render(renderer);

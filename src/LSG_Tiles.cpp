@@ -636,15 +636,15 @@ void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
 	auto color = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
 	if (isSelected)
-		this->renderBorder(renderer, this->tileBorder, { color.r, color.g, color.b, 255 }, this->image.destination);
+		LSG_Graphics::RenderBorder(renderer, this->tileBorder, { color.r, color.g, color.b, 255 }, this->image.destination);
 
 	if (isHighlighted)
-		this->renderFill(renderer, 0, { color.r, color.g, color.b, 64 }, this->image.destination);
+		LSG_Graphics::RenderFill(renderer, 0, { color.r, color.g, color.b, 64 }, this->image.destination);
 }
 
 void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_TileImage& image)
 {
-	this->renderFill(renderer, 0, { 0, 0, 0, 128 }, this->image.destination);
+	LSG_Graphics::RenderFill(renderer, 0, { 0, 0, 0, 128 }, this->image.destination);
 
 	if (!image.texture.texture)
 		return;
@@ -674,7 +674,7 @@ void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_TileText& text)
 	if (text.text.empty() || !this->isTextVisible())
 		return;
 
-	this->renderFill(renderer, 0, LSG_Tiles::TextBackground, this->text.destination);
+	LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::TextBackground, this->text.destination);
 
 	if (!text.texture.texture)
 		return;
@@ -1026,7 +1026,7 @@ void LSG_Tiles::sendEvent(LSG_EventType type) const
 
 void LSG_Tiles::setGrid()
 {
-	this->fillArea = this->getFillArea(this->background, this->border);
+	this->fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 	this->spacing  = LSG_Graphics::GetDPIScaled(this->GetSpacing());
 	this->tileSize = this->getTileSize();
 

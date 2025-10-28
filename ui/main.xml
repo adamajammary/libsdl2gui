@@ -63,7 +63,7 @@
 
       <panel spacing="10">
         <panel id="PanelIdCards" padding="10" border="1">
-          <cards id="Cards" card-height="128">
+          <cards id="Cards" card-height="128" card-border="line">
             <card thumbnail="img/tile-1.jpg"
               title="Card #1 - Risus sed vulputate odio ut"
               description="Nibh tortor id aliquet lectus proin nibh nisl condimentum id.\nVitae semper quis lectus nulla at volutpat diam."

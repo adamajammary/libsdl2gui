@@ -139,7 +139,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 	auto border      = LSG_Graphics::GetDPIScaled(1);
 	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
 
-	this->renderBorder(renderer, border, borderColor, this->background);
+	LSG_Graphics::RenderBorder(renderer, border, borderColor, this->background);
 
 	this->renderHighlight(renderer, this->background);
 }

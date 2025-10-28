@@ -173,23 +173,6 @@ LSG_Components LSG_Component::GetChildren()
 	return this->children;
 }
 
-SDL_Rect LSG_Component::getFillArea(const SDL_Rect& background, int border) const
-{
-	SDL_Rect fillArea = background;
-
-	if (border > 0)
-	{
-		auto border2x = (border + border);
-
-		fillArea.x += border;
-		fillArea.y += border;
-		fillArea.w -= border2x;
-		fillArea.h -= border2x;
-	}
-
-	return fillArea;
-}
-
 int LSG_Component::getFontSize() const
 {
 	auto xmlFontSize = LSG_XML::GetAttribute(this->xmlNode, "font-size");
@@ -488,40 +471,7 @@ void LSG_Component::renderBorder(SDL_Renderer* renderer) const
 	if (this->border < 1)
 		return;
 
-	this->renderBorder(renderer, this->border, this->borderColor, this->background);
-}
-
-void LSG_Component::renderBorder(SDL_Renderer* renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background) const
-{
-	if (border < 1)
-		return;
-
-	SDL_SetRenderDrawBlendMode(renderer, (borderColor.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
-	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, borderColor.a);
-
-	SDL_Rect borderArea = SDL_Rect(background);
-
-	// TOP
-	borderArea.h = border;
-
-	SDL_RenderFillRect(renderer, &borderArea);
-
-	// BOTTOM
-	borderArea.y += (background.h - border);
-
-	SDL_RenderFillRect(renderer, &borderArea);
-
-	// LEFT
-	borderArea.y = background.y;
-	borderArea.w = border;
-	borderArea.h = background.h;
-
-	SDL_RenderFillRect(renderer, &borderArea);
-
-	// RIGHT
-	borderArea.x += (background.w - border);
-
-	SDL_RenderFillRect(renderer, &borderArea);
+	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor, this->background);
 }
 
 void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
@@ -534,17 +484,7 @@ void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
 
 void LSG_Component::renderFill(SDL_Renderer* renderer) const
 {
-	this->renderFill(renderer, this->border, this->backgroundColor, this->background);
-}
-
-void LSG_Component::renderFill(SDL_Renderer* renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background) const
-{
-	auto fillArea = this->getFillArea(background, border);
-
-	SDL_SetRenderDrawBlendMode(renderer, (backgroundColor.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
-	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
-
-	SDL_RenderFillRect(renderer, &fillArea);
+	LSG_Graphics::RenderFill(renderer, this->border, this->backgroundColor, this->background);
 }
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer) const
@@ -554,21 +494,13 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer) const
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const
 {
-	auto fillArea  = this->getFillArea(background, this->border);
+	auto fillArea  = LSG_Graphics::GetFillArea(background, this->border);
 	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 32);
 
 	SDL_RenderFillRect(renderer, &fillArea);
-}
-
-void LSG_Component::renderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size) const
-{
-	SDL_Rect clip = { 0, 0, std::min(size.width, background.w), std::min(size.height, background.h) };
-	auto     dest = LSG_Graphics::GetDestinationAligned(background, size, alignment);
-
-	SDL_RenderCopy(renderer, texture, &clip, &dest);
 }
 
 void LSG_Component::SetAlignmentHorizontal(LSG_HAlign alignment)

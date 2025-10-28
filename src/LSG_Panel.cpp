@@ -151,7 +151,7 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 		return;
 	}
 
-	auto fillArea = this->getFillArea(this->background, this->border);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 
 	if (fillArea.h < LSG_ScrollBar::GetSize2x())
 		return;
@@ -177,7 +177,9 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 	this->renderContentToTexture(renderer, maxSize);
 
 	this->renderContent(renderer, fillArea, maxSize);
-	this->renderBorder(renderer,  this->border, this->borderColor, this->background);
+
+	LSG_Graphics::RenderBorder(renderer,  this->border, this->borderColor, this->background);
+
 	this->renderScroll(renderer,  fillArea, maxSize);
 }
 
@@ -268,7 +270,7 @@ void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& m
 
 	SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
 
-	this->renderFill(renderer, 0, this->backgroundColor, background);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
 	SDL_Point offsetPosition = { this->padding, this->padding };
 
@@ -295,7 +297,7 @@ void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background,
 		(background.h - this->scrollBarY.h)
 	};
 
-	this->renderFill(renderer, 0, this->backgroundColor, bottomRight);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, bottomRight);
 }
 
 void LSG_Panel::SetButtons(const LSG_Buttons& buttons)

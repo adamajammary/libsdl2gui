@@ -47,6 +47,7 @@ private:
 
 private:
 	int                   cardBorder;
+	LSG_CardBorder        cardBorderType;
 	int                   cardPadding;
 	int                   cardSpacing;
 	std::vector<LSG_Card> cards;
@@ -91,6 +92,8 @@ private:
 	virtual void  destroyTextures() override;
 	bool          initRenderTarget(const SDL_Size& textureSize);
 	void          render(SDL_Renderer* renderer);
+	void          renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;
+	void          renderCardBorderLine(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;
 	void          renderContent(SDL_Renderer* renderer, const SDL_Size& textureSize);
 	void          renderDescription(SDL_Renderer* renderer, const LSG_Card& card) const;
 	void          renderScrollBar(SDL_Renderer* renderer, const SDL_Size& textureSize);

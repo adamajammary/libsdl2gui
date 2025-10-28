@@ -114,12 +114,12 @@ void LSG_TextLabel::render(SDL_Renderer* renderer)
 		return;
 
 	auto alignment       = this->getAlignment();
-	auto fillArea        = this->getFillArea(this->background, this->border);
+	auto fillArea        = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	auto textureSize     = this->getTextureSize();
 
 	if (!this->wrap) {
-		this->renderTexture(renderer, fillArea, alignment, this->texture, textureSize);
+		LSG_Graphics::RenderTexture(renderer, fillArea, alignment, this->texture, textureSize);
 		return;
 	}
 

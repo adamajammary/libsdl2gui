@@ -147,10 +147,10 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		background.h -= this->thumbWidthDefault;
 	}
 
-	auto fillArea = this->getFillArea(background, this->border);
+	auto fillArea = LSG_Graphics::GetFillArea(background, this->border);
 
-	this->renderFill(renderer,   this->border, this->backgroundColor, background);
-	this->renderBorder(renderer, this->border, this->borderColor, background);
+	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, background);
+	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor, background);
 
 	auto progressValue = (int)((double)(isVertical ? background.h : background.w) * this->value);
 
@@ -165,7 +165,7 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 			progressArea.w = progressValue;
 		}
 
-		this->renderFill(renderer, 0, this->progressColor, progressArea);
+		LSG_Graphics::RenderFill(renderer, 0, this->progressColor, progressArea);
 	}
 
 	this->thumb = SDL_Rect(background);
@@ -182,8 +182,8 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		this->thumb.h  = this->background.h;
 	}
 
-	this->renderFill(renderer,   this->thumbBorder, this->thumbColor,       this->thumb);
-	this->renderBorder(renderer, this->thumbBorder, this->thumbBorderColor, this->thumb);
+	LSG_Graphics::RenderFill(renderer,   this->thumbBorder, this->thumbColor,       this->thumb);
+	LSG_Graphics::RenderBorder(renderer, this->thumbBorder, this->thumbBorderColor, this->thumb);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);

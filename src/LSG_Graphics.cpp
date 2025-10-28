@@ -165,6 +165,24 @@ int LSG_Graphics::GetDPIScaled(int value)
 	return (int)((float)value * scale);
 }
 
+SDL_Rect LSG_Graphics::GetFillArea(const SDL_Rect& background, int border, int padding)
+{
+	SDL_Rect fillArea = background;
+
+	if (border > 0)
+	{
+		auto border2x  = (border + border);
+		auto padding2x = (padding + padding);
+
+		fillArea.x += (border + padding);
+		fillArea.y += (border + padding);
+		fillArea.w -= (border2x + padding2x);
+		fillArea.h -= (border2x + padding2x);
+	}
+
+	return fillArea;
+}
+
 SDL_Color LSG_Graphics::GetFillColor(const SDL_Color& backgroundColor)
 {
 	const int OFFSET  = 20;
@@ -525,6 +543,71 @@ std::string LSG_Graphics::getVectorToggleOn(const SDL_Color& color, const SDL_Si
 bool LSG_Graphics::IsColorEquals(const SDL_Color& a, const SDL_Color& b)
 {
 	return ((a.r == b.r) && (a.g == b.g) && (a.b == b.b) && (a.a == b.a));
+}
+
+void LSG_Graphics::RenderBorder(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background)
+{
+	if (border < 1)
+		return;
+
+	SDL_SetRenderDrawBlendMode(renderer, (color.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+	SDL_Rect borderArea = SDL_Rect(background);
+
+	// TOP
+	borderArea.h = border;
+
+	SDL_RenderFillRect(renderer, &borderArea);
+
+	// BOTTOM
+	borderArea.y += (background.h - border);
+
+	SDL_RenderFillRect(renderer, &borderArea);
+
+	// LEFT
+	borderArea.y = background.y;
+	borderArea.w = border;
+	borderArea.h = background.h;
+
+	SDL_RenderFillRect(renderer, &borderArea);
+
+	// RIGHT
+	borderArea.x += (background.w - border);
+
+	SDL_RenderFillRect(renderer, &borderArea);
+}
+
+void LSG_Graphics::RenderFill(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background)
+{
+	auto fillArea = LSG_Graphics::GetFillArea(background, border);
+
+	SDL_SetRenderDrawBlendMode(renderer, (color.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+	SDL_RenderFillRect(renderer, &fillArea);
+}
+
+void LSG_Graphics::RenderLine(SDL_Renderer* renderer, const SDL_Color& color, int x1, int y1, int x2, int y2)
+{
+	SDL_SetRenderDrawBlendMode(renderer, (color.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+}
+
+void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
+{
+	SDL_Rect clip = {
+		0,
+		0,
+		std::min(size.width, background.w),
+		std::min(size.height, background.h)
+	};
+
+	auto dest = LSG_Graphics::GetDestinationAligned(background, size, alignment);
+
+	SDL_RenderCopy(renderer, texture, &clip, &dest);
 }
 
 /**

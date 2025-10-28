@@ -47,17 +47,17 @@ void LSG_ProgressBar::render(SDL_Renderer* renderer) const
 	if (background.h < minHeight)
 		background.h = minHeight;
 
-	auto fillArea       = this->getFillArea(background, this->border);
+	auto fillArea = LSG_Graphics::GetFillArea(background, this->border);
 
-	this->renderFill(renderer,   this->border, this->backgroundColor, background);
-	this->renderBorder(renderer, this->border, this->borderColor,     background);
+	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, background);
+	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor,     background);
 
 	auto progressValue = (int)((double)fillArea.w * this->value);
 	auto progressArea  = SDL_Rect(fillArea);
 
 	progressArea.w = progressValue;
 
-	this->renderFill(renderer, 0, this->progressColor, progressArea);
+	LSG_Graphics::RenderFill(renderer, 0, this->progressColor, progressArea);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);

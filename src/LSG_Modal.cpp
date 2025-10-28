@@ -137,7 +137,7 @@ void LSG_Modal::Render(SDL_Renderer* renderer) const
 	auto      background      = LSG_UI::GetBackgroundArea();
 	SDL_Color backgroundColor = { 0, 0, 0, 128 };
 
-	this->renderFill(renderer, 0, backgroundColor, background);
+	LSG_Graphics::RenderFill(renderer, 0, backgroundColor, background);
 
 	LSG_Component::Render(renderer);
 
@@ -178,8 +178,7 @@ void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer) const
 		borderY
 	};
 
-	SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, 255);
-	SDL_RenderDrawLine(renderer, border.x, border.y, border.w, border.h);
+	LSG_Graphics::RenderLine(renderer, borderColor, border.x, border.y, border.w, border.h);
 }
 
 void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer) const

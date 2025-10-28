@@ -91,7 +91,7 @@ bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 	if (rowHeight < 1)
 		return false;
 
-	auto background = this->getFillArea(this->background, this->border);
+	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto positionY  = (mousePosition.y - background.y + this->scrollOffsetY);
 	auto clickedRow = (positionY / rowHeight);
 	auto keyState   = SDL_GetKeyboardState(nullptr);
@@ -207,7 +207,7 @@ void LSG_List::render(SDL_Renderer* renderer)
 	if (!this->texture)
 		return;
 
-	auto fillArea        = this->getFillArea(this->background, this->border);
+	auto fillArea        = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto rowHeight       = this->getRowHeight();
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	bool showPagination  = this->showPagination();
@@ -428,7 +428,7 @@ void LSG_List::SelectRow(int offset, bool multiSelect)
 	if (this->selectedRows[0] < 0)
 		return;
 
-	auto list       = this->getFillArea(this->background, this->border);
+	auto list       = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto listBottom = (list.y + list.h);
 
 	auto rowHeight = this->getRowHeight();
@@ -497,7 +497,7 @@ void LSG_List::SetItems()
 void LSG_List::setItems(bool sort)
 {
 	if (this->showPagination())
-		this->initPagination(this->getFillArea(this->background, this->border), this->backgroundColor);
+		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
 
 	auto sortOrder = this->GetXmlAttribute("sort");
 

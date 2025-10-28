@@ -438,9 +438,6 @@ void LSG_TextInput::renderCursor(SDL_Renderer* renderer, const SDL_Rect& backgro
 	if (!this->active || ((SDL_GetTicks() - this->lastCursorActive) < 500) || (this->highlightedTextLength != 0))
 		return;
 
-	SDL_SetRenderDrawBlendMode(renderer, (this->textColor.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
-	SDL_SetRenderDrawColor(renderer, this->textColor.r, this->textColor.g, this->textColor.b, this->textColor.a);
-
 	auto page     = (this->cursorTextWidth / background.w);
 	auto lastPage = (this->textSize.width  / background.w);
 	auto offsetX  = (this->cursorTextWidth % background.w);
@@ -450,7 +447,7 @@ void LSG_TextInput::renderCursor(SDL_Renderer* renderer, const SDL_Rect& backgro
 
 	auto x = std::min((background.x + offsetX), (background.x + background.w));
 
-	SDL_RenderDrawLine(renderer, x, background.y, x, (background.y + background.h));
+	LSG_Graphics::RenderLine(renderer, this->textColor, x, background.y, x, (background.y + background.h));
 
 	if ((SDL_GetTicks() - this->lastCursorActive) >= 1000)
 		this->lastCursorActive = SDL_GetTicks();

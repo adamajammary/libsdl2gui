@@ -90,19 +90,15 @@ protected:
 	virtual void  destroyTextures();
 	LSG_Alignment getAlignment() const;
 	SDL_Rect      getArea(const SDL_Rect& background) const;
-	SDL_Rect      getFillArea(const SDL_Rect& background, int border) const;
 	int           getFontSize() const;
 	int           getFontStyle(bool checkParent = true) const;
 	LSG_Alignment getParentAlignment() const;
 	int           getTextureHeight() const;
 	SDL_Size      getTextureSize() const;
 	std::string   getXmlColor(const std::string& xmlAttribute, bool recursive = true) const;
-	void          renderBorder(SDL_Renderer*    renderer, int border, const SDL_Color& borderColor, const SDL_Rect& background) const;
 	void          renderDisabled(SDL_Renderer*  renderer) const;
-	void          renderFill(SDL_Renderer*      renderer, int border, const SDL_Color& backgroundColor, const SDL_Rect& background) const;
 	void          renderHighlight(SDL_Renderer* renderer) const;
 	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const;
-	void          renderTexture(SDL_Renderer*   renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size) const;
 
 private:
 	void renderBorder(SDL_Renderer* renderer) const;

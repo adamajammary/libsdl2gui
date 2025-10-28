@@ -14,6 +14,7 @@ public:
 	static SDL_Point               GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize);
 	static SDL_Texture*            GetDownScaledTexture(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static int                     GetDPIScaled(int value);
+	static SDL_Rect                GetFillArea(const SDL_Rect& background, int border, int padding = 0);
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
@@ -25,6 +26,10 @@ public:
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static SDL_Texture*            GetVector(LSG_VectorIcon icon, const SDL_Color& color, const SDL_Size& size);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
+	static void                    RenderBorder(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
+	static void                    RenderFill(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
+	static void                    RenderLine(SDL_Renderer* renderer, const SDL_Color& color, int x1, int y1, int x2, int y2);
+	static void                    RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
 	static SDL_Color               ToSdlColor(const std::string& color);
 	static std::string             ToXmlAttribute(const SDL_Color& color);
 

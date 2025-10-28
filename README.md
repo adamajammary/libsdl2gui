@@ -342,6 +342,29 @@ font-size="int" # default="14"
 text-color="color"
 ```
 
+### \<cards\>
+
+[alignment](#alignment) | [boolean](#boolean) | [card_border](#card_border) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border-color="color"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+font-size="int" # default="14"
+text-color="color"
+
+card-height="int" # default="128"
+card-border="card_border"
+```
+
 ### \<image\>
 
 [alignment](#alignment) | [boolean](#boolean) | [color](#color) | [file_path](#file_path) | [size](#size)
@@ -710,6 +733,12 @@ value="top|middle|bottom" # Vertical default="top"
 
 ```ini
 value="true|false" # default="false"
+```
+
+### card_border
+
+```ini
+value="full|line|none" # default="none"
 ```
 
 ### color
