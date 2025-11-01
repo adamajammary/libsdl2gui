@@ -1727,7 +1727,7 @@ Returns the horizontal scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -1744,7 +1744,7 @@ Returns the vertical scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 

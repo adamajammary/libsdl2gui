@@ -572,9 +572,11 @@ int LSG_GetScrollHorizontal(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
-	if (component->IsList())
+	if (component->IsCards())
+		return static_cast<LSG_Cards*>(component)->GetScrollX();
+	else if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollX();
 	else if (component->IsPanel())
 		return static_cast<LSG_Panel*>(component)->GetScrollX();
@@ -596,9 +598,11 @@ int LSG_GetScrollVertical(const std::string& id)
 	auto component = LSG_UI::GetComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<list>, <panel>, <table> or <text><table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table> or <text><table>, <text> or <tiles>", id));
 
-	if (component->IsList())
+	if (component->IsCards())
+		return static_cast<LSG_Cards*>(component)->GetScrollY();
+	else if (component->IsList())
 		return static_cast<LSG_List*>(component)->GetScrollY();
 	else if (component->IsPanel())
 		return static_cast<LSG_Panel*>(component)->GetScrollY();
