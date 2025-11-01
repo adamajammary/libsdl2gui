@@ -273,9 +273,10 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 	this->background.w = std::min(this->background.w, this->parent->background.w);
 	this->background.h = std::min(this->background.h, this->parent->background.h);
 
-	auto parentFillArea = LSG_Graphics::GetFillArea(this->parent->background, this->parent->border, this->parent->padding);
+	SDL_Size componentSize  = { this->background.w, this->background.h };
+	auto     parentFillArea = LSG_Graphics::GetFillArea(this->parent->background, this->parent->border, this->parent->padding);
 
-	this->background = LSG_Graphics::GetDestinationAligned(parentFillArea, { this->background.w, this->background.h }, this->getAlignment());
+	this->background = LSG_Graphics::GetDestinationAligned(parentFillArea, componentSize, this->getAlignment());
 
 	LSG_Component::Render(renderer);
 

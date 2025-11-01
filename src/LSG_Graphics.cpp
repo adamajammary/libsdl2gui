@@ -169,16 +169,13 @@ SDL_Rect LSG_Graphics::GetFillArea(const SDL_Rect& background, int border, int p
 {
 	SDL_Rect fillArea = background;
 
-	if (border > 0)
-	{
-		auto border2x  = (border + border);
-		auto padding2x = (padding + padding);
+	auto border2x  = (border  + border);
+	auto padding2x = (padding + padding);
 
-		fillArea.x += (border + padding);
-		fillArea.y += (border + padding);
-		fillArea.w -= (border2x + padding2x);
-		fillArea.h -= (border2x + padding2x);
-	}
+	fillArea.x += (border + padding);
+	fillArea.y += (border + padding);
+	fillArea.w -= (border2x + padding2x);
+	fillArea.h -= (border2x + padding2x);
 
 	return fillArea;
 }
