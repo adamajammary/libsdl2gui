@@ -697,7 +697,6 @@ std::vector<SDL_Event> LSG_Events::Handle()
 	{
 		switch (event.type) {
 			case SDL_QUIT:         LSG_Quit(); break;
-			case SDL_DISPLAYEVENT: LSG_UI::Layout(); break;
 			case SDL_KEYDOWN:      LSG_Events::handleKeyDownEvent(event.key); break;
 			case SDL_TEXTINPUT:    LSG_Events::handleTextInput(event.text); break;
 			case SDL_SYSWMEVENT:   LSG_Events::handleSysWMEvent(event.syswm); break;
@@ -706,6 +705,7 @@ std::vector<SDL_Event> LSG_Events::Handle()
 			case SDL_FINGERDOWN:   case SDL_MOUSEBUTTONDOWN: LSG_Events::handleMouseDownEvent(event); break;
 			case SDL_FINGERUP:     case SDL_MOUSEBUTTONUP:   LSG_Events::handleMouseUp(event); break;
 			case SDL_FINGERMOTION: case SDL_MOUSEMOTION:     LSG_Events::handleMouseMoveEvent(event); break;
+			case SDL_DISPLAYEVENT: case SDL_RENDER_DEVICE_RESET: case SDL_RENDER_TARGETS_RESET: LSG_UI::Layout(); break;
 			default: break;
 		}
 
