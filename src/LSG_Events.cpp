@@ -662,8 +662,8 @@ void LSG_Events::handleSysWMEvent(const SDL_SysWMEvent& event)
 		return;
 
 	switch (event.msg->msg.win.msg) {
-		case WM_QUERYENDSESSION: case WM_ENDSESSION: LSG_Quit(); break;
 		case WM_DPICHANGED: LSG_UI::Layout(); break;
+		case WM_QUERYENDSESSION: case WM_ENDSESSION: LSG_Quit(); break;
 		default: break;
 	}
 	#endif
@@ -678,8 +678,8 @@ void LSG_Events::handleTextInput(const SDL_TextInputEvent& event)
 void LSG_Events::handleWindowEvent(const SDL_WindowEvent& event)
 {
 	switch (event.event) {
-		case SDL_WINDOWEVENT_CLOSE:        LSG_Quit(); break;
-		case SDL_WINDOWEVENT_SIZE_CHANGED: LSG_UI::Layout(); break;
+		case SDL_WINDOWEVENT_CLOSE: LSG_Quit(); break;
+		case SDL_WINDOWEVENT_RESTORED: case SDL_WINDOWEVENT_SIZE_CHANGED: LSG_UI::Layout(); break;
 		default: break;
 	}
 }
