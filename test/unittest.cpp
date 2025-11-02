@@ -49,9 +49,9 @@ namespace LSG_UnitTest
                 SetCards();
 
                 LSG_CardItem card = {
+                    .title       = "Card #5",
                     .description = "The fifth card.",
-                    .thumbnail   = "/path/to/image/file5.jpg",
-                    .title       = "Card #5"
+                    .thumbnail   = "/path/to/image/file5.jpg"
                 };
 
                 LSG_AddCard("Cards", card);
@@ -62,9 +62,9 @@ namespace LSG_UnitTest
 
                 auto card4 = LSG_GetCard("Cards", 4);
 
-                Assert::AreEqual(card.thumbnail.c_str(),   card4.thumbnail.c_str());
                 Assert::AreEqual(card.title.c_str(),       card4.title.c_str());
                 Assert::AreEqual(card.description.c_str(), card4.description.c_str());
+                Assert::AreEqual(card.thumbnail.c_str(),   card4.thumbnail.c_str());
             }
             catch (const std::exception& e)
             {
@@ -84,25 +84,25 @@ namespace LSG_UnitTest
                 auto card3  = LSG_GetCard("Cards", 2);
                 auto card4  = LSG_GetCard("Cards", 3);
 
+                Assert::IsTrue(cardN1.title.empty());
                 Assert::IsTrue(cardN1.description.empty());
                 Assert::IsTrue(cardN1.thumbnail.empty());
-                Assert::IsTrue(cardN1.title.empty());
 
+                Assert::IsTrue(card1.title.empty());
                 Assert::IsTrue(card1.description.empty());
                 Assert::IsTrue(card1.thumbnail.empty());
-                Assert::IsTrue(card1.title.empty());
 
+                Assert::AreEqual("Card #2", card2.title.c_str());
                 Assert::IsTrue(card2.description.empty());
                 Assert::IsTrue(card2.thumbnail.empty());
-                Assert::AreEqual("Card #2", card2.title.c_str());
 
+                Assert::AreEqual("Card #3", card3.title.c_str());
                 Assert::IsTrue(card3.description.empty());
                 Assert::AreEqual("/path/to/image/file3.jpg", card3.thumbnail.c_str());
-                Assert::AreEqual("Card #3", card3.title.c_str());
 
+                Assert::AreEqual("Card #4", card4.title.c_str());
                 Assert::AreEqual("The fourth card.", card4.description.c_str());
                 Assert::AreEqual("/path/to/image/file4.jpg", card4.thumbnail.c_str());
-                Assert::AreEqual("Card #4", card4.title.c_str());
             }
             catch (const std::exception& e)
             {
@@ -139,13 +139,13 @@ namespace LSG_UnitTest
                 auto card1 = LSG_GetCard("Cards", 0);
                 auto card2 = LSG_GetCard("Cards", 1);
 
+                Assert::AreEqual("Card #2", card1.title.c_str());
                 Assert::IsTrue(card1.description.empty());
                 Assert::IsTrue(card1.thumbnail.empty());
-                Assert::AreEqual("Card #2", card1.title.c_str());
 
+                Assert::AreEqual("Card #3", card2.title.c_str());
                 Assert::IsTrue(card2.description.empty());
                 Assert::AreEqual("/path/to/image/file3.jpg", card2.thumbnail.c_str());
-                Assert::AreEqual("Card #3", card2.title.c_str());
             }
             catch (const std::exception& e)
             {
@@ -180,34 +180,34 @@ namespace LSG_UnitTest
                 SetCards();
 
                 LSG_CardItem cardItem = {
+                    .title       = "Card #2a",
                     .description = "The updated second card.",
-                    .thumbnail   = "/path/to/image/file2a.jpg",
-                    .title       = "Card #2a"
+                    .thumbnail   = "/path/to/image/file2a.jpg"
                 };
 
                 LSG_SetCard("Cards", -1, cardItem);
 
                 auto card = LSG_GetCard("Cards", -1);
 
+                Assert::IsTrue(card.title.empty());
                 Assert::IsTrue(card.description.empty());
                 Assert::IsTrue(card.thumbnail.empty());
-                Assert::IsTrue(card.title.empty());
 
                 LSG_SetCard("Cards", 0, cardItem);
 
                 card = LSG_GetCard("Cards", 0);
 
+                Assert::AreEqual(cardItem.title,       card.title);
                 Assert::AreEqual(cardItem.description, card.description);
                 Assert::AreEqual(cardItem.thumbnail,   card.thumbnail);
-                Assert::AreEqual(cardItem.title,       card.title);
 
                 LSG_SetCard("Cards", 4, cardItem);
 
                 card = LSG_GetCard("Cards", 4);
 
+                Assert::IsTrue(card.title.empty());
                 Assert::IsTrue(card.description.empty());
                 Assert::IsTrue(card.thumbnail.empty());
-                Assert::IsTrue(card.title.empty());
             }
             catch (const std::exception& e)
             {
@@ -220,10 +220,10 @@ namespace LSG_UnitTest
             try
             {
                 LSG_CardItems cardItems = {
-                    { .description = "", .thumbnail = "", .title = ""},
-                    { .description = "", .thumbnail = "", .title = "Card #2" },
-                    { .description = "", .thumbnail = "/path/to/image/file3.jpg", .title = "Card #3" },
-                    { .description = "The fourth card.", .thumbnail = "/path/to/image/file4.jpg", .title = "Card #4" }
+                    { .title = "", .description = "", .thumbnail = ""},
+                    { .title = "Card #2", .description = "", .thumbnail = "" },
+                    { .title = "Card #3", .description = "", .thumbnail = "/path/to/image/file3.jpg" },
+                    { .title = "Card #4", .description = "The fourth card.", .thumbnail = "/path/to/image/file4.jpg" }
                 };
 
                 LSG_SetCards("Cards", cardItems);
@@ -233,9 +233,9 @@ namespace LSG_UnitTest
                 Assert::AreEqual(cardItems.size(), cards.size());
 
                 for (size_t i = 0; i < cards.size(); i++) {
+                    Assert::AreEqual(cardItems[i].title,       cards[i].title);
                     Assert::AreEqual(cardItems[i].description, cards[i].description);
                     Assert::AreEqual(cardItems[i].thumbnail,   cards[i].thumbnail);
-                    Assert::AreEqual(cardItems[i].title,       cards[i].title);
                 }
             }
             catch (const std::exception& e)

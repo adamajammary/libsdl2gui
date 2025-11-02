@@ -146,9 +146,9 @@ using LSG_Buttons = std::vector<LSG_ButtonItem>;
 
 struct LSG_CardItem
 {
+	std::string title       = "";
 	std::string description = "";
 	std::string thumbnail   = "";
-	std::string title       = "";
 };
 
 using LSG_CardItems = std::vector<LSG_CardItem>;

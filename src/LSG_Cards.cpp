@@ -862,9 +862,9 @@ LSG_Card LSG_Cards::ToCard(const LSG_CardItem& cardItem)
 LSG_CardItem LSG_Cards::ToCardItem(const LSG_Card& card)
 {
 	LSG_CardItem cardItem = {
+		.title       = card.title.text,
 		.description = card.description.text,
-		.thumbnail   = card.thumbnail.filePath,
-		.title       = card.title.text
+		.thumbnail   = card.thumbnail.filePath
 	};
 
 	return cardItem;
