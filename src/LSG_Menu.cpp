@@ -201,11 +201,16 @@ bool LSG_Menu::IsOpen() const
 	return this->isOpen;
 }
 
-void LSG_Menu::navigate(LSG_Component* component)
+void LSG_Menu::Navigate(LSG_Component* component)
 {
+	if (!component || (!component->IsSubMenu() && !component->IsMenu()))
+		return;
+
 	this->Close();
+
 	this->subMenu = component;
-	this->open();
+
+	this->Open();
 }
 
 bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
@@ -213,15 +218,14 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->enabled || !this->visible)
 		return false;
 
-
 	if (!this->isOpen && this->IsMouseOverIconOpen(mousePosition)) {
-		this->open();
+		this->Open();
 		return true;
 	}
 	else if (this->isOpen)
 	{
 		if (this->isMouseOverNavBack(mousePosition)) {
-			this->navigate(this->subMenu->GetParent());
+			this->Navigate(this->subMenu->GetParent());
 			return true;
 		}
 
@@ -241,7 +245,7 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 				continue;
 
 			if (child->IsSubMenu()) {
-				this->navigate(child);
+				this->Navigate(child);
 			} else if (child->IsMenuItem()) {
 				if (static_cast<LSG_MenuItem*>(child)->OnMouseClick(mousePosition))
 					this->Close();
@@ -256,8 +260,11 @@ bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 	return false;
 }
 
-void LSG_Menu::open()
+void LSG_Menu::Open()
 {
+	if (!this->enabled || !this->visible)
+		return;
+
 	this->scrollOffsetY = 0;
 
 	this->destroyTextures();

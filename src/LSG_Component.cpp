@@ -233,7 +233,7 @@ int LSG_Component::GetLayer() const
 	return this->layer;
 }
 
-LSG_Component* LSG_Component::GetParent()
+LSG_Component* LSG_Component::GetParent() const
 {
 	return this->parent;
 }

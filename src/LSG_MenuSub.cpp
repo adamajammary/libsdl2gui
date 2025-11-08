@@ -31,6 +31,33 @@ int LSG_MenuSub::getMaxHeightArrow() const
 	return (this->background.h - padding);
 }
 
+LSG_Menu* LSG_MenuSub::getMenu() const
+{
+	LSG_Menu* menu = nullptr;
+
+	auto parent = this->GetParent();
+
+	while (parent)
+	{
+		if (parent->IsMenu()) {
+			menu = static_cast<LSG_Menu*>(parent);
+			break;
+		}
+
+		parent = parent->GetParent();
+	}
+
+	return menu;
+}
+
+void LSG_MenuSub::Open()
+{
+	auto menu = LSG_MenuSub::getMenu();
+
+	if (menu)
+		menu->Navigate(this);
+}
+
 void LSG_MenuSub::Render(SDL_Renderer* renderer) const
 {
 	if (!this->visible || (this->textures.size() < NR_OF_SUB_MENU_TEXTURES))

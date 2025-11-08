@@ -30,7 +30,9 @@ public:
 	bool         IsHighlightedNavBack() const;
 	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition) const;
 	bool         IsOpen() const;
+	void         Navigate(LSG_Component* component);
 	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	void         Open();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
 	void         Render(SDL_Renderer* renderer);
 	void         SetMenu();
@@ -45,8 +47,6 @@ private:
 	bool                  isMouseOverIconClose(const SDL_Point& mousePosition) const;
 	bool                  isMouseOverMenu(const SDL_Point&      mousePosition) const;
 	bool                  isMouseOverNavBack(const SDL_Point&   mousePosition) const;
-	void                  navigate(LSG_Component* component);
-	void                  open();
 	void                  renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu);
 	void                  renderIconClose(SDL_Renderer*  renderer, const SDL_Rect& menu);
 	void                  renderIconOpen(SDL_Renderer* renderer);

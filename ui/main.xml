@@ -11,8 +11,8 @@
 
     <panel height="35">
       <panel width="50" valign="middle">
-        <menu title="Menu">
-          <menu-sub title="Color Theme">
+        <menu id="Menu" title="Menu">
+          <menu-sub id="MenuIdColorTheme" title="Color Theme">
             <menu-item id="MenuIdColorThemeDark"  icon="img/dark-white-512.png"  key="Ctrl+D">Dark</menu-item>
             <menu-item id="MenuIdColorThemeLight" icon="img/light-white-512.png" key="Ctrl+L">Light</menu-item>
           </menu-sub>

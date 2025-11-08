@@ -897,6 +897,14 @@ DLLEXPORT void DLL LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)
 #endif
 
 /**
+ * @brief Opens the menu.
+ * @param id <menu> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenMenu(const std::string& id);
+
+/**
  * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
  * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
  * @throws runtime_error
@@ -913,6 +921,14 @@ DLLEXPORT void DLL LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>
 #if defined _ios
 DLLEXPORT void DLL LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
 #endif
+
+/**
+ * @brief Opens the sub-menu.
+ * @param id <menu-sub> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenSubMenu(const std::string& id);
 
 /**
  * @brief Presents the render buffer to the screen/window.

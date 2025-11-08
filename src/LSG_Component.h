@@ -42,7 +42,7 @@ public:
 	int              GetFontStyle() const;
 	std::string      GetID() const;
 	int              GetLayer() const;
-	LSG_Component*   GetParent();
+	LSG_Component*   GetParent() const;
 	LSG_Component*   GetScrollableParent();
 	int              GetSpacing() const;
 	std::string      GetXmlAttribute(const std::string& attribute) const;

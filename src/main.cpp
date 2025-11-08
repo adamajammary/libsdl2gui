@@ -1236,6 +1236,19 @@ void LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)> resultsCallb
 }
 #endif
 
+void LSG_OpenMenu(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsMenu())
+		throw std::invalid_argument(getErrorNoID("<menu>", id));
+
+	static_cast<LSG_Menu*>(component)->Open();
+}
+
 #if defined _ios
 void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
 {
@@ -1255,6 +1268,19 @@ void LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCa
     LSG_Window::OpenFilePhotos(resultsCallback, true);
 }
 #endif
+
+void LSG_OpenSubMenu(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component || !component->IsSubMenu())
+		throw std::invalid_argument(getErrorNoID("<menu-sub>", id));
+
+	static_cast<LSG_MenuSub*>(component)->Open();
+}
 
 void LSG_Present()
 {

@@ -2629,6 +2629,29 @@ Exceptions
 
 See [LSG_OpenMediaFile](#lsg_openmediafile) for examples.
 
+### LSG_OpenMenu
+
+```cpp
+void LSG_OpenMenu(const std::string& id);
+```
+
+Opens the menu.
+
+Parameters
+
+- **id** \<menu\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_OpenMenu("Menu");
+```
+
 ### LSG_OpenPhotoFile
 
 ```cpp
@@ -2679,6 +2702,29 @@ Exceptions
 - runtime_error
 
 See [LSG_OpenPhotoFile](#lsg_openphotofile) for examples.
+
+### LSG_OpenSubMenu
+
+```cpp
+void LSG_OpenSubMenu(const std::string& id);
+```
+
+Opens the sub-menu.
+
+Parameters
+
+- **id** \<menu-sub\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_OpenSubMenu("MenuIdColorTheme");
+```
 
 ### LSG_Present
 
