@@ -24,6 +24,7 @@ public:
 	static std::wstring        ToWide(const std::string& text);
 
 protected:
+	SDL_Surface* getSurface(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
 	SDL_Texture* getTexture(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
 	bool         hasChanged();
 

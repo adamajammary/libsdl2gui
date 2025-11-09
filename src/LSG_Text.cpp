@@ -82,7 +82,7 @@ LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 //	return xmlText;
 //}
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
 {
 	if (text.empty())
 		return nullptr;
@@ -109,13 +109,22 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	if (!surface)
 		throw std::invalid_argument(std::format("Failed to create a Unicode surface: {}", TTF_GetError()));
 
-	auto texture = LSG_Window::ToTexture(surface);
-
-	SDL_FreeSurface(surface);
-
 	this->lastFontSize  = size;
 	this->lastFontStyle = style;
 	this->lastTextColor = SDL_Color(color);
+
+	return surface;
+}
+
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+{
+	if (text.empty())
+		return nullptr;
+
+	auto surface = this->getSurface(text, fontSize, fontStyle, textColor);
+	auto texture = LSG_Window::ToTexture(surface);
+
+	SDL_FreeSurface(surface);
 
 	return texture;
 }

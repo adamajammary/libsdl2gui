@@ -5,18 +5,20 @@
 
 struct LSG_CardTexture
 {
-	SDL_Texture* texture = nullptr;
 	SDL_Size     size    = {};
+	SDL_Texture* texture = nullptr;
 };
 
 struct LSG_CardImage
 {
 	std::string     filePath = "";
+	SDL_Surface*    surface  = nullptr;
 	LSG_CardTexture texture  = {};
 };
 
 struct LSG_CardText
 {
+	SDL_Surface*    surface = nullptr;
 	std::string     text    = "";
 	LSG_CardTexture texture = {};
 };
@@ -27,6 +29,11 @@ struct LSG_Card
 	LSG_CardText  description = {};
 	LSG_CardImage thumbnail   = {};
 	LSG_CardText  title       = {};
+};
+
+struct LSG_CardsState
+{
+	bool areSurfacesReady = false;
 };
 
 class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
@@ -57,6 +64,7 @@ private:
 	SDL_Texture*          renderTarget;
 	std::vector<int>      selectedRows;
 	int                   spacing;
+	LSG_CardsState        state;
 
 public:
 	void             Activate();
@@ -102,12 +110,15 @@ private:
 	void          renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize);
 	void          reset(bool resetScroll = false);
 	void          resetHighlight();
+	void          resetRenderTarget();
 	void          resetScroll();
 	void          select(LSG_EventType eventType);
 	void          selectCtrl(int row);
 	void          selectShift(int row);
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          setCards();
+	void          setCardSurfaces();
+	void          setCardTextures();
 
 private:
 	static LSG_Card     ToCard(const LSG_CardItem& cardItem);
