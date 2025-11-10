@@ -7,6 +7,7 @@
 #include <cwchar>    // wcslen()
 #include <format>
 #include <fstream>
+#include <mutex>
 #include <set>
 #include <thread>
 #include <unordered_map>

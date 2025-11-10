@@ -1063,9 +1063,9 @@ Example
 
 ```cpp
 LSG_CardItem card = {
+  .title       = "Card #1",
   .description = "The first card.",
-  .thumbnail   = "/path/to/image/file1.jpg",
-  .title       = "Card #1"
+  .thumbnail   = "/path/to/image/file1.jpg"
 };
 
 LSG_AddCard("Cards", card);
@@ -3425,9 +3425,9 @@ Example
 
 ```cpp
 LSG_CardItem cardItem = {
+  .title       = "Card #1a",
   .description = "The updated first card.",
-  .thumbnail   = "/path/to/image/file1a.jpg",
-  .title       = "Card #1a"
+  .thumbnail   = "/path/to/image/file1a.jpg"
 };
 
 LSG_SetCard("Cards", 0, cardItem);
@@ -3455,10 +3455,10 @@ Example
 
 ```cpp
 LSG_CardItems cardItems = {
-  { .description = "", .thumbnail = "", .title = ""},
-  { .description = "", .thumbnail = "", .title = "Card #2" },
-  { .description = "", .thumbnail = "/path/to/image/file3.jpg", .title = "Card #3" },
-  { .description = "The fourth card.", .thumbnail = "/path/to/image/file4.jpg", .title = "Card #4" }
+  { .title = "", .description = "", .thumbnail = "" },
+  { .title = "Card #2", .description = "", .thumbnail = "" },
+  { .title = "Card #3", .description = "", .thumbnail = "/path/to/image/file3.jpg" },
+  { .title = "Card #4", .description = "The fourth card.", .thumbnail = "/path/to/image/file4.jpg" }
 };
 
 LSG_SetCards("Cards", cardItems);

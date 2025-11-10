@@ -31,11 +31,6 @@ struct LSG_Card
 	LSG_CardText  title       = {};
 };
 
-struct LSG_CardsState
-{
-	bool areSurfacesReady = false;
-};
-
 class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
 {
 public:
@@ -55,16 +50,16 @@ private:
 private:
 	int                   cardBorder;
 	LSG_CardBorder        cardBorderType;
+	int                   cardHeight;
 	int                   cardPadding;
 	int                   cardSpacing;
 	std::vector<LSG_Card> cards;
-	int                   cardHeight;
+	std::mutex            cardsLock;
 	int                   highlightedRow;
 	SDL_Point             offset;
 	SDL_Texture*          renderTarget;
 	std::vector<int>      selectedRows;
 	int                   spacing;
-	LSG_CardsState        state;
 
 public:
 	void             Activate();
@@ -96,6 +91,8 @@ public:
 	void             SetCards();
 
 private:
+	void          destroySurfaces(LSG_Card& card);
+	void          destroySurfaces();
 	void          destroyTextures(LSG_Card& card);
 	virtual void  destroyTextures() override;
 	bool          initRenderTarget(const SDL_Size& textureSize);

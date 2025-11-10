@@ -12,7 +12,7 @@ LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->renderTarget   = nullptr;
 	this->selectedRows   = {};
 	this->spacing        = 0;
-	this->state          = {};
+	//this->state          = {};
 	this->text           = "";
 	this->wrap           = true;
 
@@ -76,8 +76,37 @@ void LSG_Cards::AddCard(LibXml::xmlNode* node)
 	});
 }
 
+void LSG_Cards::destroySurfaces(LSG_Card& card)
+{
+	if (card.title.surface) {
+		SDL_FreeSurface(card.title.surface);
+		card.title.surface = nullptr;
+	}
+
+	if (card.description.surface) {
+		SDL_FreeSurface(card.description.surface);
+		card.description.surface = nullptr;
+	}
+
+	if (card.thumbnail.surface) {
+		SDL_FreeSurface(card.thumbnail.surface);
+		card.thumbnail.surface = nullptr;
+	}
+}
+
+void LSG_Cards::destroySurfaces()
+{
+	for (auto& card : this->cards)
+		this->destroySurfaces(card);
+}
+
 void LSG_Cards::destroyTextures(LSG_Card& card)
 {
+	if (card.title.texture.texture) {
+		SDL_DestroyTexture(card.title.texture.texture);
+		card.title.texture.texture = nullptr;
+	}
+
 	if (card.description.texture.texture) {
 		SDL_DestroyTexture(card.description.texture.texture);
 		card.description.texture.texture = nullptr;
@@ -86,11 +115,6 @@ void LSG_Cards::destroyTextures(LSG_Card& card)
 	if (card.thumbnail.texture.texture) {
 		SDL_DestroyTexture(card.thumbnail.texture.texture);
 		card.thumbnail.texture.texture = nullptr;
-	}
-
-	if (card.title.texture.texture) {
-		SDL_DestroyTexture(card.title.texture.texture);
-		card.title.texture.texture = nullptr;
 	}
 }
 
@@ -823,32 +847,28 @@ void LSG_Cards::setCards()
 
 void LSG_Cards::setCardSurfaces()
 {
-	if (this->state.areSurfacesReady)
-		return;
+	this->cardsLock.lock();
 
-	this->state.areSurfacesReady = false;
+	this->destroySurfaces();
 
 	for (auto& card : this->cards)
 	{
-		if (!card.thumbnail.filePath.empty() && !card.thumbnail.texture.texture && !card.thumbnail.surface)
+		if (!card.thumbnail.filePath.empty())
 			card.thumbnail.surface = IMG_Load(LSG_Text::GetFullPath(card.thumbnail.filePath).c_str());
 
-		if (!card.title.text.empty() && !card.title.texture.texture && !card.title.surface)
+		if (!card.title.text.empty())
 			card.title.surface = this->getSurface(card.title.text, (this->getFontSize() + 4));
 
-		if (!card.description.text.empty() && !card.description.texture.texture && !card.description.surface)
+		if (!card.description.text.empty())
 			card.description.surface = this->getSurface(card.description.text);
 	}
 
-	this->state.areSurfacesReady = true;
+	this->cardsLock.unlock();
 }
 
 void LSG_Cards::setCardTextures()
 {
-	if (!this->state.areSurfacesReady)
-		return;
-
-	this->state.areSurfacesReady = false;
+	this->cardsLock.lock();
 
 	for (auto& card : this->cards)
 	{
@@ -880,7 +900,7 @@ void LSG_Cards::setCardTextures()
 		}
 	}
 
-	this->resetRenderTarget();
+	this->cardsLock.unlock();
 }
 
 LSG_Card LSG_Cards::ToCard(const LSG_CardItem& cardItem)
