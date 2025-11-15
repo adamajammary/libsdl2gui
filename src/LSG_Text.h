@@ -15,6 +15,9 @@ protected:
 	SDL_Color lastTextColor;
 	bool      wrap;
 
+private:
+	std::mutex surfaceLock;
+
 public:
 	static TTF_Font*           GetFontArial(int fontSize);
 	static std::string         GetFullPath(const std::string& path);

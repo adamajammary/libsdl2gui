@@ -87,6 +87,8 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	if (text.empty())
 		return nullptr;
 
+	this->surfaceLock.lock();
+
 	auto color = (!textColor    ? this->textColor      : *textColor);
 	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
 	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
@@ -112,6 +114,8 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	this->lastFontSize  = size;
 	this->lastFontStyle = style;
 	this->lastTextColor = SDL_Color(color);
+
+	this->surfaceLock.unlock();
 
 	return surface;
 }
