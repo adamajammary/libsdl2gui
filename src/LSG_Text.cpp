@@ -109,7 +109,7 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	SDL_free(textUTF16);
 
 	if (!surface)
-		throw std::invalid_argument(std::format("Failed to create a Unicode surface: {}", TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));
 
 	this->lastFontSize  = size;
 	this->lastFontStyle = style;
