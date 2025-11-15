@@ -12,7 +12,6 @@ LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->renderTarget   = nullptr;
 	this->selectedRows   = {};
 	this->spacing        = 0;
-	//this->state          = {};
 	this->text           = "";
 	this->wrap           = true;
 
@@ -60,7 +59,11 @@ void LSG_Cards::Activate(const SDL_Point& mousePosition)
 
 void LSG_Cards::AddCard(const LSG_CardItem& cardItem)
 {
+	this->cardsLock.lock();
+
 	this->cards.push_back(LSG_Cards::ToCard(cardItem));
+
+	this->cardsLock.unlock();
 
 	this->reset();
 }
@@ -257,9 +260,11 @@ void LSG_Cards::RemoveCard(int row)
 	if ((row < 0) || (row >= (int)this->cards.size()))
 		return;
 
-	this->destroyTextures(this->cards[row]);
+	this->cardsLock.lock();
 
 	this->cards.erase(this->cards.begin() + (size_t)row);
+
+	this->cardsLock.unlock();
 
 	this->reset();
 
@@ -519,6 +524,7 @@ void LSG_Cards::reset(bool resetScroll)
 		this->resetScroll();
 
 	this->destroyTextures();
+
 	this->setCards();
 }
 
@@ -814,21 +820,25 @@ void LSG_Cards::SetCard(int row, const LSG_CardItem& cardItem)
 	if ((row < 0) || (row >= (int)this->cards.size()))
 		return;
 
-	this->destroyTextures(this->cards[row]);
+	this->cardsLock.lock();
 
 	this->cards[row] = LSG_Cards::ToCard(cardItem);
+
+	this->cardsLock.unlock();
 
 	this->reset();
 }
 
 void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 {
-	this->destroyTextures();
+	this->cardsLock.lock();
 
 	this->cards.clear();
 
 	for (const auto& cardItem : cardItems)
 		this->cards.push_back(LSG_Cards::ToCard(cardItem));
+
+	this->cardsLock.unlock();
 
 	this->reset(true);
 
@@ -876,28 +886,21 @@ void LSG_Cards::setCardTextures()
 		{
 			card.thumbnail.texture.size    = { card.thumbnail.surface->w, card.thumbnail.surface->h };
 			card.thumbnail.texture.texture = LSG_Window::ToTexture(card.thumbnail.surface);
-
-			SDL_FreeSurface(card.thumbnail.surface);
-			card.thumbnail.surface = nullptr;
 		}
 
 		if (!card.title.text.empty() && !card.title.texture.texture && card.title.surface)
 		{
 			card.title.texture.size    = { card.title.surface->w, card.title.surface->h };
 			card.title.texture.texture = LSG_Window::ToTexture(card.title.surface);
-
-			SDL_FreeSurface(card.title.surface);
-			card.title.surface = nullptr;
 		}
 
 		if (!card.description.text.empty() && !card.description.texture.texture && card.description.surface)
 		{
 			card.description.texture.size    = { card.description.surface->w, card.description.surface->h };
 			card.description.texture.texture = LSG_Window::ToTexture(card.description.surface);
-
-			SDL_FreeSurface(card.description.surface);
-			card.description.surface = nullptr;
 		}
+
+		this->destroySurfaces(card);
 	}
 
 	this->cardsLock.unlock();

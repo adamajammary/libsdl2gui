@@ -2419,6 +2419,10 @@ void LSG_ShowColumnBorder(const std::string& id, bool show)
 
 void LSG_ShowError(const std::string& message)
 {
+	#if _DEBUG
+		std::fprintf(stderr, "%s\n", message.c_str());
+	#endif
+
 	LSG_Window::ShowMessage(message);
 }
 
