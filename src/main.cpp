@@ -136,22 +136,6 @@ void LSG_AddListItem(const std::string& id, const std::string& item)
 	static_cast<LSG_List*>(component)->AddItem(item);
 }
 
-void LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button)
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	auto component = LSG_UI::GetComponent(id);
-
-	if (!component || !component->IsPanel())
-		throw std::invalid_argument(getErrorNoID("<panel>", id));
-
-	static_cast<LSG_Panel*>(component)->AddButton(button);
-
-	LSG_UI::LayoutParent(component);
-	LSG_UI::SetText(component);
-}
-
 void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const std::string& itemId)
 {
 	if (!isRunning)
@@ -1736,7 +1720,7 @@ void LSG_SetBorderColor(const std::string& id, const SDL_Color& color)
 	component->SetBorderColor(color);
 }
 
-void LSG_SetButtonSelected(const std::string& id, bool selected)
+void LSG_SetButton(const std::string& id, const std::string& text, const std::string& icon)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1746,7 +1730,7 @@ void LSG_SetButtonSelected(const std::string& id, bool selected)
 	if (!component || !component->IsButton())
 		throw std::invalid_argument(getErrorNoID("<button>", id));
 
-	static_cast<LSG_Button*>(component)->SetSelected(selected);
+	static_cast<LSG_Button*>(component)->Set(text, icon);
 }
 
 void LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card)
@@ -1870,7 +1854,7 @@ void LSG_SetImage(const std::string& id, const std::string& file, bool fill)
 	if (!component || !component->IsImage())
 		throw std::invalid_argument(getErrorNoID("<image>", id));
 
-	static_cast<LSG_Image*>(component)->SetImage(file, fill);
+	static_cast<LSG_Image*>(component)->Set(file, fill);
 }
 
 void LSG_SetListItem(const std::string& id, int row, const std::string& item)
@@ -1997,22 +1981,6 @@ void LSG_SetPadding(const std::string& id, int padding)
 	component->SetPadding(padding);
 
 	LSG_UI::LayoutParent(component);
-}
-
-void LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons)
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	auto component = LSG_UI::GetComponent(id);
-
-	if (!component || !component->IsPanel())
-		throw std::invalid_argument(getErrorNoID("<panel>", id));
-
-	static_cast<LSG_Panel*>(component)->SetButtons(buttons);
-
-	LSG_UI::LayoutParent(component);
-	LSG_UI::SetText(component);
 }
 
 void LSG_SetPage(const std::string& id, int page)
@@ -2223,7 +2191,7 @@ void LSG_SetText(const std::string& id, const std::string& value)
 	if (!component || !component->IsTextLabel())
 		throw std::invalid_argument(getErrorNoID("<text>", id));
 
-	static_cast<LSG_TextLabel*>(component)->SetText(value);
+	static_cast<LSG_TextLabel*>(component)->Set(value);
 
 	LSG_UI::LayoutParent(component);
 }

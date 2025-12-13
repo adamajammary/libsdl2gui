@@ -154,17 +154,6 @@ SDL_Texture* LSG_Graphics::GetDownScaledTexture(const std::string& imageFile, co
 	return texture;
 }
 
-int LSG_Graphics::GetDPIScaled(int value)
-{
-	#if defined _android
-		auto scale = (LSG_Window::GetDPI() / 160.0f);
-	#else
-		auto scale = LSG_Window::GetSizeScale().x;
-	#endif
-
-	return (int)((float)value * scale);
-}
-
 SDL_Rect LSG_Graphics::GetFillArea(const SDL_Rect& background, int border, int padding)
 {
 	SDL_Rect fillArea = background;
@@ -199,8 +188,8 @@ std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangleHorizontal(const SDL_Re
 {
 	return LSG_Graphics::getGeometryTriangle(
 		background,
-		LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding + 2),
-		LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding),
+		LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding + 2),
+		LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding),
 		color,
 		orientation
 	);
@@ -210,8 +199,8 @@ std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangleVertical(const SDL_Rect
 {
 	return LSG_Graphics::getGeometryTriangle(
 		background,
-		LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding),
-		LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding + 2),
+		LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding),
+		LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding + 2),
 		color,
 		orientation
 	);
@@ -598,7 +587,7 @@ void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& backgro
 	SDL_Rect clip = {
 		0,
 		0,
-		std::min(size.width, background.w),
+		std::min(size.width,  background.w),
 		std::min(size.height, background.h)
 	};
 

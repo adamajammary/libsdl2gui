@@ -41,10 +41,10 @@ public:
 	LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Tiles();
 
-public:
-	static const int LayerOffset = 100000000;
-	static const int TextPadding = 2;
-	static const int TileBorder  = 3;
+private:
+	static const int DefaultTileSize = 128;
+	static const int TextPadding     = 2;
+	static const int TileBorder      = 3;
 
 private:
 	static inline const SDL_Color TextBackground = { 0, 0, 0, 196 };
@@ -113,13 +113,13 @@ private:
 	int           getSelectedTile() const;
 	LSG_Alignment getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const;
 	SDL_Rect      getTextDestination();
-	int           getTileSize() const;
+	int           getTileSize(int maxWidth) const;
 	int           getTilesPerRow() const;
 	bool          isTextVisible() const;
 	bool          isTileVisible() const;
 	void          render(SDL_Renderer* renderer);
 	void          renderHighlightSelection(SDL_Renderer* renderer, int index);
-	void          renderImage(SDL_Renderer* renderer, const LSG_TileImage& image);
+	void          renderImage(SDL_Renderer* renderer, const LSG_TileImage& image) const;
 	void          renderScrollBar(SDL_Renderer* renderer);
 	void          renderText(SDL_Renderer* renderer, const LSG_TileText& text);
 	void          reset(bool resetScroll = false);

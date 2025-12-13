@@ -319,7 +319,7 @@ Make sure to call [LSG_Quit](#lsg_quit) to cleanup all resources and close the l
 
 ### \<button\>
 
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
+[boolean](#boolean) | [color](#color) | [file_path](#file_path) | [orientation](#orientation) | [size](#size)
 
 Triggers [LSG_EVENT_BUTTON_CLICKED](#handle-events) event.
 
@@ -333,13 +333,11 @@ orientation="orientation"
 background-color="color"
 border="int"
 border-color="color"
-margin="int"
-padding="int"
-halign="alignment_horizontal"
-valign="alignment_vertical"
-spacing="int"
 font-size="int" # default="14"
 text-color="color"
+
+icon="file_path"
+text="string"
 ```
 
 ### \<cards\>
@@ -365,6 +363,16 @@ card-height="int" # default="128"
 card-border="card_border"
 ```
 
+### \<card\>
+
+[file_path](#file_path)
+
+```ini
+title="string"
+description="string"
+thumbnail="file_path"
+```
+
 ### \<image\>
 
 [alignment](#alignment) | [boolean](#boolean) | [color](#color) | [file_path](#file_path) | [size](#size)
@@ -385,12 +393,10 @@ fill="boolean"
 
 ### \<line\>
 
-[color](#color) | [orientation](#orientation) | [size](#size)
+[color](#color) | [orientation](#orientation)
 
 ```ini
 id="string"
-width="size"
-height="size"
 orientation="orientation"
 
 color="color"
@@ -616,17 +622,10 @@ sort-column="int" # 0-based index
 
 ### \<text\>
 
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+[boolean](#boolean) | [color](#color)
 
 ```ini
 id="string"
-width="size"
-height="size"
-background-color="color"
-border="int"
-border-color="color"
-halign="alignment_horizontal"
-valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
 
@@ -679,6 +678,15 @@ text-halign="alignment_horizontal"
 text-valign="alignment_vertical"
 tile-size="size"
 wrap="boolean" # default="true"
+```
+
+### \<tile\>
+
+[file_path](#file_path)
+
+```ini
+image="file_path"
+text="string"
 ```
 
 ### \<toggle\>
@@ -930,17 +938,6 @@ struct SDL_Size {
 };
 ```
 
-### LSG_ButtonItem
-
-```cpp
-struct LSG_ButtonItem
-{
-  std::string id     = "";
-  std::string text   = "";
-  LSG_HAlign  halign = LSG_HALIGN_CENTER;
-  LSG_VAlign  valign = LSG_VALIGN_MIDDLE;
-};```
-
 ### LSG_ExifData
 
 ```cpp
@@ -1003,12 +1000,6 @@ struct LSG_TileItem
   std::string image = "";
   std::string text  = "";
 };
-```
-
-### LSG_ButtonItems
-
-```cpp
-using LSG_ButtonItems = std::vector<LSG_ButtonItem>;
 ```
 
 ### LSG_ExifTags
@@ -1093,37 +1084,6 @@ Example
 
 ```cpp
 LSG_AddListItem("List", "My new list item");
-```
-
-### LSG_AddPanelButton
-
-```cpp
-void LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button);
-```
-
-Adds a new button to the panel.
-
-Parameters
-
-- **id** \<panel\> component ID
-- **button** Button item
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-Example
-
-```cpp
-LSG_ButtonItem button = {
-  .id     = "ButtonIdButton1",
-  .text   = "Button 1",
-  .halign = LSG_HALIGN_CENTER,
-  .valign = LSG_VALIGN_MIDDLE
-};
-
-LSG_AddPanelButton("PanelIdButtons", button);
 ```
 
 ### LSG_AddSubMenuItem
@@ -3378,18 +3338,19 @@ Example
 LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
 ```
 
-### LSG_SetButtonSelected
+### LSG_SetButton
 
 ```cpp
-void LSG_SetButtonSelected(const std::string& id, bool selected = true);
+void LSG_SetButton(const std::string& id, const std::string& text, const std::string& icon);
 ```
 
-Highlights the button as selected.
+Sets the text and icon of a button.
 
 Parameters
 
 - **id** \<button\> component ID
-- **selected** true to select or false to unselect
+- **text** Text label
+- **icon** Image file path
 
 Exceptions
 
@@ -3399,7 +3360,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetButtonSelected("ButtonIdColorThemeDark", true);
+LSG_SetButton("ButtonIdColorThemeDark", "Dark", "img/dark-512.png");
 ```
 
 ### LSG_SetCard
@@ -3931,35 +3892,6 @@ Example
 LSG_Strings row = { "Updated Row", "My updated table row" };
 
 LSG_SetPageTableRow("Table", 6, row);
-```
-
-### LSG_SetPanelButtons
-
-```cpp
-void LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons);
-```
-
-Replaces all child compomonents of the panel with the provided buttons.
-
-Parameters
-
-- **id** \<panel\> component ID
-- **buttons** Button items
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-Example
-
-```cpp
-LSG_Buttons buttons = {
-  { .id = "ButtonIdButton1", .text = "Button 1" },
-  { .id = "ButtonIdButton2", .text = "Button 2" }
-};
-
-LSG_SetPanelButtons("PanelIdButtons", buttons);
 ```
 
 ### LSG_SetProgressValue

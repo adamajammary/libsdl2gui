@@ -1,5 +1,6 @@
 #include "LSG_Window.h"
 
+float         LSG_Window::dpiScale  = 1.0f;
 SDL_Renderer* LSG_Window::renderer  = nullptr;
 SDL_SysWMinfo LSG_Window::sysWmInfo = {};
 SDL_Window*   LSG_Window::window    = nullptr;
@@ -19,12 +20,19 @@ void LSG_Window::Close()
 	SDL_Quit();
 }
 
-float LSG_Window::GetDPI()
+#if defined _android
+float LSG_Window::getDPIScale()
 {
 	float dpi;
 	SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(LSG_Window::window), &dpi, nullptr, nullptr);
 
 	return dpi;
+}
+#endif
+
+int LSG_Window::GetDPIScaled(int value)
+{
+	return (int)((float)value * LSG_Window::dpiScale);
 }
 
 #if defined _windows
@@ -862,6 +870,15 @@ std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 	return filePath;
 }
 #endif
+
+void LSG_Window::SetDPIScale()
+{
+	#if defined _android
+		LSG_Window::dpiScale = (LSG_Window::getDPIScale() / 160.0f);
+	#else
+		LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
+	#endif
+}
 
 void LSG_Window::SetMaximized(bool maximized)
 {

@@ -12,6 +12,9 @@ public:
 	~LSG_Component();
 
 public:
+	static const int LayerOffset = 1000000;
+
+public:
 	SDL_Rect    background;
 	SDL_Color   backgroundColor;
 	int         border;
@@ -60,6 +63,7 @@ public:
 	bool             IsPanel() const;
 	bool             IsProgressBar() const;
 	bool             IsScrollable() const;
+	bool             IsScrollablePanel(bool includeParents = false) const;
 	bool             IsSlider() const;
 	bool             IsSubMenu() const;
 	bool             IsTable() const;
@@ -89,7 +93,6 @@ public:
 protected:
 	virtual void  destroyTextures();
 	LSG_Alignment getAlignment() const;
-	SDL_Rect      getArea(const SDL_Rect& background) const;
 	int           getFontSize() const;
 	int           getFontStyle(bool checkParent = true) const;
 	LSG_Alignment getParentAlignment() const;

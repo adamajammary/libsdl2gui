@@ -15,14 +15,14 @@ LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->text           = "";
 	this->wrap           = true;
 
-	this->cardBorder  = LSG_Graphics::GetDPIScaled(LSG_Cards::CardBorder);
-	this->cardPadding = LSG_Graphics::GetDPIScaled(LSG_Cards::CardPadding);
-	this->cardSpacing = LSG_Graphics::GetDPIScaled(LSG_Cards::CardSpacing);
+	this->cardBorder  = LSG_Window::GetDPIScaled(LSG_Cards::CardBorder);
+	this->cardPadding = LSG_Window::GetDPIScaled(LSG_Cards::CardPadding);
+	this->cardSpacing = LSG_Window::GetDPIScaled(LSG_Cards::CardSpacing);
 
 	auto xmlCardHeight = LSG_XML::GetAttribute(xmlNode, "card-height");
 	auto xmlCardBorder = LSG_XML::GetAttribute(xmlNode, "card-border");
 
-	this->cardHeight = LSG_Graphics::GetDPIScaled(!xmlCardHeight.empty() ? std::atoi(xmlCardHeight.c_str()) : LSG_Cards::CardHeight);
+	this->cardHeight = LSG_Window::GetDPIScaled(!xmlCardHeight.empty() ? std::atoi(xmlCardHeight.c_str()) : LSG_Cards::CardHeight);
 
 	if (xmlCardBorder == "full")
 		this->cardBorderType = LSG_CARD_BORDER_FULL;
@@ -182,6 +182,22 @@ std::vector<int> LSG_Cards::GetSelectedCards() const
 	return this->selectedRows;
 }
 
+int LSG_Cards::getRow(const SDL_Point& mousePosition) const
+{
+	auto positionY = (mousePosition.y - this->background.y + this->scrollOffsetY);
+
+	for (int row = 0; row < (int)this->cards.size(); row++)
+	{
+		const auto& card  = this->cards[row].background;
+		auto        cardY = (card.y - this->offset.y);
+
+		if ((positionY >= cardY) && (positionY <= (cardY + card.h)))
+			return row;
+	}
+
+	return -1;
+}
+
 bool LSG_Cards::initRenderTarget(const SDL_Size& textureSize)
 {
 	if (!this->renderTarget) {
@@ -204,53 +220,30 @@ bool LSG_Cards::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->cards.empty())
 		return false;
 
-	auto positionY = (mousePosition.y - this->background.y + this->scrollOffsetY);
+	auto keyState = SDL_GetKeyboardState(nullptr);
+	auto row      = this->getRow(mousePosition);
 
-	for (int row = 0; row < (int)this->cards.size(); row++)
-	{
-		const auto& card  = this->cards[row].background;
-		auto        cardY = (card.y - this->offset.y);
-
-		if ((positionY < cardY) || (positionY > (cardY + card.h)))
-			continue;
-
-		auto keyState = SDL_GetKeyboardState(nullptr);
-		
-		if (keyState[SDL_SCANCODE_LCTRL] || keyState[SDL_SCANCODE_RCTRL])
-			this->selectCtrl(row);
-		else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
-			this->selectShift(row);
-		else
-			this->Select(row);
-
-		break;
-	}
+	if (keyState[SDL_SCANCODE_LCTRL] || keyState[SDL_SCANCODE_RCTRL])
+		this->selectCtrl(row);
+	else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
+		this->selectShift(row);
+	else
+		this->Select(row);
 
 	return true;
 }
 
 void LSG_Cards::OnMouseOver(const SDL_Point& mousePosition)
 {
-	if (!this->enabled)
+	if (!this->enabled || this->cards.empty())
 		return;
 
-	auto highlightedRow = -1;
-	auto positionY      = (mousePosition.y - this->background.y + this->scrollOffsetY);
+	auto row = this->getRow(mousePosition);
 
-	for (int row = 0; row < (int)this->cards.size(); row++)
-	{
-		const auto& card = this->cards[row].background;
-
-		if ((positionY >= card.y) && (positionY <= (card.y + card.h))) {
-			highlightedRow = row;
-			break;
-		}
-	}
-
-	if (highlightedRow == this->highlightedRow)
+	if (row == this->highlightedRow)
 		return;
 
-	this->highlightedRow = highlightedRow;
+	this->highlightedRow = row;
 
 	this->resetRenderTarget();
 }

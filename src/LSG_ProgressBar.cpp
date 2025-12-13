@@ -42,7 +42,7 @@ void LSG_ProgressBar::Render(SDL_Renderer* renderer) const
 void LSG_ProgressBar::render(SDL_Renderer* renderer) const
 {
 	auto background = SDL_Rect(this->background);
-	auto minHeight  = LSG_Graphics::GetDPIScaled(LSG_ProgressBar::MinHeight);
+	auto minHeight  = LSG_Window::GetDPIScaled(LSG_ProgressBar::MinHeight);
 
 	if (background.h < minHeight)
 		background.h = minHeight;

@@ -26,7 +26,7 @@ void LSG_MenuSub::AddItem(const std::string& item, const std::string& itemId)
 
 int LSG_MenuSub::getMaxHeightArrow() const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
+	auto padding = LSG_Window::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
 
 	return (this->background.h - padding);
 }

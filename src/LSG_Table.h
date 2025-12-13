@@ -11,7 +11,6 @@ public:
 
 public:
 	static const int ColumnSpacing = 20;
-	static const int LayerOffset   = 100000000;
 
 private:
 	std::vector<int>          columnWidths;

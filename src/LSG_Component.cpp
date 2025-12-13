@@ -90,10 +90,8 @@ void LSG_Component::destroyTextures()
 	}
 
 	for (auto texture : this->textures) {
-		if (texture) {
+		if (texture)
 			SDL_DestroyTexture(texture);
-			texture = nullptr;
-		}
 	}
 
 	this->textures.clear();
@@ -126,33 +124,6 @@ LSG_Alignment LSG_Component::getAlignment() const
 		alignment.valign = LSG_VALIGN_BOTTOM;
 
 	return alignment;
-}
-
-SDL_Rect LSG_Component::getArea(const SDL_Rect& background) const
-{
-	SDL_Rect area = background;
-
-	if (this->border > 0)
-	{
-		auto border2x = (this->border + this->border);
-
-		area.x += this->border;
-		area.y += this->border;
-		area.w -= border2x;
-		area.h -= border2x;
-	}
-
-	if (this->parent && (this->parent->padding > 0))
-	{
-		auto padding2x = (this->parent->padding + this->parent->padding);
-
-		area.x += this->parent->padding;
-		area.y += this->parent->padding;
-		area.w -= padding2x;
-		area.h -= padding2x;
-	}
-
-	return area;
 }
 
 LSG_Component* LSG_Component::GetChild(int index) const
@@ -373,6 +344,14 @@ bool LSG_Component::IsScrollable() const
 	return (this->IsCards() || this->IsList() || this->IsPanel() || this->IsTable() || this->IsTextLabel() || this->IsTiles());
 }
 
+bool LSG_Component::IsScrollablePanel(bool includeParents) const
+{
+	if (this->IsPanel() && (LSG_XML::GetAttribute(this->xmlNode, "scrollable") == "true"))
+		return true;
+
+	return (includeParents && this->parent ? this->parent->IsScrollablePanel() : false);
+}
+
 bool LSG_Component::IsSlider() const
 {
 	return (this->xmlNodeName == "slider");
@@ -440,14 +419,22 @@ void LSG_Component::Render(SDL_Renderer* renderer) const
 
 	for (auto child : this->children)
 	{
-		if (child->IsCards())
+		if (child->IsButton())
+			static_cast<LSG_Button*>(child)->Render(renderer);
+		else if (child->IsCards())
 			static_cast<LSG_Cards*>(child)->Render(renderer);
 		else if (child->IsImage())
 			static_cast<LSG_Image*>(child)->Render(renderer);
+		else if (child->IsLine())
+			static_cast<LSG_Line*>(child)->Render(renderer);
 		else if (child->IsList())
 			static_cast<LSG_List*>(child)->Render(renderer);
+		else if (child->IsNavigation())
+			static_cast<LSG_Navigation*>(child)->Render(renderer);
 		else if (child->IsPanel())
 			static_cast<LSG_Panel*>(child)->Render(renderer);
+		else if (child->IsProgressBar())
+			static_cast<LSG_ProgressBar*>(child)->Render(renderer);
 		else if (child->IsSlider())
 			static_cast<LSG_Slider*>(child)->Render(renderer);
 		else if (child->IsTable())
@@ -458,8 +445,8 @@ void LSG_Component::Render(SDL_Renderer* renderer) const
 			static_cast<LSG_TextLabel*>(child)->Render(renderer);
 		else if (child->IsTiles())
 			static_cast<LSG_Tiles*>(child)->Render(renderer);
-		else if (!child->IsMenu() && !child->IsModal())
-			child->Render(renderer);
+		else if (child->IsToggle())
+			static_cast<LSG_Toggle*>(child)->Render(renderer);
 	}
 
 	if (!this->enabled)
@@ -613,8 +600,8 @@ void LSG_Component::SetSizeBlank(int sizeX, int sizeY, int componentsX, int comp
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 	auto margin2x   = (this->margin * 2);
 
-	auto width  = (!this->IsImage() && attributes.contains("width")  ? attributes["width"]  : "");
-	auto height = (!this->IsImage() && attributes.contains("height") ? attributes["height"] : "");
+	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
+	auto height = (attributes.contains("height") ? attributes["height"] : "");
 
 	if (this->parent->IsVertical())
 		sizeX -= margin2x;
@@ -632,27 +619,27 @@ void LSG_Component::SetSizeFixed()
 {
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto width  = (!this->IsImage() && attributes.contains("width")  ? attributes["width"]  : "");
-	auto height = (!this->IsImage() && attributes.contains("height") ? attributes["height"] : "");
+	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
+	auto height = (attributes.contains("height") ? attributes["height"] : "");
 
 	if (!width.empty() && (width[width.length() - 1] != '%') && (width != "0"))
-		this->background.w = LSG_Graphics::GetDPIScaled(std::atoi(width.c_str()));
+		this->background.w = LSG_Window::GetDPIScaled(std::atoi(width.c_str()));
 
 	if (!height.empty() && (height[height.length() - 1] != '%') && (height != "0"))
-		this->background.h = LSG_Graphics::GetDPIScaled(std::atoi(height.c_str()));
+		this->background.h = LSG_Window::GetDPIScaled(std::atoi(height.c_str()));
 
 	auto border  = (attributes.contains("border")  ? attributes["border"]  : "");
 	auto margin  = (attributes.contains("margin")  ? attributes["margin"]  : "");
 	auto padding = (attributes.contains("padding") ? attributes["padding"] : "");
 
 	if (!border.empty())
-		this->border = LSG_Graphics::GetDPIScaled(std::atoi(border.c_str()));
+		this->border = LSG_Window::GetDPIScaled(std::atoi(border.c_str()));
 
 	if (!margin.empty())
-		this->margin = LSG_Graphics::GetDPIScaled(std::atoi(margin.c_str()));
+		this->margin = LSG_Window::GetDPIScaled(std::atoi(margin.c_str()));
 
 	if (!padding.empty())
-		this->padding = LSG_Graphics::GetDPIScaled(std::atoi(padding.c_str()));
+		this->padding = LSG_Window::GetDPIScaled(std::atoi(padding.c_str()));
 }
 
 void LSG_Component::SetSizePercent(LSG_Component* parent)

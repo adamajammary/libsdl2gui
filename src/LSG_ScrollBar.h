@@ -50,6 +50,7 @@ public:
 public:
 	int  GetScrollX() const;
 	int  GetScrollY() const;
+	bool IsMouseOverScrollbar(const SDL_Point& mousePosition) const;
 	bool OnScrollEnd();
 	bool OnScrollHome();
 	bool OnScrollMouseClick(const SDL_Point& mousePosition);

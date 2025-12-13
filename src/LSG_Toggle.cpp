@@ -8,9 +8,8 @@ LSG_Toggle::LSG_Toggle(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 
 SDL_Rect LSG_Toggle::getDestination() const
 {
-	auto fillArea    = this->getArea(this->background);
-	auto size        = this->getMaxSize(fillArea);
-	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, size, this->getAlignment());
+	auto fillArea    = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, this->getMaxSize(fillArea), this->getAlignment());
 
 	return destination;
 }
@@ -98,12 +97,15 @@ void LSG_Toggle::Set(bool on)
 
 void LSG_Toggle::Set()
 {
+	if (SDL_RectEmpty(&this->background))
+		return;
+
 	this->destroyTextures();
 
-	auto fillArea = this->getArea(this->background);
-	auto icon     = (this->on ? LSG_VECTOR_ICON_TOGGLE_OFF : LSG_VECTOR_ICON_TOGGLE_ON);
+	auto size = this->getMaxSize(LSG_Graphics::GetFillArea(this->background, this->border));
+	auto icon = (this->on ? LSG_VECTOR_ICON_TOGGLE_OFF : LSG_VECTOR_ICON_TOGGLE_ON);
 
-	this->texture = LSG_Graphics::GetVector(icon, this->textColor, this->getMaxSize(fillArea));
+	this->texture = LSG_Graphics::GetVector(icon, this->textColor, size);
 }
 
 void LSG_Toggle::toggle()

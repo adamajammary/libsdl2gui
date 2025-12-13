@@ -107,7 +107,7 @@ std::string LSG_Navigation::getText() const
 bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
 {
 	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
-	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
 	auto arrow       = this->getArrow(destination, padding);
@@ -192,7 +192,7 @@ bool LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 		return false;
 
 	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
-	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
 	auto arrow       = this->getArrow(destination, padding);
@@ -249,7 +249,7 @@ void LSG_Navigation::render(SDL_Renderer* renderer) const
 		return;
 
 	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
-	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	LSG_Navigation::renderArrows(renderer, fillArea, padding);
 	LSG_Navigation::renderText(renderer,   fillArea, padding);
@@ -299,15 +299,6 @@ void LSG_Navigation::renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea
 	SDL_RenderCopy(renderer, this->texture, &clip, &destination);
 }
 
-void LSG_Navigation::reset()
-{
-	if (!this->hasChanged())
-		return;
-
-	this->destroyTextures();
-	this->set();
-}
-
 void LSG_Navigation::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
@@ -328,7 +319,7 @@ void LSG_Navigation::set()
 	auto colorPrev = (this->canNavigate.back    ? color : LSG_ScrollBar::DefaultThumbColor);
 	auto colorNext = (this->canNavigate.forward ? color : LSG_ScrollBar::DefaultThumbColor);
 
-	this->arrow.size = LSG_Graphics::GetDPIScaled(this->getFontSize());
+	this->arrow.size = LSG_Window::GetDPIScaled(this->getFontSize());
 
 	SDL_Size size = { this->arrow.size, this->arrow.size };
 
@@ -368,5 +359,6 @@ void LSG_Navigation::Set(size_t itemsTotal, size_t itemsPerNavigation)
 
 void LSG_Navigation::Set()
 {
-	this->reset();
+	this->destroyTextures();
+	this->set();
 }

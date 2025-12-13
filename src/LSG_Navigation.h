@@ -66,7 +66,6 @@ private:
 	void            render(SDL_Renderer* renderer) const;
 	void            renderArrows(SDL_Renderer* renderer, const SDL_Rect& fillArea, int padding) const;
 	void            renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea, int padding) const;
-	void            reset();
 	virtual void    sendEvent(LSG_EventType type) const override;
 	void            set();
 };

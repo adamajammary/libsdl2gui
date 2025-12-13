@@ -126,10 +126,12 @@ static void handleUserEvent(const SDL_UserEvent& event)
         handleTileEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     case LSG_EVENT_TOGGLED_OFF:
-        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+        if (id == "Toggle")
+            setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
         break;
     case LSG_EVENT_TOGGLED_ON:
-        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+        if (id == "Toggle")
+            setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
         break;
     default:
         break;

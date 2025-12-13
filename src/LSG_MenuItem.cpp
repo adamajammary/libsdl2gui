@@ -35,7 +35,7 @@ SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile) const
 
 int LSG_MenuItem::getMaxHeightIcon() const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
+	auto padding = LSG_Window::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
 	return (this->background.h - padding);
 }
@@ -125,7 +125,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 		return;
 
 	auto size    = LSG_Graphics::GetTextureSize(texture);
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIconSelected);
+	auto padding = LSG_Window::GetDPIScaled(LSG_MenuItem::PaddingIconSelected);
 
 	SDL_Rect destination = {
 		(this->background.x + this->background.w - size.width - padding),
@@ -136,7 +136,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 
 	SDL_RenderCopy(renderer, texture, nullptr, &destination);
 
-	auto border      = LSG_Graphics::GetDPIScaled(1);
+	auto border      = LSG_Window::GetDPIScaled(1);
 	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
 
 	LSG_Graphics::RenderBorder(renderer, border, borderColor, this->background);

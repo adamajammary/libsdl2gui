@@ -3,22 +3,14 @@
 LSG_Image::LSG_Image(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->downscaledTexture = nullptr;
-	this->file              = "";
-	this->fill              = false;
-	this->imageSize         = {};
-	this->orientation       = {};
+	this->aspectRatio = {};
+	this->orientation = {};
+	this->scaleFactor = {};
 
 	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
-	auto height = (attributes.contains("height") ? attributes["height"] : "");
-
-	if (!width.empty() && (width[width.length() - 1] != '%'))
-		this->imageSize.width = LSG_Graphics::GetDPIScaled(std::atoi(width.c_str()));
-
-	if (!height.empty() && (height[height.length() - 1] != '%'))
-		this->imageSize.height = LSG_Graphics::GetDPIScaled(std::atoi(height.c_str()));
+	this->file = (attributes.contains("file") ? attributes["file"] : "");
+	this->fill = (attributes.contains("fill") && attributes["fill"] == "true");
 }
 
 LSG_Image::~LSG_Image()
@@ -26,79 +18,40 @@ LSG_Image::~LSG_Image()
 	this->destroyTextures();
 }
 
-void LSG_Image::destroyTextures()
+void LSG_Image::downscaleTextureIcon(SDL_Size maxSize)
 {
-	LSG_Component::destroyTextures();
+	auto textureSize     = this->getTextureSize();
+	auto downscaleFactor = LSG_Graphics::GetDownscaleFactor(textureSize, maxSize);
 
-	if (this->downscaledTexture) {
-		SDL_DestroyTexture(this->downscaledTexture);
-		this->downscaledTexture = nullptr;
-	}
-}
+	if (!this->scaleDown(downscaleFactor) && !this->scaleUp(textureSize, maxSize))
+		return;
 
-SDL_Size LSG_Image::GetImageSize() const
-{
-	if (!this->parent)
-		return this->imageSize;
-	
-	SDL_Size imageSize = {
-		std::min(this->imageSize.width,  this->parent->background.w),
-		std::min(this->imageSize.height, this->parent->background.h),
-	};
+	if (this->texture)
+		SDL_DestroyTexture(this->texture);
 
-	return imageSize;
+	this->texture = LSG_Graphics::GetDownScaledTexture(this->file, downscaleFactor);
+
+	if (this->texture)
+		this->rotate();
 }
 
 SDL_Size LSG_Image::getMaxSize(const SDL_Rect& background) const
 {
-	auto textureSize = this->getTextureSize();
+	SDL_Size maxSize     = {};
+	auto     textureSize = this->getTextureSize();
 
-	SDL_FPoint textureScaleFactor = {
-		((float)textureSize.width  / (float)textureSize.height),
-		((float)textureSize.height / (float)textureSize.width)
-	};
-
-	SDL_Size size;
-
-	if ((this->imageSize.width > 0) && (this->imageSize.height > 0))
-		size = SDL_Size(this->imageSize);
-	else if (this->imageSize.width > 0)
-		size = { this->imageSize.width, (int)(textureScaleFactor.y * (float)this->imageSize.width) };
-	else if (this->imageSize.height > 0)
-		size = { (int)(textureScaleFactor.x * (float)this->imageSize.height), this->imageSize.height };
-	else
-		size = textureSize;
-
-	SDL_FPoint scaleFactor = {
-		((float)size.width  / (float)size.height),
-		((float)size.height / (float)size.width)
-	};
-
-	SDL_Size maxSize;
-
-	if (background.w >= background.h)
-	{
-		auto height = std::min(size.height, background.h);
-
-		if ((this->orientation.rotation == 90.0) || (this->orientation.rotation == 270.0))
-			maxSize = { .width  = height, .height = (int)(scaleFactor.y * (float)height) };
-		else
-			maxSize = { .width  = (int)(scaleFactor.x * (float)height), .height = height };
-	}
-	else
-	{
-		auto width = std::min(size.width, background.w);
-
-		maxSize = { .width  = width, .height = (int)(scaleFactor.y * (float)width) };
+	if (background.w >= background.h) {
+		maxSize.height = std::min(textureSize.height, background.h);
+		maxSize.width  = (int)(this->scaleFactor.x * (float)maxSize.height);
+	} else {
+		maxSize.width  = std::min(textureSize.width, background.w);
+		maxSize.height = (int)(this->scaleFactor.y * (float)maxSize.width);
 	}
 
-    if (maxSize.width > background.w)
-    {
+    if (maxSize.width > background.w) {
         maxSize.width  = background.w;
         maxSize.height = (int)(scaleFactor.y * (float)background.w);
-    }
-    else if (maxSize.height > background.h)
-    {
+    } else if (maxSize.height > background.h) {
         maxSize.height = background.h;
         maxSize.width  = (int)(scaleFactor.x * (float)background.h);
     }
@@ -108,26 +61,20 @@ SDL_Size LSG_Image::getMaxSize(const SDL_Rect& background) const
 
 SDL_Size LSG_Image::GetSize() const
 {
-	auto attributes  = this->GetXmlAttributes();
-	auto textureSize = this->getTextureSize();
+	auto attributes = this->GetXmlAttributes();
 
-	auto border2x  = (this->border  + this->border);
-	auto padding2x = (this->padding + this->padding);
+	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
+	auto height = (attributes.contains("height") ? attributes["height"] : "");
 
-	textureSize.width  += (padding2x + border2x);
-	textureSize.height += (padding2x + border2x);
+	if (!width.empty() && !height.empty())
+		return { this->background.w, this->background.h };
 
-	if (attributes.contains("width") && (this->background.w > 0))
-		textureSize.width = this->background.w;
+	if (!width.empty() && height.empty())
+		return { this->background.w, (int)(this->scaleFactor.y * (float)this->background.w) };
 
-	if (attributes.contains("height") && (this->background.h > 0))
-		textureSize.height = this->background.h;
+	if (!height.empty() && width.empty())
+		return { (int)(this->scaleFactor.x * (float)this->background.h), this->background.h };
 
-	return textureSize;
-}
-
-SDL_Size LSG_Image::GetTextureSize() const
-{
 	return this->getTextureSize();
 }
 
@@ -136,14 +83,8 @@ void LSG_Image::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	if (!this->visible)
 		return;
 
-	auto border2x    = (this->border  + this->border);
-	auto padding2x   = (this->padding + this->padding);
-	auto textureSize = this->getTextureSize();
-
 	this->background.x = position.x;
 	this->background.y = position.y;
-	this->background.w = ((this->imageSize.width  > 0 ? this->imageSize.width  : textureSize.width)  + padding2x + border2x);
-	this->background.h = ((this->imageSize.height > 0 ? this->imageSize.height : textureSize.height) + padding2x + border2x);
 
 	this->render(renderer);
 }
@@ -161,73 +102,103 @@ void LSG_Image::render(SDL_Renderer* renderer)
 	if (!this->texture)
 		return;
 
-	auto fillArea = this->getArea(this->background);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 
 	if (this->fill) {
 		SDL_RenderCopy(renderer, this->texture, nullptr, &fillArea);
 		return;
 	}
 
-	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, this->getMaxSize(fillArea), this->getAlignment());
+	auto maxSize = this->getMaxSize(fillArea);
 
-	auto sizeFull = this->getTextureSize();
-	auto size     = (this->downscaledTexture ? LSG_Graphics::GetTextureSize(this->downscaledTexture) : sizeFull);
+	this->downscaleTextureIcon(maxSize);
 
-	SDL_Size maxSize         = { destination.w, destination.h };
-	auto     downscaleFactor = LSG_Graphics::GetDownscaleFactor(size, maxSize);
+	if (this->aspectRatio.x < this->aspectRatio.y)
+		maxSize.width = (int)(this->aspectRatio.x * (float)maxSize.width);
+	else if (this->aspectRatio.y < this->aspectRatio.x)
+		maxSize.height = (int)(this->aspectRatio.y * (float)maxSize.height);
 
-	// Downscale (step-wise) to fit background if target size is less than 50% (to avoid pixelated quality)
-	if ((downscaleFactor.x > 1) || (downscaleFactor.y > 1))
-	{
-		if (this->downscaledTexture)
-			SDL_DestroyTexture(this->downscaledTexture);
+	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, maxSize, this->getAlignment());
 
-		this->downscaledTexture = LSG_Graphics::GetDownScaledTexture(this->file, LSG_Graphics::GetDownscaleFactor(sizeFull, maxSize));
-	}
-	// Resize (to a larger downscaled size) to fit background after a window resize (if full texture is large enough)
-	else if (((size.width < maxSize.width) || (size.height < maxSize.height)) && ((sizeFull.width > size.width) || (sizeFull.height > size.height)))
-	{
-		if (this->downscaledTexture)
-			SDL_DestroyTexture(this->downscaledTexture);
-
-		this->downscaledTexture = LSG_Graphics::GetDownScaledTexture(this->file, LSG_Graphics::GetDownscaleFactor(sizeFull, maxSize));
-	}
-
-	auto texture = (this->downscaledTexture ? this->downscaledTexture : this->texture);
-
-	SDL_RenderCopyEx(renderer, texture, nullptr, &destination, this->orientation.rotation, nullptr, this->orientation.flip);
+	SDL_RenderCopy(renderer, this->texture, nullptr, &destination);
 }
 
-void LSG_Image::SetImage(const std::string& file, bool fill)
+void LSG_Image::rotate()
 {
-	if (file.empty())
-		return;
+	this->imageSize = LSG_Graphics::GetTextureSize(this->texture);
 
-	this->destroyTextures();
+	this->aspectRatio = {
+		((float)this->imageSize.width  / (float)this->imageSize.height),
+		((float)this->imageSize.height / (float)this->imageSize.width)
+	};
 
-	auto exif = LSG_Exif::Get(file);
+	if (this->orientation.rotation > 0.0)
+	{
+		uint32_t format;
+		int      width, height;
 
-	this->file        = file;
-	this->fill        = fill;
-	this->orientation = LSG_Exif::GetOrientation(exif.tags);
-	this->texture     = LSG_Window::ToTexture(file);
+		SDL_QueryTexture(this->texture, &format, nullptr, &width, &height);
+
+		auto maxSize = std::max(width, height);
+
+		this->texture = LSG_Window::RotateTexture(this->texture, this->orientation, { maxSize, maxSize }, format);
+
+		this->imageSize = { maxSize, maxSize };
+
+		if ((this->orientation.rotation == 90.0) || (this->orientation.rotation == 270.0))
+		{
+			auto x = this->aspectRatio.x;
+
+			this->aspectRatio.x  = this->aspectRatio.y;
+			this->aspectRatio.y = x;
+		}
+	}
+
+	this->scaleFactor = {
+		((float)this->imageSize.width  / (float)this->imageSize.height),
+		((float)this->imageSize.height / (float)this->imageSize.width)
+	};
 }
 
-void LSG_Image::SetImage()
+bool LSG_Image::scaleDown(const SDL_Point& downscaleFactor) const
 {
-	if (!this->file.empty() && this->texture)
+	return ((downscaleFactor.x > 1) || (downscaleFactor.y > 1));
+}
+
+bool LSG_Image::scaleUp(const SDL_Size& textureSize, SDL_Size maxSize) const
+{
+	return (
+		((textureSize.width < maxSize.width) || (textureSize.height < maxSize.height)) &&
+		((this->imageSize.width > textureSize.width) || (this->imageSize.height > textureSize.height))
+	);
+}
+
+void LSG_Image::Set(const std::string& file, bool fill)
+{
+	if ((file == this->file) && (fill == this->fill))
 		return;
 
+	this->file = file;
+	this->fill = fill;
+
+	this->set();
+}
+
+void LSG_Image::Set()
+{
+	this->set();
+}
+
+void LSG_Image::set()
+{
 	this->destroyTextures();
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
-	auto xmlFile    = (attributes.contains("file") ? attributes["file"] : "");
-	auto xmlFill    = (attributes.contains("fill") ? attributes["fill"] : "");
+	if (this->file.empty())
+		return;
+		
+	this->orientation = LSG_Exif::GetOrientation(LSG_Exif::Get(this->file).tags);
+	this->texture     = LSG_Window::ToTexture(this->file);
 
-	auto exif = LSG_Exif::Get(xmlFile);
-
-	this->file        = xmlFile;
-	this->fill        = (xmlFill == "true");
-	this->orientation = LSG_Exif::GetOrientation(exif.tags);
-	this->texture     = LSG_Window::ToTexture(xmlFile);
+	if (this->texture)
+		this->rotate();
 }

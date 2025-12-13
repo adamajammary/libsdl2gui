@@ -5,13 +5,12 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 {
 	this->fillProgress      = false;
 	this->isSlideActive     = false;
-	this->orientation       = "";
 	this->progressColor     = {};
 	this->thumb             = {};
 	this->thumbBorder       = 0;
 	this->thumbBorderColor  = {};
 	this->thumbColor        = {};
-	this->thumbWidthDefault = LSG_Graphics::GetDPIScaled(LSG_Slider::DefaultThumbWidth);
+	this->thumbWidthDefault = LSG_Window::GetDPIScaled(LSG_Slider::DefaultThumbWidth);
 	this->thumbWidth        = this->thumbWidthDefault;
 	this->value             = 0.0;
 
@@ -20,14 +19,11 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 	if (attributes.contains("fill-progress"))
 		this->fillProgress = (attributes["fill-progress"] == "true");
 
-	if (attributes.contains("orientation"))
-		this->orientation = attributes["orientation"];
-
 	if (attributes.contains("thumb-border"))
 		this->thumbBorder = std::atoi(attributes["thumb-border"].c_str());
 
 	if (attributes.contains("thumb-width"))
-		this->thumbWidth = LSG_Graphics::GetDPIScaled(std::atoi(attributes["thumb-width"].c_str()));
+		this->thumbWidth = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-width"].c_str()));
 
 	if (attributes.contains("value"))
 		this->value = std::atof(attributes["value"].c_str());
@@ -124,7 +120,7 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		return;
 
 	auto background = SDL_Rect(this->background);
-	auto minHeight  = LSG_Graphics::GetDPIScaled(LSG_Slider::MinHeight);
+	auto minHeight  = LSG_Window::GetDPIScaled(LSG_Slider::MinHeight);
 	bool isVertical = this->IsVertical();
 
 	if (isVertical)

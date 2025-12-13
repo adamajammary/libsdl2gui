@@ -104,12 +104,27 @@ int LSG_ScrollBar::GetScrollY() const
 
 int LSG_ScrollBar::GetSize()
 {
-	return LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Size);
+	return LSG_Window::GetDPIScaled(LSG_ScrollBar::Size);
 }
 
 int LSG_ScrollBar::GetSize2x()
 {
-	return LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Size2x);
+	return LSG_Window::GetDPIScaled(LSG_ScrollBar::Size2x);
+}
+
+bool LSG_ScrollBar::IsMouseOverScrollbar(const SDL_Point& mousePosition) const
+{
+	auto scrollBarY = this->scrollBarY;
+
+	if (this->showScrollY && this->showScrollX)
+		scrollBarY.h += LSG_ScrollBar::GetSize();
+
+	if (this->showScrollY && SDL_PointInRect(&mousePosition, &scrollBarY))
+		return true;
+	else if (this->showScrollX && SDL_PointInRect(&mousePosition, &this->scrollBarX))
+		return true;
+
+	return false;
 }
 
 bool LSG_ScrollBar::OnScrollHome()
@@ -133,11 +148,10 @@ bool LSG_ScrollBar::OnScrollMouseClick(const SDL_Point& mousePosition)
 	if (LSG_Events::IsMouseDown())
 		return false;
 
-	auto     scrollBarSize = LSG_ScrollBar::GetSize();
-	SDL_Rect scrollBarY    = this->scrollBarY;
+	auto scrollBarY = this->scrollBarY;
 
 	if (this->showScrollY && this->showScrollX)
-		scrollBarY.h += scrollBarSize;
+		scrollBarY.h += LSG_ScrollBar::GetSize();
 
 	if (!this->isSlideActiveY && this->showScrollY && SDL_PointInRect(&mousePosition, &scrollBarY))
 	{
@@ -365,8 +379,8 @@ void LSG_ScrollBar::renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_
 
 	this->scrollThumbX.x += scrollBarSize;
 	this->scrollThumbX.w -= scrollBarSize2x;
-	this->scrollThumbX.y += LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding);
-	this->scrollThumbX.h -= LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding2x);
+	this->scrollThumbX.y += LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding);
+	this->scrollThumbX.h -= LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding2x);
 
 	this->clipFactorX = (double)((double)this->scrollThumbX.w / (double)maxWidth);
 
@@ -423,8 +437,8 @@ void LSG_ScrollBar::renderScrollBarVertical(SDL_Renderer* renderer, const SDL_Re
 
 	this->scrollThumbY = SDL_Rect(this->scrollBarY);
 
-	this->scrollThumbY.x += LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding);
-	this->scrollThumbY.w -= LSG_Graphics::GetDPIScaled(LSG_ScrollBar::Padding2x);
+	this->scrollThumbY.x += LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding);
+	this->scrollThumbY.w -= LSG_Window::GetDPIScaled(LSG_ScrollBar::Padding2x);
 	this->scrollThumbY.y += scrollBarSize;
 	this->scrollThumbY.h -= scrollBarSize2x;
 

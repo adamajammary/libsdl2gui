@@ -35,17 +35,29 @@
     <line />
 
     <panel height="50" spacing="10" font-size="18" halign="center" valign="middle">
-      <button id="ButtonIdColorThemeDark" width="150" halign="center" valign="middle" spacing="10" background-color="#000000" text-color="#FFFFFF" border-color="#FFFFFF" border="1">
-        <image file="img/dark-512.png" width="24" height="24" />
-        <text>Dark</text>
-      </button>
+      <button
+        id="ButtonIdColorThemeDark"
+        text="Dark"
+        icon="img/dark-512.png"
+        width="150"
+        background-color="#000000"
+        text-color="#FFFFFF"
+        border-color="#FFFFFF"
+        border="1"
+      />
 
       <toggle id="Toggle" width="50" />
 
-      <button id="ButtonIdColorThemeLight" width="150" halign="center" valign="middle" spacing="10" background-color="#FFFFFF" text-color="#000000" border-color="#000000" border="1">
-        <image file="img/light-512.png" width="24" height="24" />
-        <text>Light</text>
-      </button>
+      <button
+        id="ButtonIdColorThemeLight"
+        text="Light"
+        icon="img/light-512.png"
+        width="150"
+        background-color="#FFFFFF"
+        text-color="#000000"
+        border-color="#000000"
+        border="1"
+      />
     </panel>
 
     <panel orientation="vertical">
@@ -56,7 +68,7 @@
         </panel>
 
         <panel spacing="5">
-          <text italic="true">List:</text>
+          <text>List:</text>
           <text id="ListRow" />
         </panel>
       </panel>
@@ -64,37 +76,45 @@
       <panel spacing="10">
         <panel id="PanelIdCards" padding="10" border="1">
           <cards id="Cards" card-height="128" card-border="line">
-            <card thumbnail="img/tile-1.jpg"
+            <card
               title="Card #1 - Risus sed vulputate odio ut"
               description="Nibh tortor id aliquet lectus proin nibh nisl condimentum id.\nVitae semper quis lectus nulla at volutpat diam."
+              thumbnail="img/tile-1.jpg"
             />
-            <card thumbnail="img/tile-2.jpg"
+            <card
               title="Card #2 - Volutpat commodo sed egestas egestas fringilla"
               description="Donec massa sapien faucibus et molestie."
+              thumbnail="img/tile-2.jpg"
             />
-            <card thumbnail="img/tile-3.jpg"
+            <card
               title="Card #3 - Pretium lectus quam id leo in."
               description="Dignissim diam quis enim lobortis scelerisque fermentum.\n\nAliquam faucibus purus in massa tempor nec feugiat."
+              thumbnail="img/tile-3.jpg"
             />
-            <card thumbnail="img/tile-4.jpg"
+            <card
               title="Card #4 - Morbi non arcu risus quis varius"
               description="Dolor sit amet consectetur adipiscing elit duis."
+              thumbnail="img/tile-4.jpg"
             />
-            <card thumbnail="img/tile-1.jpg"
+            <card
               title="Card #5 - Tellus mauris a diam maecenas sed."
               description="Elementum nisi quis eleifend quam adipiscing vitae."
+              thumbnail="img/tile-1.jpg"
             />
-            <card thumbnail="img/tile-2.jpg"
+            <card
               title="Card #6 - A erat nam at lectus urna."
               description="Nam libero justo laoreet sit amet cursus sit amet."
+              thumbnail="img/tile-2.jpg"
             />
-            <card thumbnail="img/tile-3.jpg"
+            <card
               title="Card #7 - Cursus vitae congue mauris rhoncus aenean vel."
               description="Libero enim sed faucibus turpis.\nUllamcorper eget nulla facilisi etiam."
+              thumbnail="img/tile-3.jpg"
             />
-            <card thumbnail="img/tile-4.jpg"
+            <card
               title="Card #8 - Ac auctor augue mauris augue neque."
               description="Euismod lacinia at quis risus."
+              thumbnail="img/tile-4.jpg"
             />
           </cards>
         </panel>
@@ -121,12 +141,12 @@
     <panel orientation="vertical">
       <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
-          <text underline="true">Tiles with wrapping:</text>
+          <text>Tiles with wrapping:</text>
           <text id="Tile" />
         </panel>
 
         <panel spacing="5">
-          <text strike-through="true">Table with groups:</text>
+          <text>Table with groups:</text>
           <text id="TableWithGroupsRow" />
         </panel>
       </panel>
@@ -187,28 +207,30 @@
       </panel>
     </panel>
 
-    <panel height="40" valign="middle" spacing="10" font-size="18">
-      <text>Slider</text>
+    <panel height="100" orientation="vertical">
+      <panel height="40" valign="middle" spacing="10" font-size="18">
+        <text>Slider</text>
 
-      <slider
-        id="Slider"
-        height="20"
-        value="0.5"
-        fill-progress="true"
-        progress-color="rgb(20, 130, 255)"
-        thumb-color="rgb(128, 128, 128)"
-        thumb-border-color="#000000"
-        thumb-width="20"
-        background-color="rgb(192, 192, 192)"
-      />
+        <slider
+          id="Slider"
+          height="20"
+          value="0.5"
+          fill-progress="true"
+          progress-color="rgb(20, 130, 255)"
+          thumb-color="rgb(128, 128, 128)"
+          thumb-border-color="#000000"
+          thumb-width="20"
+          background-color="rgb(192, 192, 192)"
+        />
 
-      <panel width="40" halign="right" valign="middle">
-        <text id="SliderValue">0.50</text>
+        <panel width="40" halign="right" valign="middle">
+          <text id="SliderValue">0.50</text>
+        </panel>
       </panel>
+
+      <line />
+
+      <navigation id="Navigation" items-total="10" items-per-navigation="1" height="30" />
     </panel>
-
-    <line />
-
-    <navigation id="Navigation" items-total="10" items-per-navigation="1" height="30" />
   </panel>
 </window>

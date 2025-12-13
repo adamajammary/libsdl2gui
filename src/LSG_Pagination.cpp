@@ -55,7 +55,7 @@ void LSG_Pagination::destroyPageTextures()
 
 SDL_Size LSG_Pagination::getArrowSize(const SDL_Rect& arrow) const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_Pagination::ArrowPadding);
+	auto padding = LSG_Window::GetDPIScaled(LSG_Pagination::ArrowPadding);
 
 	return { arrow.w - padding, arrow.h - padding };
 }

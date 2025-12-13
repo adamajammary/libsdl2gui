@@ -10,7 +10,6 @@ LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->offset        = 0;
 	this->rows          = 0;
 	this->selectedTiles = {};
-	this->spacing       = 0;
 	this->text          = {};
 	this->tileSize      = 0;
 	this->tiles         = {};
@@ -18,12 +17,16 @@ LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->totalSize     = 0;
 	this->wrap          = true;
 
+	this->spacing    = LSG_Window::GetDPIScaled(this->GetSpacing());
+	this->tileBorder = LSG_Window::GetDPIScaled(LSG_Tiles::TileBorder);
+
 	auto attributes = LSG_XML::GetAttributes(xmlNode);
 
 	this->textAlignment = this->getTextAlignment(attributes);
-	this->tileBorder    = LSG_Graphics::GetDPIScaled(LSG_Tiles::TileBorder);
-	this->wrapTiles     = (attributes.contains("wrap") ? (attributes["wrap"] != "false") : true);
-	this->xmlTileSize   = (attributes.contains("tile-size") ? attributes["tile-size"] : "");
+
+	this->wrapTiles = (attributes.contains("wrap") ? (attributes["wrap"] != "false") : true);
+
+	this->xmlTileSize = (attributes.contains("tile-size") ? attributes["tile-size"] : "");
 }
 
 LSG_Tiles::~LSG_Tiles()
@@ -67,7 +70,7 @@ void LSG_Tiles::AddTile(LibXml::xmlNode* node)
 
 	this->tiles.push_back({
 		.image = { .filePath = (attributes.contains("image") ? attributes["image"] : "") },
-		.text  = { .text     = (attributes.contains("text")  ? attributes["text"] : "") }
+		.text  = { .text     = (attributes.contains("text")  ? attributes["text"]  : "") }
 	});
 }
 
@@ -309,22 +312,33 @@ std::vector<int> LSG_Tiles::GetSelectedTiles() const
 
 SDL_Size LSG_Tiles::GetSize() const
 {
-	auto attributes  = this->GetXmlAttributes();
-	auto textureSize = this->getTextureSize();
+	auto maxWidth = (this->background.w - this->border);
 
-	auto border2x  = (this->border  + this->border);
-	auto padding2x = (this->padding + this->padding);
+	auto tileCount = (int)this->tiles.size();
+	auto tileSize  = this->getTileSize(maxWidth);
 
-	textureSize.width  += (padding2x + border2x);
-	textureSize.height += (padding2x + border2x);
+	SDL_Size size = {};
 
-	if (attributes.contains("width") && (this->background.w > 0))
-		textureSize.width = this->background.w;
+	if (!this->wrapTiles)
+	{
+		size.width  = (((tileSize + this->spacing) * tileCount) - this->spacing);
+		size.height = tileSize;
+	}
+	else if (SDL_RectEmpty(&this->background))
+	{
+		size.width  = tileSize;
+		size.height = (((tileSize + this->spacing) * tileCount) - this->spacing);
+	}
+	else
+	{
+		auto tilesPerRow = std::max(std::min((maxWidth / (tileSize + this->spacing)), tileCount), 1);
+		auto rowCount    = ((tileCount / tilesPerRow) + ((tileCount % tilesPerRow != 0) ? 1 : 0));
 
-	if (attributes.contains("height") && (this->background.h > 0))
-		textureSize.height = this->background.h;
+		size.width  = maxWidth;
+		size.height = (((tileSize + this->spacing) * rowCount) - this->spacing);
+	}
 
-	return textureSize;
+	return size;
 }
 
 LSG_Alignment LSG_Tiles::getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const
@@ -413,18 +427,21 @@ LSG_TileItem LSG_Tiles::GetTile(int index) const
 	return tile;
 }
 
-int LSG_Tiles::getTileSize() const
+int LSG_Tiles::getTileSize(int maxWidth) const
 {
+	if (maxWidth < 1)
+		return LSG_Window::GetDPIScaled(LSG_Tiles::DefaultTileSize);
+
 	int tileSize;
 
 	if (!this->xmlTileSize.empty() && (this->xmlTileSize[this->xmlTileSize.length() - 1] == '%'))
-		tileSize = (int)((double)this->fillArea.w * std::atof(this->xmlTileSize.c_str()) * 0.01);
-	else
+		tileSize = (int)((double)maxWidth * std::atof(this->xmlTileSize.c_str()) * 0.01);
+	else if (!this->xmlTileSize.empty())
 		tileSize = std::atoi(this->xmlTileSize.c_str());
+	else
+		tileSize = LSG_Tiles::DefaultTileSize;
 
-	tileSize = LSG_Graphics::GetDPIScaled(std::min(tileSize, std::min(this->fillArea.w, this->fillArea.h)));
-
-	return tileSize;
+	return LSG_Window::GetDPIScaled(tileSize);
 }
 
 LSG_TileItems LSG_Tiles::GetTiles() const
@@ -548,37 +565,26 @@ void LSG_Tiles::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	if (!this->visible)
 		return;
 
-	SDL_Size textureSize;
-
-	if (!this->wrapTiles)
-		textureSize = { this->totalSize, this->tileSize };
-	else
-		textureSize = { (this->rows > 1 ? this->fillArea.w : (((this->tileSize + this->spacing) * this->tilesPerRow) - this->spacing)), this->totalSize };
-
-	auto     attributes = this->GetXmlAttributes();
-	SDL_Size size       = {};
-
-	if (attributes.contains("width") && (this->background.w > 0))
-		size.width = this->background.w;
-
-	if (attributes.contains("height") && (this->background.h > 0))
-		size.height = this->background.h;
-
-	auto border2x  = (this->border  + this->border);
-	auto padding2x = (this->padding + this->padding);
+	auto textureSize = this->GetSize();
 
 	this->background.x = position.x;
 	this->background.y = position.y;
-	this->background.w = (size.width  > 0 ? size.width  : (textureSize.width  + padding2x + border2x));
-	this->background.h = (size.height > 0 ? size.height : (textureSize.height + padding2x + border2x));
+	this->background.w = textureSize.width;
+	this->background.h = textureSize.height;
+
+	this->setGrid();
 
 	this->render(renderer);
 }
 
 void LSG_Tiles::Render(SDL_Renderer* renderer)
 {
-	if (this->visible)
-		this->render(renderer);
+	if (!this->visible)
+		return;
+
+	this->setGrid();
+
+	this->render(renderer);
 }
 
 void LSG_Tiles::render(SDL_Renderer* renderer)
@@ -587,8 +593,6 @@ void LSG_Tiles::render(SDL_Renderer* renderer)
 
 	if (this->tiles.empty())
 		return;
-
-	this->setGrid();
 
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 
@@ -642,7 +646,7 @@ void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
 		LSG_Graphics::RenderFill(renderer, 0, { color.r, color.g, color.b, 64 }, this->image.destination);
 }
 
-void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_TileImage& image)
+void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_TileImage& image) const
 {
 	LSG_Graphics::RenderFill(renderer, 0, { 0, 0, 0, 128 }, this->image.destination);
 
@@ -1027,8 +1031,7 @@ void LSG_Tiles::sendEvent(LSG_EventType type) const
 void LSG_Tiles::setGrid()
 {
 	this->fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
-	this->spacing  = LSG_Graphics::GetDPIScaled(this->GetSpacing());
-	this->tileSize = this->getTileSize();
+	this->tileSize = this->getTileSize(this->fillArea.w);
 
 	this->calculateGridDimensions();
 
@@ -1041,7 +1044,7 @@ void LSG_Tiles::setGrid()
 	{
 		this->fillArea.h -= LSG_ScrollBar::GetSize();
 
-		this->tileSize = this->getTileSize();
+		this->tileSize = this->getTileSize(this->fillArea.w);
 
 		this->calculateGridDimensions();
 	}

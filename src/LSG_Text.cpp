@@ -3,10 +3,6 @@
 LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->lastFontSize  = 0;
-	this->lastFontStyle = -1;
-	this->lastTextColor = {};
-
 	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
 }
 
@@ -30,7 +26,7 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 		auto FONT_PATH = "C:\\Windows\\Fonts\\ARIALUNI.TTF";
 	#endif
 
-	auto font = TTF_OpenFont(FONT_PATH, LSG_Graphics::GetDPIScaled(fontSize));
+	auto font = TTF_OpenFont(FONT_PATH, LSG_Window::GetDPIScaled(fontSize));
 
 	if (!font)
 		throw std::invalid_argument(std::format("Failed to open default font '{}': {}", FONT_PATH, TTF_GetError()));
@@ -111,10 +107,6 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	if (!surface)
 		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));
 
-	this->lastFontSize  = size;
-	this->lastFontStyle = style;
-	this->lastTextColor = SDL_Color(color);
-
 	this->surfaceLock.unlock();
 
 	return surface;
@@ -131,15 +123,6 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	SDL_FreeSurface(surface);
 
 	return texture;
-}
-
-bool LSG_Text::hasChanged()
-{
-	bool isColorChanged     = !LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor);
-	bool isFontSizeChanged  = (this->getFontSize()  != this->lastFontSize);
-	bool isFontStyleChanged = (this->getFontStyle() != this->lastFontStyle);
-
-	return (isColorChanged || isFontSizeChanged || isFontStyleChanged);
 }
 
 std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separator)

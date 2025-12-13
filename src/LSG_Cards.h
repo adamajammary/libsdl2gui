@@ -37,9 +37,6 @@ public:
 	LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Cards();
 
-public:
-	static const int LayerOffset = 100000000;
-
 private:
 	static const int CardBorder   = 1;
 	static const int CardHeight   = 128;
@@ -95,6 +92,7 @@ private:
 	void          destroySurfaces();
 	void          destroyTextures(LSG_Card& card);
 	virtual void  destroyTextures() override;
+	int           getRow(const SDL_Point& mousePosition) const;
 	bool          initRenderTarget(const SDL_Size& textureSize);
 	void          render(SDL_Renderer* renderer);
 	void          renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;

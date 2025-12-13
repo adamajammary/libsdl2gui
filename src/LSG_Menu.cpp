@@ -6,14 +6,13 @@ LSG_Menu::LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	this->highlightedIconClose = false;
 	this->highlightedNavBack   = false;
 	this->isOpen               = false;
-	this->lastTextColor        = {};
 	this->renderTarget         = nullptr;
 	this->subMenu              = this;
 
 	auto padding = LSG_XML::GetAttribute(this->xmlNode, "padding");
 
 	if (padding.empty())
-		this->padding = LSG_Graphics::GetDPIScaled(LSG_Menu::DefaultPadding);
+		this->padding = LSG_Window::GetDPIScaled(LSG_Menu::DefaultPadding);
 }
 
 LSG_Menu::~LSG_Menu()
@@ -72,9 +71,9 @@ SDL_Rect LSG_Menu::getMenu(const SDL_Rect& window) const
 	if (isPercent)
 		menu.w = (int)((double)window.w * std::atof(xmlWidth.c_str()) * 0.01);
 	else if (!xmlWidth.empty())
-		menu.w = LSG_Graphics::GetDPIScaled(std::atoi(xmlWidth.c_str()));
+		menu.w = LSG_Window::GetDPIScaled(std::atoi(xmlWidth.c_str()));
 	else
-		menu.w = LSG_Graphics::GetDPIScaled(LSG_Menu::DefaultWidth);
+		menu.w = LSG_Window::GetDPIScaled(LSG_Menu::DefaultWidth);
 
 	return menu;
 }
@@ -85,8 +84,8 @@ std::vector<SDL_Rect> LSG_Menu::getMenuItems() const
 	auto menu       = this->getMenu(background);
 	auto maxWidth   = (menu.w - this->padding - this->padding);
 
-	auto padding    = LSG_Graphics::GetDPIScaled(LSG_Menu::DefaultPadding);
-	auto itemHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto padding    = LSG_Window::GetDPIScaled(LSG_Menu::DefaultPadding);
+	auto itemHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 	auto lineHeight = (padding + padding + 1);
 
 	auto offsetY = (menu.y + this->padding + itemHeight + lineHeight);
@@ -113,7 +112,7 @@ std::vector<SDL_Rect> LSG_Menu::getMenuItems() const
 
 SDL_Rect LSG_Menu::getNavBackHighlight(const SDL_Rect& menu) const
 {
-	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 
 	SDL_Rect highlight = {
 		(menu.x + this->padding),
@@ -295,9 +294,9 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 
 void LSG_Menu::renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu)
 {
-	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 	auto color     = LSG_Graphics::GetThumbColor(this->backgroundColor);
-	auto padding   = LSG_Graphics::GetDPIScaled(LSG_Menu::DefaultPadding);
+	auto padding   = LSG_Window::GetDPIScaled(LSG_Menu::DefaultPadding);
 	auto positionY = (menu.y + this->padding + maxHeight + padding);
 
 	SDL_Rect border = {
@@ -403,7 +402,7 @@ void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu)
 	if (!this->textures[LSG_MENU_TEXTURE_NAV_BACK])
 		return;
 
-	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 	auto size      = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_TEXTURE_NAV_BACK]);
 
 	SDL_Rect destination = {
@@ -424,7 +423,7 @@ void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu)
 	if (!this->textures[LSG_MENU_TEXTURE_TITLE])
 		return;
 
-	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 	auto closeIcon = maxHeight;
 	auto navBack   = (this->textures[LSG_MENU_TEXTURE_NAV_BACK] ? maxHeight : 0);
 	auto title     = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_TEXTURE_TITLE]);
@@ -457,7 +456,7 @@ void LSG_Menu::setMenuClosed()
 
 	this->textures.resize(NR_OF_MENU_TEXTURES);
 
-	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 
 	SDL_Size maxIconSize = {
 		std::min(this->background.h, maxHeight),
@@ -465,9 +464,6 @@ void LSG_Menu::setMenuClosed()
 	};
 
 	this->textures[LSG_MENU_TEXTURE_ICON_OPEN] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_MENU, this->textColor, maxIconSize);
-
-	if (this->textures[LSG_MENU_TEXTURE_ICON_OPEN])
-		this->lastTextColor = SDL_Color(this->textColor);
 }
 
 void LSG_Menu::setMenuOpened()
@@ -479,7 +475,7 @@ void LSG_Menu::setMenuOpened()
 
 	this->textures.resize(NR_OF_MENU_TEXTURES);
 
-	auto maxHeight = LSG_Graphics::GetDPIScaled(LSG_MenuItem::Height);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 
 	SDL_Size maxIconSize = {
 		std::min(this->background.h, maxHeight),
@@ -490,7 +486,7 @@ void LSG_Menu::setMenuOpened()
 
 	if (this->subMenu->IsSubMenu())
 	{
-		auto     padding2x = LSG_Graphics::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
+		auto     padding2x = LSG_Window::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
 		auto     size      = (maxHeight - padding2x);
 		SDL_Size maxSize   = { size, size };
 
@@ -505,9 +501,6 @@ void LSG_Menu::setMenuOpened()
 		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle, 0, TTF_STYLE_BOLD, nullptr);
 
 	this->textures[LSG_MENU_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, maxIconSize);
-
-	if (this->textures[LSG_MENU_TEXTURE_ICON_CLOSE])
-		this->lastTextColor = SDL_Color(this->textColor);
 
 	auto children = this->subMenu->GetChildren();
 	auto items    = this->getMenuItems();

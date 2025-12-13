@@ -22,9 +22,9 @@ SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 
 	#if defined _macosx
 		if ((event.type == SDL_MOUSEBUTTONDOWN) || (event.type == SDL_MOUSEBUTTONUP))
-			position = { LSG_Graphics::GetDPIScaled(event.button.x), LSG_Graphics::GetDPIScaled(event.button.y) };
+			position = { LSG_Window::GetDPIScaled(event.button.x), LSG_Window::GetDPIScaled(event.button.y) };
 		else if (event.type == SDL_MOUSEMOTION)
-			position = { LSG_Graphics::GetDPIScaled(event.motion.x), LSG_Graphics::GetDPIScaled(event.motion.y) };
+			position = { LSG_Window::GetDPIScaled(event.motion.x), LSG_Window::GetDPIScaled(event.motion.y) };
 	#else
 		if ((event.type == SDL_MOUSEBUTTONDOWN) || (event.type == SDL_MOUSEBUTTONUP))
 			position = { event.button.x, event.button.y };

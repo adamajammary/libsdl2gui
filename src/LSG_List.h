@@ -10,8 +10,7 @@ public:
 	~LSG_List() {}
 
 public:
-	static const int LayerOffset = 100000000;
-	static const int UnitPage    = 5;
+	static const int UnitPage = 5;
 
 protected:
 	std::vector<int> selectedRows;

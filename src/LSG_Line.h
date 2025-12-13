@@ -10,6 +10,9 @@ public:
 	~LSG_Line() {}
 
 public:
+	static const int DefaultSize = 20;
+
+public:
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	virtual void Render(SDL_Renderer* renderer) const override;
 

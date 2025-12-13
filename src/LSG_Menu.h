@@ -10,7 +10,7 @@ public:
 	~LSG_Menu();
 
 public:
-	static const int LayerOffset = 1000000000;
+	static const int LayerOffset = 100000000;
 
 private:
 	static const int DefaultWidth   = 300;

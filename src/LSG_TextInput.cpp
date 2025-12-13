@@ -15,8 +15,8 @@ LSG_TextInput::LSG_TextInput(const std::string& id, int layer, LibXml::xmlNode* 
 
 	auto attributes = this->GetXmlAttributes();
 
-	this->placeholder = attributes["placeholder"];
-	this->value       = attributes["value"];
+	this->placeholder = (attributes.contains("placeholder") ? attributes["placeholder"] : "");
+	this->value       = (attributes.contains("value") ? attributes["value"] : "");
 
 	this->textures.resize(NR_OF_TEXT_INPUT_TEXTURES);
 }
@@ -154,36 +154,9 @@ SDL_Rect LSG_TextInput::getIconClear(const SDL_Rect& fillArea) const
 	return iconClear;
 }
 
-SDL_Size LSG_TextInput::GetSize() const
-{
-	auto attributes  = this->GetXmlAttributes();
-	auto showValue   = (this->active || !this->value.empty());
-	auto texture     = this->textures[showValue ? LSG_TEXT_INPUT_TEXTURE_VALUE : LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER];
-	auto textureSize = (showValue ? this->textSize : LSG_Graphics::GetTextureSize(texture));
-
-	auto border2x  = (this->border  + this->border);
-	auto padding2x = (this->padding + this->padding);
-
-	textureSize.width  += (padding2x + border2x);
-	textureSize.height += (padding2x + border2x);
-
-	if (attributes.contains("width") && (this->background.w > 0))
-		textureSize.width = this->background.w;
-
-	if (attributes.contains("height") && (this->background.h > 0))
-		textureSize.height = this->background.h;
-
-	return textureSize;
-}
-
 std::string LSG_TextInput::GetValue() const
 {
 	return this->value;
-}
-
-void LSG_TextInput::Highlight(const SDL_Point& mousePosition)
-{
-	this->highlightedIconClear = this->isMouseOverIconClear(mousePosition);
 }
 
 void LSG_TextInput::Input(const std::string& text)
@@ -205,12 +178,7 @@ void LSG_TextInput::Input(const std::string& text)
 	this->setValue();
 }
 
-bool LSG_TextInput::IsHighlightedIconClear() const
-{
-	return this->highlightedIconClear;
-}
-
-bool LSG_TextInput::isMouseOverIconClear(const SDL_Point& mousePosition)
+bool LSG_TextInput::IsMouseOverIconClear(const SDL_Point& mousePosition)
 {
 	if (!this->active || !this->enabled || !this->visible || this->value.empty())
 		return false;
@@ -229,7 +197,9 @@ bool LSG_TextInput::isMouseOverIconClear(const SDL_Point& mousePosition)
 
 	auto iconClear = this->getIconClear(fillArea);
 
-	return SDL_PointInRect(&mousePosition, &iconClear);
+	this->highlightedIconClear = SDL_PointInRect(&mousePosition, &iconClear);
+
+	return this->highlightedIconClear;
 }
 
 void LSG_TextInput::MoveCursorEnd()
@@ -312,7 +282,7 @@ bool LSG_TextInput::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->enabled || !this->visible)
 		return false;
 
-	if (this->isMouseOverIconClear(mousePosition)) {
+	if (this->IsMouseOverIconClear(mousePosition)) {
 		this->Clear();
 		return false;
 	} else if (this->active) {

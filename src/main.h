@@ -72,6 +72,13 @@ using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
 using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
 using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
 
+enum LSG_ButtonTexture
+{
+	LSG_BUTTON_TEXTURE_ICON,
+	LSG_BUTTON_TEXTURE_TEXT,
+	NR_OF_BUTTON_TEXTURES
+};
+
 enum LSG_CardBorder
 {
 	LSG_CARD_BORDER_FULL,

@@ -32,7 +32,7 @@ bool LSG_Modal::CloseOnMouseClick(const SDL_Point& mousePosition)
 SDL_Rect LSG_Modal::getCloseIcon() const
 {
 	auto textureSize = LSG_Graphics::GetTextureSize(this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE]);
-	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
+	auto padding     = LSG_Window::GetDPIScaled(LSG_Modal::Padding);
 
 	SDL_Rect closeIcon = {
 		(this->background.x + this->background.w - textureSize.width - this->padding - padding),
@@ -166,8 +166,8 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer) const
 
 void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer) const
 {
-	auto height      = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
-	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
+	auto height      = LSG_Window::GetDPIScaled(LSG_Modal::Height);
+	auto padding     = LSG_Window::GetDPIScaled(LSG_Modal::Padding);
 	auto borderY     = (this->background.y + this->padding + height);
 	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
 
@@ -188,8 +188,8 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer) const
 	if (!texture)
 		return;
 
-	auto height      = LSG_Graphics::GetDPIScaled(LSG_Modal::Height);
-	auto padding     = LSG_Graphics::GetDPIScaled(LSG_Modal::Padding);
+	auto height      = LSG_Window::GetDPIScaled(LSG_Modal::Height);
+	auto padding     = LSG_Window::GetDPIScaled(LSG_Modal::Padding);
 	auto textureSize = LSG_Graphics::GetTextureSize(texture);
 	auto iconSize    = (!this->hideCloseIcon ? height : 0);
 	auto maxWidth    = (this->background.w - this->padding - iconSize - this->padding);
@@ -216,7 +216,7 @@ void LSG_Modal::setBorder(const LSG_UMapStrStr& attributes)
 	auto border = (attributes.contains("border") ? attributes.at("border") : "");
 
 	if (!border.empty())
-		this->border = LSG_Graphics::GetDPIScaled(std::atoi(border.c_str()));
+		this->border = LSG_Window::GetDPIScaled(std::atoi(border.c_str()));
 }
 
 void LSG_Modal::setHideCloseIcon(const LSG_UMapStrStr& attributes)
@@ -231,7 +231,7 @@ void LSG_Modal::setMargin(const LSG_UMapStrStr& attributes)
 	auto margin = (attributes.contains("margin") ? attributes.at("margin") : "");
 
 	if (!margin.empty())
-		this->margin = LSG_Graphics::GetDPIScaled(std::atoi(margin.c_str()));
+		this->margin = LSG_Window::GetDPIScaled(std::atoi(margin.c_str()));
 }
 
 void LSG_Modal::setPadding(const LSG_UMapStrStr& attributes)
@@ -239,7 +239,7 @@ void LSG_Modal::setPadding(const LSG_UMapStrStr& attributes)
 	auto padding = (attributes.contains("padding") ? attributes.at("padding") : "");
 
 	if (!padding.empty())
-		this->padding = LSG_Graphics::GetDPIScaled(std::atoi(padding.c_str()));
+		this->padding = LSG_Window::GetDPIScaled(std::atoi(padding.c_str()));
 }
 
 void LSG_Modal::setPosition(const LSG_UMapStrStr& attributes, const SDL_Rect& parentBackground)
@@ -269,14 +269,14 @@ void LSG_Modal::setSize(const LSG_UMapStrStr& attributes, const SDL_Rect& parent
 	if (isWidthPercent)
 		this->background.w = (int)((double)parentBackground.w * std::atof(width.c_str()) * 0.01);
 	else if (!width.empty())
-		this->background.w = LSG_Graphics::GetDPIScaled(std::atoi(width.c_str()));
+		this->background.w = LSG_Window::GetDPIScaled(std::atoi(width.c_str()));
 	else
 		this->background.w = (int)(parentBackground.w / 2);
 
 	if (isHeightPercent)
 		this->background.h = (int)((double)parentBackground.h * std::atof(height.c_str()) * 0.01);
 	else if (!height.empty())
-		this->background.h = LSG_Graphics::GetDPIScaled(std::atoi(height.c_str()));
+		this->background.h = LSG_Window::GetDPIScaled(std::atoi(height.c_str()));
 	else
 		this->background.h = (int)(parentBackground.h / 2);
 
@@ -292,16 +292,16 @@ void LSG_Modal::setSize(const LSG_UMapStrStr& attributes, const SDL_Rect& parent
 	auto minHeight = (attributes.contains("min-height") ? attributes.at("min-height") : "");
 
 	if (!maxWidth.empty())
-		this->background.w = std::min(LSG_Graphics::GetDPIScaled(std::atoi(maxWidth.c_str())), this->background.w);
+		this->background.w = std::min(LSG_Window::GetDPIScaled(std::atoi(maxWidth.c_str())), this->background.w);
 
 	if (!maxHeight.empty())
-		this->background.h = std::min(LSG_Graphics::GetDPIScaled(std::atoi(maxHeight.c_str())), this->background.h);
+		this->background.h = std::min(LSG_Window::GetDPIScaled(std::atoi(maxHeight.c_str())), this->background.h);
 
 	if (!minWidth.empty())
-		this->background.w = std::max(LSG_Graphics::GetDPIScaled(std::atoi(minWidth.c_str())), this->background.w);
+		this->background.w = std::max(LSG_Window::GetDPIScaled(std::atoi(minWidth.c_str())), this->background.w);
 
 	if (!minHeight.empty())
-		this->background.h = std::max(LSG_Graphics::GetDPIScaled(std::atoi(minHeight.c_str())), this->background.h);
+		this->background.h = std::max(LSG_Window::GetDPIScaled(std::atoi(minHeight.c_str())), this->background.h);
 }
 
 void LSG_Modal::setTextures(const std::string& title)
@@ -310,7 +310,7 @@ void LSG_Modal::setTextures(const std::string& title)
 
 	this->textures.resize(NR_OF_MODAL_TEXTURES);
 
-	auto     iconSizeScaled = LSG_Graphics::GetDPIScaled(LSG_Modal::CloseIconSize);
+	auto     iconSizeScaled = LSG_Window::GetDPIScaled(LSG_Modal::CloseIconSize);
 	SDL_Size closeIconSize  = { iconSizeScaled, iconSizeScaled };
 
 	this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, closeIconSize);

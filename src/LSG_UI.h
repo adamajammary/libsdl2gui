@@ -52,25 +52,26 @@ public:
     static void            UnhighlightComponents();
 
 private:
-    static void closeMenu(LSG_Component* component);
-    static void layoutFixed(LSG_Component* component, bool skipModal = true);
-    static void layoutModal(LSG_Component* component);
-    static void layoutRelative(LSG_Component* component, bool skipModal = true);
-    static void layoutPositionAlign(LSG_Component* component, const LSG_Components& children);
-    static void layoutSizeBlank(LSG_Component* component, const LSG_Components& children);
-    static void loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent);
-    static void renderMenu(SDL_Renderer* renderer, LSG_Component* component);
-    static void renderModal(SDL_Renderer* renderer, LSG_Component* component);
-    static void resetSize(LSG_Component* component);
-    static void setCards(LSG_Component* component);
-    static void setImages(LSG_Component* component);
-    static void setListItems(LSG_Component* component, bool sort = true);
-    static void setMenu(LSG_Component* component);
-    static void setNavigation(LSG_Component* component);
-    static void setTableRows(LSG_Component* component, bool sort = true);
-    static void setTextLabels(LSG_Component* component);
-    static void setTiles(LSG_Component* component);
-    static void setToggle(LSG_Component* component);
+    static void           closeMenu(LSG_Component* component);
+    static LSG_Component* getComponentInScrollablePanel(const SDL_Point& mousePosition, LSG_Component* component);
+    static void           layoutFixed(LSG_Component* component, bool skipModal = true);
+    static void           layoutModal(LSG_Component* component);
+    static void           layoutRelative(LSG_Component* component, bool skipModal = true);
+    static void           layoutPositionAlign(LSG_Component* component, const LSG_Components& children);
+    static void           layoutSizeBlank(LSG_Component* component, const LSG_Components& children);
+    static void           loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent);
+    static void           renderMenu(SDL_Renderer* renderer, LSG_Component* component);
+    static void           renderModal(SDL_Renderer* renderer, LSG_Component* component);
+    static void           resetSize(LSG_Component* component);
+    static void           setCards(LSG_Component* component);
+    static void           setImages(LSG_Component* component);
+    static void           setListItems(LSG_Component* component, bool sort = true);
+    static void           setMenu(LSG_Component* component);
+    static void           setNavigation(LSG_Component* component);
+    static void           setTableRows(LSG_Component* component, bool sort = true);
+    static void           setTextLabels(LSG_Component* component);
+    static void           setTiles(LSG_Component* component);
+    static void           setToggle(LSG_Component* component);
 };
 
 #endif

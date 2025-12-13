@@ -10,10 +10,7 @@ public:
 	~LSG_Text() {}
 
 protected:
-	int       lastFontSize;
-	int       lastFontStyle;
-	SDL_Color lastTextColor;
-	bool      wrap;
+	bool wrap;
 
 private:
 	std::mutex surfaceLock;
@@ -29,7 +26,6 @@ public:
 protected:
 	SDL_Surface* getSurface(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
 	SDL_Texture* getTexture(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
-	bool         hasChanged();
 
 private:
 	static std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);

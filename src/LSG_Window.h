@@ -10,13 +10,14 @@ private:
     ~LSG_Window() {}
 
 private:
+    static float         dpiScale;
     static SDL_Renderer* renderer;
     static SDL_SysWMinfo sysWmInfo;
     static SDL_Window*   window;
 
 public:
     static void          Close();
-    static float         GetDPI();
+    static int           GetDPIScaled(int value);
     static SDL_Size      GetMinimumSize();
     static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();
@@ -29,6 +30,7 @@ public:
     static void          Present();
     static void          Render();
     static SDL_Texture*  RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format);
+    static void          SetDPIScale();
     static void          SetMaximized(bool maximized = true);
     static void          SetMinimumSize(int width, int height);
     static void          SetPosition(int x, int y);
@@ -51,6 +53,7 @@ public:
         static LSG_Strings OpenFolders();
         static std::string SaveFile(const LSG_Strings& filters);
     #elif defined _android
+        static float       getDPIScale();
         static std::string OpenFile(const LSG_Strings& filters);
         static std::string OpenFolder();
         static std::string SaveFile(const LSG_Strings& filters);

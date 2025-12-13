@@ -487,9 +487,6 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 void LSG_List::SetItems()
 {
-	if (this->texture && !this->hasChanged())
-		return;
-
 	this->destroyTextures();
 	this->setItems();
 }

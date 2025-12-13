@@ -10,9 +10,8 @@ public:
 	~LSG_Modal() {}
 
 public:
-	static const int Height         = 52;
-	static const int LayerOffsetMax = 2000000000;
-	static const int LayerOffsetMin = 1500000000;
+	static const int Height      = 52;
+	static const int LayerOffset = 1000000000;
 
 private:
 	static const int CloseIconSize = 32;

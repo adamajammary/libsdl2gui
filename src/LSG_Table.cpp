@@ -102,7 +102,7 @@ int LSG_Table::getMaxColumnWidth(size_t column) const
 
 int LSG_Table::getMinColumnWidth() const
 {
-	auto minWidth = (LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing) * 2);
+	auto minWidth = (LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing) * 2);
 
 	return minWidth;
 }
@@ -125,7 +125,7 @@ int LSG_Table::GetSortColumn() const
 SDL_Size LSG_Table::GetSize() const
 {
 	auto attributes    = this->GetXmlAttributes();
-	auto columnSpacing = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto columnSpacing = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 	auto textureSize   = this->getTextureSize();
 
 	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
@@ -177,7 +177,7 @@ bool LSG_Table::IsMouseOverColumnBorder(const SDL_Point& mousePosition)
 		return false;
 
 	auto positionX   = (mousePosition.x - background.x + this->scrollOffsetX);
-	auto spacing     = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto spacing     = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 	auto spacingHalf = (spacing / 2);
 
 	int startX = 0;
@@ -228,7 +228,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->header.empty() && ((positionY / rowHeight) == 0))
 	{
 		auto positionX = (mousePosition.x - background.x + this->scrollOffsetX);
-		auto spacing   = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+		auto spacing   = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 
 		int column = 0, startX = 0;
 
@@ -396,7 +396,7 @@ void LSG_Table::Render(SDL_Renderer* renderer, const SDL_Point& position)
 		return;
 
 	auto attributes    = this->GetXmlAttributes();
-	auto columnSpacing = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto columnSpacing = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 	auto textureSize   = this->getTextureSize();
 
 	textureSize.width += (columnSpacing * (int)this->textures.size());
@@ -433,7 +433,7 @@ void LSG_Table::render(SDL_Renderer* renderer)
 	if (this->textures.empty())
 		return;
 
-	auto columnSpacing   = LSG_Graphics::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto columnSpacing   = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 	auto fillArea        = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
 	auto textureSize     = this->getTextureSize();
@@ -694,9 +694,6 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 
 void LSG_Table::SetRows()
 {
-	if (!this->textures.empty() && !this->hasChanged())
-		return;
-
 	this->destroyTextures();
 	this->setRows();
 }
