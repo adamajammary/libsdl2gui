@@ -545,6 +545,20 @@ void LSG_Cards::resetScroll()
 	this->scrollOffsetY = 0;
 }
 
+void LSG_Cards::rotate(LSG_CardImage& image)
+{
+	auto exif        = LSG_Exif::Get(LSG_Text::GetFullPath(image.filePath));
+	auto orientation = LSG_Exif::GetOrientation(exif.tags);
+
+	if (orientation.rotation > 0.0)
+	{
+		auto maxSize = std::max(image.surface->w, image.surface->h);
+
+		image.texture.size    = { maxSize, maxSize };
+		image.texture.texture = LSG_Window::RotateTexture(image.texture.texture, orientation, image.texture.size, image.surface->format->format);
+	}
+}
+
 void LSG_Cards::select(LSG_EventType eventType)
 {
 	this->resetRenderTarget();
@@ -879,6 +893,8 @@ void LSG_Cards::setCardTextures()
 		{
 			card.thumbnail.texture.size    = { card.thumbnail.surface->w, card.thumbnail.surface->h };
 			card.thumbnail.texture.texture = LSG_Window::ToTexture(card.thumbnail.surface);
+
+			this->rotate(card.thumbnail);
 		}
 
 		if (!card.title.text.empty() && !card.title.texture.texture && card.title.surface)
@@ -902,7 +918,7 @@ void LSG_Cards::setCardTextures()
 LSG_Card LSG_Cards::ToCard(const LSG_CardItem& cardItem)
 {
 	LSG_Card card = {
-		.description = {.text = cardItem.description },
+		.description = { .text = cardItem.description },
 		.thumbnail   = { .filePath = cardItem.thumbnail },
 		.title       = { .text = cardItem.title }
 	};

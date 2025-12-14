@@ -18,11 +18,13 @@ struct LSG_TileTexture
 struct LSG_TileImage
 {
 	std::string     filePath = "";
+	SDL_Surface*    surface  = nullptr;
 	LSG_TileTexture texture  = {};
 };
 
 struct LSG_TileText
 {
+	SDL_Surface*    surface = nullptr;
 	std::string     text    = "";
 	LSG_TileTexture texture = {};
 };
@@ -64,6 +66,7 @@ private:
 	int                   tileBorder;
 	int                   tileSize;
 	std::vector<LSG_Tile> tiles;
+	std::mutex            tilesLock;
 	int                   tilesPerRow;
 	int                   totalSize;
 	bool                  wrapTiles;
@@ -104,6 +107,8 @@ private:
 	void          calculateGridDimensions();
 	void          clipTileX(const LSG_Tile& tile);
 	void          clipTileY(const LSG_Tile& tile);
+	void          destroySurfaces(LSG_Tile& tile);
+	void          destroySurfaces();
 	void          destroyTextures(LSG_Tile& tile);
 	virtual void  destroyTextures() override;
 	SDL_Rect      getGrid();
@@ -124,11 +129,14 @@ private:
 	void          renderText(SDL_Renderer* renderer, const LSG_TileText& text);
 	void          reset(bool resetScroll = false);
 	void          resetScroll();
+	void          rotate(LSG_TileImage& image);
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          selectCtrl(int index);
 	void          selectShift(int index);
 	void          setGrid();
 	void          setTiles();
+	void          setTileSurfaces();
+	void          setTileTextures();
 };
 
 #endif

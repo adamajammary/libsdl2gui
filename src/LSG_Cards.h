@@ -107,6 +107,7 @@ private:
 	void          resetHighlight();
 	void          resetRenderTarget();
 	void          resetScroll();
+	void          rotate(LSG_CardImage& image);
 	void          select(LSG_EventType eventType);
 	void          selectCtrl(int row);
 	void          selectShift(int row);

@@ -56,10 +56,14 @@ void LSG_Tiles::Activate(const SDL_Point& mousePosition) const
 
 void LSG_Tiles::AddTile(const LSG_TileItem& tile)
 {
+	this->tilesLock.lock();
+
 	this->tiles.push_back({
 		.image = { .filePath = tile.image },
 		.text  = { .text     = tile.text  }
 	});
+
+	this->tilesLock.unlock();
 
 	this->reset();
 }
@@ -236,6 +240,25 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 		this->text.clip.h        -= overflowTextTop;
 		this->text.destination.h -= overflowTextTop;;
 	}
+}
+
+void LSG_Tiles::destroySurfaces(LSG_Tile& tile)
+{
+	if (tile.image.surface) {
+		SDL_FreeSurface(tile.image.surface);
+		tile.image.surface = nullptr;
+	}
+
+	if (tile.text.surface) {
+		SDL_FreeSurface(tile.text.surface);
+		tile.text.surface = nullptr;
+	}
+}
+
+void LSG_Tiles::destroySurfaces()
+{
+	for (auto& tile : this->tiles)
+		this->destroySurfaces(tile);
 }
 
 void LSG_Tiles::destroyTextures(LSG_Tile& tile)
@@ -553,7 +576,11 @@ void LSG_Tiles::RemoveTile(int index)
 
 	this->destroyTextures(this->tiles[index]);
 
+	this->tilesLock.lock();
+
 	this->tiles.erase(this->tiles.begin() + (size_t)index);
+
+	this->tilesLock.unlock();
 
 	this->reset();
 
@@ -572,6 +599,8 @@ void LSG_Tiles::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->background.w = textureSize.width;
 	this->background.h = textureSize.height;
 
+	this->setTileTextures();
+
 	this->setGrid();
 
 	this->render(renderer);
@@ -581,6 +610,8 @@ void LSG_Tiles::Render(SDL_Renderer* renderer)
 {
 	if (!this->visible)
 		return;
+
+	this->setTileTextures();
 
 	this->setGrid();
 
@@ -704,12 +735,27 @@ void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)
 	}
 }
 
+void LSG_Tiles::rotate(LSG_TileImage& image)
+{
+	auto exif        = LSG_Exif::Get(LSG_Text::GetFullPath(image.filePath));
+	auto orientation = LSG_Exif::GetOrientation(exif.tags);
+
+	if (orientation.rotation > 0.0)
+	{
+		auto maxSize = std::max(image.surface->w, image.surface->h);
+
+		image.texture.size    = { maxSize, maxSize };
+		image.texture.texture = LSG_Window::RotateTexture(image.texture.texture, orientation, image.texture.size, image.surface->format->format);
+	}
+}
+
 void LSG_Tiles::reset(bool resetScroll)
 {
 	if (resetScroll)
 		this->resetScroll();
 
 	this->destroyTextures();
+
 	this->setTiles();
 }
 
@@ -1076,12 +1122,14 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 	if ((index < 0) || (index >= (int)this->tiles.size()))
 		return;
 
-	this->destroyTextures(this->tiles[index]);
+	this->tilesLock.lock();
 
 	this->tiles[index] = {
 		.image = { .filePath = tile.image },
 		.text  = { .text     = tile.text  }
 	};
+
+	this->tilesLock.unlock();
 
 	this->reset();
 }
@@ -1089,6 +1137,8 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 {
 	this->destroyTextures();
+
+	this->tilesLock.lock();
 
 	this->tiles.clear();
 
@@ -1099,6 +1149,8 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 			.text  = { .text     = tile.text  }
 		});
 	}
+
+	this->tilesLock.unlock();
 
 	this->reset(true);
 
@@ -1112,37 +1164,49 @@ void LSG_Tiles::SetTiles()
 
 void LSG_Tiles::setTiles()
 {
+	std::thread(&LSG_Tiles::setTileSurfaces, this).detach();
+}
+
+void LSG_Tiles::setTileSurfaces()
+{
+	this->tilesLock.lock();
+
+	this->destroySurfaces();
+
 	for (auto& tile : this->tiles)
 	{
-		if (!tile.image.filePath.empty() && !tile.image.texture.texture)
-		{
-			auto filePath = LSG_Text::GetFullPath(tile.image.filePath);
-			auto surface  = IMG_Load(filePath.c_str());
+		if (!tile.image.filePath.empty())
+			tile.image.surface = IMG_Load(LSG_Text::GetFullPath(tile.image.filePath).c_str());
 
-			if (surface)
-			{
-				tile.image.texture.size    = { surface->w, surface->h };
-				tile.image.texture.texture = LSG_Window::ToTexture(surface);
-
-				auto exif        = LSG_Exif::Get(filePath);
-				auto orientation = LSG_Exif::GetOrientation(exif.tags);
-
-				if (orientation.rotation > 0.0)
-				{
-					auto maxSize = std::max(surface->w, surface->h);
-
-					tile.image.texture.size    = { maxSize, maxSize };
-					tile.image.texture.texture = LSG_Window::RotateTexture(tile.image.texture.texture, orientation, tile.image.texture.size, surface->format->format);
-				}
-
-				SDL_FreeSurface(surface);
-			}
-		}
-
-		if (!tile.text.text.empty() && !tile.text.texture.texture)
-		{
-			tile.text.texture.texture = this->getTexture(tile.text.text);
-			tile.text.texture.size    = LSG_Graphics::GetTextureSize(tile.text.texture.texture);
-		}
+		if (!tile.text.text.empty())
+			tile.text.surface = this->getSurface(tile.text.text);
 	}
+
+	this->tilesLock.unlock();
+}
+
+void LSG_Tiles::setTileTextures()
+{
+	this->tilesLock.lock();
+
+	for (auto& tile : this->tiles)
+	{
+		if (!tile.image.filePath.empty() && !tile.image.texture.texture && tile.image.surface)
+		{
+			tile.image.texture.size    = { tile.image.surface->w, tile.image.surface->h };
+			tile.image.texture.texture = LSG_Window::ToTexture(tile.image.surface);
+
+			this->rotate(tile.image);
+		}
+
+		if (!tile.text.text.empty() && !tile.text.texture.texture && tile.text.surface)
+		{
+			tile.text.texture.size    = { tile.text.surface->w, tile.text.surface->h };
+			tile.text.texture.texture = LSG_Window::ToTexture(tile.text.surface);
+		}
+
+		this->destroySurfaces(tile);
+	}
+
+	this->tilesLock.unlock();
 }
