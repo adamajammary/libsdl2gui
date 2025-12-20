@@ -207,7 +207,7 @@
       </panel>
     </panel>
 
-    <panel height="100" orientation="vertical">
+    <panel height="90" orientation="vertical">
       <panel height="40" valign="middle" spacing="10" font-size="18">
         <text>Slider</text>
 
@@ -228,9 +228,9 @@
         </panel>
       </panel>
 
-      <line />
-
-      <navigation id="Navigation" items-total="10" items-per-navigation="1" height="30" />
+      <panel height="40">
+        <navigation id="Navigation" items-total="10" items-per-navigation="1" />
+      </panel>
     </panel>
   </panel>
 </window>
