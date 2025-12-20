@@ -78,7 +78,10 @@ SDL_Size LSG_Panel::GetSize() const
 	if (this->showScrollX)
 		totalSize.height += scrollBarSize;
 
-	return totalSize;
+	return {
+		std::max(totalSize.width,  this->background.w),
+		std::max(totalSize.height, this->background.h)
+	};
 }
 
 bool LSG_Panel::IsScroll() const
@@ -181,21 +184,27 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Rect& backgroun
 	auto xmlSpacing = this->GetXmlAttribute("spacing");
 	auto spacing    = (!xmlSpacing.empty() ? LSG_Window::GetDPIScaled(std::atoi(xmlSpacing.c_str())) : 0);
 
-	LSG_UmapStrSize sizes;
+	int contentSize     = 0;
+	int visibleChildren = 0;
 
-	for (auto child : this->children) {
-		if (child->visible)
-			sizes[child->GetID()] = { child->background.w, child->background.h };
+	for (auto child : this->children)
+	{
+		if (!child->visible)
+			continue;
+
+		contentSize += (isVertical ? child->background.h : child->background.w);
+
+		visibleChildren++;
 	}
 
-	auto contentSize = (isVertical ? background.h : background.w);
+	auto contentSpacing = (spacing * (visibleChildren - 1));
 
 	SDL_Point offsetPosition = { background.x, background.y };
 	SDL_Size  maxSize        = { background.w, background.h };
 
 	for (auto child : this->children)
 	{
-		if (!sizes.contains(child->GetID()))
+		if (!child->visible)
 			continue;
 
 		if (isVertical)
@@ -203,41 +212,36 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Rect& backgroun
 		else
 			offsetPosition.x += child->margin;
 
-		auto renderPosition = LSG_UI::GetAlignedPosition(offsetPosition, this->GetXmlAttributes(), sizes, contentSize, maxSize, child, this);
-
-		renderPosition = {
-			std::max(renderPosition.x, offsetPosition.x),
-			std::max(renderPosition.y, offsetPosition.y),
-		};
+		auto position = LSG_UI::GetAlignedPosition(offsetPosition, contentSize, contentSpacing, maxSize, child, this);
 
 		if (child->IsButton())
-			static_cast<LSG_Button*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Button*>(child)->Render(renderer, position);
 		else if (child->IsCards())
-			static_cast<LSG_Cards*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Cards*>(child)->Render(renderer, position);
 		else if (child->IsImage())
-			static_cast<LSG_Image*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Image*>(child)->Render(renderer, position);
 		else if (child->IsLine())
-			static_cast<LSG_Line*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Line*>(child)->Render(renderer, position);
 		else if (child->IsList())
-			static_cast<LSG_List*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_List*>(child)->Render(renderer, position);
 		else if (child->IsNavigation())
-			static_cast<LSG_Navigation*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Navigation*>(child)->Render(renderer, position);
 		else if (child->IsPanel())
-			static_cast<LSG_Panel*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Panel*>(child)->Render(renderer, position);
 		else if (child->IsProgressBar())
-			static_cast<LSG_ProgressBar*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_ProgressBar*>(child)->Render(renderer, position);
 		else if (child->IsSlider())
-			static_cast<LSG_Slider*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Slider*>(child)->Render(renderer, position);
 		else if (child->IsTable())
-			static_cast<LSG_Table*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Table*>(child)->Render(renderer, position);
 		else if (child->IsTextInput())
-			static_cast<LSG_TextInput*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_TextInput*>(child)->Render(renderer, position);
 		else if (child->IsTextLabel())
-			static_cast<LSG_TextLabel*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_TextLabel*>(child)->Render(renderer, position);
 		else if (child->IsTiles())
-			static_cast<LSG_Tiles*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Tiles*>(child)->Render(renderer, position);
 		else if (child->IsToggle())
-			static_cast<LSG_Toggle*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Toggle*>(child)->Render(renderer, position);
 
 		if (isVertical)
 			offsetPosition.y += (child->background.h + child->margin + spacing);

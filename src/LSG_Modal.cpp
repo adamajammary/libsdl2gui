@@ -166,7 +166,7 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer) const
 
 void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer) const
 {
-	auto height      = LSG_Window::GetDPIScaled(LSG_Modal::Height);
+	auto height      = LSG_Window::GetDPIScaled(LSG_Modal::HeaderHeight);
 	auto padding     = LSG_Window::GetDPIScaled(LSG_Modal::Padding);
 	auto borderY     = (this->background.y + this->padding + height);
 	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
@@ -188,7 +188,7 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer) const
 	if (!texture)
 		return;
 
-	auto height      = LSG_Window::GetDPIScaled(LSG_Modal::Height);
+	auto height      = LSG_Window::GetDPIScaled(LSG_Modal::HeaderHeight);
 	auto padding     = LSG_Window::GetDPIScaled(LSG_Modal::Padding);
 	auto textureSize = LSG_Graphics::GetTextureSize(texture);
 	auto iconSize    = (!this->hideCloseIcon ? height : 0);

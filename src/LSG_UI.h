@@ -22,7 +22,7 @@ private:
 public:
     static LSG_Component*  AddXmlNode(LibXml::xmlNode* node, LSG_Component* parent);
     static void            Close();
-    static SDL_Point       GetAlignedPosition(const SDL_Point& position, const LSG_UMapStrStr& attributes, const LSG_UmapStrSize& sizes, int size, const SDL_Size& maxSize, LSG_Component* component, LSG_Component* parent);
+    static SDL_Point       GetAlignedPosition(const SDL_Point& offsetPosition, int contentSize, int contentSpacing, const SDL_Size& maxSize, LSG_Component* component, LSG_Component* panel);
     static SDL_Rect        GetBackgroundArea();
     static std::string     GetColorFromTheme(const std::string& componentID, const std::string& xmlAttribute);
     static std::string     GetColorTheme();
