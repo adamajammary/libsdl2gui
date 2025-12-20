@@ -103,7 +103,12 @@ void LSG_Button::render(SDL_Renderer* renderer)
 
 	if (iconTexture)
 	{
-		auto iconSize = (this->IsVertical() && textTexture ? (this->background.h / 4) : (this->background.h / 2));
+		int iconSize;
+		
+		if (this->IsVertical() && textTexture)
+			iconSize = (this->background.h / 4);
+		else
+			iconSize = (std::min(this->background.w, this->background.h) / 2);
 
 		this->downscaleTextureIcon(iconSize);
 
