@@ -123,10 +123,14 @@ void LSG_Cards::destroyTextures(LSG_Card& card)
 
 void LSG_Cards::destroyTextures()
 {
+	this->cardsLock.lock();
+
 	for (auto& card : this->cards)
 		this->destroyTextures(card);
 
 	this->resetRenderTarget();
+
+	this->cardsLock.unlock();
 }
 
 SDL_Size LSG_Cards::GetSize() const

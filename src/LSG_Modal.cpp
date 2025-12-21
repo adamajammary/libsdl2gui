@@ -7,6 +7,8 @@ LSG_Modal::LSG_Modal(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->highlightedCloseIcon = false;
 	this->visible              = false;
 
+	this->textures.resize(NR_OF_MODAL_TEXTURES);
+
 	this->Layout();
 }
 

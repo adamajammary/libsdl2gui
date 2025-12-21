@@ -276,8 +276,12 @@ void LSG_Tiles::destroyTextures(LSG_Tile& tile)
 
 void LSG_Tiles::destroyTextures()
 {
+	this->tilesLock.lock();
+
 	for (auto& tile : this->tiles)
 		this->destroyTextures(tile);
+
+	this->tilesLock.unlock();
 }
 
 SDL_Rect LSG_Tiles::getGrid()
