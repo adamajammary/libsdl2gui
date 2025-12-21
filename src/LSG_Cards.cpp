@@ -859,6 +859,9 @@ void LSG_Cards::SetCards()
 
 void LSG_Cards::setCards()
 {
+	if (SDL_RectEmpty(&this->background))
+		return;
+
 	std::thread(&LSG_Cards::setCardSurfaces, this).detach();
 }
 

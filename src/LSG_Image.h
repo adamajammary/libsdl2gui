@@ -18,7 +18,7 @@ private:
 	SDL_FPoint           scaleFactor;
 
 public:
-	SDL_Size     GetSize() const;
+	SDL_Size     GetSize();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	void         Render(SDL_Renderer* renderer);
 	void         Set(const std::string& file, bool fill = false);
@@ -32,6 +32,7 @@ private:
 	bool     scaleDown(const SDL_Point& downscaleFactor) const;
 	bool     scaleUp(const SDL_Size& textureSize, SDL_Size maxSize) const;
 	void     set();
+	void     setTexture();
 };
 
 #endif

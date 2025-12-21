@@ -493,6 +493,9 @@ void LSG_List::SetItems()
 
 void LSG_List::setItems(bool sort)
 {
+	if (SDL_RectEmpty(&this->background))
+		return;
+
 	if (this->showPagination())
 		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
 

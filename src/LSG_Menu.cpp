@@ -9,6 +9,8 @@ LSG_Menu::LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	this->renderTarget         = nullptr;
 	this->subMenu              = this;
 
+	this->textures.resize(NR_OF_MENU_TEXTURES);
+
 	auto padding = LSG_XML::GetAttribute(this->xmlNode, "padding");
 
 	if (padding.empty())

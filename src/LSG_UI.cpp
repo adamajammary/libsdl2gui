@@ -621,6 +621,11 @@ void LSG_UI::Layout()
 
 	LSG_UI::root->background = LSG_UI::GetBackgroundArea();
 
+	LSG_UI::layoutFixed(LSG_UI::root);
+	LSG_UI::layoutRelative(LSG_UI::root);
+	LSG_UI::layoutModal(LSG_UI::root);
+
+	LSG_UI::setButtons(LSG_UI::root);
 	LSG_UI::setCards(LSG_UI::root);
 	LSG_UI::setImages(LSG_UI::root);
 	LSG_UI::setListItems(LSG_UI::root);
@@ -628,11 +633,6 @@ void LSG_UI::Layout()
 	LSG_UI::setTableRows(LSG_UI::root);
 	LSG_UI::setTextLabels(LSG_UI::root);
 	LSG_UI::setTiles(LSG_UI::root);
-
-	LSG_UI::layoutFixed(LSG_UI::root);
-	LSG_UI::layoutRelative(LSG_UI::root);
-	LSG_UI::layoutModal(LSG_UI::root);
-
 	LSG_UI::setToggle(LSG_UI::root);
 
 	LSG_UI::setMenu(LSG_UI::root);
@@ -658,14 +658,6 @@ void LSG_UI::layoutModal(LSG_Component* component)
 	{
 		static_cast<LSG_Modal*>(component)->Layout();
 
-		LSG_UI::setCards(component);
-		LSG_UI::setImages(component);
-		LSG_UI::setListItems(component);
-		LSG_UI::setNavigation(component);
-		LSG_UI::setTableRows(component);
-		LSG_UI::setTextLabels(component);
-		LSG_UI::setTiles(component);
-
 		auto height = LSG_Window::GetDPIScaled(LSG_Modal::HeaderHeight);
 
 		component->background.y += height;
@@ -677,6 +669,14 @@ void LSG_UI::layoutModal(LSG_Component* component)
 		component->background.y -= height;
 		component->background.h += height;
 
+		LSG_UI::setButtons(component);
+		LSG_UI::setCards(component);
+		LSG_UI::setImages(component);
+		LSG_UI::setListItems(component);
+		LSG_UI::setNavigation(component);
+		LSG_UI::setTableRows(component);
+		LSG_UI::setTextLabels(component);
+		LSG_UI::setTiles(component);
 		LSG_UI::setToggle(component);
 
 		return;
@@ -1155,6 +1155,18 @@ void LSG_UI::resetSize(LSG_Component* component)
 		LSG_UI::resetSize(child);
 }
 
+void LSG_UI::setButtons(LSG_Component* component)
+{
+	if (!component)
+		return;
+
+	if (component->IsButton())
+		static_cast<LSG_Button*>(component)->Set();
+
+	for (auto child : component->GetChildren())
+		LSG_UI::setButtons(child);
+}
+
 void LSG_UI::setCards(LSG_Component* component)
 {
 	if (!component)
@@ -1336,9 +1348,7 @@ void LSG_UI::setTextLabels(LSG_Component* component)
 	if (!component)
 		return;
 
-	if (component->IsButton())
-		static_cast<LSG_Button*>(component)->Set();
-	else if (component->IsTextLabel())
+	if (component->IsTextLabel())
 		static_cast<LSG_TextLabel*>(component)->Set();
 	else if (component->IsTextInput())
 		static_cast<LSG_TextInput*>(component)->SetText();
@@ -1349,6 +1359,7 @@ void LSG_UI::setTextLabels(LSG_Component* component)
 
 void LSG_UI::SetText(LSG_Component* component, bool sort)
 {
+	LSG_UI::setButtons(component);
 	LSG_UI::setCards(component);
 	LSG_UI::setListItems(component, sort);
 	LSG_UI::setNavigation(component);

@@ -4,8 +4,11 @@ LSG_TextLabel::LSG_TextLabel(const std::string& id, int layer, LibXml::xmlNode* 
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {}
 
-SDL_Size LSG_TextLabel::GetSize() const
+SDL_Size LSG_TextLabel::GetSize()
 {
+	if (!this->texture)
+		this->setTexture();
+
 	return this->getTextureSize();
 }
 
@@ -53,8 +56,17 @@ void LSG_TextLabel::Set(const std::string &text)
 
 void LSG_TextLabel::Set()
 {
-	this->destroyTextures();
+	if (SDL_RectEmpty(&this->background))
+		return;
 
-	if (!this->text.empty())
-		this->texture = this->getTexture(this->text);
+	this->destroyTextures();
+	this->setTexture();
+}
+
+void LSG_TextLabel::setTexture()
+{
+	if (this->text.empty())
+		return;
+
+	this->texture = this->getTexture(this->text);
 }

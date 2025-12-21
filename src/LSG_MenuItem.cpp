@@ -6,6 +6,8 @@ LSG_MenuItem::LSG_MenuItem(const std::string& id, int layer, LibXml::xmlNode* xm
 	this->closed          = true;
 	this->iconOrientation = {};
 	this->selected        = false;
+
+	this->textures.resize(NR_OF_MENU_ITEM_TEXTURES);
 }
 
 void LSG_MenuItem::Close()

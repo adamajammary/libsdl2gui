@@ -13,12 +13,12 @@ LSG_TextInput::LSG_TextInput(const std::string& id, int layer, LibXml::xmlNode* 
 	this->maxIconSize           = 0;
 	this->textSize              = {};
 
+	this->textures.resize(NR_OF_TEXT_INPUT_TEXTURES);
+
 	auto attributes = this->GetXmlAttributes();
 
 	this->placeholder = (attributes.contains("placeholder") ? attributes["placeholder"] : "");
 	this->value       = (attributes.contains("value") ? attributes["value"] : "");
-
-	this->textures.resize(NR_OF_TEXT_INPUT_TEXTURES);
 }
 
 void LSG_TextInput::Clear()

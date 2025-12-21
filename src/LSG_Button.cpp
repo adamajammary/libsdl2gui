@@ -7,6 +7,8 @@ LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 
 	this->iconPath = (attributes.contains("icon") ? attributes["icon"] : "");
 	this->text     = (attributes.contains("text") ? attributes["text"] : "");
+
+	this->textures.resize(NR_OF_BUTTON_TEXTURES);
 }
 
 void LSG_Button::downscaleTextureIcon(int maxSize)
@@ -182,6 +184,9 @@ void LSG_Button::Set(const std::string& text, const std::string& iconPath)
 
 void LSG_Button::Set()
 {
+	if (SDL_RectEmpty(&this->background))
+		return;
+
 	this->destroyTextures();
 
 	this->textures.resize(NR_OF_BUTTON_TEXTURES);

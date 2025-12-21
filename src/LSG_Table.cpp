@@ -700,6 +700,9 @@ void LSG_Table::SetRows()
 
 void LSG_Table::setRows(bool sort)
 {
+	if (SDL_RectEmpty(&this->background))
+		return;
+
 	if (this->showPagination())
 		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
 

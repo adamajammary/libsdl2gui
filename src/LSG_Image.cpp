@@ -59,7 +59,7 @@ SDL_Size LSG_Image::getMaxSize(const SDL_Rect& background) const
 	return maxSize;
 }
 
-SDL_Size LSG_Image::GetSize() const
+SDL_Size LSG_Image::GetSize()
 {
 	auto attributes = this->GetXmlAttributes();
 
@@ -74,6 +74,9 @@ SDL_Size LSG_Image::GetSize() const
 
 	if (!height.empty() && width.empty())
 		return { (int)(this->scaleFactor.x * (float)this->background.h), this->background.h };
+
+	if (!this->texture)
+		this->setTexture();
 
 	return this->getTextureSize();
 }
@@ -191,13 +194,20 @@ void LSG_Image::Set()
 
 void LSG_Image::set()
 {
-	this->destroyTextures();
+	if (SDL_RectEmpty(&this->background))
+		return;
 
+	this->destroyTextures();
+	this->setTexture();
+}
+
+void LSG_Image::setTexture()
+{
 	if (this->file.empty())
 		return;
-		
+
 	this->orientation = LSG_Exif::GetOrientation(LSG_Exif::Get(this->file).tags);
-	this->texture     = LSG_Window::ToTexture(this->file);
+	this->texture = LSG_Window::ToTexture(this->file);
 
 	if (this->texture)
 		this->rotate();

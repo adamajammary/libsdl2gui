@@ -63,6 +63,7 @@ private:
     static void           renderMenu(SDL_Renderer* renderer, LSG_Component* component);
     static void           renderModal(SDL_Renderer* renderer, LSG_Component* component);
     static void           resetSize(LSG_Component* component);
+    static void           setButtons(LSG_Component* component);
     static void           setCards(LSG_Component* component);
     static void           setImages(LSG_Component* component);
     static void           setListItems(LSG_Component* component, bool sort = true);
