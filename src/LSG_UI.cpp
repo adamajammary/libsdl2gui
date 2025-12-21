@@ -242,10 +242,7 @@ std::string LSG_UI::GetColorTheme()
 
 LSG_Component* LSG_UI::GetComponent(const std::string& id)
 {
-	if (LSG_UI::components.contains(id))
-		return LSG_UI::components[id];
-
-	return nullptr;
+	return (LSG_UI::components.contains(id) ? LSG_UI::components[id] : nullptr);
 }
 
 LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipModalChildren)
@@ -287,9 +284,12 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 
 			for (auto child : component->GetChildren())
 			{
+				if (!child->visible)
+					continue;
+
 				auto child2 = LSG_UI::getComponentInScrollablePanel(mousePosition, child);
 
-				if (child2)
+				if (child2 && child2->visible)
 					return child2;
 			}
 		}
@@ -303,13 +303,19 @@ LSG_Component* LSG_UI::GetComponent(const SDL_Point& mousePosition, bool skipMod
 
 LSG_Component* LSG_UI::getComponentInScrollablePanel(const SDL_Point& mousePosition, LSG_Component* component)
 {
+	if (!component->visible)
+		return nullptr;
+
 	if (component->IsPanel())
 	{
 		for (auto child : component->GetChildren())
 		{
+			if (!child->visible)
+				continue;
+
 			auto child2 = LSG_UI::getComponentInScrollablePanel(mousePosition, child);
 
-			if (child2)
+			if (child2 && child2->visible)
 				return child2;
 		}
 	}
@@ -483,9 +489,12 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 
 				for (auto child : component->GetChildren())
 				{
+					if (!child->visible || !child->enabled)
+						continue;
+
 					auto child2 = LSG_UI::getComponentInScrollablePanel(mousePosition, child);
 
-					if (!child2)
+					if (!child2 || !child->visible || !child->enabled)
 						continue;
 
 					child2->highlighted = true;
