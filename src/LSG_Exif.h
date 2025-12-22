@@ -59,18 +59,20 @@ struct LSG_IFD
 	uint16_t          tagID      = 0;
 };
 
+struct LSG_ExifState
+{
+	FILE* file             = nullptr;
+	bool  isByteOrderIntel = false;
+	long  offsetHeader     = 0;
+	long  offsetGPSInfo    = 0;
+	long  offsetSubIFD     = 0;
+};
+
 class LSG_Exif
 {
 private:
 	LSG_Exif()  {}
 	~LSG_Exif() {}
-
-private:
-	static FILE* file;
-	static bool  isByteOrderIntel;
-	static long  offsetHeader;
-	static long  offsetGPSInfo;
-	static long  offsetSubIFD;
 
 public:
 	static LSG_ExifData         Get(const std::string& filePath);
@@ -78,22 +80,21 @@ public:
 	static LSG_ImageOrientation GetOrientation(const LSG_ExifTags& tags);
 
 private:
-	static void              addTags(LSG_ExifTags& tags);
-	static void              close();
+	static void              addTags(LSG_ExifTags& tags, LSG_ExifState& state);
 	static double            getDouble(const LSG_Rational& rational);
 	static double            getDouble(const std::string& rational);
 	static LSG_GPSCoordinate getGPSCoordinate(const std::string& rational, const std::string& ref);
-	static LSG_IFD           getIFD();
-	static long              getOffsetIFD();
-	static uint16_t          getNrOfDirectories();
-	static SDL_Surface*      getThumbnail();
-	static std::string       getValueString(const LSG_IFD& ifd);
-	static LSG_Rationals     getValueRationals(const LSG_IFD& ifd);
-	static LSG_URationals    getValueURationals(const LSG_IFD& ifd);
-	static bool              isExif();
-	static bool              isMarker();
-	static bool              isValid();
-	static void              seekToHeader();
+	static LSG_IFD           getIFD(LSG_ExifState& state);
+	static long              getOffsetIFD(LSG_ExifState& state);
+	static uint16_t          getNrOfDirectories(LSG_ExifState& state);
+	static SDL_Surface*      getThumbnail(LSG_ExifState& state);
+	static std::string       getValueString(const LSG_IFD& ifd, LSG_ExifState& state);
+	static LSG_Rationals     getValueRationals(const LSG_IFD& ifd, LSG_ExifState& state);
+	static LSG_URationals    getValueURationals(const LSG_IFD& ifd, LSG_ExifState& state);
+	static bool              isExif(LSG_ExifState& state);
+	static bool              isMarker(LSG_ExifState& state);
+	static bool              isValid(LSG_ExifState& state);
+	static void              seekToHeader(FILE* file);
 };
 
 #endif
