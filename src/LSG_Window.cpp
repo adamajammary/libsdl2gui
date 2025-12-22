@@ -939,3 +939,16 @@ SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 
 	return texture;
 }
+
+SDL_Texture* LSG_Window::ToTextureEmpty(SDL_Surface* surface)
+{
+	if (!surface)
+		return nullptr;
+
+	auto texture = SDL_CreateTexture(LSG_Window::renderer, surface->format->format, SDL_TEXTUREACCESS_STATIC, surface->w, surface->h);
+
+	if (!texture)
+		throw std::runtime_error(std::format("Failed to create an empty texture based on surface: {}", SDL_GetError()));
+
+	return texture;
+}

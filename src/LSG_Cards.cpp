@@ -549,20 +549,6 @@ void LSG_Cards::resetScroll()
 	this->scrollOffsetY = 0;
 }
 
-void LSG_Cards::rotate(LSG_CardImage& image)
-{
-	auto exif        = LSG_Exif::Get(LSG_Text::GetFullPath(image.filePath));
-	auto orientation = LSG_Exif::GetOrientation(exif.tags);
-
-	if (orientation.rotation > 0.0)
-	{
-		auto maxSize = std::max(image.surface->w, image.surface->h);
-
-		image.texture.size    = { maxSize, maxSize };
-		image.texture.texture = LSG_Window::RotateTexture(image.texture.texture, orientation, image.texture.size, image.surface->format->format);
-	}
-}
-
 void LSG_Cards::select(LSG_EventType eventType)
 {
 	this->resetRenderTarget();
@@ -875,7 +861,7 @@ void LSG_Cards::setCardSurfaces()
 
 	this->destroySurfaces();
 
-	for (auto& card : this->cards)
+	std::for_each(std::execution::par_unseq, this->cards.begin(), this->cards.end(), [this](LSG_Card& card)
 	{
 		if (!card.thumbnail.filePath.empty())
 			card.thumbnail.surface = IMG_Load(LSG_Text::GetFullPath(card.thumbnail.filePath).c_str());
@@ -885,7 +871,7 @@ void LSG_Cards::setCardSurfaces()
 
 		if (!card.description.text.empty())
 			card.description.surface = this->getSurface(card.description.text);
-	}
+	});
 
 	this->cardsLock.unlock();
 }
@@ -899,25 +885,38 @@ void LSG_Cards::setCardTextures()
 		if (!card.thumbnail.filePath.empty() && !card.thumbnail.texture.texture && card.thumbnail.surface)
 		{
 			card.thumbnail.texture.size    = { card.thumbnail.surface->w, card.thumbnail.surface->h };
-			card.thumbnail.texture.texture = LSG_Window::ToTexture(card.thumbnail.surface);
-
-			this->rotate(card.thumbnail);
+			card.thumbnail.texture.texture = LSG_Window::ToTextureEmpty(card.thumbnail.surface);
 		}
 
 		if (!card.title.text.empty() && !card.title.texture.texture && card.title.surface)
 		{
 			card.title.texture.size    = { card.title.surface->w, card.title.surface->h };
-			card.title.texture.texture = LSG_Window::ToTexture(card.title.surface);
+			card.title.texture.texture = LSG_Window::ToTextureEmpty(card.title.surface);
 		}
 
 		if (!card.description.text.empty() && !card.description.texture.texture && card.description.surface)
 		{
 			card.description.texture.size    = { card.description.surface->w, card.description.surface->h };
-			card.description.texture.texture = LSG_Window::ToTexture(card.description.surface);
+			card.description.texture.texture = LSG_Window::ToTextureEmpty(card.description.surface);
+		}
+	}
+
+	std::for_each(std::execution::par_unseq, this->cards.begin(), this->cards.end(), [](LSG_Card& card)
+	{
+		if (!card.thumbnail.filePath.empty() && card.thumbnail.surface)
+		{
+			LSG_Graphics::UpdateTexture(card.thumbnail.texture.texture, card.thumbnail.surface);
+			LSG_Graphics::Rotate(card.thumbnail);
 		}
 
-		this->destroySurfaces(card);
-	}
+		if (!card.title.text.empty() && card.title.surface)
+			LSG_Graphics::UpdateTexture(card.title.texture.texture, card.title.surface);
+
+		if (!card.description.text.empty() && card.description.surface)
+			LSG_Graphics::UpdateTexture(card.description.texture.texture, card.description.surface);
+	});
+
+	this->destroySurfaces();
 
 	this->cardsLock.unlock();
 }

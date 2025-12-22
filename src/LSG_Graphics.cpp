@@ -596,6 +596,20 @@ void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& backgro
 	SDL_RenderCopy(renderer, texture, &clip, &dest);
 }
 
+void LSG_Graphics::Rotate(LSG_ItemImage& image)
+{
+	auto exif        = LSG_Exif::Get(LSG_Text::GetFullPath(image.filePath));
+	auto orientation = LSG_Exif::GetOrientation(exif.tags);
+
+	if (orientation.rotation > 0.0)
+	{
+		auto maxSize = std::max(image.surface->w, image.surface->h);
+
+		image.texture.size    = { maxSize, maxSize };
+		image.texture.texture = LSG_Window::RotateTexture(image.texture.texture, orientation, image.texture.size, image.surface->format->format);
+	}
+}
+
 /**
 * Valid color strings:
 * "#00FF00"           0 red, 255 green, 0 blue
@@ -644,4 +658,20 @@ SDL_Color LSG_Graphics::ToSdlColor(const std::string &color)
 std::string LSG_Graphics::ToXmlAttribute(const SDL_Color& color)
 {
 	return std::format("rgba({},{},{},{})", color.r, color.g, color.b, color.a);
+}
+
+void LSG_Graphics::UpdateTexture(SDL_Texture* texture, SDL_Surface* surface)
+{
+	if (!texture || !surface)
+		return;
+
+	SDL_UpdateTexture(texture, nullptr, surface->pixels, surface->pitch);
+
+	if (!SDL_ISPIXELFORMAT_ALPHA(surface->format->format))
+		return;
+
+	SDL_BlendMode blendMode;
+	SDL_GetSurfaceBlendMode(surface, &blendMode);
+
+	SDL_SetTextureBlendMode(texture, blendMode);
 }

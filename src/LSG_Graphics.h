@@ -29,8 +29,10 @@ public:
 	static void                    RenderFill(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
 	static void                    RenderLine(SDL_Renderer* renderer, const SDL_Color& color, int x1, int y1, int x2, int y2);
 	static void                    RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
+	static void                    Rotate(LSG_ItemImage& image);
 	static SDL_Color               ToSdlColor(const std::string& color);
 	static std::string             ToXmlAttribute(const SDL_Color& color);
+	static void                    UpdateTexture(SDL_Texture* texture, SDL_Surface* surface);
 
 private:
 	static SDL_Surface*            getDownScaledSurface(const std::string& imageFile, const SDL_Point& downscaleFactor);

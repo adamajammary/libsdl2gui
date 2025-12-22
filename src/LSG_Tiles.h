@@ -9,32 +9,12 @@ struct LSG_TileRender
 	SDL_Rect destination = {};
 };
 
-struct LSG_TileTexture
-{
-	SDL_Texture* texture = nullptr;
-	SDL_Size     size    = {};
-};
-
-struct LSG_TileImage
-{
-	std::string     filePath = "";
-	SDL_Surface*    surface  = nullptr;
-	LSG_TileTexture texture  = {};
-};
-
-struct LSG_TileText
-{
-	SDL_Surface*    surface = nullptr;
-	std::string     text    = "";
-	LSG_TileTexture texture = {};
-};
-
 struct LSG_Tile
 {
 	SDL_Rect      background  = {};
 	bool          highlighted = false;
-	LSG_TileImage image       = {};
-	LSG_TileText  text        = {};
+	LSG_ItemImage image       = {};
+	LSG_ItemText  text        = {};
 };
 
 class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
@@ -124,12 +104,11 @@ private:
 	bool          isTileVisible() const;
 	void          render(SDL_Renderer* renderer);
 	void          renderHighlightSelection(SDL_Renderer* renderer, int index);
-	void          renderImage(SDL_Renderer* renderer, const LSG_TileImage& image) const;
+	void          renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const;
 	void          renderScrollBar(SDL_Renderer* renderer);
-	void          renderText(SDL_Renderer* renderer, const LSG_TileText& text);
+	void          renderText(SDL_Renderer* renderer, const LSG_ItemText& text);
 	void          reset(bool resetScroll = false);
 	void          resetScroll();
-	void          rotate(LSG_TileImage& image);
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          selectCtrl(int index);
 	void          selectShift(int index);

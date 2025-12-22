@@ -5,6 +5,7 @@
 #include <cstdio>    // snprintf()
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
+#include <execution> // for_each()
 #include <format>
 #include <fstream>
 #include <mutex>
@@ -218,6 +219,26 @@ struct LSG_Alignment
 {
 	LSG_HAlign halign = LSG_HALIGN_LEFT;
 	LSG_VAlign valign = LSG_VALIGN_TOP;
+};
+
+struct LSG_ItemTexture
+{
+	SDL_Size     size = {};
+	SDL_Texture* texture = nullptr;
+};
+
+struct LSG_ItemImage
+{
+	std::string     filePath = "";
+	SDL_Surface*    surface  = nullptr;
+	LSG_ItemTexture texture  = {};
+};
+
+struct LSG_ItemText
+{
+	SDL_Surface*    surface = nullptr;
+	std::string     text    = "";
+	LSG_ItemTexture texture = {};
 };
 
 const char* LSG_GetBasePath();

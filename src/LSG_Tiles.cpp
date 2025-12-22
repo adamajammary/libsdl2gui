@@ -681,7 +681,7 @@ void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
 		LSG_Graphics::RenderFill(renderer, 0, { color.r, color.g, color.b, 64 }, this->image.destination);
 }
 
-void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_TileImage& image) const
+void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const
 {
 	LSG_Graphics::RenderFill(renderer, 0, { 0, 0, 0, 128 }, this->image.destination);
 
@@ -708,7 +708,7 @@ void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_TileImage& image) 
 	SDL_RenderCopy(renderer, image.texture.texture, &this->image.clip, &destination);
 }
 
-void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_TileText& text)
+void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)
 {
 	if (text.text.empty() || !this->isTextVisible())
 		return;
@@ -736,20 +736,6 @@ void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)
 		this->grid.w += LSG_ScrollBar::GetSize();
 
 		this->renderScrollBarVertical(renderer, this->grid, this->totalSize, this->backgroundColor, this->highlighted);
-	}
-}
-
-void LSG_Tiles::rotate(LSG_TileImage& image)
-{
-	auto exif        = LSG_Exif::Get(LSG_Text::GetFullPath(image.filePath));
-	auto orientation = LSG_Exif::GetOrientation(exif.tags);
-
-	if (orientation.rotation > 0.0)
-	{
-		auto maxSize = std::max(image.surface->w, image.surface->h);
-
-		image.texture.size    = { maxSize, maxSize };
-		image.texture.texture = LSG_Window::RotateTexture(image.texture.texture, orientation, image.texture.size, image.surface->format->format);
 	}
 }
 
@@ -1180,14 +1166,14 @@ void LSG_Tiles::setTileSurfaces()
 
 	this->destroySurfaces();
 
-	for (auto& tile : this->tiles)
+	std::for_each(std::execution::par_unseq, this->tiles.begin(), this->tiles.end(), [this](LSG_Tile& tile)
 	{
 		if (!tile.image.filePath.empty())
 			tile.image.surface = IMG_Load(LSG_Text::GetFullPath(tile.image.filePath).c_str());
 
 		if (!tile.text.text.empty())
 			tile.text.surface = this->getSurface(tile.text.text);
-	}
+	});
 
 	this->tilesLock.unlock();
 }
@@ -1201,19 +1187,29 @@ void LSG_Tiles::setTileTextures()
 		if (!tile.image.filePath.empty() && !tile.image.texture.texture && tile.image.surface)
 		{
 			tile.image.texture.size    = { tile.image.surface->w, tile.image.surface->h };
-			tile.image.texture.texture = LSG_Window::ToTexture(tile.image.surface);
-
-			this->rotate(tile.image);
+			tile.image.texture.texture = LSG_Window::ToTextureEmpty(tile.image.surface);
 		}
 
 		if (!tile.text.text.empty() && !tile.text.texture.texture && tile.text.surface)
 		{
 			tile.text.texture.size    = { tile.text.surface->w, tile.text.surface->h };
-			tile.text.texture.texture = LSG_Window::ToTexture(tile.text.surface);
+			tile.text.texture.texture = LSG_Window::ToTextureEmpty(tile.text.surface);
+		}
+	}
+
+	std::for_each(std::execution::par_unseq, this->tiles.begin(), this->tiles.end(), [](LSG_Tile& tile)
+	{
+		if (!tile.image.filePath.empty() && tile.image.surface)
+		{
+			LSG_Graphics::UpdateTexture(tile.image.texture.texture, tile.image.surface);
+			LSG_Graphics::Rotate(tile.image);
 		}
 
-		this->destroySurfaces(tile);
-	}
+		if (!tile.text.text.empty() && tile.text.surface)
+			LSG_Graphics::UpdateTexture(tile.text.texture.texture, tile.text.surface);
+	});
+
+	this->destroySurfaces();
 
 	this->tilesLock.unlock();
 }

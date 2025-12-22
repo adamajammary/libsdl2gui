@@ -3,32 +3,12 @@
 #ifndef LSG_CARDS_H
 #define LSG_CARDS_H
 
-struct LSG_CardTexture
-{
-	SDL_Size     size    = {};
-	SDL_Texture* texture = nullptr;
-};
-
-struct LSG_CardImage
-{
-	std::string     filePath = "";
-	SDL_Surface*    surface  = nullptr;
-	LSG_CardTexture texture  = {};
-};
-
-struct LSG_CardText
-{
-	SDL_Surface*    surface = nullptr;
-	std::string     text    = "";
-	LSG_CardTexture texture = {};
-};
-
 struct LSG_Card
 {
 	SDL_Rect      background  = {};
-	LSG_CardText  description = {};
-	LSG_CardImage thumbnail   = {};
-	LSG_CardText  title       = {};
+	LSG_ItemText  description = {};
+	LSG_ItemImage thumbnail   = {};
+	LSG_ItemText  title       = {};
 };
 
 class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
@@ -107,7 +87,6 @@ private:
 	void          resetHighlight();
 	void          resetRenderTarget();
 	void          resetScroll();
-	void          rotate(LSG_CardImage& image);
 	void          select(LSG_EventType eventType);
 	void          selectCtrl(int row);
 	void          selectShift(int row);
