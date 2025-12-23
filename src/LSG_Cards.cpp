@@ -508,11 +508,13 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) co
 
 void LSG_Cards::renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize)
 {
+	auto renderTarget = SDL_GetRenderTarget(renderer);
+
 	SDL_SetRenderTarget(renderer, this->renderTarget);
 
 	this->renderContent(renderer, textureSize);
 
-	SDL_SetRenderTarget(renderer, nullptr);
+	SDL_SetRenderTarget(renderer, renderTarget);
 }
 
 void LSG_Cards::reset(bool resetScroll)
@@ -819,6 +821,9 @@ void LSG_Cards::SetCard(int row, const LSG_CardItem& cardItem)
 
 	this->cardsLock.lock();
 
+	this->destroyTextures(this->cards[row]);
+	this->destroySurfaces(this->cards[row]);
+
 	this->cards[row] = LSG_Cards::ToCard(cardItem);
 
 	this->cardsLock.unlock();
@@ -828,7 +833,11 @@ void LSG_Cards::SetCard(int row, const LSG_CardItem& cardItem)
 
 void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 {
+	this->destroyTextures();
+
 	this->cardsLock.lock();
+
+	this->destroySurfaces();
 
 	this->cards.clear();
 

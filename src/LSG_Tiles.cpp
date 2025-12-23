@@ -1114,6 +1114,9 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 
 	this->tilesLock.lock();
 
+	this->destroyTextures(this->tiles[index]);
+	this->destroySurfaces(this->tiles[index]);
+
 	this->tiles[index] = {
 		.image = { .filePath = tile.image },
 		.text  = { .text     = tile.text  }
@@ -1129,6 +1132,8 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 	this->destroyTextures();
 
 	this->tilesLock.lock();
+
+	this->destroySurfaces();
 
 	this->tiles.clear();
 
