@@ -900,13 +900,13 @@ void LSG_Cards::setCardTextures()
 		if (!card.title.text.empty() && !card.title.texture.texture && card.title.surface)
 		{
 			card.title.texture.size    = { card.title.surface->w, card.title.surface->h };
-			card.title.texture.texture = LSG_Window::ToTextureEmpty(card.title.surface);
+			card.title.texture.texture = LSG_Window::ToTexture(card.title.surface);
 		}
 
 		if (!card.description.text.empty() && !card.description.texture.texture && card.description.surface)
 		{
 			card.description.texture.size    = { card.description.surface->w, card.description.surface->h };
-			card.description.texture.texture = LSG_Window::ToTextureEmpty(card.description.surface);
+			card.description.texture.texture = LSG_Window::ToTexture(card.description.surface);
 		}
 	}
 
@@ -917,12 +917,6 @@ void LSG_Cards::setCardTextures()
 			LSG_Graphics::UpdateTexture(card.thumbnail.texture.texture, card.thumbnail.surface);
 			LSG_Graphics::Rotate(card.thumbnail);
 		}
-
-		if (!card.title.text.empty() && card.title.surface)
-			LSG_Graphics::UpdateTexture(card.title.texture.texture, card.title.surface);
-
-		if (!card.description.text.empty() && card.description.surface)
-			LSG_Graphics::UpdateTexture(card.description.texture.texture, card.description.surface);
 	});
 
 	this->destroySurfaces();

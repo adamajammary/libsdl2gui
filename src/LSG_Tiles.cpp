@@ -1198,7 +1198,7 @@ void LSG_Tiles::setTileTextures()
 		if (!tile.text.text.empty() && !tile.text.texture.texture && tile.text.surface)
 		{
 			tile.text.texture.size    = { tile.text.surface->w, tile.text.surface->h };
-			tile.text.texture.texture = LSG_Window::ToTextureEmpty(tile.text.surface);
+			tile.text.texture.texture = LSG_Window::ToTexture(tile.text.surface);
 		}
 	}
 
@@ -1209,9 +1209,6 @@ void LSG_Tiles::setTileTextures()
 			LSG_Graphics::UpdateTexture(tile.image.texture.texture, tile.image.surface);
 			LSG_Graphics::Rotate(tile.image);
 		}
-
-		if (!tile.text.text.empty() && tile.text.surface)
-			LSG_Graphics::UpdateTexture(tile.text.texture.texture, tile.text.surface);
 	});
 
 	this->destroySurfaces();
