@@ -16,8 +16,6 @@ void LSG_Window::Close()
 		SDL_DestroyWindow(LSG_Window::window);
 		LSG_Window::window = nullptr;
 	}
-
-	SDL_Quit();
 }
 
 #if defined _android
