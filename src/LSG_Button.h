@@ -10,7 +10,6 @@ public:
 	~LSG_Button() {}
 
 private:
-	static const int DefaultPadding  = 10;
 	static const int DefaultSpacingX = 10;
 	static const int DefaultSpacingY = 5;
 

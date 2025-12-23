@@ -205,12 +205,10 @@ void LSG_Button::Set()
 
 void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
 {
-	auto padding = LSG_Window::GetDPIScaled(LSG_Button::DefaultPadding);
 	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingX);
 
-	auto padding2x  = (padding + padding);
 	auto totalWidth = (iconDestination.w + spacing + textDestination.w);
-	auto diffWidth  = (this->background.w - totalWidth - padding2x);
+	auto diffWidth  = (this->background.w - totalWidth);
 
 	if (diffWidth >= 0)
 	{
@@ -229,29 +227,22 @@ void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textCl
 
 void LSG_Button::setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
 {
-	auto padding = LSG_Window::GetDPIScaled(LSG_Button::DefaultPadding);
 	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingY);
 
 	iconDestination.y -= ((iconDestination.h + spacing) / 2);
 	textDestination.y += ((textDestination.h + spacing) / 2);
 
-	auto minPositionX = (this->background.x + padding);
+	auto minPositionX = (this->background.x);
 
 	if (textDestination.x < minPositionX)
-	{
 		textDestination.x = minPositionX;
 
-		textClip.w        -= (padding + padding);
-		textDestination.w = textClip.w;
-	}
-
-	auto padding2x   = (padding + padding);
 	auto totalHeight = (iconDestination.h + spacing + textDestination.h);
-	auto diffHeight  = (this->background.h - totalHeight - padding2x);
+	auto diffHeight  = (this->background.h - totalHeight);
 
 	if (diffHeight < 0)
 	{
-		iconDestination.y = (this->background.y + padding);
+		iconDestination.y = this->background.y;
 		textDestination.y = (iconDestination.y + iconDestination.h + spacing);
 
 		textClip.h       -= std::abs(diffHeight);
