@@ -206,21 +206,23 @@ void LSG_Button::Set()
 void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
 {
 	auto padding = LSG_Window::GetDPIScaled(LSG_Button::DefaultPadding);
-	auto offsetX = (textDestination.w / 2);
+	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingX);
 
-	iconDestination.x -= offsetX;
-	textDestination.x += offsetX;
+	auto padding2x  = (padding + padding);
+	auto totalWidth = (iconDestination.w + spacing + textDestination.w);
+	auto diffWidth  = (this->background.w - totalWidth - padding2x);
 
-	auto minPositionX = (this->background.x + padding);
-
-	if (iconDestination.x < minPositionX)
+	if (diffWidth >= 0)
 	{
-		auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacing);
+		iconDestination.x = (this->background.x + ((this->background.w - totalWidth) / 2));
+		textDestination.x = (iconDestination.x + iconDestination.w + spacing);
+	}
+	else
+	{
+		iconDestination.x = (this->background.x + padding);
+		textDestination.x = (iconDestination.x + iconDestination.w + spacing);
 
-		iconDestination.x  = minPositionX;
-		textDestination.x  = (iconDestination.x + iconDestination.w + spacing);
-
-		textClip.w        -= (iconDestination.w + padding + padding + spacing);
+		textClip.w       -= std::abs(diffWidth);
 		textDestination.w = textClip.w;
 	}
 }
@@ -228,7 +230,7 @@ void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textCl
 void LSG_Button::setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
 {
 	auto padding = LSG_Window::GetDPIScaled(LSG_Button::DefaultPadding);
-	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacing);
+	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingY);
 
 	iconDestination.y -= ((iconDestination.h + spacing) / 2);
 	textDestination.y += ((textDestination.h + spacing) / 2);
@@ -241,5 +243,18 @@ void LSG_Button::setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip
 
 		textClip.w        -= (padding + padding);
 		textDestination.w = textClip.w;
+	}
+
+	auto padding2x   = (padding + padding);
+	auto totalHeight = (iconDestination.h + spacing + textDestination.h);
+	auto diffHeight  = (this->background.h - totalHeight - padding2x);
+
+	if (diffHeight < 0)
+	{
+		iconDestination.y = (this->background.y + padding);
+		textDestination.y = (iconDestination.y + iconDestination.h + spacing);
+
+		textClip.h       -= std::abs(diffHeight);
+		textDestination.h = textClip.h;
 	}
 }

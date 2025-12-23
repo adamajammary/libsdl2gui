@@ -10,8 +10,9 @@ public:
 	~LSG_Button() {}
 
 private:
-	static const int DefaultPadding = 10;
-	static const int DefaultSpacing = 5;
+	static const int DefaultPadding  = 10;
+	static const int DefaultSpacingX = 10;
+	static const int DefaultSpacingY = 5;
 
 private:
 	std::string iconPath;
