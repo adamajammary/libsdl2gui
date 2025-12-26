@@ -183,6 +183,7 @@ void LSG_Navigation::navigate(int position, const std::string& text)
 		this->text = this->getText();
 
 	this->destroyTextures();
+
 	this->set();
 }
 
@@ -315,9 +316,6 @@ void LSG_Navigation::sendEvent(LSG_EventType type) const
 
 void LSG_Navigation::set()
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	auto color     = LSG_Graphics::GetThumbColor(this->backgroundColor);
 	auto colorPrev = (this->canNavigate.back    ? color : LSG_ScrollBar::DefaultThumbColor);
 	auto colorNext = (this->canNavigate.forward ? color : LSG_ScrollBar::DefaultThumbColor);
@@ -357,11 +355,13 @@ void LSG_Navigation::Set(size_t itemsTotal, size_t itemsPerNavigation)
 	this->text = this->getText();
 
 	this->destroyTextures();
+
 	this->set();
 }
 
 void LSG_Navigation::Set()
 {
 	this->destroyTextures();
+
 	this->set();
 }

@@ -578,6 +578,7 @@ void LSG_Table::renderRows(SDL_Renderer* renderer, const SDL_Rect& fillArea, con
 void LSG_Table::reset()
 {
 	this->destroyTextures();
+
 	this->SetRows();
 }
 
@@ -675,6 +676,7 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 		pageRow = columns;
 
 		this->destroyTextures();
+
 		this->setRows(false);
 
 		return;
@@ -695,14 +697,12 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 void LSG_Table::SetRows()
 {
 	this->destroyTextures();
+
 	this->setRows();
 }
 
 void LSG_Table::setRows(bool sort)
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	if (this->showPagination())
 		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
 
@@ -825,5 +825,6 @@ void LSG_Table::sort()
 void LSG_Table::Update()
 {
 	this->destroyTextures();
+
 	this->setRows(false);
 }

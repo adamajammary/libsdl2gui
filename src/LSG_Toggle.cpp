@@ -97,9 +97,6 @@ void LSG_Toggle::Set(bool on)
 
 void LSG_Toggle::Set()
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	this->destroyTextures();
 
 	auto size = this->getMaxSize(LSG_Graphics::GetFillArea(this->background, this->border));

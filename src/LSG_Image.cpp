@@ -194,10 +194,8 @@ void LSG_Image::Set()
 
 void LSG_Image::set()
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	this->destroyTextures();
+
 	this->setTexture();
 }
 

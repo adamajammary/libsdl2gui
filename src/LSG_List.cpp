@@ -306,6 +306,7 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroun
 void LSG_List::reset()
 {
 	this->destroyTextures();
+
 	this->SetItems();
 }
 
@@ -372,6 +373,7 @@ void LSG_List::SelectAll()
 		return;
 
 	this->Select(0, this->getLastRow());
+
 	this->OnScrollHome();
 }
 
@@ -381,6 +383,7 @@ void LSG_List::SelectFirstRow()
 		return;
 
 	this->Select(0);
+
 	this->OnScrollHome();
 }
 
@@ -390,6 +393,7 @@ void LSG_List::SelectFirstRowShift()
 		return;
 
 	this->Select(this->selectedRows[0], 0);
+
 	this->OnScrollHome();
 }
 
@@ -399,6 +403,7 @@ void LSG_List::SelectLastRow()
 		return;
 
 	this->Select(this->getLastRow());
+
 	this->OnScrollEnd();
 }
 
@@ -408,6 +413,7 @@ void LSG_List::SelectLastRowShift()
 		return;
 
 	this->Select(this->selectedRows[0], this->getLastRow());
+
 	this->OnScrollEnd();
 }
 
@@ -488,14 +494,12 @@ void LSG_List::SetItems(const LSG_Strings& items)
 void LSG_List::SetItems()
 {
 	this->destroyTextures();
+
 	this->setItems();
 }
 
 void LSG_List::setItems(bool sort)
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	if (this->showPagination())
 		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
 
@@ -520,6 +524,7 @@ void LSG_List::SetPage(int page)
 		return;
 
 	this->reset();
+
 	this->SelectFirstRow();
 }
 
@@ -554,5 +559,6 @@ void LSG_List::sort()
 void LSG_List::Update()
 {
 	this->destroyTextures();
+
 	this->setItems(false);
 }

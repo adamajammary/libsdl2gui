@@ -56,10 +56,8 @@ void LSG_TextLabel::Set(const std::string &text)
 
 void LSG_TextLabel::Set()
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	this->destroyTextures();
+
 	this->setTexture();
 }
 

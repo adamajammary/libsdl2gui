@@ -184,9 +184,6 @@ void LSG_Button::Set(const std::string& text, const std::string& iconPath)
 
 void LSG_Button::Set()
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	this->destroyTextures();
 
 	this->textures.resize(NR_OF_BUTTON_TEXTURES);

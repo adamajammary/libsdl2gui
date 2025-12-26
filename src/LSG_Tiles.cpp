@@ -1159,9 +1159,6 @@ void LSG_Tiles::SetTiles()
 
 void LSG_Tiles::setTiles()
 {
-	if (SDL_RectEmpty(&this->background))
-		return;
-
 	std::thread(&LSG_Tiles::setTileSurfaces, this).detach();
 }
 
