@@ -19,14 +19,12 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 
 	this->text = LSG_XML::GetValue(this->xmlNode);
 
-	auto attributes  = LSG_XML::GetAttributes(this->xmlNode);
-	auto enabled     = (attributes.contains("enabled")     ? attributes["enabled"]     : "true");
-	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
-	auto visible     = (attributes.contains("visible")     ? attributes["visible"]     : "true");
+	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	this->enabled     = (enabled == "true");
-	this->orientation = orientation;
-	this->visible     = (visible == "true");
+	this->orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
+
+	this->enabled = (!attributes.contains("enabled") || attributes["enabled"] == "true");
+	this->visible = (!attributes.contains("visible") || attributes["visible"] == "true");
 
 	if (this->parent)
 		this->parent->children.push_back(this);
@@ -349,7 +347,7 @@ bool LSG_Component::IsScrollablePanel(bool includeParents) const
 	if (this->IsPanel() && (LSG_XML::GetAttribute(this->xmlNode, "scrollable") == "true"))
 		return true;
 
-	return (includeParents && this->parent ? this->parent->IsScrollablePanel() : false);
+	return (includeParents && this->parent ? this->parent->IsScrollablePanel(true) : false);
 }
 
 bool LSG_Component::IsSlider() const
@@ -667,10 +665,10 @@ void LSG_Component::setSizePercent(const SDL_Rect& parentBackground)
 	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
 	auto height = (attributes.contains("height") ? attributes["height"] : "");
 
-	if (!width.empty() && (width[width.length() - 1] == '%'))
+	if (!width.empty() && width.ends_with('%'))
 		this->background.w = (int)((double)parentBackground.w * std::atof(width.c_str()) * 0.01);
 
-	if (!height.empty() && (height[height.length() - 1] == '%'))
+	if (!height.empty() && height.ends_with('%'))
 		this->background.h = (int)((double)parentBackground.h * std::atof(height.c_str()) * 0.01);
 
 	if (width == "height")

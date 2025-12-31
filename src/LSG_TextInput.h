@@ -34,7 +34,8 @@ public:
 	void         MoveCursorHome();
 	void         MoveCursorLeft();
 	void         MoveCursorRight();
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override {}
+	bool         OnMouseDown(const SDL_Point& mousePosition);
 	bool         OnMouseMove(const SDL_Point& mousePosition);
 	void         Paste();
 	void         Remove();

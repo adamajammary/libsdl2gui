@@ -71,10 +71,10 @@ SDL_Size LSG_List::GetSize() const
 	return textureSize;
 }
 
-bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->items.empty())
-		return false;
+		return;
 
 	if (this->isPaginationClicked(mousePosition))
 	{
@@ -83,13 +83,13 @@ bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 			this->SelectFirstRow();
 		}
 
-		return true;
+		return;
 	}
 
 	auto rowHeight  = this->getRowHeight();
 
 	if (rowHeight < 1)
-		return false;
+		return;
 
 	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto positionY  = (mousePosition.y - background.y + this->scrollOffsetY);
@@ -116,7 +116,7 @@ bool LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 		this->Select(clickedRow);
 	}
 
-	return true;
+	return;
 }
 
 void LSG_List::removeItem(int row, int lastRow)

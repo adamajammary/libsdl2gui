@@ -52,7 +52,7 @@ bool LSG_MenuItem::IsSelected() const
 	return this->selected;
 }
 
-bool LSG_MenuItem::OnMouseClick(const SDL_Point& mousePosition)
+bool LSG_MenuItem::OnMouseDown(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || !this->visible)
 		return false;

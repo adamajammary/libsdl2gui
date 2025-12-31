@@ -19,19 +19,28 @@ private:
 	static LSG_Component* textInput;
 
 public:
-	static bool                   IsMouseDown();
 	static std::vector<SDL_Event> Handle();
+	static void                   HandleKeyDownEvent(const SDL_KeyboardEvent& event, LSG_Component* component);
+	static void                   HandleMouseDownEvent(const SDL_Event& event, LSG_Component* component = nullptr);
+	static void                   HandleMouseScrollEvent(const SDL_MouseWheelEvent& event, LSG_Component* component = nullptr);
+	static void                   HandleMouseUpEvent(const SDL_Event& event, LSG_Component* component = nullptr);
+	static bool                   IsMouseDown();
 
 private:
 	static SDL_Point getMousePosition(const SDL_Event& event);
 	static void      handleKeyDownEvent(const SDL_KeyboardEvent& event);
-	static void      handleMouseDownEvent(const SDL_Event& event);
+	static void      handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Cards* cards);
+	static void      handleKeyDownEventList(const SDL_KeyboardEvent& event, LSG_List* list);
+	static void      handleKeyDownEventMenu(const SDL_KeyboardEvent& event, LSG_Menu* menu);
+	static bool      handleKeyDownEventPanel(const SDL_KeyboardEvent& event, LSG_Panel* panel);
+	static void      handleKeyDownEventSlider(const SDL_KeyboardEvent& event, LSG_Slider* slider);
+	static bool      handleKeyDownEventTextLabel(const SDL_KeyboardEvent& event, LSG_TextLabel* textLabel);
+	static void      handleKeyDownEventTiles(const SDL_KeyboardEvent& event, LSG_Tiles* tiles);
+	static void      handleKeyDownEventTextInput(const SDL_KeyboardEvent& event);
 	static void      handleMouseLastDownEvent();
 	static void      handleMouseMoveEvent(const SDL_Event& event);
-	static void      handleMouseScrollEvent(const SDL_MouseWheelEvent& event);
-	static void      handleMouseUp(const SDL_Event& event);
 	static void      handleSysWMEvent(const SDL_SysWMEvent& event);
-	static void      handleTextInput(const SDL_TextInputEvent& event);
+	static void      handleTextInputEvent(const SDL_TextInputEvent& event);
 	static void      handleWindowEvent(const SDL_WindowEvent& event);
 	static void      sendEvent(LSG_EventType type, const std::string& id, SDL_Keycode key = SDLK_UNKNOWN);
 };

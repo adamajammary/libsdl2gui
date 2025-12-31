@@ -62,7 +62,8 @@ public:
 	LSG_TileItem     GetTile(int index) const;
 	LSG_TileItems    GetTiles() const;
 	size_t           GetTilesCount() const;
-	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OffsetBackgroundY(int headerHeight);
+	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveTile(int index);
 	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;

@@ -123,12 +123,12 @@ void LSG_Cards::destroyTextures(LSG_Card& card)
 
 void LSG_Cards::destroyTextures()
 {
+	this->resetRenderTarget();
+
 	this->cardsLock.lock();
 
 	for (auto& card : this->cards)
 		this->destroyTextures(card);
-
-	this->resetRenderTarget();
 
 	this->cardsLock.unlock();
 }
@@ -202,27 +202,10 @@ int LSG_Cards::getRow(const SDL_Point& mousePosition) const
 	return -1;
 }
 
-bool LSG_Cards::initRenderTarget(const SDL_Size& textureSize)
-{
-	if (!this->renderTarget) {
-		LSG_Window::InitRenderTarget(&this->renderTarget, textureSize);
-		return true;
-	}
-
-	auto targetSize = LSG_Graphics::GetTextureSize(this->renderTarget);
-
-	if ((textureSize.width != targetSize.width) || (textureSize.height != targetSize.height)) {
-		LSG_Window::InitRenderTarget(&this->renderTarget, textureSize);
-		return true;
-	}
-
-	return false;
-}
-
-bool LSG_Cards::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Cards::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->cards.empty())
-		return false;
+		return;
 
 	auto keyState = SDL_GetKeyboardState(nullptr);
 	auto row      = this->getRow(mousePosition);
@@ -233,8 +216,6 @@ bool LSG_Cards::OnMouseClick(const SDL_Point& mousePosition)
 		this->selectShift(row);
 	else
 		this->Select(row);
-
-	return true;
 }
 
 void LSG_Cards::OnMouseOver(const SDL_Point& mousePosition)
@@ -313,11 +294,14 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 	if (!this->highlighted)
 		this->resetHighlight();
 
-	auto textureSize    = this->GetSize();
-	bool renderToTarget = this->initRenderTarget(textureSize);
+	auto textureSize = this->GetSize();
 
-	if (renderToTarget)
+	if (!this->renderTarget)
+	{
+		LSG_Window::InitRenderTarget(this->renderTarget, textureSize);
+
 		this->renderToTarget(renderer, textureSize);
+	}
 
 	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, this->background);
 
@@ -508,11 +492,13 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) co
 
 void LSG_Cards::renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize)
 {
+	if (!this->renderTarget)
+		return;
+
 	auto renderTarget = SDL_GetRenderTarget(renderer);
 
-	SDL_SetRenderTarget(renderer, this->renderTarget);
-
-	this->renderContent(renderer, textureSize);
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) == 0)
+		this->renderContent(renderer, textureSize);
 
 	SDL_SetRenderTarget(renderer, renderTarget);
 }
@@ -539,10 +525,14 @@ void LSG_Cards::resetHighlight()
 
 void LSG_Cards::resetRenderTarget()
 {
+	this->cardsLock.lock();
+
 	if (this->renderTarget) {
 		SDL_DestroyTexture(this->renderTarget);
 		this->renderTarget = nullptr;
 	}
+
+	this->cardsLock.unlock();
 }
 
 void LSG_Cards::resetScroll()
@@ -891,7 +881,9 @@ void LSG_Cards::setCardTextures()
 		if (!card.thumbnail.filePath.empty() && !card.thumbnail.texture.texture && card.thumbnail.surface)
 		{
 			card.thumbnail.texture.size    = { card.thumbnail.surface->w, card.thumbnail.surface->h };
-			card.thumbnail.texture.texture = LSG_Window::ToTextureEmpty(card.thumbnail.surface);
+			card.thumbnail.texture.texture = LSG_Window::ToTexture(card.thumbnail.surface);
+
+			LSG_Graphics::Rotate(card.thumbnail);
 		}
 
 		if (!card.title.text.empty() && !card.title.texture.texture && card.title.surface)
@@ -906,15 +898,6 @@ void LSG_Cards::setCardTextures()
 			card.description.texture.texture = LSG_Window::ToTexture(card.description.surface);
 		}
 	}
-
-	std::for_each(std::execution::par_unseq, this->cards.begin(), this->cards.end(), [](LSG_Card& card)
-	{
-		if (!card.thumbnail.filePath.empty() && card.thumbnail.surface)
-		{
-			LSG_Graphics::UpdateTexture(card.thumbnail.texture.texture, card.thumbnail.surface);
-			LSG_Graphics::Rotate(card.thumbnail);
-		}
-	});
 
 	this->destroySurfaces();
 

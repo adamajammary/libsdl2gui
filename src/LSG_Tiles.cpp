@@ -461,7 +461,7 @@ int LSG_Tiles::getTileSize(int maxWidth) const
 
 	int tileSize;
 
-	if (!this->xmlTileSize.empty() && (this->xmlTileSize[this->xmlTileSize.length() - 1] == '%'))
+	if (!this->xmlTileSize.empty() && this->xmlTileSize.ends_with('%'))
 		tileSize = (int)((double)maxWidth * std::atof(this->xmlTileSize.c_str()) * 0.01);
 	else if (!this->xmlTileSize.empty())
 		tileSize = std::atoi(this->xmlTileSize.c_str());
@@ -529,10 +529,16 @@ bool LSG_Tiles::isTileVisible() const
 	return true;
 }
 
-bool LSG_Tiles::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Tiles::OffsetBackgroundY(int headerHeight)
+{
+	for (auto& tile : this->tiles)
+		tile.background.y += headerHeight;
+}
+
+void LSG_Tiles::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->tiles.empty())
-		return false;
+		return;
 
 	for (int i = 0; i < (int)this->tiles.size(); i++)
 	{
@@ -550,8 +556,6 @@ bool LSG_Tiles::OnMouseClick(const SDL_Point& mousePosition)
 
 		break;
 	}
-
-	return true;
 }
 
 void LSG_Tiles::OnMouseOver(const SDL_Point& mousePosition)
@@ -1189,7 +1193,9 @@ void LSG_Tiles::setTileTextures()
 		if (!tile.image.filePath.empty() && !tile.image.texture.texture && tile.image.surface)
 		{
 			tile.image.texture.size    = { tile.image.surface->w, tile.image.surface->h };
-			tile.image.texture.texture = LSG_Window::ToTextureEmpty(tile.image.surface);
+			tile.image.texture.texture = LSG_Window::ToTexture(tile.image.surface);
+
+			LSG_Graphics::Rotate(tile.image);
 		}
 
 		if (!tile.text.text.empty() && !tile.text.texture.texture && tile.text.surface)
@@ -1198,15 +1204,6 @@ void LSG_Tiles::setTileTextures()
 			tile.text.texture.texture = LSG_Window::ToTexture(tile.text.surface);
 		}
 	}
-
-	std::for_each(std::execution::par_unseq, this->tiles.begin(), this->tiles.end(), [](LSG_Tile& tile)
-	{
-		if (!tile.image.filePath.empty() && tile.image.surface)
-		{
-			LSG_Graphics::UpdateTexture(tile.image.texture.texture, tile.image.surface);
-			LSG_Graphics::Rotate(tile.image);
-		}
-	});
 
 	this->destroySurfaces();
 

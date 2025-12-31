@@ -23,7 +23,6 @@ private:
 	bool        isSlideActive;
 	std::string orientation;
 	SDL_Color   progressColor;
-	SDL_Rect    thumb;
 	int         thumbBorder;
 	SDL_Color   thumbBorderColor;
 	SDL_Color   thumbColor;
@@ -33,7 +32,7 @@ private:
 
 public:
 	double       GetValue() const;
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	bool         OnMouseClickThumb(const SDL_Point& mousePosition);
 	bool         OnMouseMove(const SDL_Point& mousePosition);
 	void         OnMouseScroll(int offset);
@@ -44,6 +43,9 @@ public:
 	void         SetValue(double value);
 
 private:
+	SDL_Rect     getBackground() const;
+	int          getProgressValue(const SDL_Rect& background) const;
+	SDL_Rect     getThumb(const SDL_Rect& background, int progressValue) const;
 	void         render(SDL_Renderer* renderer);
 	virtual void sendEvent(LSG_EventType type) const override;
 	void         setValue(const SDL_Point& mousePosition);

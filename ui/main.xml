@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
-  <panel id="Root" orientation="vertical" padding="10" spacing="10" font-size="16">
-    <modal id="ModalIdAbout" title="SDL2 GUI Library" width="65%" min-width="380" max-width="500" height="150" border="1">
-      <panel orientation="vertical" halign="center" valign="middle" spacing="10">
-        <text>A free cross-platform user interface library using SDL2.</text>
-        <text>(c) 2021 Adam A. Jammary (Jammary Studio)</text>
-      </panel>
-    </modal>
+  <modal id="ModalIdAbout" title="SDL2 GUI Library" width="65%" min-width="380" max-width="500" height="150" font-size="16" border="1">
+    <panel orientation="vertical" halign="center" valign="middle" spacing="10">
+      <text>A free cross-platform user interface library using SDL2.</text>
+      <text>(c) 2021 Adam A. Jammary (Jammary Studio)</text>
+    </panel>
+  </modal>
 
+  <panel id="Root" orientation="vertical" padding="10" spacing="10" font-size="16">
     <panel height="35">
       <panel width="50" valign="middle">
         <menu id="Menu" title="Menu">
@@ -64,7 +64,7 @@
       <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
           <text>Cards:</text>
-          <text id="Card" />
+          <text id="CardRow" />
         </panel>
 
         <panel spacing="5">
@@ -142,7 +142,7 @@
       <panel height="30" font-size="18" spacing="10">
         <panel spacing="5">
           <text>Tiles with wrapping:</text>
-          <text id="Tile" />
+          <text id="TileIndex" />
         </panel>
 
         <panel spacing="5">

@@ -38,7 +38,7 @@ static void setColorTheme(const std::string& menuItemId, const std::string& colo
 static void handleIdEvent(const std::string& id)
 {
     if (id == "MenuIdAbout")
-        LSG_SetVisible("ModalIdAbout", true);
+        LSG_OpenModal("ModalIdAbout");
     else if ((id == "ButtonIdColorThemeDark") || (id == "MenuIdColorThemeDark"))
         setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
     else if ((id == "ButtonIdColorThemeLight") || (id == "MenuIdColorThemeLight"))
@@ -58,7 +58,7 @@ static void handleKeyEvent(const SDL_KeyboardEvent& event)
     else if (isCtrl && (key == SDLK_l))
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
     else if (isShift && (key == SDLK_F1))
-        LSG_SetVisible("ModalIdAbout", true);
+        LSG_OpenModal("ModalIdAbout");
 }
 
 static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
@@ -71,7 +71,7 @@ static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
     }
 
     if (id == "Cards")
-        LSG_SetText("Card", rowText);
+        LSG_SetText("CardRow", rowText);
     else if (id == "List")
         LSG_SetText("ListRow", rowText);
     else if (id == "TableWithGroups")
@@ -88,7 +88,7 @@ static void handleTileEvent(const std::string& id, const std::vector<int>& tiles
     }
 
     if (id == "Tiles")
-        LSG_SetText("Tile", tileText);
+        LSG_SetText("TileIndex", tileText);
 }
 
 static void handleUserEvent(const SDL_UserEvent& event)

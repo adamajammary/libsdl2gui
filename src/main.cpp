@@ -10,6 +10,16 @@ const char* LSG_GetBasePath()
 	return basePath;
 }
 
+static LSG_Component* getComponent(const std::string& id)
+{
+	auto component = LSG_UI::GetComponent(id);
+
+	if (!component)
+		component = LSG_UI::GetComponentInModal(id);
+
+	return component;
+}
+
 static std::string getErrorNoID(const std::string& component, const std::string& id)
 {
 	return std::format("Failed to find a {} component with ID '{}'.", component, id);
@@ -128,7 +138,7 @@ void LSG_AddListItem(const std::string& id, const std::string& item)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -141,7 +151,7 @@ void LSG_AddSubMenuItem(const std::string& id, const std::string& item, const st
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsSubMenu())
 		throw std::invalid_argument(getErrorNoID("<menu-sub>", id));
@@ -154,7 +164,7 @@ void LSG_AddTableGroup(const std::string& id, const LSG_TableGroup& group)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -167,7 +177,7 @@ void LSG_AddTableRow(const std::string& id, const LSG_Strings& columns)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -180,7 +190,7 @@ void LSG_AddTile(const std::string& id, const LSG_TileItem& tile)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -193,7 +203,7 @@ void LSG_AddCard(const std::string& id, const LSG_CardItem& card)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -206,7 +216,7 @@ void LSG_ClearTextInput(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTextInput())
 		throw std::invalid_argument(getErrorNoID("<text-input>", id));
@@ -214,12 +224,25 @@ void LSG_ClearTextInput(const std::string& id)
 	static_cast<LSG_TextInput*>(component)->Clear();
 }
 
+void LSG_CloseModal(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsModal())
+		throw std::invalid_argument(getErrorNoID("<modal>", id));
+
+	static_cast<LSG_Modal*>(component)->Close();
+}
+
 SDL_Color LSG_GetBackgroundColor(const std::string& id)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -232,7 +255,7 @@ LSG_CardItem LSG_GetCard(const std::string& id, int index)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -245,7 +268,7 @@ LSG_CardItems LSG_GetCards(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -258,7 +281,7 @@ size_t LSG_GetCardsCount(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -279,7 +302,7 @@ int LSG_GetFontStyle(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -341,7 +364,7 @@ int LSG_GetLastPage(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -354,7 +377,7 @@ std::string LSG_GetListItem(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -367,7 +390,7 @@ size_t LSG_GetListItemCount(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -380,7 +403,7 @@ LSG_Strings LSG_GetListItems(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -393,7 +416,7 @@ int LSG_GetMargin(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -406,7 +429,7 @@ size_t LSG_GetNavigationItemCount(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -419,7 +442,7 @@ int LSG_GetNavigationPosition(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -432,7 +455,7 @@ int LSG_GetPadding(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -445,7 +468,7 @@ int LSG_GetPage(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -458,7 +481,7 @@ std::string LSG_GetPageListItem(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -471,7 +494,7 @@ LSG_Strings LSG_GetPageListItems(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -484,7 +507,7 @@ LSG_TableGroups LSG_GetPageTableGroups(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -497,7 +520,7 @@ LSG_Strings LSG_GetPageTableRow(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -510,7 +533,7 @@ LSG_TableRows LSG_GetPageTableRows(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -523,7 +546,7 @@ SDL_Point LSG_GetPosition(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -538,7 +561,7 @@ double LSG_GetProgressValue(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsProgressBar())
 		throw std::invalid_argument(getErrorNoID("<progress-bar>", id));
@@ -553,7 +576,7 @@ int LSG_GetScrollHorizontal(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsScrollable())
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
@@ -579,7 +602,7 @@ int LSG_GetScrollVertical(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsScrollable())
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table> or <text><table>, <text> or <tiles>", id));
@@ -605,7 +628,7 @@ std::vector<int> LSG_GetSelectedCards(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -618,7 +641,7 @@ std::vector<int> LSG_GetSelectedRows(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -631,7 +654,7 @@ std::vector<int> LSG_GetSelectedTiles(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -644,7 +667,7 @@ SDL_Size LSG_GetSize(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -659,7 +682,7 @@ double LSG_GetSliderValue(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsSlider())
 		throw std::invalid_argument(getErrorNoID("<slider>", id));
@@ -674,7 +697,7 @@ int LSG_GetSortColumn(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -687,7 +710,7 @@ LSG_SortOrder LSG_GetSortOrder(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -700,7 +723,7 @@ int LSG_GetSpacing(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -713,7 +736,7 @@ int LSG_GetTableColumnWidth(const std::string& id, int column)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -726,7 +749,7 @@ LSG_TableGroup LSG_GetTableGroup(const std::string& id, const std::string& group
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -739,7 +762,7 @@ LSG_TableGroups LSG_GetTableGroups(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -752,7 +775,7 @@ LSG_Strings LSG_GetTableHeader(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -765,7 +788,7 @@ LSG_Strings LSG_GetTableRow(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -778,7 +801,7 @@ size_t LSG_GetTableRowCount(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -791,7 +814,7 @@ LSG_TableRows LSG_GetTableRows(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -804,7 +827,7 @@ std::string LSG_GetText(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTextLabel())
 		throw std::invalid_argument(getErrorNoID("<text>", id));
@@ -817,7 +840,7 @@ std::string LSG_GetTextInputValue(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTextInput())
 		throw std::invalid_argument(getErrorNoID("<text-input>", id));
@@ -830,7 +853,7 @@ LSG_TileItem LSG_GetTile(const std::string& id, int index)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -843,7 +866,7 @@ LSG_TileItems LSG_GetTiles(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -856,7 +879,7 @@ size_t LSG_GetTilesCount(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -869,7 +892,7 @@ std::string LSG_GetTitle(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsModal() && !component->IsMenu() && !component->IsSubMenu()))
 		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
@@ -914,7 +937,7 @@ bool LSG_IsEnabled(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -927,7 +950,7 @@ bool LSG_IsMenuItemSelected(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenuItem())
 		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
@@ -940,7 +963,7 @@ bool LSG_IsMenuOpen(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenu())
 		throw std::invalid_argument(getErrorNoID("<menu>", id));
@@ -966,7 +989,7 @@ bool LSG_IsToggledOn(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsToggle())
 		throw std::invalid_argument(getErrorNoID("<toggle>", id));
@@ -979,7 +1002,7 @@ bool LSG_IsVisible(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1008,7 +1031,7 @@ void LSG_NavigateBack(const std::string& id, const std::string& text)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -1021,7 +1044,7 @@ void LSG_NavigateEnd(const std::string& id, const std::string& text)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -1034,7 +1057,7 @@ void LSG_NavigateForward(const std::string& id, const std::string& text)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -1047,7 +1070,7 @@ void LSG_NavigateHome(const std::string& id, const std::string& text)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -1060,7 +1083,7 @@ void LSG_NavigateTo(const std::string& id, int position, const std::string& text
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -1225,12 +1248,25 @@ void LSG_OpenMenu(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenu())
 		throw std::invalid_argument(getErrorNoID("<menu>", id));
 
 	static_cast<LSG_Menu*>(component)->Open();
+}
+
+void LSG_OpenModal(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsModal())
+		throw std::invalid_argument(getErrorNoID("<modal>", id));
+
+	static_cast<LSG_Modal*>(component)->Open();
 }
 
 #if defined _ios
@@ -1258,7 +1294,7 @@ void LSG_OpenSubMenu(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsSubMenu())
 		throw std::invalid_argument(getErrorNoID("<menu-sub>", id));
@@ -1281,8 +1317,8 @@ void LSG_Quit()
 
 	isRunning = false;
 
-	LSG_Window::Close();
 	LSG_UI::Close();
+	LSG_Window::Close();
 
 	if (basePath) {
 		SDL_free(basePath);
@@ -1301,7 +1337,7 @@ void LSG_RemoveCard(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -1314,7 +1350,7 @@ void LSG_RemoveListItem(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -1327,7 +1363,7 @@ void LSG_RemoveMenuItem(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenuItem())
 		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
@@ -1340,7 +1376,7 @@ void LSG_RemovePageListItem(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -1353,7 +1389,7 @@ void LSG_RemovePageTableRow(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -1366,7 +1402,7 @@ void LSG_RemoveTableHeader(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -1379,7 +1415,7 @@ void LSG_RemoveTableGroup(const std::string& id, const std::string& group)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -1392,7 +1428,7 @@ void LSG_RemoveTableRow(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -1405,7 +1441,7 @@ void LSG_RemoveTile(const std::string& id, int index)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -1454,7 +1490,7 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsScrollable()))
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
@@ -1478,7 +1514,7 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsScrollable())
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
@@ -1502,7 +1538,7 @@ void LSG_ScrollToBottom(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsScrollable())
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
@@ -1526,7 +1562,7 @@ void LSG_ScrollToTop(const std::string& id)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsScrollable())
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
@@ -1550,7 +1586,7 @@ void LSG_SelectCard(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -1563,7 +1599,7 @@ void LSG_SelectCardRowByOffset(const std::string& id, int offset)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsCards()))
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -1576,7 +1612,7 @@ void LSG_SelectCards(const std::string& id, const std::vector<int>& rows)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -1589,7 +1625,7 @@ void LSG_SelectRow(const std::string& id, int row)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -1602,7 +1638,7 @@ void LSG_SelectRowByOffset(const std::string& id, int offset)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -1615,7 +1651,7 @@ void LSG_SelectRows(const std::string& id, const std::vector<int>& rows)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -1628,7 +1664,7 @@ void LSG_SelectTile(const std::string& id, int index)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -1641,7 +1677,7 @@ void LSG_SelectTiles(const std::string& id, const std::vector<int>& indices)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -1654,7 +1690,7 @@ void LSG_SetAlignmentHorizontal(const std::string& id, LSG_HAlign alignment)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1669,7 +1705,7 @@ void LSG_SetAlignmentVertical(const std::string& id, LSG_VAlign alignment)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1684,7 +1720,7 @@ void LSG_SetBackgroundColor(const std::string& id, const SDL_Color& color)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1697,7 +1733,7 @@ void LSG_SetBorder(const std::string& id, int border)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1712,7 +1748,7 @@ void LSG_SetBorderColor(const std::string& id, const SDL_Color& color)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1725,7 +1761,7 @@ void LSG_SetButton(const std::string& id, const std::string& text, const std::st
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsButton())
 		throw std::invalid_argument(getErrorNoID("<button>", id));
@@ -1738,7 +1774,7 @@ void LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -1751,7 +1787,7 @@ void LSG_SetCards(const std::string& id, const LSG_CardItems& cards)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsCards())
 		throw std::invalid_argument(getErrorNoID("<cards>", id));
@@ -1772,7 +1808,7 @@ void LSG_SetEnabled(const std::string& id, bool enabled)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1785,7 +1821,7 @@ void LSG_SetFontSize(const std::string& id, int size)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1800,7 +1836,7 @@ void LSG_SetFontStyle(const std::string& id, int style)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1815,7 +1851,7 @@ void LSG_SetHeight(const std::string& id, int height, bool layout)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1831,7 +1867,7 @@ void LSG_SetHeight(const std::string& id, double percent, bool layout)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1849,7 +1885,7 @@ void LSG_SetImage(const std::string& id, const std::string& file, bool fill)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsImage())
 		throw std::invalid_argument(getErrorNoID("<image>", id));
@@ -1862,7 +1898,7 @@ void LSG_SetListItem(const std::string& id, int row, const std::string& item)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -1875,7 +1911,7 @@ void LSG_SetListItems(const std::string& id, const LSG_Strings& items)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -1888,7 +1924,7 @@ void LSG_SetMargin(const std::string& id, int margin)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1903,7 +1939,7 @@ void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenuItem())
 		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
@@ -1918,7 +1954,7 @@ void LSG_SetMenuItemSelected(const std::string& id, bool selected)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenuItem())
 		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
@@ -1931,7 +1967,7 @@ void LSG_SetMenuItemValue(const std::string& id, const std::string& value)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsMenuItem())
 		throw std::invalid_argument(getErrorNoID("<menu-item>", id));
@@ -1944,7 +1980,7 @@ void LSG_SetNavigationItemCount(const std::string& id, size_t itemsTotal, size_t
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsNavigation())
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
@@ -1957,7 +1993,7 @@ void LSG_SetOrientation(const std::string& id, LSG_Orientation orientation, bool
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1973,7 +2009,7 @@ void LSG_SetPadding(const std::string& id, int padding)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -1988,7 +2024,7 @@ void LSG_SetPage(const std::string& id, int page)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -2004,7 +2040,7 @@ void LSG_SetPageListItem(const std::string& id, int row, const std::string& item
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -2017,7 +2053,7 @@ void LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& colu
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2030,7 +2066,7 @@ void LSG_SetProgressValue(const std::string& id, double percent)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsProgressBar())
 		throw std::invalid_argument(getErrorNoID("<progress-bar>", id));
@@ -2043,7 +2079,7 @@ void LSG_SetSize(const std::string& id, const SDL_Size& size, bool layout)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -2060,7 +2096,7 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -2080,7 +2116,7 @@ void LSG_SetSliderValue(const std::string& id, double percent)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsSlider())
 		throw std::invalid_argument(getErrorNoID("<slider>", id));
@@ -2093,7 +2129,7 @@ void LSG_SetSpacing(const std::string& id, int spacing)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -2108,7 +2144,7 @@ void LSG_SetTableColumnWidth(const std::string& id, int column, int width)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2121,7 +2157,7 @@ void LSG_SetTableGroup(const std::string& id, const LSG_TableGroup& group)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2134,7 +2170,7 @@ void LSG_SetTableGroups(const std::string& id, const LSG_TableGroups& groups)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2147,7 +2183,7 @@ void LSG_SetTableHeader(const std::string& id, const LSG_Strings& header)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2160,7 +2196,7 @@ void LSG_SetTableRow(const std::string& id, int row, const LSG_Strings& columns)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2173,7 +2209,7 @@ void LSG_SetTableRows(const std::string& id, const LSG_TableRows& rows)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2186,7 +2222,7 @@ void LSG_SetText(const std::string& id, const std::string& value)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTextLabel())
 		throw std::invalid_argument(getErrorNoID("<text>", id));
@@ -2201,7 +2237,7 @@ void LSG_SetTextColor(const std::string& id, const SDL_Color& color)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -2215,7 +2251,7 @@ void LSG_SetTextInputValue(const std::string& id, const std::string& value)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTextInput())
 		throw std::invalid_argument(getErrorNoID("<text-input>", id));
@@ -2228,7 +2264,7 @@ void LSG_SetTile(const std::string& id, int index, const LSG_TileItem& tile)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -2241,7 +2277,7 @@ void LSG_SetTiles(const std::string& id, const LSG_TileItems& tiles)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTiles())
 		throw std::invalid_argument(getErrorNoID("<tiles>", id));
@@ -2254,7 +2290,7 @@ void LSG_SetTitle(const std::string& id, const std::string& title)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsModal() && !component->IsMenu() && !component->IsSubMenu()))
 		throw std::invalid_argument(getErrorNoID("<modal>, <menu> or <menu-sub>", id));
@@ -2262,7 +2298,7 @@ void LSG_SetTitle(const std::string& id, const std::string& title)
 	LSG_XML::SetAttribute(component->GetXmlNode(), "title", title);
 
 	if (component->IsModal())
-		static_cast<LSG_Modal*>(component)->Update();
+		static_cast<LSG_Modal*>(component)->Set();
 	else if (component->IsMenu())
 		static_cast<LSG_Menu*>(component)->SetMenu();
 	else if (component->IsSubMenu())
@@ -2274,7 +2310,7 @@ void LSG_SetToggle(const std::string& id, bool on)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsToggle())
 		throw std::invalid_argument(getErrorNoID("<toggle>", id));
@@ -2287,10 +2323,13 @@ void LSG_SetVisible(const std::string& id, bool visible, bool layout)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
+
+	if (component->IsModal())
+		throw std::invalid_argument("Use LSG_OpenModal or LSG_CloseModal to show or hide a modal.");
 
 	component->SetVisible(visible);
 
@@ -2303,7 +2342,7 @@ void LSG_SetWidth(const std::string& id, int width, bool layout)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -2319,7 +2358,7 @@ void LSG_SetWidth(const std::string& id, double percent, bool layout)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
@@ -2377,7 +2416,7 @@ void LSG_ShowColumnBorder(const std::string& id, bool show)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));
@@ -2399,7 +2438,7 @@ void LSG_ShowRowBorder(const std::string& id, bool show)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || (!component->IsList() && !component->IsTable()))
 		throw std::invalid_argument(getErrorNoID("<list> or <table>", id));
@@ -2412,7 +2451,7 @@ void LSG_SortList(const std::string& id, LSG_SortOrder sortOrder)
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsList())
 		throw std::invalid_argument(getErrorNoID("<list>", id));
@@ -2425,7 +2464,7 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	auto component = LSG_UI::GetComponent(id);
+	auto component = getComponent(id);
 
 	if (!component || !component->IsTable())
 		throw std::invalid_argument(getErrorNoID("<table>", id));

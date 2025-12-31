@@ -15,6 +15,7 @@ private:
 
 public:
 	SDL_Size     GetSize() const;
+	void         OffsetBackgroundY(int headerHeight);
 	bool         IsScroll() const;
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	void         Render(SDL_Renderer* renderer);

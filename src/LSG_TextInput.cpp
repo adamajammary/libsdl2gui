@@ -277,7 +277,7 @@ void LSG_TextInput::moveCursorTo(const SDL_Point& mousePosition)
 	this->setCursor();
 }
 
-bool LSG_TextInput::OnMouseClick(const SDL_Point& mousePosition)
+bool LSG_TextInput::OnMouseDown(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || !this->visible)
 		return false;

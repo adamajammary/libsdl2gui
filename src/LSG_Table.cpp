@@ -202,10 +202,10 @@ bool LSG_Table::IsMouseOverColumnBorder(const SDL_Point& mousePosition)
 	return false;
 }
 
-bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || (this->rows.empty() && this->groups.empty()))
-		return false;
+		return;
 
 	if (this->isPaginationClicked(mousePosition))
 	{
@@ -214,13 +214,13 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 			this->SelectFirstRow();
 		}
 
-		return true;
+		return;
 	}
 
 	auto rowHeight = this->getRowHeight();
 
 	if (rowHeight < 1)
-		return false;
+		return;
 
 	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto positionY  = (mousePosition.y - background.y);
@@ -252,7 +252,7 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 		else
 			this->Sort(LSG_SORT_ORDER_ASCENDING, column);
 
-		return true;
+		return;
 	}
 
 	auto header     = (!this->header.empty() ? 1 : 0);
@@ -278,8 +278,6 @@ bool LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	} else {
 		this->Select(clickedRow);
 	}
-
-	return true;
 }
 
 bool LSG_Table::OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition)

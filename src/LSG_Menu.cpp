@@ -65,15 +65,15 @@ SDL_Rect LSG_Menu::getIconOpen() const
 
 SDL_Rect LSG_Menu::getMenu(const SDL_Rect& window) const
 {
-	auto xmlWidth  = LSG_XML::GetAttribute(this->xmlNode, "width");
-	bool isPercent = (!xmlWidth.empty() && (xmlWidth[xmlWidth.length() - 1] == '%'));
+	auto width     = LSG_XML::GetAttribute(this->xmlNode, "width");
+	bool isPercent = (!width.empty() && width.ends_with('%'));
 
 	SDL_Rect menu = window;
 
 	if (isPercent)
-		menu.w = (int)((double)window.w * std::atof(xmlWidth.c_str()) * 0.01);
-	else if (!xmlWidth.empty())
-		menu.w = LSG_Window::GetDPIScaled(std::atoi(xmlWidth.c_str()));
+		menu.w = (int)((double)window.w * std::atof(width.c_str()) * 0.01);
+	else if (!width.empty())
+		menu.w = LSG_Window::GetDPIScaled(std::atoi(width.c_str()));
 	else
 		menu.w = LSG_Window::GetDPIScaled(LSG_Menu::DefaultWidth);
 
@@ -214,51 +214,48 @@ void LSG_Menu::Navigate(LSG_Component* component)
 	this->Open();
 }
 
-bool LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || !this->visible)
-		return false;
+		return;
 
 	if (!this->isOpen && this->IsMouseOverIconOpen(mousePosition)) {
 		this->Open();
-		return true;
+		return;
 	}
-	else if (this->isOpen)
+
+	if (!this->isOpen)
+		return;
+
+	if (this->isMouseOverNavBack(mousePosition)) {
+		this->Navigate(this->subMenu->GetParent());
+		return;
+	}
+
+	if (this->isMouseOverIconClose(mousePosition) || !this->isMouseOverMenu(mousePosition)) {
+		this->Close();
+		return;
+	}
+
+	auto scrollY = this->GetScrollY();
+
+	for (const auto& child : this->subMenu->GetChildren())
 	{
-		if (this->isMouseOverNavBack(mousePosition)) {
-			this->Navigate(this->subMenu->GetParent());
-			return true;
+		auto background = SDL_Rect(child->background);
+		background.y   -= scrollY;
+
+		if (!child->enabled || !child->visible || !SDL_PointInRect(&mousePosition, &background))
+			continue;
+
+		if (child->IsSubMenu()) {
+			this->Navigate(child);
+		} else if (child->IsMenuItem()) {
+			if (static_cast<LSG_MenuItem*>(child)->OnMouseDown(mousePosition))
+				this->Close();
 		}
 
-		if (this->isMouseOverIconClose(mousePosition) || !this->isMouseOverMenu(mousePosition)) {
-			this->Close();
-			return true;
-		}
-
-		auto scrollY = this->GetScrollY();
-
-		for (const auto& child : this->subMenu->GetChildren())
-		{
-			auto background = SDL_Rect(child->background);
-			background.y   -= scrollY;
-
-			if (!child->enabled || !child->visible || !SDL_PointInRect(&mousePosition, &background))
-				continue;
-
-			if (child->IsSubMenu()) {
-				this->Navigate(child);
-			} else if (child->IsMenuItem()) {
-				if (static_cast<LSG_MenuItem*>(child)->OnMouseClick(mousePosition))
-					this->Close();
-			}
-
-			break;
-		}
-
-		return true;
+		break;
 	}
-
-	return false;
 }
 
 void LSG_Menu::Open()
@@ -380,21 +377,22 @@ void LSG_Menu::renderMenu(SDL_Renderer* renderer)
 
 void LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize)
 {
-	LSG_Window::InitRenderTarget(&this->renderTarget, textureSize);
+	LSG_Window::InitRenderTarget(this->renderTarget, textureSize);
 
-	SDL_SetRenderTarget(renderer, this->renderTarget);
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) == 0)
+	{
+		SDL_Rect background = {
+			0,
+			offsetY,
+			textureSize.width,
+			textureSize.height
+		};
 
-	SDL_Rect background = {
-		0,
-		offsetY,
-		textureSize.width,
-		textureSize.height
-	};
+		LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
-	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
-
-	for (auto child : this->subMenu->GetChildren())
-		child->Render(renderer);
+		for (auto child : this->subMenu->GetChildren())
+			child->Render(renderer);
+	}
 
 	SDL_SetRenderTarget(renderer, nullptr);
 }

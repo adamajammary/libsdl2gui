@@ -31,7 +31,7 @@ public:
 	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition) const;
 	bool         IsOpen() const;
 	void         Navigate(LSG_Component* component);
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	void         Open();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
 	void         Render(SDL_Renderer* renderer);

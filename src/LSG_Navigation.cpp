@@ -187,10 +187,10 @@ void LSG_Navigation::navigate(int position, const std::string& text)
 	this->set();
 }
 
-bool LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || !this->items.total)
-		return false;
+		return;
 
 	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
 	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
@@ -221,8 +221,6 @@ bool LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 
 	if (this->canNavigate.forward && SDL_PointInRect(&mousePosition, &arrow))
 		this->sendEvent(LSG_EVENT_NAVIGATE_FORWARD);
-
-	return true;
 }
 
 void LSG_Navigation::Render(SDL_Renderer* renderer, const SDL_Point& position)

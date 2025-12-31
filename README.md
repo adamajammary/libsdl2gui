@@ -478,20 +478,19 @@ key="string"
 
 ```ini
 id="string"
-width="size"
-height="size"
+width="size"  # default="50%"
+height="size" # default="50%"
 orientation="orientation"
 background-color="color"
 border="int"
 border-color="color"
-padding="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
-title="string"
 
+title="string"
 hide-close-icon="boolean"
 max-width="int"
 max-height="int"
@@ -1218,6 +1217,29 @@ Exceptions
 
 - invalid_argument
 - runtime_error
+
+### LSG_CloseModal
+
+```cpp
+void LSG_CloseModal(const std::string& id);
+```
+
+Closes the modal.
+
+Parameters
+
+- **id** \<modal\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CloseModal("ModalIdAbout");
+```
 
 ### LSG_GetBackgroundColor
 
@@ -2610,6 +2632,29 @@ Example
 
 ```cpp
 LSG_OpenMenu("Menu");
+```
+
+### LSG_OpenModal
+
+```cpp
+void LSG_OpenModal(const std::string& id);
+```
+
+Opens the modal.
+
+Parameters
+
+- **id** \<modal\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_OpenModal("ModalIdAbout");
 ```
 
 ### LSG_OpenPhotoFile

@@ -256,6 +256,14 @@ DLLEXPORT void DLL LSG_AddTile(const std::string& id, const LSG_TileItem& tile);
 DLLEXPORT void DLL LSG_ClearTextInput(const std::string& id);
 
 /**
+ * @brief Closes the modal.
+ * @param id <modal> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_CloseModal(const std::string& id);
+
+/**
  * @returns the background color of the component
  * @param id Component ID
  * @throws invalid_argument
@@ -884,6 +892,14 @@ DLLEXPORT void DLL LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_OpenMenu(const std::string& id);
+
+/**
+ * @brief Opens the modal.
+ * @param id <modal> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenModal(const std::string& id);
 
 /**
  * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.

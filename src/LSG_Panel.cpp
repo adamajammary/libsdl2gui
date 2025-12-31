@@ -89,6 +89,12 @@ bool LSG_Panel::IsScroll() const
 	return this->scrollable;
 }
 
+void LSG_Panel::OffsetBackgroundY(int headerHeight)
+{
+	for (auto child : this->children)
+		child->background.y += headerHeight;
+}
+
 void LSG_Panel::Render(SDL_Renderer* renderer, const SDL_Point& position)
 {
 	if (!this->visible)
@@ -269,22 +275,23 @@ void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background
 
 void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& maxSize)
 {
-	LSG_Window::InitRenderTarget(&this->renderTarget, maxSize);
+	LSG_Window::InitRenderTarget(this->renderTarget, maxSize);
 
-	SDL_SetRenderTarget(renderer, this->renderTarget);
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) == 0)
+	{
+		SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
 
-	SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
+		LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
-	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
+		auto padding2x = (this->padding + this->padding);
 
-	auto padding2x = (this->padding + this->padding);
+		background.x  = this->padding;
+		background.y  = this->padding;
+		background.w -= padding2x;
+		background.h -= padding2x;
 
-	background.x  = this->padding;
-	background.y  = this->padding;
-	background.w -= padding2x;
-	background.h -= padding2x;
-
-	this->renderChildren(renderer, background);
+		this->renderChildren(renderer, background);
+	}
 
 	SDL_SetRenderTarget(renderer, nullptr);
 }

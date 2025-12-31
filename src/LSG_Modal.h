@@ -19,36 +19,39 @@ private:
 	static const int TitleFontSize = 18;
 
 private:
-	bool hideCloseIcon;
-	bool highlightedCloseIcon;
+	LSG_UMapStrComponent components;
+	LSG_MapIntComponent  componentsByLayer;
+	bool                 hideCloseIcon;
 
 public:
-	static bool IsModalChild(LSG_Component* component);
-
-public:
-	bool         CloseOnMouseClick(const SDL_Point& mousePosition);
-	SDL_Cursor*  Highlight(const SDL_Point& mousePosition);
-	void         Layout();
-	bool         OnKeyDown(const SDL_KeyboardEvent& event);
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
-	virtual void Render(SDL_Renderer* renderer) const override;
-	void         Update();
+	void           Close();
+	LSG_Component* GetComponent(const std::string& id);
+	SDL_Cursor*    Highlight(const SDL_Point& mousePosition);
+	void           OnKeyDown(const SDL_KeyboardEvent& event);
+	void           OnMouseDown(const SDL_Event& event, const SDL_Point& mousePosition);
+	void           OnMouseScroll(const SDL_MouseWheelEvent& event, const SDL_Point& mousePosition) const;
+	void           OnMouseUp(const SDL_Event& event, const SDL_Point& mousePosition) const;
+	void           Open();
+	virtual void   Render(SDL_Renderer* renderer, const SDL_Point& position) override {}
+	virtual void   Render(SDL_Renderer* renderer);
+	void           Set();
+	void           SetBackground();
 
 private:
-	SDL_Rect    getCloseIcon() const;
-	SDL_Cursor* highlight(LSG_Component* component, const SDL_Point& mousePosition);
-	bool        isMouseOverIconClose(const SDL_Point& mousePosition) const;
-	void        renderHeader(SDL_Renderer* renderer) const;
-	void        renderHeaderCloseIcon(SDL_Renderer* renderer) const;
-	void        renderHeaderLine(SDL_Renderer* renderer) const;
-	void        renderHeaderTitle(SDL_Renderer* renderer) const;
-	void        setBorder(const LSG_UMapStrStr& attributes);
-	void        setHideCloseIcon(const LSG_UMapStrStr& attributes);
-	void        setMargin(const LSG_UMapStrStr& attributes);
-	void        setPadding(const LSG_UMapStrStr& attributes);
-	void        setPosition(const LSG_UMapStrStr& attributes, const SDL_Rect& parentBackground);
-	void        setSize(const LSG_UMapStrStr& attributes, const SDL_Rect& parentBackground);
-	void        setTextures(const std::string& title);
+	LSG_Component* addNode(LibXml::xmlNode* node, LSG_Component* parent);
+	void           addNodes(LibXml::xmlNode* parentNode, LSG_Component* parent);
+	SDL_Rect       getCloseIcon() const;
+	LSG_Component* getComponent(const SDL_Point& mousePosition) const;
+	LSG_Component* getComponentInScrollablePanel(const SDL_Point& mousePosition, LSG_Component* component) const;
+	int            getSizeFromXmlAttribute(const std::string& size, int maxSize) const;
+	int            getSizeFromXmlAttribute(const std::string& maxSize, const std::string& minSize, int size) const;
+	bool           isMouseOverCloseIcon(const SDL_Point& mousePosition) const;
+	bool           isMouseOverHeader(const SDL_Point& mousePosition) const;
+	void           renderBackdrop(SDL_Renderer* renderer) const;
+	void           renderHeader(SDL_Renderer* renderer, int headerHeight) const;
+	void           renderHeaderCloseIcon(SDL_Renderer* renderer) const;
+	void           renderHeaderLine(SDL_Renderer* renderer, int headerHeight) const;
+	void           renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) const;
 };
 
 #endif

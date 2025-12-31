@@ -48,7 +48,7 @@ public:
 	size_t           GetCardsCount() const;
 	std::vector<int> GetSelectedCards() const;
 	SDL_Size         GetSize() const;
-	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveCard(int row);
 	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
@@ -73,7 +73,6 @@ private:
 	void          destroyTextures(LSG_Card& card);
 	virtual void  destroyTextures() override;
 	int           getRow(const SDL_Point& mousePosition) const;
-	bool          initRenderTarget(const SDL_Size& textureSize);
 	void          render(SDL_Renderer* renderer);
 	void          renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;
 	void          renderCardBorderLine(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;

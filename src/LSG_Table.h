@@ -27,7 +27,7 @@ public:
 	int          GetSortColumn() const;
 	SDL_Size     GetSize() const;
 	bool         IsMouseOverColumnBorder(const SDL_Point& mousePosition);
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	bool         OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
 	void         OnMouseUp(bool resetWidth);
 	void         RemoveGroup(const std::string& group);

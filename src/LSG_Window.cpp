@@ -79,10 +79,10 @@ SDL_Size LSG_Window::GetSize()
 {
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 
-	SDL_SetRenderTarget(LSG_Window::renderer, nullptr);
-
 	SDL_Size size = {};
-	SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
+
+	if (SDL_SetRenderTarget(LSG_Window::renderer, nullptr) == 0)
+		SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
@@ -109,21 +109,23 @@ std::string LSG_Window::GetTitle()
 	return SDL_GetWindowTitle(LSG_Window::window);
 }
 
-void LSG_Window::InitRenderTarget(SDL_Texture** renderTarget, const SDL_Size& textureSize)
+void LSG_Window::InitRenderTarget(SDL_Texture* &renderTarget, const SDL_Size& textureSize)
 {
-	if (*renderTarget)
+	if (renderTarget)
 	{
-		auto targetSize = LSG_Graphics::GetTextureSize(*renderTarget);
+		auto targetSize = LSG_Graphics::GetTextureSize(renderTarget);
 
 		if ((textureSize.width != targetSize.width) || (textureSize.height != targetSize.height)) {
-			SDL_DestroyTexture(*renderTarget);
-			*renderTarget = nullptr;
+			SDL_DestroyTexture(renderTarget);
+			renderTarget = nullptr;
 		}
 	}
 
-	if (!*renderTarget) {
-		auto format   = SDL_GetWindowPixelFormat(LSG_Window::window);
-		*renderTarget = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
+	if (!renderTarget)
+	{
+		auto format = SDL_GetWindowPixelFormat(LSG_Window::window);
+
+		renderTarget = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
 	}
 }
 
@@ -165,6 +167,14 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 
 	if (!LSG_Window::renderer)
 		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
+
+	SDL_RendererInfo renderInfo = {};
+
+	if (SDL_GetRendererInfo(LSG_Window::renderer, &renderInfo) < 0)
+		throw std::runtime_error(std::format("Failed to validate renderer: {}", SDL_GetError()));
+
+	if ((renderInfo.flags & SDL_RENDERER_TARGETTEXTURE) < SDL_RENDERER_TARGETTEXTURE)
+		throw std::runtime_error(std::format("The renderer does not support target textures: {}\n", SDL_GetError()));
 
 	return LSG_Window::renderer;
 }
@@ -710,9 +720,8 @@ SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrie
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 	auto newTexture   = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, size.width, size.height);
 
-	SDL_SetRenderTarget(LSG_Window::renderer, newTexture);
-
-	SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
+	if (SDL_SetRenderTarget(LSG_Window::renderer, newTexture) == 0)
+		SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
@@ -934,19 +943,6 @@ SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 
 	if (!texture)
 		throw std::runtime_error(std::format("Failed to create texture from surface: {}", SDL_GetError()));
-
-	return texture;
-}
-
-SDL_Texture* LSG_Window::ToTextureEmpty(SDL_Surface* surface)
-{
-	if (!surface)
-		return nullptr;
-
-	auto texture = SDL_CreateTexture(LSG_Window::renderer, surface->format->format, SDL_TEXTUREACCESS_STATIC, surface->w, surface->h);
-
-	if (!texture)
-		throw std::runtime_error(std::format("Failed to create an empty texture based on surface: {}", SDL_GetError()));
 
 	return texture;
 }

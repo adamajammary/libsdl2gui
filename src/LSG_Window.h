@@ -24,7 +24,7 @@ public:
     static SDL_Size      GetSize();
     static SDL_FPoint    GetSizeScale();
     static std::string   GetTitle();
-    static void          InitRenderTarget(SDL_Texture** renderTarget, const SDL_Size& textureSize);
+    static void          InitRenderTarget(SDL_Texture* &renderTarget, const SDL_Size& textureSize);
     static bool          IsMaximized();
     static SDL_Renderer* Open(const std::string& title, int width, int height);
     static void          Present();
@@ -39,7 +39,6 @@ public:
     static void          ShowMessage(const std::string& message, uint32_t flags = SDL_MESSAGEBOX_ERROR);
     static SDL_Texture*  ToTexture(const std::string& imageFile);
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
-    static SDL_Texture*  ToTextureEmpty(SDL_Surface* surface);
 
     #if defined _windows
         static std::wstring              OpenFile(const LSG_Strings& filters);

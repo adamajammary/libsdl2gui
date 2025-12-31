@@ -22,7 +22,7 @@ public:
 	std::vector<int> GetSelectedRows() const;
 	LSG_SortOrder    GetSortOrder() const;
 	SDL_Size         GetSize() const;
-	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
 	void             RemoveItem(int row);
 	void             RemovePageItem(int row);
 	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;

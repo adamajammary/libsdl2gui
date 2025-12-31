@@ -34,15 +34,13 @@ bool LSG_Toggle::IsOn() const
 	return this->on;
 }
 
-bool LSG_Toggle::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Toggle::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown())
-		return false;
+		return;
 
 	if (this->IsMouseOver(mousePosition))
 		this->toggle();
-
-	return true;
 }
 
 void LSG_Toggle::Render(SDL_Renderer* renderer, const SDL_Point& position)
