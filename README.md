@@ -10,12 +10,12 @@ libsdl2gui is a free cross-platform user interface library using SDL2.
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://github.com/libsdl-org/SDL) | [2.32.6](https://github.com/libsdl-org/SDL/releases/download/release-2.32.6/SDL2-2.32.6.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
+[SDL2](https://github.com/libsdl-org/SDL) | [2.32.10](https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-2.32.10.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.8](https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.8/SDL2_image-2.8.8.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_image#Zlib-1-ov-file)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.24.0](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-2.24.0.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
-[libtiff](https://github.com/libsdl-org/libtiff) | [4.7.0](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.0.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
-[libwebp](https://github.com/webmproject/libwebp) | [1.5.0](https://github.com/webmproject/libwebp/archive/refs/tags/v1.5.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
-[libXML2](https://github.com/GNOME/libxml2) | [2.14.3](https://github.com/GNOME/libxml2/archive/refs/tags/v2.14.3.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[libtiff](https://github.com/libsdl-org/libtiff) | [4.7.1](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.1.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
+[libwebp](https://github.com/webmproject/libwebp) | [1.6.0](https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
+[libXML2](https://github.com/GNOME/libxml2) | [2.15.1](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.1.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 
 ## Platform-dependent Include Headers
 
