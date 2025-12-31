@@ -153,7 +153,16 @@
 
       <panel spacing="10">
         <panel id="PanelIdTiles" padding="10" border="1">
-          <tiles id="Tiles" tile-size="128" spacing="5" font-size="12" text-color="#FFFFFF" text-halign="center" text-valign="bottom" wrap="true">
+          <tiles
+            id="Tiles"
+            tile-size="128"
+            spacing="5"
+            font-size="12"
+            text-color="#FFFFFF"
+            text-halign="center"
+            text-valign="bottom"
+            wrap="true"
+          >
             <tile image="img/tile-1.jpg" text="Tile #1" />
             <tile image="img/tile-2.jpg" text="Tile #2" />
             <tile image="img/tile-3.jpg" text="Tile #3" />
