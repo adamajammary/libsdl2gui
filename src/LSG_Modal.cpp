@@ -300,7 +300,7 @@ void LSG_Modal::OnMouseDown(const SDL_Event& event, const SDL_Point& mousePositi
 	if (!this->visible)
 		return;
 
-	if (!this->hideCloseIcon && (this->isMouseOverCloseIcon(mousePosition) || SDL_PointInRect(&mousePosition, &this->background))) {
+	if (!this->hideCloseIcon && (this->isMouseOverCloseIcon(mousePosition) || !SDL_PointInRect(&mousePosition, &this->background))) {
 		this->Close();
 		return;
 	}

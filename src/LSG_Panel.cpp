@@ -92,7 +92,12 @@ bool LSG_Panel::IsScroll() const
 void LSG_Panel::OffsetBackgroundY(int headerHeight)
 {
 	for (auto child : this->children)
+	{
 		child->background.y += headerHeight;
+
+		if (child->IsPanel() && !child->IsScrollablePanel(true))
+			static_cast<LSG_Panel*>(child)->OffsetBackgroundY(headerHeight);
+	}
 }
 
 void LSG_Panel::Render(SDL_Renderer* renderer, const SDL_Point& position)
