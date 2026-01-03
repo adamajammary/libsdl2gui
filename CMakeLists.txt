@@ -10,6 +10,9 @@ set(DIST_DIR    "${CMAKE_BINARY_DIR}/dist")
 
 set(CMAKE_CXX_STANDARD          "20")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS        OFF)
+
+find_package(OpenMP REQUIRED)
 
 # libsdl2gui depends on the following third-party libraries:
 # - sdl2, sdl2_image, sdl2_ttf, libtiff, libwebp, libxml2
@@ -91,8 +94,7 @@ if (ANDROID)
 elseif (IOS)
     set(OS "_ios")
 
-    set(CMAKE_CXX_EXTENSIONS OFF)
-    set(CMAKE_CXX_FLAGS      "${CMAKE_CXX_FLAGS} -x objective-c++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
 
     set(CFG_DIR "$<CONFIG>-${IOS_SDK}/")
     set(DLL_EXT "a")
@@ -107,8 +109,7 @@ elseif (IOS)
 elseif (APPLE)
     set(OS "_macosx")
 
-    set(CMAKE_CXX_EXTENSIONS OFF)
-    set(CMAKE_CXX_FLAGS      "${CMAKE_CXX_FLAGS} -x objective-c++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
 
     set(CFG_DIR "$<CONFIG>/")
     set(DLL_EXT "dylib")
@@ -157,7 +158,7 @@ set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
 
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
-target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS})
+target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS} OpenMP::OpenMP_CXX)
 
 # dist dir
 

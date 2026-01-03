@@ -857,8 +857,11 @@ void LSG_Cards::setCardSurfaces()
 
 	this->destroySurfaces();
 
-	std::for_each(std::execution::par_unseq, this->cards.begin(), this->cards.end(), [this](LSG_Card& card)
+	#pragma omp parallel for
+	for (int i = 0; i < (int)this->cards.size(); i++)
 	{
+		auto& card = this->cards[i];
+
 		if (!card.thumbnail.filePath.empty())
 			card.thumbnail.surface = IMG_Load(LSG_Text::GetFullPath(card.thumbnail.filePath).c_str());
 
@@ -867,7 +870,7 @@ void LSG_Cards::setCardSurfaces()
 
 		if (!card.description.text.empty())
 			card.description.surface = this->getSurface(card.description.text);
-	});
+	}
 
 	this->cardsLock.unlock();
 }

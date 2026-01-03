@@ -5,17 +5,17 @@
 #include <cstdio>    // snprintf()
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
-#include <execution> // for_each()
 #include <format>
 #include <fstream>
 #include <mutex>
+#include <omp.h>     // #pragma omp parallel for
 #include <set>
 #include <thread>
 #include <unordered_map>
 
 #if defined _android
 	#include <android/asset_manager_jni.h> // AAsset*, JNI*, j*
-	#include <sys/stat.h>                  // mkdir()
+	#include <sys/stat.h> // mkdir()
 #elif defined _ios
     #include <Photos/Photos.h>     // PHPhotoLibrary
     #include <StoreKit/StoreKit.h> // SKCloudServiceController

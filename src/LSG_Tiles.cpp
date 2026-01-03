@@ -1172,14 +1172,17 @@ void LSG_Tiles::setTileSurfaces()
 
 	this->destroySurfaces();
 
-	std::for_each(std::execution::par_unseq, this->tiles.begin(), this->tiles.end(), [this](LSG_Tile& tile)
+	#pragma omp parallel for
+	for (int i = 0; i < (int)this->tiles.size(); i++)
 	{
+		auto& tile = this->tiles[i];
+
 		if (!tile.image.filePath.empty())
 			tile.image.surface = IMG_Load(LSG_Text::GetFullPath(tile.image.filePath).c_str());
 
 		if (!tile.text.text.empty())
 			tile.text.surface = this->getSurface(tile.text.text);
-	});
+	}
 
 	this->tilesLock.unlock();
 }
