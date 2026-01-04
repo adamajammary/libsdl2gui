@@ -12,7 +12,9 @@ set(CMAKE_CXX_STANDARD          "20")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-find_package(OpenMP REQUIRED)
+if (NOT IOS)
+    find_package(OpenMP REQUIRED)
+endif()
 
 # libsdl2gui depends on the following third-party libraries:
 # - sdl2, sdl2_image, sdl2_ttf, libtiff, libwebp, libxml2
