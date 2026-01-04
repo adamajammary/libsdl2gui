@@ -24,6 +24,7 @@ if (ANDROID)
     set(EXT_LIB_XML  libxml2.so)
 elseif (IOS)
     set(EXT_LIB_FT   libfreetype.a)
+    set(EXT_LIB_OMP  libomp.a)
     set(EXT_LIB_SDL  libSDL2.a)
     set(EXT_LIB_SDLI libSDL2_image.a)
     set(EXT_LIB_SDLT libSDL2_ttf.a)
@@ -31,6 +32,7 @@ elseif (IOS)
     set(EXT_LIB_WPDM libwebpdemux.a)
     set(EXT_LIB_XML  libxml2.a)
 elseif (APPLE)
+    set(EXT_LIB_OMP  libomp.dylib)
     set(EXT_LIB_SDL  libSDL2-2.0.0.dylib)
     set(EXT_LIB_SDLI libSDL2_image-2.0.0.dylib)
     set(EXT_LIB_SDLT libSDL2_ttf-2.0.0.dylib)
@@ -58,8 +60,11 @@ find_file(LIB_XML  ${EXT_LIB_XML}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FI
 
 if (IOS)
     find_file(LIB_FT   ${EXT_LIB_FT}   PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
+    find_file(LIB_OMP  ${EXT_LIB_OMP}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WPDC ${EXT_LIB_WPDC} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WPDM ${EXT_LIB_WPDM} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
+elseif (APPLE)
+    find_file(LIB_OMP ${EXT_LIB_OMP}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 elseif (WIN32)
     find_file(LIB_SDLL ${EXT_LIB_SDLL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_SDIL ${EXT_LIB_SDIL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
@@ -80,7 +85,7 @@ else()
     set(TEST_LIBS "${LIB_SDL}")
 
     if (IOS)
-        set(LIBS ${LIBS} "${LIB_FT}" "${LIB_WPDC}" "${LIB_WPDM}")
+        set(LIBS ${LIBS} "${LIB_FT}" "${LIB_OMP}" "${LIB_WPDC}" "${LIB_WPDM}")
     endif()
 endif()
 
@@ -158,7 +163,12 @@ set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
 
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
-target_link_libraries(sdl2gui      PRIVATE ${OS_LIBS} ${LIBS} OpenMP::OpenMP_CXX)
+
+if (IOS)
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang -fopenmp")
+else()
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} OpenMP::OpenMP_CXX)
+endif()
 
 # dist dir
 
@@ -294,6 +304,10 @@ else()
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/bin/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${DIST_DIR}/bin/)
+
+    if (OS STREQUAL "_macosx")
+        add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_OMP} ${DIST_DIR}/bin/)
+    endif()
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img          ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/ui           ${OUT_DIR}/)
