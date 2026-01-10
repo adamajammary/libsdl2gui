@@ -197,7 +197,8 @@ You must call [LSG_Start](#lsg_start) before using other *LSG_\** methods, see t
 try {
   SDL_Renderer* renderer = LSG_Start("ui/main.xml");
 
-  while (LSG_IsRunning()) {
+  while (LSG_IsRunning())
+  {
     std::vector<SDL_Event> events = LSG_Run();
 
     myapp_handleEvents(events);
@@ -244,7 +245,8 @@ You can call [LSG_IsRunning](#lsg_isrunning) to make sure the library was initia
 ```cpp
 void myapp_handleEvents(const std::vector<SDL_Event>& events)
 {
-  for (const SDL_Event& event : events) {
+  for (const SDL_Event& event : events)
+  {
     if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
       LSG_Quit();
     else if (event.type >= SDL_USEREVENT)
