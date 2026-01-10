@@ -176,6 +176,8 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 	if ((renderInfo.flags & SDL_RENDERER_TARGETTEXTURE) < SDL_RENDERER_TARGETTEXTURE)
 		throw std::runtime_error(std::format("The renderer does not support target textures: {}\n", SDL_GetError()));
 
+	LSG_Window::SetDPIScale();
+
 	return LSG_Window::renderer;
 }
 

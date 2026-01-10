@@ -73,6 +73,7 @@ private:
 	void          destroyTextures(LSG_Card& card);
 	virtual void  destroyTextures() override;
 	int           getRow(const SDL_Point& mousePosition) const;
+	int           getTitleFontSize() const;
 	void          render(SDL_Renderer* renderer);
 	void          renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;
 	void          renderCardBorderLine(SDL_Renderer* renderer, int row, const SDL_Rect& background) const;

@@ -202,6 +202,11 @@ int LSG_Cards::getRow(const SDL_Point& mousePosition) const
 	return -1;
 }
 
+int LSG_Cards::getTitleFontSize() const
+{
+	return (this->getFontSize() + 4);
+}
+
 void LSG_Cards::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->cards.empty())
@@ -416,20 +421,20 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 	if (card.description.text.empty() || !card.description.texture.texture)
 		return;
 
-	auto border2x    = (this->cardBorder + this->cardBorder);
-	auto padding2x   = (this->cardPadding + this->cardPadding);
-	auto titleOffset = ((this->getFontSize() + 4) * 2);
+	auto border2x  = (this->cardBorder  + this->cardBorder);
+	auto padding2x = (this->cardPadding + this->cardPadding);
+	auto offsetY   = LSG_Window::GetDPIScaled(this->getTitleFontSize() * 2);
 
 	SDL_Rect clip = {
 		0,
 		0,
 		card.description.texture.size.width,
-		std::min(card.description.texture.size.height, (this->cardHeight - titleOffset - padding2x - border2x)),
+		std::min(card.description.texture.size.height, (this->cardHeight - offsetY - padding2x - border2x)),
 	};
 
 	SDL_Rect destination = {
 		(card.background.x + this->cardHeight),
-		(card.background.y + this->cardPadding + titleOffset),
+		(card.background.y + this->cardPadding + offsetY),
 		clip.w,
 		clip.h
 	};
@@ -866,7 +871,7 @@ void LSG_Cards::setCardSurfaces()
 			card.thumbnail.surface = IMG_Load(LSG_Text::GetFullPath(card.thumbnail.filePath).c_str());
 
 		if (!card.title.text.empty())
-			card.title.surface = this->getSurface(card.title.text, (this->getFontSize() + 4));
+			card.title.surface = this->getSurface(card.title.text, this->getTitleFontSize());
 
 		if (!card.description.text.empty())
 			card.description.surface = this->getSurface(card.description.text);
