@@ -16,22 +16,6 @@ if (NOT IOS)
     find_package(OpenMP REQUIRED)
 endif()
 
-message(STATUS "OpenMP_VERSION: ${OpenMP_VERSION}")
-message(STATUS "OpenMP_FOUND: ${OpenMP_FOUND}")
-message(STATUS "OpenMP_C_FOUND: ${OpenMP_C_FOUND}")
-message(STATUS "OpenMP_CXX_FOUND: ${OpenMP_CXX_FOUND}")
-message(STATUS "OpenMP_C_FLAGS: ${OpenMP_C_FLAGS}")
-message(STATUS "OpenMP_CXX_FLAGS: ${OpenMP_CXX_FLAGS}")
-message(STATUS "OpenMP_C_INCLUDE_DIRS: ${OpenMP_C_INCLUDE_DIRS}")
-message(STATUS "OpenMP_CXX_INCLUDE_DIRS: ${OpenMP_CXX_INCLUDE_DIRS}")
-message(STATUS "OpenMP_CXX_LIB_NAMES: ${OpenMP_CXX_LIB_NAMES}")
-message(STATUS "OpenMP_CXX_LIBRARY: ${OpenMP_CXX_LIBRARY}")
-message(STATUS "OpenMP_CXX_LIBRARIES: ${OpenMP_CXX_LIBRARIES}")
-
-if (ANDROID)
-    set(LIB_OMP ${OpenMP_CXX_LIBRARY})
-endif()
-
 # libsdl2gui depends on the following third-party libraries:
 # - sdl2, sdl2_image, sdl2_ttf, libtiff, libwebp, libxml2
 
@@ -290,7 +274,7 @@ if (ANDROID)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_OMP} ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${OpenMP_CXX_LIBRARIES} ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND chmod a+x ${CMAKE_BINARY_DIR}/android/gradlew)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew --stop)
