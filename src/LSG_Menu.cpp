@@ -291,7 +291,7 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 		this->renderMenu(renderer);
 }
 
-void LSG_Menu::renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu)
+void LSG_Menu::renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu) const
 {
 	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 	auto color     = LSG_Graphics::GetThumbColor(this->backgroundColor);
@@ -308,7 +308,7 @@ void LSG_Menu::renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu)
 	LSG_Graphics::RenderLine(renderer, color, border.x, border.y, border.w, border.h);
 }
 
-void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu)
+void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu) const
 {
 	if (!this->textures[LSG_MENU_TEXTURE_ICON_CLOSE])
 		return;
@@ -321,7 +321,7 @@ void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu)
 		this->renderHighlight(renderer, destination);
 }
 
-void LSG_Menu::renderIconOpen(SDL_Renderer* renderer)
+void LSG_Menu::renderIconOpen(SDL_Renderer* renderer) const
 {
 	if (!this->textures[LSG_MENU_TEXTURE_ICON_OPEN])
 		return;
@@ -356,11 +356,8 @@ void LSG_Menu::renderMenu(SDL_Renderer* renderer)
 
 	auto textureHeight = this->getTextureHeight(menu);
 
-	if ((textureHeight <= menu.h) || !hasChildren)
-	{
-		for (auto child : this->subMenu->GetChildren())
-			child->Render(renderer);
-
+	if ((textureHeight <= menu.h) || !hasChildren) {
+		this->renderMenuItems(renderer);
 		return;
 	}
 
@@ -390,14 +387,31 @@ void LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, c
 
 		LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
-		for (auto child : this->subMenu->GetChildren())
-			child->Render(renderer);
+		this->renderMenuItems(renderer);
 	}
 
 	SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu)
+void LSG_Menu::renderMenuItems(SDL_Renderer* renderer) const
+{
+	auto children = this->subMenu->GetChildren();
+	auto items    = this->getMenuItems();
+
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		children[i]->background = items[i];
+
+		if (children[i]->IsMenuItem())
+			static_cast<LSG_MenuItem*>(children[i])->Render(renderer);
+		else if (children[i]->IsSubMenu())
+			static_cast<LSG_MenuSub*>(children[i])->Render(renderer);
+		else if (children[i]->IsLine())
+			static_cast<LSG_Line*>(children[i])->Render(renderer);
+	}
+}
+
+void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu) const
 {
 	if (!this->textures[LSG_MENU_TEXTURE_NAV_BACK])
 		return;
@@ -418,7 +432,7 @@ void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu)
 		this->renderHighlight(renderer, this->getNavBackHighlight(menu));
 }
 
-void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu)
+void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu) const
 {
 	if (!this->textures[LSG_MENU_TEXTURE_TITLE])
 		return;
@@ -477,11 +491,6 @@ void LSG_Menu::setMenuOpened()
 
 	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
 
-	SDL_Size maxIconSize = {
-		std::min(this->background.h, maxHeight),
-		std::min(this->background.h, maxHeight)
-	};
-
 	std::string navTitle = "";
 
 	if (this->subMenu->IsSubMenu())
@@ -500,19 +509,19 @@ void LSG_Menu::setMenuOpened()
 	if (!navTitle.empty())
 		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle, 0, TTF_STYLE_BOLD, nullptr);
 
+	SDL_Size maxIconSize = {
+		std::min(this->background.h, maxHeight),
+		std::min(this->background.h, maxHeight)
+	};
+
 	this->textures[LSG_MENU_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, maxIconSize);
 
-	auto children = this->subMenu->GetChildren();
-	auto items    = this->getMenuItems();
-
-	for (size_t i = 0; i < items.size(); i++)
+	for (auto child : this->subMenu->GetChildren())
 	{
-		if (children[i]->IsMenuItem())
-			static_cast<LSG_MenuItem*>(children[i])->SetMenuItem(items[i]);
-		else if (children[i]->IsSubMenu())
-			static_cast<LSG_MenuSub*>(children[i])->SetSubMenu(items[i]);
-		else
-			children[i]->background = items[i];
+		if (child->IsMenuItem())
+			static_cast<LSG_MenuItem*>(child)->Set();
+		else if (child->IsSubMenu())
+			static_cast<LSG_MenuSub*>(child)->Set();
 	}
 }
 

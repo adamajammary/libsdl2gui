@@ -1116,9 +1116,9 @@ namespace LSG_UnitTest
         {
             try
             {
-                LSG_SetText("Card", "New test value\nwith wrap.");
+                LSG_SetText("CardRow", "New test value\nwith wrap.");
 
-                auto text = LSG_GetText("Card");
+                auto text = LSG_GetText("CardRow");
 
                 Assert::AreEqual("New test value\nwith wrap.", text.c_str());
             }

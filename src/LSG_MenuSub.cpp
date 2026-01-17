@@ -27,9 +27,10 @@ void LSG_MenuSub::AddItem(const std::string& item, const std::string& itemId)
 
 int LSG_MenuSub::getMaxHeightArrow() const
 {
-	auto padding = LSG_Window::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
+	auto padding   = LSG_Window::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
 
-	return (this->background.h - padding);
+	return (maxHeight - padding);
 }
 
 LSG_Menu* LSG_MenuSub::getMenu() const
@@ -94,12 +95,10 @@ void LSG_MenuSub::renderArrow(SDL_Renderer* renderer) const
 	SDL_RenderCopy(renderer, texture, nullptr, &destination);
 }
 
-void LSG_MenuSub::SetSubMenu(const SDL_Rect& background)
+void LSG_MenuSub::Set()
 {
 	if (!this->visible)
 		return;
-
-	this->background = background;
 
 	this->destroyTextures();
 

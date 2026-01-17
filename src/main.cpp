@@ -1946,7 +1946,7 @@ void LSG_SetMenuItemIcon(const std::string& id, const std::string& imageFile)
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "icon", imageFile);
 
-	static_cast<LSG_MenuItem*>(component)->SetMenuItem(component->background);
+	static_cast<LSG_MenuItem*>(component)->Set();
 }
 
 void LSG_SetMenuItemSelected(const std::string& id, bool selected)
@@ -2302,7 +2302,7 @@ void LSG_SetTitle(const std::string& id, const std::string& title)
 	else if (component->IsMenu())
 		static_cast<LSG_Menu*>(component)->SetMenu();
 	else if (component->IsSubMenu())
-		static_cast<LSG_MenuSub*>(component)->SetSubMenu(component->background);
+		static_cast<LSG_MenuSub*>(component)->Set();
 }
 
 void LSG_SetToggle(const std::string& id, bool on)

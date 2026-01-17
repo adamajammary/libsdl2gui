@@ -18,7 +18,7 @@ public:
 	void         Open();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
 	virtual void Render(SDL_Renderer* renderer) const override;
-	void         SetSubMenu(const SDL_Rect& background);
+	void         Set();
 
 private:
 	int       getMaxHeightArrow() const;

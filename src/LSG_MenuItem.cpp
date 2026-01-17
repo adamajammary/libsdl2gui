@@ -37,9 +37,10 @@ SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile) const
 
 int LSG_MenuItem::getMaxHeightIcon() const
 {
-	auto padding = LSG_Window::GetDPIScaled(LSG_MenuItem::PaddingIcon);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
+	auto padding   = LSG_Window::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
-	return (this->background.h - padding);
+	return (maxHeight - padding);
 }
 
 bool LSG_MenuItem::IsClosed() const
@@ -216,12 +217,10 @@ void LSG_MenuItem::sendEvent(LSG_EventType type) const
 	SDL_PushEvent(&menuEvent);
 }
 
-void LSG_MenuItem::SetMenuItem(const SDL_Rect& background)
+void LSG_MenuItem::Set()
 {
 	if (!this->visible)
 		return;
-
-	this->background = background;
 
 	this->destroyTextures();
 
@@ -264,5 +263,5 @@ void LSG_MenuItem::SetSelected(bool selected)
 
 	this->selected = selected;
 
-	this->SetMenuItem(this->background);
+	this->Set();
 }
