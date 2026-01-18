@@ -297,6 +297,14 @@ std::string LSG_GetColorTheme()
 	return LSG_UI::GetColorTheme();
 }
 
+int LSG_GetDPIScaled(int value)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	return LSG_Window::GetDPIScaled(value);
+}
+
 int LSG_GetFontStyle(const std::string& id)
 {
 	if (!isRunning)

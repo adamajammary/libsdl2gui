@@ -1324,6 +1324,18 @@ Exceptions
 
 - runtime_error
 
+### LSG_GetDPIScaled
+
+```cpp
+int LSG_GetDPIScaled(int value);
+```
+
+Returns a scaled value relative to the display DPI factor.
+
+Exceptions
+
+- runtime_error
+
 ### LSG_GetFontStyle
 
 ```cpp

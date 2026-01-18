@@ -495,6 +495,9 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) co
 	SDL_RenderCopy(renderer, card.thumbnail.texture.texture, &clip, &destination);
 }
 
+/**
+ * @throws runtime_error
+ */
 void LSG_Cards::renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize)
 {
 	if (!this->renderTarget)
@@ -502,8 +505,10 @@ void LSG_Cards::renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSi
 
 	auto renderTarget = SDL_GetRenderTarget(renderer);
 
-	if (SDL_SetRenderTarget(renderer, this->renderTarget) == 0)
-		this->renderContent(renderer, textureSize);
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
+
+	this->renderContent(renderer, textureSize);
 
 	SDL_SetRenderTarget(renderer, renderTarget);
 }

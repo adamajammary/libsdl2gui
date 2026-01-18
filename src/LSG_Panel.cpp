@@ -278,25 +278,28 @@ void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background
 	SDL_RenderCopy(renderer, this->renderTarget, &clipWithOffset, &destination);
 }
 
+/**
+ * @throws runtime_error
+ */
 void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& maxSize)
 {
 	LSG_Window::InitRenderTarget(this->renderTarget, maxSize);
 
-	if (SDL_SetRenderTarget(renderer, this->renderTarget) == 0)
-	{
-		SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
-		LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
+	SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
 
-		auto padding2x = (this->padding + this->padding);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
-		background.x  = this->padding;
-		background.y  = this->padding;
-		background.w -= padding2x;
-		background.h -= padding2x;
+	auto padding2x = (this->padding + this->padding);
 
-		this->renderChildren(renderer, background);
-	}
+	background.x  = this->padding;
+	background.y  = this->padding;
+	background.w -= padding2x;
+	background.h -= padding2x;
+
+	this->renderChildren(renderer, background);
 
 	SDL_SetRenderTarget(renderer, nullptr);
 }

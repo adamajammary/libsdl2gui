@@ -75,14 +75,19 @@ SDL_Point LSG_Window::GetPosition()
 	return position;
 }
 
+/**
+ * @throws runtime_error
+ */
 SDL_Size LSG_Window::GetSize()
 {
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 
 	SDL_Size size = {};
 
-	if (SDL_SetRenderTarget(LSG_Window::renderer, nullptr) == 0)
-		SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
+	if (SDL_SetRenderTarget(LSG_Window::renderer, nullptr) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
+
+	SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
@@ -109,6 +114,9 @@ std::string LSG_Window::GetTitle()
 	return SDL_GetWindowTitle(LSG_Window::window);
 }
 
+/**
+ * @throws runtime_error
+ */
 void LSG_Window::InitRenderTarget(SDL_Texture* &renderTarget, const SDL_Size& textureSize)
 {
 	if (renderTarget)
@@ -125,8 +133,14 @@ void LSG_Window::InitRenderTarget(SDL_Texture* &renderTarget, const SDL_Size& te
 	{
 		auto format = SDL_GetWindowPixelFormat(LSG_Window::window);
 
+		if (format == SDL_PIXELFORMAT_UNKNOWN)
+			throw std::runtime_error(std::format("Failed to get window pixel format: {}", SDL_GetError()));
+
 		renderTarget = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
 	}
+
+	if (!renderTarget)
+		throw std::runtime_error(std::format("Failed to create a render target: {}", SDL_GetError()));
 }
 
 bool LSG_Window::IsMaximized()
@@ -717,13 +731,18 @@ void LSG_Window::Render()
 	LSG_UI::Render(LSG_Window::renderer);
 }
 
+/**
+ * @throws runtime_error
+ */
 SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format)
 {
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 	auto newTexture   = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, size.width, size.height);
 
-	if (SDL_SetRenderTarget(LSG_Window::renderer, newTexture) == 0)
-		SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
+	if (SDL_SetRenderTarget(LSG_Window::renderer, newTexture) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
+
+	SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 

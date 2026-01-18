@@ -372,23 +372,26 @@ void LSG_Menu::renderMenu(SDL_Renderer* renderer)
 	this->renderScrollBarVertical(renderer, menu, textureHeight, this->backgroundColor, true);
 }
 
+/**
+ * @throws runtime_error
+ */
 void LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize)
 {
 	LSG_Window::InitRenderTarget(this->renderTarget, textureSize);
 
-	if (SDL_SetRenderTarget(renderer, this->renderTarget) == 0)
-	{
-		SDL_Rect background = {
-			0,
-			offsetY,
-			textureSize.width,
-			textureSize.height
-		};
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
-		LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
+	SDL_Rect background = {
+		0,
+		offsetY,
+		textureSize.width,
+		textureSize.height
+	};
 
-		this->renderMenuItems(renderer);
-	}
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
+
+	this->renderMenuItems(renderer);
 
 	SDL_SetRenderTarget(renderer, nullptr);
 }

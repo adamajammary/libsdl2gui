@@ -303,6 +303,12 @@ DLLEXPORT size_t DLL LSG_GetCardsCount(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetColorTheme();
 
 /**
+ * @returns a scaled value relative to the display DPI factor
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetDPIScaled(int value);
+
+/**
  * @returns the font style of the component
  * @param id Component ID
  * @throws invalid_argument
