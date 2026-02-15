@@ -726,9 +726,9 @@ void LSG_Table::setRows(bool sort)
 			if (i < this->header.size())
 			{
 				if ((i == sortColumn) && (sortOrder == LSG_ConstSortOrder::Ascending))
-					columns[i].append(LSG_ConstUnicodeCharacter::ArrowUp);
+					columns[i].append(LSG_ConstUnicodeCharacter::ArrowUp).append(" ");
 				else if ((i == sortColumn) && (sortOrder == LSG_ConstSortOrder::Descending))
-					columns[i].append(LSG_ConstUnicodeCharacter::ArrowDown);
+					columns[i].append(LSG_ConstUnicodeCharacter::ArrowDown).append(" ");
 
 				columns[i].append(!this->header[i].empty() ? this->header[i] : " ");
 			}

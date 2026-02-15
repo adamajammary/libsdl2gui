@@ -107,7 +107,7 @@ elseif (IOS)
     set(DLL_EXT "a")
     set(OUT_DIR "${CFG_DIR}testsdl2gui.app")
 
-    set(FONT_ARIAL "/System/Library/Fonts/Supplemental/Arial Unicode.ttf")
+    set(FONT_ARIAL "/System/Library/Fonts/Supplemental/Arial.ttf")
     set(INFO_PLIST "${SRC_DIR}/ios/MacOSXBundleInfo.plist.in")
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 

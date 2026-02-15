@@ -310,10 +310,10 @@ void LSG_Pagination::initPagination(const SDL_Rect& background, const SDL_Color&
 
 	this->destroyPageTextures();
 
-	this->textureArrowHome = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_START, colorPrev, this->getArrowSize(this->arrowHome));
-	this->textureArrowPrev = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_BACK,  colorPrev, this->getArrowSize(this->arrowPrev));
-	this->textureArrowNext = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_NEXT,  colorNext, this->getArrowSize(this->arrowNext));
-	this->textureArrowEnd  = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_END,   colorNext, this->getArrowSize(this->arrowEnd));
+	this->textureArrowHome = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_START, colorPrev, this->getArrowSize(this->arrowHome));
+	this->textureArrowPrev = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_BACK,  colorPrev, this->getArrowSize(this->arrowPrev));
+	this->textureArrowNext = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_NEXT,  colorNext, this->getArrowSize(this->arrowNext));
+	this->textureArrowEnd  = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_END,   colorNext, this->getArrowSize(this->arrowEnd));
 
 	this->textureLabel = this->getPaginationTexture(this->getLabel(), color);
 }

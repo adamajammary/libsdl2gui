@@ -138,13 +138,6 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 	};
 
 	SDL_RenderCopy(renderer, texture, nullptr, &destination);
-
-	auto border      = LSG_Window::GetDPIScaled(1);
-	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
-
-	LSG_Graphics::RenderBorder(renderer, border, borderColor, this->background);
-
-	this->renderHighlight(renderer, this->background);
 }
 
 void LSG_MenuItem::renderKey(SDL_Renderer* renderer) const
@@ -246,7 +239,11 @@ void LSG_MenuItem::Set()
 		this->textures[LSG_MENU_ITEM_TEXTURE_KEY] = this->getTexture(xmlKey);
 
 	if (this->selected)
-		this->textures[LSG_MENU_ITEM_TEXTURE_SELECTED] = this->getTexture(LSG_ConstUnicodeCharacter::Checkmark);
+	{
+		auto size = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_ITEM_TEXTURE_TEXT]).height;
+
+		this->textures[LSG_MENU_ITEM_TEXTURE_SELECTED] = LSG_Graphics::GetVector(LSG_VECTOR_CHECK, this->textColor, { size, size });
+	}
 }
 
 void LSG_MenuItem::SetSelected(bool selected)

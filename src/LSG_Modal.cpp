@@ -529,7 +529,7 @@ void LSG_Modal::Set()
 		auto closeIconSize = LSG_Window::GetDPIScaled(LSG_Modal::CloseIconSize);
 
 		this->textures[LSG_MODAL_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(
-			LSG_VECTOR_ICON_CLOSE,
+			LSG_VECTOR_CLOSE,
 			this->textColor,
 			{ closeIconSize, closeIconSize }
 		);

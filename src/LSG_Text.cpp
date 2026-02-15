@@ -14,16 +14,13 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 	#if defined _android
 		auto FONT_PATH = "/system/fonts/NotoSansCJK-Regular.ttc";
 	#elif defined _ios
-		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
-		auto FONT_PATH = fullPath.c_str();
+		auto FONT_PATH = LSG_Text::GetFullPath("ui/Arial.ttf");
 	#elif defined _linux
-		auto NOTO_SANS_CJK = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
-		auto DEJAVU_SANS   = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-		auto FONT_PATH     = (std::filesystem::exists(NOTO_SANS_CJK) ? NOTO_SANS_CJK : DEJAVU_SANS);
+		auto FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
 	#elif defined  _macosx
-		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
+		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial.ttf";
 	#elif defined _windows
-		auto FONT_PATH = "C:\\Windows\\Fonts\\ARIALUNI.TTF";
+		auto FONT_PATH = "C:\\Windows\\Fonts\\arial.ttf";
 	#endif
 
 	auto font = TTF_OpenFont(FONT_PATH, LSG_Window::GetDPIScaled(fontSize));

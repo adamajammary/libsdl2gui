@@ -323,16 +323,16 @@ void LSG_Navigation::set()
 	SDL_Size size = { this->arrow.size, this->arrow.size };
 
 	if (!this->arrow.home)
-		this->arrow.home = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_START, colorPrev, size);
+		this->arrow.home = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_START, colorPrev, size);
 
 	if (!this->arrow.back)
-		this->arrow.back = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_BACK, colorPrev, size);
+		this->arrow.back = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_BACK, colorPrev, size);
 
 	if (!this->arrow.forward)
-		this->arrow.forward = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_NEXT, colorNext, size);
+		this->arrow.forward = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_NEXT, colorNext, size);
 
 	if (!this->arrow.end)
-		this->arrow.end = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_END, colorNext, size);
+		this->arrow.end = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_END, colorNext, size);
 
 	if (!this->texture)
 	{

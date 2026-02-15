@@ -98,7 +98,7 @@ void LSG_Toggle::Set()
 	this->destroyTextures();
 
 	auto size = this->getMaxSize(LSG_Graphics::GetFillArea(this->background, this->border));
-	auto icon = (this->on ? LSG_VECTOR_ICON_TOGGLE_OFF : LSG_VECTOR_ICON_TOGGLE_ON);
+	auto icon = (this->on ? LSG_VECTOR_TOGGLE_OFF : LSG_VECTOR_TOGGLE_ON);
 
 	this->texture = LSG_Graphics::GetVector(icon, this->textColor, size);
 }

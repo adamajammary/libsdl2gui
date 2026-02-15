@@ -112,5 +112,5 @@ void LSG_MenuSub::Set()
 	auto     maxSize = this->getMaxHeightArrow();
 	SDL_Size size    = { maxSize, maxSize };
 
-	this->textures[LSG_SUB_MENU_TEXTURE_ARROW] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_NEXT, this->textColor, size);
+	this->textures[LSG_SUB_MENU_TEXTURE_ARROW] = LSG_Graphics::GetVector(LSG_VECTOR_NEXT, this->textColor, size);
 }

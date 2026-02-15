@@ -22,7 +22,6 @@
     #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
     #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _linux
-	#include <filesystem> // exists()
 	#include <gtk/gtk.h>  // gtk_file_chooser_dialog_new(), gtk_dialog_run(), gtk_file_chooser_get_uri()
 #elif defined _macosx
 	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
@@ -135,18 +134,19 @@ enum LSG_TriangleOrientation
 	LSG_TRIANGLE_ORIENTATION_DOWN
 };
 
-enum LSG_VectorIcon
+enum LSG_Vector
 {
-	LSG_VECTOR_ICON_BACK,
-	LSG_VECTOR_ICON_CLOSE,
-	LSG_VECTOR_ICON_MENU,
-	LSG_VECTOR_ICON_NEXT,
-	LSG_VECTOR_ICON_PAGE_BACK,
-	LSG_VECTOR_ICON_PAGE_END,
-	LSG_VECTOR_ICON_PAGE_NEXT,
-	LSG_VECTOR_ICON_PAGE_START,
-	LSG_VECTOR_ICON_TOGGLE_OFF,
-	LSG_VECTOR_ICON_TOGGLE_ON
+	LSG_VECTOR_BACK,
+	LSG_VECTOR_CHECK,
+	LSG_VECTOR_CLOSE,
+	LSG_VECTOR_MENU,
+	LSG_VECTOR_NEXT,
+	LSG_VECTOR_PAGE_BACK,
+	LSG_VECTOR_PAGE_END,
+	LSG_VECTOR_PAGE_NEXT,
+	LSG_VECTOR_PAGE_START,
+	LSG_VECTOR_TOGGLE_OFF,
+	LSG_VECTOR_TOGGLE_ON
 };
 
 #if defined _android
@@ -210,9 +210,8 @@ struct LSG_ConstTexture
 
 struct LSG_ConstUnicodeCharacter
 {
-	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x86, (char)0x91, 0 };
-	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x86, (char)0x93, 0 };
-	static inline const char Checkmark[4] = { (char)0xE2, (char)0x9C, (char)0x93, 0 };
+	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x96, (char)0xB2, 0 };
+	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x96, (char)0xBC, 0 };
 };
 
 struct LSG_Alignment
@@ -256,11 +255,11 @@ const char* LSG_GetBasePath();
 #include "LSG_Component.h"
 #include "LSG_Text.h"
 
-
 #include "LSG_Cards.h"
 #include "LSG_List.h"
 #include "LSG_Menu.h"
 #include "LSG_Panel.h"
+#include "LSG_ProgressBar.h"
 #include "LSG_Slider.h"
 #include "LSG_TextLabel.h"
 #include "LSG_Tiles.h"
@@ -275,7 +274,6 @@ const char* LSG_GetBasePath();
 #include "LSG_MenuSub.h"
 #include "LSG_Modal.h"
 #include "LSG_Navigation.h"
-#include "LSG_ProgressBar.h"
 #include "LSG_Table.h"
 #include "LSG_TextInput.h"
 #include "LSG_Toggle.h"

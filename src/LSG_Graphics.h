@@ -23,7 +23,9 @@ public:
 	static SDL_Surface*            GetThumbnail(const std::string& imageFile, const SDL_Size& maxSize);
 	static SDL_Surface*            GetThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
-	static SDL_Texture*            GetVector(LSG_VectorIcon icon, const SDL_Color& color, const SDL_Size& size);
+	static SDL_Texture*            GetVector(LSG_Vector vector, const SDL_Color& color, const SDL_Size& size);
+	static SDL_Texture*            GetVectorRoundedRectangleFill(const SDL_Color& color, int borderRadius, const SDL_Size& size);
+	static SDL_Texture*            GetVectorRoundedRectangleWithBorder(const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Size& size);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
 	static void                    RenderBorder(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
 	static void                    RenderFill(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
@@ -38,8 +40,10 @@ private:
 	static SDL_Surface*            getDownScaledSurface(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static SDL_Surface*            getDownScaledSurface(SDL_Surface* surface, const SDL_Point& downscaleFactor);
 	static std::vector<SDL_Vertex> getGeometryTriangle(const SDL_Rect& background, int paddingX, int paddingY, const SDL_Color& color, LSG_TriangleOrientation orientation);
+	static float                   getOpacity(const SDL_Color& color);
 	static SDL_Texture*            getVector(const std::string& svg);
 	static std::string             getVectorBack(const  SDL_Color& color, const SDL_Size& size);
+	static std::string             getVectorCheck(const SDL_Color& color, const SDL_Size& size);
 	static std::string             getVectorClose(const SDL_Color& color, const SDL_Size& size);
 	static std::string             getVectorMenu(const  SDL_Color& color, const SDL_Size& size);
 	static std::string             getVectorNext(const  SDL_Color& color, const SDL_Size& size);

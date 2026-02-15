@@ -675,7 +675,7 @@ void LSG_TextInput::setIconClear()
 	SDL_Size maxSize = { this->maxIconSize, this->maxIconSize };
 
 	if (this->maxIconSize > 0)
-		this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_CLOSE, this->textColor, maxSize);
+		this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR] = LSG_Graphics::GetVector(LSG_VECTOR_CLOSE, this->textColor, maxSize);
 }
 
 void LSG_TextInput::setPlaceholder()
