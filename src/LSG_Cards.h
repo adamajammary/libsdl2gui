@@ -18,15 +18,15 @@ public:
 	~LSG_Cards();
 
 private:
-	static const int CardBorder   = 1;
-	static const int CardHeight   = 128;
-	static const int CardPadding  = 10;
-	static const int CardPageRows = 3;
-	static const int CardSpacing  = 10;
+	static const int DefaultCardBorderWidth = 1;
+	static const int DefaultCardHeight      = 128;
+	static const int DefaultCardPadding     = 10;
+	static const int DefaultCardPageRows    = 3;
+	static const int DefaultCardSpacing     = 10;
 
 private:
-	int                   cardBorder;
 	LSG_CardBorder        cardBorderType;
+	int                   cardBorderWidth;
 	int                   cardHeight;
 	int                   cardPadding;
 	int                   cardSpacing;
@@ -86,7 +86,6 @@ private:
 	void          reset(bool resetScroll = false);
 	void          resetHighlight();
 	void          resetRenderTarget();
-	void          resetScroll();
 	void          select(LSG_EventType eventType);
 	void          selectCtrl(int row);
 	void          selectShift(int row);

@@ -17,8 +17,9 @@ public:
 public:
 	SDL_Rect    background;
 	SDL_Color   backgroundColor;
-	int         border;
 	SDL_Color   borderColor;
+	int         borderRadius;
+	int         borderWidth;
 	bool        enabled;
 	bool        highlighted;
 	int         margin;
@@ -28,15 +29,15 @@ public:
 	bool        visible;
 
 protected:
-	LSG_Components            children;
-	std::string               id;
-	int                       layer;
-	std::string               orientation;
-	LSG_Component*            parent;
-	SDL_Texture*              texture;
-	std::vector<SDL_Texture*> textures;
-	LibXml::xmlNode*          xmlNode;
-	std::string               xmlNodeName;
+	LSG_Components   children;
+	std::string      id;
+	int              layer;
+	std::string      orientation;
+	LSG_Component*   parent;
+	SDL_Texture*     texture;
+	LSG_Textures     textures;
+	LibXml::xmlNode* xmlNode;
+	std::string      xmlNodeName;
 
 public:
 	size_t           GetChildCount() const;
@@ -77,8 +78,9 @@ public:
 	void             SetAlignmentHorizontal(LSG_HAlign alignment);
 	void             SetAlignmentVertical(LSG_VAlign alignment);
 	void             SetBackgroundColor(const SDL_Color& color);
-	void             SetBorder(int border);
 	void             SetBorderColor(const SDL_Color& color);
+	void             SetBorderRadius(int radius);
+	void             SetBorderWidth(int width);
 	virtual void     SetColors();
 	void             SetMargin(int margin);
 	void             SetOrientation(LSG_Orientation orientation);
@@ -93,19 +95,21 @@ public:
 protected:
 	virtual void  destroyTextures();
 	LSG_Alignment getAlignment() const;
+	SDL_Rect      getFillArea() const;
 	int           getFontSize() const;
 	int           getFontStyle(bool checkParent = true) const;
 	LSG_Alignment getParentAlignment() const;
 	int           getTextureHeight() const;
 	SDL_Size      getTextureSize() const;
 	std::string   getXmlColor(const std::string& xmlAttribute, bool recursive = true) const;
+	void          renderBorder(SDL_Renderer* renderer) const;
 	void          renderDisabled(SDL_Renderer*  renderer) const;
+	void          renderFill(SDL_Renderer* renderer) const;
+	void          renderFillWithRoundedBorder(SDL_Renderer* renderer, const std::string& id) const;
 	void          renderHighlight(SDL_Renderer* renderer) const;
 	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const;
 
 private:
-	void renderBorder(SDL_Renderer* renderer) const;
-	void renderFill(SDL_Renderer* renderer) const;
 	void setSizePercent(const SDL_Rect& parentBackground);
 };
 

@@ -11,10 +11,7 @@ LSG_ProgressBar::LSG_ProgressBar(const std::string& id, int layer, LibXml::xmlNo
 	if (attributes.contains("value"))
 		this->value = std::atof(attributes["value"].c_str());
 
-	auto progressColor = this->getXmlColor("progress-color");
-
-	if (!progressColor.empty())
-		this->progressColor = LSG_Graphics::ToSdlColor(progressColor);
+	this->SetColors();
 }
 
 double LSG_ProgressBar::GetValue() const
@@ -41,26 +38,45 @@ void LSG_ProgressBar::Render(SDL_Renderer* renderer) const
 
 void LSG_ProgressBar::render(SDL_Renderer* renderer) const
 {
-	auto background = SDL_Rect(this->background);
-	auto minHeight  = LSG_Window::GetDPIScaled(LSG_ProgressBar::MinHeight);
+	LSG_Component::Render(renderer);
 
-	if (background.h < minHeight)
-		background.h = minHeight;
-
-	auto fillArea = LSG_Graphics::GetFillArea(background, this->border);
-
-	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, background);
-	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor,     background);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->borderWidth);
 
 	auto progressValue = (int)((double)fillArea.w * this->value);
 	auto progressArea  = SDL_Rect(fillArea);
 
 	progressArea.w = progressValue;
 
-	LSG_Graphics::RenderFill(renderer, 0, this->progressColor, progressArea);
+	this->renderProgress(renderer, progressArea, progressValue, fillArea);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);
+}
+
+void LSG_ProgressBar::renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressValue, const SDL_Rect& fillArea) const
+{
+	if (this->borderRadius > 0)
+	{
+		LSG_Graphics::RenderFillRounded(
+			renderer,
+			this->borderRadius,
+			this->progressColor,
+			progressArea,
+			std::format("{}_progress_fill", this->id)
+		);
+
+		if (progressArea.w < (fillArea.w - this->borderRadius))
+		{
+			SDL_Rect progressArea2 = progressArea;
+
+			progressArea2.x += (progressValue - this->borderRadius);
+			progressArea2.w  = this->borderRadius;
+
+			LSG_Graphics::RenderFill(renderer, this->borderWidth, this->progressColor, progressArea2);
+		}
+	} else {
+		LSG_Graphics::RenderFill(renderer, this->borderWidth, this->progressColor, progressArea);
+	}
 }
 
 void LSG_ProgressBar::SetColors()
@@ -68,7 +84,7 @@ void LSG_ProgressBar::SetColors()
 	LSG_Component::SetColors();
 
 	auto backgroundColor = this->getXmlColor("background-color", false);
-	auto progressColor   = this->getXmlColor("progress-color");
+	auto progressColor   = this->getXmlColor("progress-color",   false);
 
 	this->backgroundColor = (!backgroundColor.empty()  ? LSG_Graphics::ToSdlColor(backgroundColor)  : LSG_ProgressBar::DefaultBackgroundColor);
 	this->progressColor   = (!progressColor.empty()    ? LSG_Graphics::ToSdlColor(progressColor)    : LSG_ProgressBar::DefaultProgressColor);

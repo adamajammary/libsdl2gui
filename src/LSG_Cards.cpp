@@ -3,7 +3,7 @@
 LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->border         = 0;
+	this->borderWidth    = 0;
 	this->cardBorderType = LSG_CARD_BORDER_NONE;
 	this->highlightedRow = -1;
 	this->margin         = 0;
@@ -15,18 +15,20 @@ LSG_Cards::LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->text           = "";
 	this->wrap           = true;
 
-	this->cardBorder  = LSG_Window::GetDPIScaled(LSG_Cards::CardBorder);
-	this->cardPadding = LSG_Window::GetDPIScaled(LSG_Cards::CardPadding);
-	this->cardSpacing = LSG_Window::GetDPIScaled(LSG_Cards::CardSpacing);
+	this->cardBorderWidth = LSG_Window::GetDPIScaled(LSG_Cards::DefaultCardBorderWidth);
+	this->cardPadding     = LSG_Window::GetDPIScaled(LSG_Cards::DefaultCardPadding);
+	this->cardSpacing     = LSG_Window::GetDPIScaled(LSG_Cards::DefaultCardSpacing);
 
-	auto xmlCardHeight = LSG_XML::GetAttribute(xmlNode, "card-height");
-	auto xmlCardBorder = LSG_XML::GetAttribute(xmlNode, "card-border");
+	auto xmlAttributes = LSG_XML::GetAttributes(xmlNode);
 
-	this->cardHeight = LSG_Window::GetDPIScaled(!xmlCardHeight.empty() ? std::atoi(xmlCardHeight.c_str()) : LSG_Cards::CardHeight);
+	auto xmlCardHeight     = (xmlAttributes.contains("card-height")      ? xmlAttributes["card-height"] : "");
+	auto xmlCardBorderType = (xmlAttributes.contains("card-border-type") ? xmlAttributes["card-border-type"] : "");
 
-	if (xmlCardBorder == "full")
+	this->cardHeight = LSG_Window::GetDPIScaled(!xmlCardHeight.empty() ? std::atoi(xmlCardHeight.c_str()) : LSG_Cards::DefaultCardHeight);
+
+	if (xmlCardBorderType == "full")
 		this->cardBorderType = LSG_CARD_BORDER_FULL;
-	else if (xmlCardBorder == "line")
+	else if (xmlCardBorderType == "line")
 		this->cardBorderType = LSG_CARD_BORDER_LINE;
 }
 
@@ -46,7 +48,7 @@ void LSG_Cards::Activate(const SDL_Point& mousePosition)
 	if (!this->enabled || LSG_Events::IsMouseDown() || this->cards.empty() || this->selectedRows.empty())
 		return;
 
-	auto positionY = (mousePosition.y - this->background.y + this->scrollOffsetY);
+	auto positionY = (mousePosition.y - this->background.y + this->scrollVertical.offset);
 
 	for (const auto& card : this->cards)
 	{
@@ -70,12 +72,12 @@ void LSG_Cards::AddCard(const LSG_CardItem& cardItem)
 
 void LSG_Cards::AddCard(LibXml::xmlNode* node)
 {
-	auto attributes = LSG_XML::GetAttributes(node);
+	auto xmlAttributes = LSG_XML::GetAttributes(node);
 
 	this->cards.push_back({
-		.description = { .text     = (attributes.contains("description") ? attributes["description"] : "") },
-		.thumbnail   = { .filePath = (attributes.contains("thumbnail")   ? attributes["thumbnail"] : "") },
-		.title       = { .text     = (attributes.contains("title")       ? attributes["title"]  : "") }
+		.description = { .text     = (xmlAttributes.contains("description") ? xmlAttributes["description"] : "") },
+		.thumbnail   = { .filePath = (xmlAttributes.contains("thumbnail")   ? xmlAttributes["thumbnail"] : "") },
+		.title       = { .text     = (xmlAttributes.contains("title")       ? xmlAttributes["title"]  : "") }
 	});
 }
 
@@ -133,31 +135,6 @@ void LSG_Cards::destroyTextures()
 	this->cardsLock.unlock();
 }
 
-SDL_Size LSG_Cards::GetSize() const
-{
-	SDL_Size maxSize = { this->background.w, this->background.h };
-
-	for (const auto& card : this->cards)
-	{
-		auto maxTitleWidth = (this->cardHeight + card.title.texture.size.width + this->cardPadding);
-
-		if (maxTitleWidth > maxSize.width)
-			maxSize.width = maxTitleWidth;
-
-		auto maxDescriptionWidth = (this->cardHeight + card.description.texture.size.width + this->cardPadding);
-
-		if (maxDescriptionWidth > maxSize.width)
-			maxSize.width = maxDescriptionWidth;
-	}
-
-	auto textureHeight = (((this->cardHeight + this->cardSpacing) * (int)this->cards.size()) - this->cardSpacing);
-
-	if (textureHeight > maxSize.height)
-		maxSize.height = textureHeight;
-
-	return maxSize;
-}
-
 LSG_CardItem LSG_Cards::GetCard(int row) const
 {
 	if ((row < 0) || (row >= (int)this->cards.size()))
@@ -188,7 +165,7 @@ std::vector<int> LSG_Cards::GetSelectedCards() const
 
 int LSG_Cards::getRow(const SDL_Point& mousePosition) const
 {
-	auto positionY = (mousePosition.y - this->background.y + this->scrollOffsetY);
+	auto positionY = (mousePosition.y - this->background.y + this->scrollVertical.offset);
 
 	for (int row = 0; row < (int)this->cards.size(); row++)
 	{
@@ -200,6 +177,31 @@ int LSG_Cards::getRow(const SDL_Point& mousePosition) const
 	}
 
 	return -1;
+}
+
+SDL_Size LSG_Cards::GetSize() const
+{
+	SDL_Size maxSize = { this->background.w, this->background.h };
+
+	for (const auto& card : this->cards)
+	{
+		auto maxTitleWidth = (this->cardHeight + card.title.texture.size.width);
+
+		if (maxTitleWidth > maxSize.width)
+			maxSize.width = maxTitleWidth;
+
+		auto maxDescriptionWidth = (this->cardHeight + card.description.texture.size.width);
+
+		if (maxDescriptionWidth > maxSize.width)
+			maxSize.width = maxDescriptionWidth;
+	}
+
+	auto textureHeight = (((this->cardHeight + this->cardSpacing) * (int)this->cards.size()) - this->cardSpacing);
+
+	if (textureHeight > maxSize.height)
+		maxSize.height = textureHeight;
+
+	return maxSize;
 }
 
 int LSG_Cards::getTitleFontSize() const
@@ -285,13 +287,18 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 	this->background.h = std::min(this->background.h, this->parent->background.h);
 
 	SDL_Size componentSize  = { this->background.w, this->background.h };
-	auto     parentFillArea = LSG_Graphics::GetFillArea(this->parent->background, this->parent->border, this->parent->padding);
+	auto     parentFillArea = LSG_Graphics::GetFillArea(this->parent->background, this->parent->borderWidth, this->parent->padding);
 
 	this->background = LSG_Graphics::GetDestinationAligned(parentFillArea, componentSize, this->getAlignment());
 
-	LSG_Component::Render(renderer);
+	this->renderFill(renderer);
 
 	if (this->cards.empty())
+		return;
+
+	auto minSize = (LSG_ScrollBar::GetSize() * 4);
+
+	if ((this->background.w < minSize) || (this->background.h < minSize))
 		return;
 
 	this->setCardTextures();
@@ -312,16 +319,16 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	this->showScrollX = (textureSize.width  > this->background.w);
-	this->showScrollY = (textureSize.height > this->background.h);
+	this->scrollHorizontal.show = (textureSize.width  > this->background.w);
+	this->scrollVertical.show   = (textureSize.height > this->background.h);
 
 	auto fillArea = SDL_Rect(this->background);
 	auto clip     = this->getClipWithOffset({ 0, 0, fillArea.w, fillArea.h }, textureSize);
 
-	if (this->showScrollX)
+	if (this->scrollHorizontal.show)
 		fillArea.h -= scrollBarSize;
 
-	if (this->showScrollY)
+	if (this->scrollVertical.show)
 		fillArea.w -= scrollBarSize;
 
 	SDL_RenderCopy(renderer, this->renderTarget, &clip, &fillArea);
@@ -333,7 +340,20 @@ void LSG_Cards::renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect
 {
 	switch (this->cardBorderType) {
 	case LSG_CARD_BORDER_FULL:
-		LSG_Graphics::RenderBorder(renderer, this->cardBorder, this->borderColor, this->cards[row].background);
+		if (this->borderRadius > 0)
+		{
+			LSG_Graphics::RenderFillWithRoundedBorder(
+				renderer,
+				{ 0, 0, 0, 0 },
+				this->borderColor,
+				this->borderRadius,
+				this->cardBorderWidth,
+				this->cards[row].background,
+				std::format("{}_card_border", this->id)
+			);
+		} else {
+			LSG_Graphics::RenderBorder(renderer, this->cardBorderWidth, this->borderColor, this->cards[row].background);
+		}
 		break;
 	case LSG_CARD_BORDER_LINE:
 		this->renderCardBorderLine(renderer, row, background);
@@ -403,17 +423,42 @@ void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSiz
 		offsetY += (this->cardHeight + this->cardSpacing);
 	}
 
-	auto border3x     = (this->cardBorder * 3);
-	auto inverseColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
-
-	SDL_Color selectColor    = { this->borderColor.r, this->borderColor.g, this->borderColor.b, 255 };
-	SDL_Color highlightColor = { inverseColor.r, inverseColor.g, inverseColor.b, 32 };
-
 	for (auto row : this->selectedRows)
-		LSG_Graphics::RenderBorder(renderer, border3x, selectColor, this->cards[row].background);
+	{
+		if (this->borderRadius > 0)
+		{
+			LSG_Graphics::RenderFillWithRoundedBorder(
+				renderer,
+				{ 0, 0, 0, 0 },
+				this->borderColor,
+				this->borderRadius,
+				(this->cardBorderWidth * 2),
+				this->cards[row].background,
+				std::format("{}_card_selected", this->id)
+			);
+		} else {
+			LSG_Graphics::RenderBorder(renderer, (this->cardBorderWidth * 2), this->borderColor, this->cards[row].background);
+		}
+	}
 
 	if (this->highlighted && (this->highlightedRow >= 0))
-		LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->cards[this->highlightedRow].background);
+	{
+		auto      inverseColor   = LSG_Graphics::GetInverseColor(this->backgroundColor);
+		SDL_Color highlightColor = { inverseColor.r, inverseColor.g, inverseColor.b, 64 };
+
+		if (this->borderRadius > 0)
+		{
+			LSG_Graphics::RenderFillRounded(
+				renderer,
+				this->borderRadius,
+				highlightColor,
+				this->cards[this->highlightedRow].background,
+				std::format("{}_card_highlighted", this->id)
+			);
+		} else {
+			LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->cards[this->highlightedRow].background);
+		}
+	}
 }
 
 void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) const
@@ -421,7 +466,7 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 	if (card.description.text.empty() || !card.description.texture.texture)
 		return;
 
-	auto border2x  = (this->cardBorder  + this->cardBorder);
+	auto border2x  = (this->cardBorderWidth + this->cardBorderWidth);
 	auto padding2x = (this->cardPadding + this->cardPadding);
 	auto offsetY   = LSG_Window::GetDPIScaled(this->getTitleFontSize() * 2);
 
@@ -447,11 +492,11 @@ void LSG_Cards::renderScrollBar(SDL_Renderer* renderer, const SDL_Size& textureS
 	if (this->background.h < LSG_ScrollBar::GetSize2x())
 		return;
 
-	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, this->background, textureSize.width, this->backgroundColor, this->highlighted);
+	if (this->scrollHorizontal.show)
+		this->renderScrollBarHorizontal(renderer, this->background, textureSize.width, this->backgroundColor, this->highlighted, this);
 
-	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer, this->background, textureSize.height, this->backgroundColor, this->highlighted);
+	if (this->scrollVertical.show)
+		this->renderScrollBarVertical(renderer, this->background, textureSize.height, this->backgroundColor, this->highlighted, this);
 }
 
 void LSG_Cards::renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const
@@ -493,6 +538,19 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) co
 	};
 
 	SDL_RenderCopy(renderer, card.thumbnail.texture.texture, &clip, &destination);
+
+	if (this->borderRadius > 0)
+	{
+		auto borderRadius = (this->borderRadius > padding2x ? (this->borderRadius - this->cardPadding) : (this->borderRadius / 2));
+
+		LSG_Graphics::RenderRoundedCorners(
+			renderer,
+			this->backgroundColor,
+			borderRadius,
+			destination,
+			std::format("{}_card_image", this->id)
+		);
+	}
 }
 
 /**
@@ -543,12 +601,6 @@ void LSG_Cards::resetRenderTarget()
 	}
 
 	this->cardsLock.unlock();
-}
-
-void LSG_Cards::resetScroll()
-{
-	this->scrollOffsetX = 0;
-	this->scrollOffsetY = 0;
 }
 
 void LSG_Cards::select(LSG_EventType eventType)
@@ -640,7 +692,7 @@ void LSG_Cards::SelectLast(bool keyShift)
 	if (!this->enabled || this->cards.empty())
 		return;
 
-	this->scrollOffsetY = LSG_ConstTexture::MaxSize;
+	this->scrollVertical.offset = LSG_ConstTexture::MaxSize;
 
 	auto last = ((int)this->cards.size() - 1);
 
@@ -663,13 +715,13 @@ void LSG_Cards::SelectNextPage(bool keyShift)
 	auto selectedRow   = this->selectedRows[this->selectedRows.size() - 1];
 	auto maxRows       = (int)this->cards.size();
 	auto remainingRows = (maxRows - 1 - selectedRow);
-	auto pageRows      = std::min(LSG_Cards::CardPageRows, remainingRows);
+	auto pageRows      = std::min(LSG_Cards::DefaultCardPageRows, remainingRows);
 	auto nextRow       = (selectedRow + pageRows);
 
 	if ((remainingRows < 1) || (nextRow >= maxRows))
 		return;
 
-	this->scrollOffsetY += ((this->cardHeight + this->cardSpacing) * pageRows);
+	this->scrollVertical.offset += ((this->cardHeight + this->cardSpacing) * pageRows);
 
 	if (keyShift)
 		this->selectShift(nextRow);
@@ -694,7 +746,7 @@ void LSG_Cards::SelectNextRow(bool keyShift)
 	if (nextRow >= maxRows)
 		return;
 
-	this->scrollOffsetY += (this->cardHeight + this->cardSpacing);
+	this->scrollVertical.offset += (this->cardHeight + this->cardSpacing);
 
 	if (keyShift)
 		this->selectShift(nextRow);
@@ -713,13 +765,13 @@ void LSG_Cards::SelectPreviousPage(bool keyShift)
 	}
 
 	auto selectedRow = this->selectedRows[this->selectedRows.size() - 1];
-	auto pageRows    = std::min(LSG_Cards::CardPageRows, selectedRow);
+	auto pageRows    = std::min(LSG_Cards::DefaultCardPageRows, selectedRow);
 	auto previousRow = (selectedRow - pageRows);
 
 	if ((selectedRow < 1) || (previousRow < 0))
 		return;
 
-	this->scrollOffsetY = std::max((this->scrollOffsetY - ((this->cardHeight + this->cardSpacing) * pageRows)), 0);
+	this->scrollVertical.offset = std::max((this->scrollVertical.offset - ((this->cardHeight + this->cardSpacing) * pageRows)), 0);
 
 	if (keyShift)
 		this->selectShift(previousRow);
@@ -743,7 +795,7 @@ void LSG_Cards::SelectPreviousRow(bool keyShift)
 	if (previousRow < 0)
 		return;
 
-	this->scrollOffsetY = std::max((this->scrollOffsetY - (this->cardHeight + this->cardSpacing)), 0);
+	this->scrollVertical.offset = std::max((this->scrollVertical.offset - (this->cardHeight + this->cardSpacing)), 0);
 
 	if (keyShift)
 		this->selectShift(previousRow);
@@ -771,7 +823,7 @@ void LSG_Cards::SelectRow(int offset)
 	auto rowBottom = (rowTop + this->cardHeight);
 
 	if ((rowBottom > areaBottom) || (rowTop < areaTop))
-		this->scrollOffsetY = (this->selectedRows[0] * this->cardHeight);
+		this->scrollVertical.offset = (this->selectedRows[0] * this->cardHeight);
 }
 
 void LSG_Cards::selectShift(int row)

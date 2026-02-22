@@ -68,7 +68,7 @@ Make sure the correct Android SDK path is set as either
 - an environment variable `ANDROID_HOME=/path/to/ANDROID_SDK` or
 - a local property `sdk.dir=/path/to/ANDROID_SDK` in the **android/local.properties** file
 
-> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL2 Android README](https://wiki.libsdl.org/SDL2/README/android) for more details.
+> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL2 Android README](https://wiki.libsdl.org/SDL2/README-android) for more details.
 
 ```bash
 cmake .. -G "Unix Makefiles" \
@@ -112,7 +112,7 @@ make
 
 You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
 
-> See [SDL2 iOS README](https://wiki.libsdl.org/SDL2/README/ios) for more details.
+> See [SDL2 iOS README](https://wiki.libsdl.org/SDL2/README-ios) for more details.
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
@@ -333,8 +333,9 @@ width="size"
 height="size"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
+border-width="int"
 font-size="int" # default="14"
 text-color="color"
 
@@ -344,7 +345,7 @@ text="string"
 
 ### \<cards\>
 
-[alignment](#alignment) | [boolean](#boolean) | [card_border](#card_border) | [color](#color) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [card_border_type](#card_border_type) | [color](#color) | [size](#size)
 
 Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
 
@@ -356,13 +357,14 @@ width="size"
 height="size"
 background-color="color"
 border-color="color"
+border-radius="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
 
 card-height="int" # default="128"
-card-border="card_border"
+card-border-type="card_border_type"
 ```
 
 ### \<card\>
@@ -377,15 +379,13 @@ thumbnail="file_path"
 
 ### \<image\>
 
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [file_path](#file_path) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [file_path](#file_path) | [size](#size)
 
 ```ini
 id="string"
 width="size"
 height="size"
-background-color="color"
-border="int"
-border-color="color"
+border-radius="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 
@@ -417,8 +417,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 show-row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
@@ -484,8 +482,9 @@ width="size"  # default="50%"
 height="size" # default="50%"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
+border-width="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 spacing="int"
@@ -513,8 +512,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 font-size="int" # default="14"
 text-color="color"
 
@@ -534,8 +531,9 @@ width="size"
 height="size"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
+border-width="int"
 margin="int"
 padding="int"
 halign="alignment_horizontal"
@@ -558,10 +556,9 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
 border-color="color"
-margin="int"
-padding="int"
+border-radius="int"
+border-width="int"
 
 value="percent"
 progress-color="color"
@@ -581,10 +578,9 @@ width="size"
 height="size"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
-margin="int"
-padding="int"
+border-radius="int"
+border-width="int"
 
 value="percent"
 fill-progress="boolean"
@@ -592,7 +588,8 @@ progress-color="color"
 thumb-color="color"
 thumb-width="int" # minimum="10"
 thumb-border-color="color"
-thumb-border="int"
+thumb-border-radius="int"
+thumb-border-width="int"
 ```
 
 ### \<table\>
@@ -608,8 +605,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 show-column-border="boolean"
 show-row-border="boolean"
 halign="alignment_horizontal"
@@ -646,8 +641,9 @@ id="string"
 width="size"
 height="size"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
+border-width="int"
 font-size="int" # default="14"
 padding="int"
 text-color="color"
@@ -669,8 +665,8 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
@@ -703,8 +699,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -744,7 +738,7 @@ value="top|middle|bottom" # Vertical default="top"
 value="true|false" # default="false"
 ```
 
-### card_border
+### card_border_type
 
 ```ini
 value="full|line|none" # default="none"
@@ -3349,30 +3343,6 @@ Example
 LSG_SetBackgroundColor("Root", SDL_Color(255, 0, 0, 255));
 ```
 
-### LSG_SetBorder
-
-```cpp
-void LSG_SetBorder(const std::string& id, int border);
-```
-
-Sets the border width of a component.
-
-Parameters
-
-- **id** Component ID
-- **border** Border width in pixels
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-Example
-
-```cpp
-LSG_SetBorder("Root", 2);
-```
-
 ### LSG_SetBorderColor
 
 ```cpp
@@ -3395,6 +3365,54 @@ Example
 
 ```cpp
 LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
+```
+
+### LSG_SetBorderRadius
+
+```cpp
+void LSG_SetBorderRadius(const std::string& id, int border);
+```
+
+Sets the border radius of a component.
+
+Parameters
+
+- **id** Component ID
+- **radius** Border radius in pixels
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetBorderRadius("Root", 10);
+```
+
+### LSG_SetBorderWidth
+
+```cpp
+void LSG_SetBorderWidth(const std::string& id, int width);
+```
+
+Sets the border width of a component.
+
+Parameters
+
+- **id** Component ID
+- **width** Border width in pixels
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetBorderWidth("Root", 1);
 ```
 
 ### LSG_SetButton

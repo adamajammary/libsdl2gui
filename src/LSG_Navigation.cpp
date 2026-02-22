@@ -3,14 +3,16 @@
 LSG_Navigation::LSG_Navigation(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->arrow    = {};
-	this->position = 0;
-	this->textSize = {};
+	this->arrow        = {};
+	this->borderRadius = 0;
+	this->borderWidth  = 0;
+	this->position     = 0;
+	this->textSize     = {};
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto xmlItemsPerNavigation = (attributes.contains("items-per-navigation") ? attributes["items-per-navigation"] : "");
-	auto xmlItemsTotal         = (attributes.contains("items-total")          ? attributes["items-total"]          : "");
+	auto xmlItemsPerNavigation = (xmlAttributes.contains("items-per-navigation") ? xmlAttributes["items-per-navigation"] : "");
+	auto xmlItemsTotal         = (xmlAttributes.contains("items-total")          ? xmlAttributes["items-total"]          : "");
 
 	this->items.perNavigation = (!xmlItemsPerNavigation.empty() ? std::atoll(xmlItemsPerNavigation.c_str()) : 1);
 	this->items.total         = (!xmlItemsTotal.empty()         ? std::atoll(xmlItemsTotal.c_str())         : 0);
@@ -106,7 +108,7 @@ std::string LSG_Navigation::getText() const
 
 bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
 {
-	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto fillArea = this->getFillArea();
 	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
@@ -192,7 +194,7 @@ void LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->enabled || LSG_Events::IsMouseDown() || !this->items.total)
 		return;
 
-	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto fillArea = this->getFillArea();
 	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
@@ -242,12 +244,12 @@ void LSG_Navigation::Render(SDL_Renderer* renderer) const
 
 void LSG_Navigation::render(SDL_Renderer* renderer) const
 {
-	LSG_Component::Render(renderer);
+	this->renderFill(renderer);
 
 	if (!this->arrow.back || !this->arrow.end || !this->arrow.forward || !this->arrow.home || !this->texture)
 		return;
 
-	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto fillArea = this->getFillArea();
 	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	LSG_Navigation::renderArrows(renderer, fillArea, padding);
@@ -314,9 +316,8 @@ void LSG_Navigation::sendEvent(LSG_EventType type) const
 
 void LSG_Navigation::set()
 {
-	auto color     = LSG_Graphics::GetThumbColor(this->backgroundColor);
-	auto colorPrev = (this->canNavigate.back    ? color : LSG_ScrollBar::DefaultThumbColor);
-	auto colorNext = (this->canNavigate.forward ? color : LSG_ScrollBar::DefaultThumbColor);
+	auto colorPrev = (this->canNavigate.back    ? this->textColor : LSG_ScrollBar::DefaultThumbColor);
+	auto colorNext = (this->canNavigate.forward ? this->textColor : LSG_ScrollBar::DefaultThumbColor);
 
 	this->arrow.size = LSG_Window::GetDPIScaled(this->getFontSize());
 

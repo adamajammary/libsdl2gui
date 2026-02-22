@@ -3,10 +3,10 @@
 LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	this->iconPath = (attributes.contains("icon") ? attributes["icon"] : "");
-	this->text     = (attributes.contains("text") ? attributes["text"] : "");
+	this->iconPath = (xmlAttributes.contains("icon") ? xmlAttributes["icon"] : "");
+	this->text     = (xmlAttributes.contains("text") ? xmlAttributes["text"] : "");
 
 	this->textures.resize(NR_OF_BUTTON_TEXTURES);
 }
@@ -90,8 +90,7 @@ void LSG_Button::Render(SDL_Renderer* renderer)
 
 void LSG_Button::render(SDL_Renderer* renderer)
 {
-	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, this->background);
-	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor,     this->background);
+	LSG_Component::Render(renderer);
 
 	auto iconTexture = this->textures[LSG_BUTTON_TEXTURE_ICON];
 	auto textTexture = this->textures[LSG_BUTTON_TEXTURE_TEXT];

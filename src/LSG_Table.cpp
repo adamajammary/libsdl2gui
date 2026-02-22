@@ -3,6 +3,8 @@
 LSG_Table::LSG_Table(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_List(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->borderRadius      = 0;
+	this->borderWidth       = 0;
 	this->resizeColumn      = -1;
 	this->resizeColumnWidth = 0;
 }
@@ -130,7 +132,7 @@ SDL_Size LSG_Table::GetSize() const
 
 	textureSize.width += (columnSpacing * (int)(this->textures.size() - 1));
 
-	auto border2x  = (this->border  + this->border);
+	auto border2x  = (this->borderWidth + this->borderWidth);
 	auto padding2x = (this->padding + this->padding);
 
 	textureSize.width  += (padding2x + border2x);
@@ -170,13 +172,13 @@ bool LSG_Table::IsMouseOverColumnBorder(const SDL_Point& mousePosition)
 	if (!this->visible || !this->enabled || this->header.empty())
 		return false;
 
-	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto background = this->getFillArea();
 	auto rowHeight  = this->getRowHeight();
 
 	if ((mousePosition.y < background.y) || (mousePosition.y > (background.y + rowHeight)))
 		return false;
 
-	auto positionX   = (mousePosition.x - background.x + this->scrollOffsetX);
+	auto positionX   = (mousePosition.x - background.x + this->scrollHorizontal.offset);
 	auto spacing     = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 	auto spacingHalf = (spacing / 2);
 
@@ -222,12 +224,12 @@ void LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	if (rowHeight < 1)
 		return;
 
-	auto background = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto background = this->getFillArea();
 	auto positionY  = (mousePosition.y - background.y);
 
 	if (!this->header.empty() && ((positionY / rowHeight) == 0))
 	{
-		auto positionX = (mousePosition.x - background.x + this->scrollOffsetX);
+		auto positionX = (mousePosition.x - background.x + this->scrollHorizontal.offset);
 		auto spacing   = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
 
 		int column = 0, startX = 0;
@@ -256,7 +258,7 @@ void LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 	}
 
 	auto header     = (!this->header.empty() ? 1 : 0);
-	auto clickedRow = (((positionY + this->scrollOffsetY) / rowHeight) - header);
+	auto clickedRow = (((positionY + this->scrollVertical.offset) / rowHeight) - header);
 	auto keyState   = SDL_GetKeyboardState(nullptr);
 
 	if (keyState[SDL_SCANCODE_LCTRL] || keyState[SDL_SCANCODE_RCTRL])
@@ -378,9 +380,9 @@ void LSG_Table::removeRow()
 
 	if (lastRow < 0)
 	{
-		this->page          = 0;
-		this->scrollOffsetX = 0;
-		this->scrollOffsetY = 0;
+		this->page = 0;
+
+		this->resetScroll();
 
 		this->Select(-1);
 	} else if (!this->selectedRows.empty() && this->selectedRows[0] > lastRow) {
@@ -407,7 +409,7 @@ void LSG_Table::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	if (attributes.contains("height") && (this->background.h > 0))
 		size.height = this->background.h;
 
-	auto border2x  = (this->border  + this->border);
+	auto border2x  = (this->borderWidth + this->borderWidth);
 	auto padding2x = (this->padding + this->padding);
 
 	this->background.x = position.x;
@@ -426,27 +428,29 @@ void LSG_Table::Render(SDL_Renderer* renderer)
 
 void LSG_Table::render(SDL_Renderer* renderer)
 {
-	LSG_Component::Render(renderer);
+	this->renderFill(renderer);
 
 	if (this->textures.empty())
 		return;
 
-	auto columnSpacing   = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
-	auto fillArea        = LSG_Graphics::GetFillArea(this->background, this->border);
-	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
-	auto textureSize     = this->getTextureSize();
+	auto minSize = (LSG_ScrollBar::GetSize() * 4);
+
+	if ((this->background.w < minSize) || (this->background.h < minSize))
+		return;
+
+	auto columnSpacing = LSG_Window::GetDPIScaled(LSG_Table::ColumnSpacing);
+	auto textureSize   = this->getTextureSize();
 
 	textureSize.width += (columnSpacing * (int)this->textures.size());
 
-	if (fillArea.h < scrollBarSize2x)
-		return;
-
-	auto alignment      = this->getAlignment();
-	auto rowHeight      = this->getRowHeight();
+	auto fillArea       = this->getFillArea();
 	bool showPagination = this->showPagination();
 
 	if (showPagination)
 		fillArea.h -= LSG_ScrollBar::GetSize();
+
+	auto alignment = this->getAlignment();
+	auto rowHeight = this->getRowHeight();
 
 	this->renderRows(renderer, fillArea, alignment, textureSize, columnSpacing);
 
@@ -458,11 +462,11 @@ void LSG_Table::render(SDL_Renderer* renderer)
 	if (!this->header.empty())
 		this->renderHeader(renderer, fillArea, alignment, textureSize, columnSpacing, rowHeight);
 
-	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, fillArea, textureSize.width, this->backgroundColor, this->highlighted);
+	if (this->scrollHorizontal.show)
+		this->renderScrollBarHorizontal(renderer, fillArea, textureSize.width, this->backgroundColor, this->highlighted, this);
 
-	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer, fillArea, textureSize.height, this->backgroundColor, this->highlighted);
+	if (this->scrollVertical.show)
+		this->renderScrollBarVertical(renderer, fillArea, textureSize.height, this->backgroundColor, this->highlighted, this);
 
 	if (showPagination)
 		this->renderPagination(renderer, fillArea, this->backgroundColor);
@@ -487,7 +491,7 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 
 	auto maxSizeWidth   = std::max(columnSize.width, headerSize.width);
 	auto maxColumnWidth = (this->columnWidths[column] > 0 ? this->columnWidths[column] : maxSizeWidth);
-	auto spacingOffset  = (this->scrollOffsetX < spacingHalf ? (spacingHalf - this->scrollOffsetX) : 0);
+	auto spacingOffset  = (this->scrollHorizontal.offset < spacingHalf ? (spacingHalf - this->scrollHorizontal.offset) : 0);
 
 	if (header)
 		clip.w = std::max(std::min((std::min(headerSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
@@ -529,8 +533,8 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 	clip.h        = rowHeight;
 	destination.h = clip.h;
 
-	auto offsetX        = this->scrollOffsetX;
-	auto scrollSize     = (this->showScrollY ? LSG_ScrollBar::GetSize() : 0);
+	auto offsetX        = this->scrollHorizontal.offset;
+	auto scrollSize     = (this->scrollVertical.show ? LSG_ScrollBar::GetSize() : 0);
 	auto remainingWidth = (header.w - scrollSize);
 	auto spacingHalf    = (spacing / 2);
 
@@ -557,13 +561,13 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 
 void LSG_Table::renderRows(SDL_Renderer* renderer, const SDL_Rect& fillArea, const LSG_Alignment& alignment, const SDL_Size& size, int spacing)
 {
-	auto background  = this->getScrollableBackground(fillArea, this->border, size);
+	auto background  = this->getScrollableBackground(fillArea, this->borderWidth, size);
 	auto clip        = this->getScrollableClip(background, size);
 	auto destination = LSG_Graphics::GetDestinationAligned(background, size, alignment);
 
 	destination.h = clip.h;
 
-	auto offsetX        = this->scrollOffsetX;
+	auto offsetX        = this->scrollHorizontal.offset;
 	auto remainingWidth = background.w;
 	auto spacingHalf    = (spacing / 2);
 
@@ -683,9 +687,9 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 
 void LSG_Table::SetRows(const LSG_TableRows& rows)
 {
-	this->page          = 0;
-	this->scrollOffsetX = 0;
-	this->scrollOffsetY = 0;
+	this->page = 0;
+
+	this->resetScroll();
 
 	this->rows = rows;
 
@@ -702,7 +706,7 @@ void LSG_Table::SetRows()
 void LSG_Table::setRows(bool sort)
 {
 	if (this->showPagination())
-		this->initPagination(LSG_Graphics::GetFillArea(this->background, this->border), this->backgroundColor);
+		this->initPagination(this->getFillArea(), this->backgroundColor);
 
 	auto sortOrder = this->GetXmlAttribute("sort");
 
@@ -793,8 +797,7 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 	LSG_XML::SetAttribute(this->xmlNode, "sort",        LSG_ConstSortOrder::ToString(sortOrder));
 	LSG_XML::SetAttribute(this->xmlNode, "sort-column", std::to_string(sortColumn));
 
-	this->scrollOffsetX = 0;
-	this->scrollOffsetY = 0;
+	this->resetScroll();
 
 	this->reset();
 }

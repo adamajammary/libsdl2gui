@@ -89,7 +89,7 @@ size_t LSG_TextInput::getCursorPosition(const SDL_Point& mousePosition)
 	auto background = LSG_UI::GetScrolledBackground(this);
 	auto iconSize   = LSG_Graphics::GetTextureSize(this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR]);
 
-	auto border2x  = (this->border + this->border);
+	auto border2x  = (this->borderWidth + this->borderWidth);
 	auto padding3x = (this->padding * 3);
 
 	auto fillWidth = (background.w - iconSize.width - padding3x - border2x);
@@ -105,7 +105,7 @@ size_t LSG_TextInput::getCursorPosition(const SDL_Point& mousePosition)
 	if (!this->value.empty() && (page > 0) && (page == lastPage))
 		offsetX = (this->textSize.width - fillWidth);
 
-	auto startX = (background.x + this->border + this->padding);
+	auto startX = (background.x + this->borderWidth + this->padding);
 	auto clickX = (mousePosition.x + LSG_Cursor::IBeamOffset);
 
 	auto position = (clickX - startX + offsetX);
@@ -184,16 +184,12 @@ bool LSG_TextInput::IsMouseOverIconClear(const SDL_Point& mousePosition)
 		return false;
 
 	auto background = LSG_UI::GetScrolledBackground(this);
+	auto fillArea   = LSG_Graphics::GetFillArea(background, this->borderWidth, this->padding);
 
-	auto border2x  = (this->border  + this->border);
-	auto padding2x = (this->padding + this->padding);
-
-	SDL_Rect fillArea = {
-		(background.x + this->border + this->padding),
-		(background.y + this->border + this->padding),
-		(background.w - border2x - padding2x),
-		(background.h - border2x - padding2x)
-	};
+	if (this->borderRadius > 0) {
+		fillArea.x += this->borderRadius;
+		fillArea.w -= (this->borderRadius + this->borderRadius);
+	}
 
 	auto iconClear = this->getIconClear(fillArea);
 
@@ -375,29 +371,26 @@ void LSG_TextInput::render(SDL_Renderer* renderer)
 {
 	LSG_Component::Render(renderer);
 
-	auto border2x  = (this->border  + this->border);
-	auto padding2x = (this->padding + this->padding);
+	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->borderWidth, this->padding);
 
-	SDL_Rect background = {
-		(this->background.x + this->border + this->padding),
-		(this->background.y + this->border + this->padding),
-		(this->background.w - border2x - padding2x),
-		(this->background.h - border2x - padding2x)
-	};
+	if (this->borderRadius > 0) {
+		fillArea.x += this->borderRadius;
+		fillArea.w -= (this->borderRadius + this->borderRadius);
+	}
 
 	SDL_Rect iconClear = {};
 
 	if (this->active && !this->value.empty()) {
-		iconClear     = this->getIconClear(background);
-		background.w -= (iconClear.w + this->padding);
+		iconClear   = this->getIconClear(fillArea);
+		fillArea.w -= (iconClear.w + this->padding);
 	}
 
-	this->maxIconSize = background.h;
+	this->maxIconSize = fillArea.h;
 
 	this->renderIconClear(renderer,       iconClear);
-	this->renderText(renderer,            background);
-	this->renderCursor(renderer,          background);
-	this->renderHighlightedText(renderer, background);
+	this->renderText(renderer,            fillArea);
+	this->renderCursor(renderer,          fillArea);
+	this->renderHighlightedText(renderer, fillArea);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);

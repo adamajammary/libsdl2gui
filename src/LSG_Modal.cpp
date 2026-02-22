@@ -11,14 +11,9 @@ LSG_Modal::LSG_Modal(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 
 	this->textures.resize(NR_OF_MODAL_TEXTURES);
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	this->hideCloseIcon = (attributes.contains("hide-close-icon") && attributes["hide-close-icon"] == "true");
-
-	auto border = (attributes.contains("border")  ? attributes["border"]  : "");
-
-	if (!border.empty())
-		this->border = LSG_Window::GetDPIScaled(std::atoi(border.c_str()));
+	this->hideCloseIcon = (xmlAttributes.contains("hide-close-icon") && xmlAttributes["hide-close-icon"] == "true");
 }
 
 /**
@@ -386,8 +381,12 @@ void LSG_Modal::Render(SDL_Renderer* renderer)
 
 	this->renderBackdrop(renderer);
 
-	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, this->background);
-	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor,     this->background);
+	if (this->borderRadius > 0) {
+		this->renderFillWithRoundedBorder(renderer, std::format("{}_background", this->id));
+	} else {
+		this->renderFill(renderer);
+		this->renderBorder(renderer);
+	}
 
 	auto headerHeight = LSG_Window::GetDPIScaled(LSG_Modal::HeaderHeight);
 
@@ -546,11 +545,11 @@ void LSG_Modal::SetBackground()
 	if (!this->visible)
 		return;
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
-	auto background = LSG_UI::GetBackgroundArea();
+	auto background    = LSG_UI::GetBackgroundArea();
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto width  = (attributes.contains("width")  ? attributes.at("width")  : "");
-	auto height = (attributes.contains("height") ? attributes.at("height") : "");
+	auto width  = (xmlAttributes.contains("width")  ? xmlAttributes.at("width")  : "");
+	auto height = (xmlAttributes.contains("height") ? xmlAttributes.at("height") : "");
 
 	this->background.w = this->getSizeFromXmlAttribute(width,  background.w);
 	this->background.h = this->getSizeFromXmlAttribute(height, background.h);
@@ -561,13 +560,13 @@ void LSG_Modal::SetBackground()
 	if (height == "width")
 		this->background.h = this->background.w;
 
-	auto maxWidth = (attributes.contains("max-width") ? attributes.at("max-width") : "");
-	auto minWidth = (attributes.contains("min-width") ? attributes.at("min-width") : "");
+	auto maxWidth = (xmlAttributes.contains("max-width") ? xmlAttributes.at("max-width") : "");
+	auto minWidth = (xmlAttributes.contains("min-width") ? xmlAttributes.at("min-width") : "");
 
 	this->background.w = this->getSizeFromXmlAttribute(maxWidth, minWidth, this->background.w);
 
-	auto maxHeight = (attributes.contains("max-height") ? attributes.at("max-height") : "");
-	auto minHeight = (attributes.contains("min-height") ? attributes.at("min-height") : "");
+	auto maxHeight = (xmlAttributes.contains("max-height") ? xmlAttributes.at("max-height") : "");
+	auto minHeight = (xmlAttributes.contains("min-height") ? xmlAttributes.at("min-height") : "");
 
 	this->background.h = this->getSizeFromXmlAttribute(maxHeight, minHeight, this->background.h);
 

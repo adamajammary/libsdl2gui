@@ -590,17 +590,17 @@ int LSG_GetScrollHorizontal(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
 	if (component->IsCards())
-		return static_cast<LSG_Cards*>(component)->GetScrollX();
+		return static_cast<LSG_Cards*>(component)->GetScrollHorizontal();
 	else if (component->IsList())
-		return static_cast<LSG_List*>(component)->GetScrollX();
+		return static_cast<LSG_List*>(component)->GetScrollHorizontal();
 	else if (component->IsPanel())
-		return static_cast<LSG_Panel*>(component)->GetScrollX();
+		return static_cast<LSG_Panel*>(component)->GetScrollHorizontal();
 	else if (component->IsTable())
-		return static_cast<LSG_Table*>(component)->GetScrollX();
+		return static_cast<LSG_Table*>(component)->GetScrollHorizontal();
 	else if (component->IsTextLabel())
-		return static_cast<LSG_TextLabel*>(component)->GetScrollX();
+		return static_cast<LSG_TextLabel*>(component)->GetScrollHorizontal();
 	else if (component->IsTiles())
-		return static_cast<LSG_Tiles*>(component)->GetScrollX();
+		return static_cast<LSG_Tiles*>(component)->GetScrollHorizontal();
 
 	return 0;
 }
@@ -613,20 +613,20 @@ int LSG_GetScrollVertical(const std::string& id)
 	auto component = getComponent(id);
 
 	if (!component || !component->IsScrollable())
-		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table> or <text><table>, <text> or <tiles>", id));
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
 	if (component->IsCards())
-		return static_cast<LSG_Cards*>(component)->GetScrollY();
+		return static_cast<LSG_Cards*>(component)->GetScrollVertical();
 	else if (component->IsList())
-		return static_cast<LSG_List*>(component)->GetScrollY();
+		return static_cast<LSG_List*>(component)->GetScrollVertical();
 	else if (component->IsPanel())
-		return static_cast<LSG_Panel*>(component)->GetScrollY();
+		return static_cast<LSG_Panel*>(component)->GetScrollVertical();
 	else if (component->IsTable())
-		return static_cast<LSG_Table*>(component)->GetScrollY();
+		return static_cast<LSG_Table*>(component)->GetScrollVertical();
 	else if (component->IsTextLabel())
-		return static_cast<LSG_TextLabel*>(component)->GetScrollY();
+		return static_cast<LSG_TextLabel*>(component)->GetScrollVertical();
 	else if (component->IsTiles())
-		return static_cast<LSG_Tiles*>(component)->GetScrollY();
+		return static_cast<LSG_Tiles*>(component)->GetScrollVertical();
 
 	return 0;
 }
@@ -1325,6 +1325,8 @@ void LSG_Quit()
 
 	isRunning = false;
 
+	LSG_Graphics::DestroyTextures();
+
 	LSG_UI::Close();
 	LSG_Window::Close();
 
@@ -1736,21 +1738,6 @@ void LSG_SetBackgroundColor(const std::string& id, const SDL_Color& color)
 	component->SetBackgroundColor(color);
 }
 
-void LSG_SetBorder(const std::string& id, int border)
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	auto component = getComponent(id);
-
-	if (!component)
-		throw std::invalid_argument(getErrorNoID("", id));
-
-	component->SetBorder(border);
-
-	LSG_UI::LayoutParent(component);
-}
-
 void LSG_SetBorderColor(const std::string& id, const SDL_Color& color)
 {
 	if (!isRunning)
@@ -1762,6 +1749,36 @@ void LSG_SetBorderColor(const std::string& id, const SDL_Color& color)
 		throw std::invalid_argument(getErrorNoID("", id));
 
 	component->SetBorderColor(color);
+}
+
+void LSG_SetBorderRadius(const std::string& id, int radius)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	component->SetBorderRadius(radius);
+
+	LSG_UI::LayoutParent(component);
+}
+
+void LSG_SetBorderWidth(const std::string& id, int width)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	component->SetBorderWidth(width);
+
+	LSG_UI::LayoutParent(component);
 }
 
 void LSG_SetButton(const std::string& id, const std::string& text, const std::string& icon)

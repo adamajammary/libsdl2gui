@@ -9,11 +9,15 @@ private:
 	LSG_Graphics()  {}
 	~LSG_Graphics() {}
 
+private:
+	static LSG_UmapTextures textures;
+
 public:
+	static void                    DestroyTextures();
 	static SDL_Rect                GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment);
 	static SDL_Point               GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize);
 	static SDL_Texture*            GetDownScaledTexture(const std::string& imageFile, const SDL_Point& downscaleFactor);
-	static SDL_Rect                GetFillArea(const SDL_Rect& background, int border, int padding = 0);
+	static SDL_Rect                GetFillArea(const SDL_Rect& background, int borderWidth, int padding = 0);
 	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
@@ -24,12 +28,15 @@ public:
 	static SDL_Surface*            GetThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
 	static SDL_Color               GetThumbColor(const SDL_Color& backgroundColor);
 	static SDL_Texture*            GetVector(LSG_Vector vector, const SDL_Color& color, const SDL_Size& size);
-	static SDL_Texture*            GetVectorRoundedRectangleFill(const SDL_Color& color, int borderRadius, const SDL_Size& size);
-	static SDL_Texture*            GetVectorRoundedRectangleWithBorder(const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Size& size);
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
-	static void                    RenderBorder(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
-	static void                    RenderFill(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background);
+	static void                    RenderBorder(SDL_Renderer* renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
+	static void                    RenderFill(SDL_Renderer*   renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
+	static void                    RenderFillRounded(SDL_Renderer*       renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
+	static void                    RenderFillRoundedBottom(SDL_Renderer* renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
+	static void                    RenderFillRoundedTop(SDL_Renderer*    renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
+	static void                    RenderFillWithRoundedBorder(SDL_Renderer* renderer, const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Rect& background, const std::string& id);
 	static void                    RenderLine(SDL_Renderer* renderer, const SDL_Color& color, int x1, int y1, int x2, int y2);
+	static void                    RenderRoundedCorners(SDL_Renderer* renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
 	static void                    RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
 	static void                    Rotate(LSG_ItemImage& image);
 	static SDL_Color               ToSdlColor(const std::string& color);
@@ -51,6 +58,11 @@ private:
 	static std::string             getVectorPageEnd(const   SDL_Color& color, const SDL_Size& size);
 	static std::string             getVectorPageNext(const  SDL_Color& color, const SDL_Size& size);
 	static std::string             getVectorPageStart(const SDL_Color& color, const SDL_Size& size);
+	static SDL_Texture*            getVectorRoundedCorners(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size);
+	static SDL_Texture*            getVectorRoundedRectangleBottom(const SDL_Color& color, int borderRadius, const SDL_Size& size);
+	static SDL_Texture*            getVectorRoundedRectangleFill(const SDL_Color& color, int borderRadius, const SDL_Size& size);
+	static SDL_Texture*            getVectorRoundedRectangleTop(const SDL_Color& color, int borderRadius, const SDL_Size& size);
+	static SDL_Texture*            getVectorRoundedRectangleWithBorder(const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Size& size);
 	static std::string             getVectorToggleOff(const SDL_Color& color, const SDL_Size& size);
 	static std::string             getVectorToggleOn(const  SDL_Color& color, const SDL_Size& size);
 };

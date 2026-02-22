@@ -1,71 +1,51 @@
 #include "LSG_Slider.h"
 
 LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
-	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
+	: LSG_ProgressBar(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->fillProgress      = false;
-	this->isSlideActive     = false;
-	this->progressColor     = {};
-	this->thumbBorder       = 0;
-	this->thumbBorderColor  = {};
-	this->thumbColor        = {};
-	this->thumbWidthDefault = LSG_Window::GetDPIScaled(LSG_Slider::DefaultThumbWidth);
-	this->value             = 0.0;
+	this->fillProgress  = false;
+	this->isSlideActive = false;
+	this->thumb         = {};
+
+	this->thumb.widthDefault = LSG_Window::GetDPIScaled(LSG_Slider::DefaultThumbWidth);
 
 	auto attributes = this->GetXmlAttributes();
 
 	if (attributes.contains("fill-progress"))
 		this->fillProgress = (attributes["fill-progress"] == "true");
 
-	if (attributes.contains("thumb-border"))
-		this->thumbBorder = std::atoi(attributes["thumb-border"].c_str());
+	if (attributes.contains("thumb-border-radius"))
+		this->thumb.borderRadius = std::atoi(attributes["thumb-border-radius"].c_str());
+
+	if (attributes.contains("thumb-border-width"))
+		this->thumb.borderWidth = std::atoi(attributes["thumb-border-width"].c_str());
 
 	if (attributes.contains("thumb-width"))
-		this->thumbWidth = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-width"].c_str()));
+		this->thumb.width = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-width"].c_str()));
 	else
-		this->thumbWidth = this->thumbWidthDefault;
+		this->thumb.width = this->thumb.widthDefault;
 
-	if (attributes.contains("value"))
-		this->value = std::atof(attributes["value"].c_str());
-
-	auto progressColor    = this->getXmlColor("progress-color");
-	auto thumbColor       = this->getXmlColor("thumb-color");
-	auto thumbBorderColor = this->getXmlColor("thumb-border-color");
-
-	if (!progressColor.empty())
-		this->progressColor = LSG_Graphics::ToSdlColor(progressColor);
-
-	if (!thumbColor.empty())
-		this->thumbColor = LSG_Graphics::ToSdlColor(thumbColor);
-
-	if (!thumbBorderColor.empty())
-		this->thumbBorderColor = LSG_Graphics::ToSdlColor(thumbBorderColor);
+	this->SetColors();
 }
 
 SDL_Rect LSG_Slider::getBackground() const
 {
 	auto background = SDL_Rect(this->background);
-	auto minHeight  = LSG_Window::GetDPIScaled(LSG_Slider::MinHeight);
 	bool isVertical = this->IsVertical();
 
-	if (isVertical)
-		background.w = std::max(minHeight, background.w);
-	else
-		background.h = std::max(minHeight, background.h);
-
-	auto thumbWidth     = std::max(this->thumbWidthDefault, this->thumbWidth);
+	auto thumbWidth     = std::max(this->thumb.widthDefault, this->thumb.width);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (isVertical) {
 		background.y += thumbWidthHalf;
 		background.h -= thumbWidth;
-		background.x += (this->thumbWidthDefault / 2);
-		background.w -= this->thumbWidthDefault;
+		background.x += (this->thumb.widthDefault / 2);
+		background.w -= this->thumb.widthDefault;
 	} else {
 		background.x += thumbWidthHalf;
 		background.w -= thumbWidth;
-		background.y += (this->thumbWidthDefault / 2);
-		background.h -= this->thumbWidthDefault;
+		background.y += (this->thumb.widthDefault / 2);
+		background.h -= this->thumb.widthDefault;
 	}
 
 	return background;
@@ -80,7 +60,7 @@ SDL_Rect LSG_Slider::getThumb(const SDL_Rect& background, int progressValue) con
 {
 	SDL_Rect thumb = background;
 
-	auto thumbWidth     = std::max(this->thumbWidthDefault, this->thumbWidth);
+	auto thumbWidth     = std::max(this->thumb.widthDefault, this->thumb.width);
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (this->IsVertical()) {
@@ -96,11 +76,6 @@ SDL_Rect LSG_Slider::getThumb(const SDL_Rect& background, int progressValue) con
 	}
 
 	return thumb;
-}
-
-double LSG_Slider::GetValue() const
-{
-	return this->value;
 }
 
 void LSG_Slider::OnMouseClick(const SDL_Point& mousePosition)
@@ -180,16 +155,15 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		return;
 
 	auto background = this->getBackground();
-	auto fillArea   = LSG_Graphics::GetFillArea(background, this->border);
 
-	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, background);
-	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor, background);
+	this->renderBackground(renderer, background);
 
 	auto progressValue = this->getProgressValue(background);
 
 	if (this->fillProgress)
 	{
-		SDL_Rect progressArea = fillArea;
+		auto fillArea     = LSG_Graphics::GetFillArea(background, this->borderWidth);
+		auto progressArea = SDL_Rect(fillArea);
 
 		if (this->IsVertical()) {
 			progressArea.h  = progressValue;
@@ -198,16 +172,53 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 			progressArea.w = progressValue;
 		}
 
-		LSG_Graphics::RenderFill(renderer, 0, this->progressColor, progressArea);
+		this->renderProgress(renderer, progressArea, progressValue, fillArea);
 	}
 
-	auto thumb = this->getThumb(background, progressValue);
-
-	LSG_Graphics::RenderFill(renderer,   this->thumbBorder, this->thumbColor,       thumb);
-	LSG_Graphics::RenderBorder(renderer, this->thumbBorder, this->thumbBorderColor, thumb);
+	this->renderThumb(renderer, background, progressValue);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);
+}
+
+void LSG_Slider::renderBackground(SDL_Renderer* renderer, const SDL_Rect& background)
+{
+	if (this->borderRadius > 0)
+	{
+		LSG_Graphics::RenderFillWithRoundedBorder(
+			renderer,
+			this->backgroundColor,
+			this->borderColor,
+			this->borderRadius,
+			this->borderWidth,
+			background,
+			std::format("{}_background", this->id)
+		);
+	} else {
+		LSG_Graphics::RenderFill(renderer,   this->borderWidth, this->backgroundColor, background);
+		LSG_Graphics::RenderBorder(renderer, this->borderWidth, this->borderColor,     background);
+	}
+}
+
+void LSG_Slider::renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressValue)
+{
+	auto thumb = this->getThumb(background, progressValue);
+
+	if (this->thumb.borderRadius > 0)
+	{
+		LSG_Graphics::RenderFillWithRoundedBorder(
+			renderer,
+			this->thumb.color,
+			this->thumb.borderColor,
+			this->thumb.borderRadius,
+			this->thumb.borderWidth,
+			thumb,
+			std::format("{}_thumb", this->id)
+		);
+	} else {
+		LSG_Graphics::RenderFill(renderer,   this->thumb.borderWidth, this->thumb.color,       thumb);
+		LSG_Graphics::RenderBorder(renderer, this->thumb.borderWidth, this->thumb.borderColor, thumb);
+	}
 }
 
 void LSG_Slider::sendEvent(LSG_EventType type) const
@@ -227,17 +238,13 @@ void LSG_Slider::sendEvent(LSG_EventType type) const
 
 void LSG_Slider::SetColors()
 {
-	LSG_Component::SetColors();
+	LSG_ProgressBar::SetColors();
 
-	auto backgroundColor  = this->getXmlColor("background-color", false);
-	auto progressColor    = this->getXmlColor("progress-color");
-	auto thumbColor       = this->getXmlColor("thumb-color");
-	auto thumbBorderColor = this->getXmlColor("thumb-border-color");
+	auto thumbColor       = this->getXmlColor("thumb-color",        false);
+	auto thumbBorderColor = this->getXmlColor("thumb-border-color", false);
 
-	this->backgroundColor  = (!backgroundColor.empty()  ? LSG_Graphics::ToSdlColor(backgroundColor)  : LSG_Slider::DefaultBackgroundColor);
-	this->progressColor    = (!progressColor.empty()    ? LSG_Graphics::ToSdlColor(progressColor)    : LSG_Slider::DefaultProgressColor);
-	this->thumbColor       = (!thumbColor.empty()       ? LSG_Graphics::ToSdlColor(thumbColor)       : LSG_Slider::DefaultThumbColor);
-	this->thumbBorderColor = (!thumbBorderColor.empty() ? LSG_Graphics::ToSdlColor(thumbBorderColor) : LSG_ConstDefaultColor::Border);
+	this->thumb.color       = (!thumbColor.empty()       ? LSG_Graphics::ToSdlColor(thumbColor)       : LSG_Slider::DefaultThumbColor);
+	this->thumb.borderColor = (!thumbBorderColor.empty() ? LSG_Graphics::ToSdlColor(thumbBorderColor) : LSG_ConstDefaultColor::Border);
 }
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)
@@ -266,9 +273,4 @@ void LSG_Slider::setValue(int offset)
 	this->SetValue(value);
 
 	this->sendEvent(LSG_EVENT_SLIDER_VALUE_CHANGED);
-}
-
-void LSG_Slider::SetValue(double value)
-{
-	this->value = std::max(0.0, std::min(1.0, value));
 }

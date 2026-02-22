@@ -24,13 +24,12 @@ public:
 	~LSG_Tiles();
 
 private:
-	static const int DefaultTileSize = 128;
-	static const int TextPadding     = 2;
-	static const int TileBorder      = 3;
+	static const int DefaultSelectedBorderWidth = 2;
+	static const int DefaultTextPadding         = 10;
+	static const int DefaultTileSize            = 128;
 
 private:
-	static inline const SDL_Color TextBackground = { 0, 0, 0, 196 };
-	static inline const SDL_Color TileBackground = { 0, 0, 0,  64 };
+	static inline const SDL_Color DefaultTextBackground = { 0, 0, 0, 196 };
 
 private:
 	SDL_Rect              fillArea;
@@ -39,11 +38,12 @@ private:
 	LSG_TileRender        image;
 	int                   offset;
 	int                   rows;
+	int                   selectedBorderWidth;
 	std::vector<int>      selectedTiles;
 	int                   spacing;
 	LSG_TileRender        text;
 	LSG_Alignment         textAlignment;
-	int                   tileBorder;
+	int                   textPadding;
 	int                   tileSize;
 	std::vector<LSG_Tile> tiles;
 	std::mutex            tilesLock;

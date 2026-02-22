@@ -1174,15 +1174,6 @@ DLLEXPORT void DLL LSG_SetAlignmentVertical(const std::string& id, LSG_VAlign al
 DLLEXPORT void DLL LSG_SetBackgroundColor(const std::string& id, const SDL_Color& color);
 
 /**
- * @brief Sets the border width of a component.
- * @param id     Component ID
- * @param border Border width in pixels
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT void DLL LSG_SetBorder(const std::string& id, int border);
-
-/**
  * @brief Sets the border color of a component.
  * @param id    Component ID
  * @param color Border color
@@ -1190,6 +1181,24 @@ DLLEXPORT void DLL LSG_SetBorder(const std::string& id, int border);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetBorderColor(const std::string& id, const SDL_Color& color);
+
+/**
+ * @brief Sets the border radius of a component.
+ * @param id     Component ID
+ * @param radius Border radius in pixels
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetBorderRadius(const std::string& id, int radius);
+
+/**
+ * @brief Sets the border width of a component.
+ * @param id    Component ID
+ * @param width Border width in pixels
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetBorderWidth(const std::string& id, int width);
 
 /**
  * @brief Sets the text and icon of a button.

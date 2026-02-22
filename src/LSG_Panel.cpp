@@ -72,10 +72,10 @@ SDL_Size LSG_Panel::GetSize() const
 
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	if (this->showScrollY)
+	if (this->scrollVertical.show)
 		totalSize.width += scrollBarSize;
 
-	if (this->showScrollX)
+	if (this->scrollHorizontal.show)
 		totalSize.height += scrollBarSize;
 
 	return {
@@ -112,12 +112,12 @@ void LSG_Panel::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->background.w = textureSize.width;
 	this->background.h = textureSize.height;
 
-	auto border2x  = (this->border  + this->border);
+	auto border2x  = (this->borderWidth + this->borderWidth);
 	auto padding2x = (this->padding + this->padding);
 
 	SDL_Rect background = {
-		(this->background.x + this->border + this->padding),
-		(this->background.y + this->border + this->padding),
+		(this->background.x + this->borderWidth + this->padding),
+		(this->background.y + this->borderWidth + this->padding),
 		(this->background.w - border2x - padding2x),
 		(this->background.h - border2x - padding2x)
 	};
@@ -127,8 +127,12 @@ void LSG_Panel::Render(SDL_Renderer* renderer, const SDL_Point& position)
 
 void LSG_Panel::render(SDL_Renderer* renderer, const SDL_Rect& background)
 {
-	LSG_Graphics::RenderFill(renderer,   this->border, this->backgroundColor, this->background);
-	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor,     this->background);
+	if (this->borderRadius > 0) {
+		this->renderFillWithRoundedBorder(renderer, std::format("{}_background", this->id));
+	} else {
+		this->renderFill(renderer);
+		this->renderBorder(renderer);
+	}
 
 	this->renderChildren(renderer, background);
 
@@ -138,9 +142,10 @@ void LSG_Panel::render(SDL_Renderer* renderer, const SDL_Rect& background)
 
 void LSG_Panel::Render(SDL_Renderer* renderer)
 {
-	this->scrollable  = false;
-	this->showScrollX = false;
-	this->showScrollY = false;
+	this->scrollable = false;
+
+	this->scrollHorizontal.show = false;
+	this->scrollVertical.show   = false;
 
 	if (!this->visible)
 		return;
@@ -152,7 +157,7 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 		return;
 	}
 
-	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto fillArea = this->getFillArea();
 
 	if (fillArea.h < LSG_ScrollBar::GetSize2x())
 		return;
@@ -171,9 +176,10 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	this->scrollable  = true;
-	this->showScrollX = ((textureSize.width  + scrollBarSize) > this->background.w);
-	this->showScrollY = ((textureSize.height + scrollBarSize) > this->background.h);
+	this->scrollable = true;
+
+	this->scrollHorizontal.show = ((textureSize.width  + scrollBarSize) > this->background.w);
+	this->scrollVertical.show   = ((textureSize.height + scrollBarSize) > this->background.h);
 
 	SDL_Size maxSize = {
 		std::max(this->background.w, textureSize.width),
@@ -184,7 +190,7 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 
 	this->renderContent(renderer, fillArea, maxSize);
 
-	LSG_Graphics::RenderBorder(renderer,  this->border, this->borderColor, this->background);
+	this->renderBorder(renderer);
 
 	this->renderScroll(renderer, fillArea, maxSize);
 }
@@ -268,8 +274,8 @@ void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background
 	SDL_Rect destination = {
 		background.x,
 		background.y,
-		(background.w - (this->showScrollY ? scrollBarSize : 0)),
-		(background.h - (this->showScrollX ? scrollBarSize : 0))
+		(background.w - (this->scrollVertical.show   ? scrollBarSize : 0)),
+		(background.h - (this->scrollHorizontal.show ? scrollBarSize : 0))
 	};
 
 	SDL_Rect clip           = { 0, 0, destination.w, destination.h };
@@ -306,20 +312,20 @@ void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& m
 
 void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize)
 {
-	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, background, maxSize.width,  this->backgroundColor, this->highlighted);
+	if (this->scrollHorizontal.show)
+		this->renderScrollBarHorizontal(renderer, background, maxSize.width,  this->backgroundColor, this->highlighted, this);
 
-	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer,   background, maxSize.height, this->backgroundColor, this->highlighted);
+	if (this->scrollVertical.show)
+		this->renderScrollBarVertical(renderer,   background, maxSize.height, this->backgroundColor, this->highlighted, this);
 
-	if (!this->showScrollX || !this->showScrollY)
+	if (!this->scrollHorizontal.show || !this->scrollVertical.show)
 		return;
 
 	SDL_Rect bottomRight = {
-		(this->scrollBarX.x + this->scrollBarX.w),
-		(this->scrollBarY.y + this->scrollBarY.h),
-		(background.w - this->scrollBarX.w),
-		(background.h - this->scrollBarY.h)
+		(this->scrollHorizontal.bar.x + this->scrollHorizontal.bar.w),
+		(this->scrollVertical.bar.y   + this->scrollVertical.bar.h),
+		(background.w - this->scrollHorizontal.bar.w),
+		(background.h - this->scrollVertical.bar.h)
 	};
 
 	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, bottomRight);

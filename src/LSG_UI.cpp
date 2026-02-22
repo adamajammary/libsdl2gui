@@ -102,7 +102,7 @@ SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& offsetPosition, int conten
 	auto halign = (attributes.contains("halign") ? attributes.at("halign") : "");
 	auto valign = (attributes.contains("valign") ? attributes.at("valign") : "");
 
-	auto border2x  = (panel->border  + panel->border);
+	auto border2x  = (panel->borderWidth + panel->borderWidth);
 	auto padding2x = (panel->padding + panel->padding);
 
 	auto childMargin4x = (component->margin * 4);
@@ -402,8 +402,8 @@ SDL_Rect LSG_UI::GetScrolledBackground(LSG_Component* component)
 	auto panel = static_cast<LSG_Panel*>(scrollableParent);
 
 	SDL_Rect scrolledBackground = {
-		(component->background.x + panel->background.x + panel->margin - panel->GetScrollX()),
-		(component->background.y + panel->background.y + panel->margin - panel->GetScrollY()),
+		(component->background.x + panel->background.x + panel->margin - panel->GetScrollHorizontal()),
+		(component->background.y + panel->background.y + panel->margin - panel->GetScrollVertical()),
 		component->background.w,
 		component->background.h
 	};
@@ -427,8 +427,8 @@ SDL_Point LSG_UI::GetScrolledPosition(const SDL_Point& mousePosition, LSG_Compon
 	auto panel = static_cast<LSG_Panel*>(scrollableParent);
 
 	SDL_Point scrolledPosition = {
-		(mousePosition.x - panel->background.x - panel->margin + panel->GetScrollX()),
-		(mousePosition.y - panel->background.y - panel->margin + panel->GetScrollY())
+		(mousePosition.x - panel->background.x - panel->margin + panel->GetScrollHorizontal()),
+		(mousePosition.y - panel->background.y - panel->margin + panel->GetScrollVertical())
 	};
 
 	return scrolledPosition;
@@ -473,7 +473,7 @@ void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 			if (menu->IsOpen())
 			{
 				isMenuOpen  = true;
-				menuScrollY = menu->GetScrollY();
+				menuScrollY = menu->GetScrollVertical();
 
 				break;
 			}
@@ -660,6 +660,8 @@ void LSG_UI::Layout()
 	LSG_UI::layoutModals();
 
 	LSG_UI::setModals();
+
+	LSG_Graphics::DestroyTextures();
 }
 
 void LSG_UI::layoutFixed(LSG_Component* component)
@@ -736,7 +738,7 @@ void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components&
 	auto valign     = (attributes.contains("valign") ? attributes["valign"] : "");
 	auto scrollable = (attributes.contains("scrollable") ? attributes["scrollable"] : "");
 	auto spacing    = (attributes.contains("spacing") ? LSG_Window::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
-	auto border     = component->border;
+	auto border     = component->borderWidth;
 	auto border2x   = (border * 2);
 	auto padding    = component->padding;
 	auto padding2x  = (padding * 2);
@@ -872,7 +874,7 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	if (!component->GetParent())
 	{
 		auto rootMargin   = component->margin;
-		auto rootMargin2x = (rootMargin * 2);
+		auto rootMargin2x = (rootMargin + rootMargin);
 
 		component->background.x += rootMargin;
 		component->background.y += rootMargin;
@@ -883,8 +885,8 @@ void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& chi
 	auto componentsX = 0;
 	auto componentsY = 0;
 
-	auto border2x  = (component->border  * 2);
-	auto padding2x = (component->padding * 2);
+	auto border2x  = (component->borderWidth + component->borderWidth);
+	auto padding2x = (component->padding + component->padding);
 
 	bool isParentScrollablePanel = component->IsScrollablePanel(true);
 
@@ -1074,9 +1076,7 @@ LSG_UMapStrStr LSG_UI::OpenWindow(const std::string& xmlFile)
 	if (!LSG_UI::windowNode)
 		throw std::runtime_error(std::format("Failed to find path '/window' in XML file: {}", filePath));
 
-	auto windowAttribs = LSG_XML::GetAttributes(LSG_UI::windowNode);
-
-	return windowAttribs;
+	return LSG_XML::GetAttributes(LSG_UI::windowNode);
 }
 
 void LSG_UI::Present(SDL_Renderer* renderer)
@@ -1224,6 +1224,8 @@ void LSG_UI::SetColorTheme(const std::string& colorThemeFile, bool sort)
 	LSG_UI::setColors();
 
 	LSG_UI::SetText(LSG_UI::root, sort);
+
+	LSG_Graphics::DestroyTextures();
 }
 
 void LSG_UI::setColors()

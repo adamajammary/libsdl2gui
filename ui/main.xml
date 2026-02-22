@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
-  <modal id="ModalIdAbout" title="SDL2 GUI Library" width="65%" min-width="380" max-width="500" height="150" font-size="16" border="1">
+  <modal
+    id="ModalIdAbout"
+    title="SDL2 GUI Library"
+    width="65%"
+    min-width="380"
+    max-width="500"
+    height="150"
+    font-size="16"
+    border-radius="10"
+    border-width="1"
+  >
     <panel orientation="vertical" halign="center" valign="middle" spacing="10">
       <text>A free cross-platform user interface library using SDL2.</text>
       <text>(c) 2021 Adam A. Jammary (Jammary Studio)</text>
@@ -9,7 +19,7 @@
   </modal>
 
   <panel id="Root" orientation="vertical" padding="10" spacing="10" font-size="16">
-    <panel height="35">
+    <panel height="40">
       <panel width="50" valign="middle">
         <menu id="Menu" title="Menu">
           <menu-sub id="MenuIdColorTheme" title="Color Theme">
@@ -23,9 +33,16 @@
         </menu>
       </panel>
 
-      <panel border-color="#000000" border="1">
-        <text-input id="TextInput" placeholder="Text Input" padding="5" background-color="#FFFFFF" text-color="#000000" />
-      </panel>
+      <text-input
+        id="TextInput"
+        placeholder="Text Input"
+        padding="5"
+        background-color="#FFFFFF"
+        text-color="#000000"
+        border-color="#000000"
+        border-radius="20"
+        border-width="1"
+      />
 
       <panel width="165" halign="right" valign="middle">
         <text font-size="18">SDL2 GUI Library</text>
@@ -43,7 +60,8 @@
         background-color="#000000"
         text-color="#FFFFFF"
         border-color="#FFFFFF"
-        border="1"
+        border-radius="25"
+        border-width="1"
       />
 
       <toggle id="Toggle" width="50" />
@@ -56,7 +74,8 @@
         background-color="#FFFFFF"
         text-color="#000000"
         border-color="#000000"
-        border="1"
+        border-radius="25"
+        border-width="1"
       />
     </panel>
 
@@ -74,8 +93,8 @@
       </panel>
 
       <panel spacing="10">
-        <panel id="PanelIdCards" padding="10" border="1">
-          <cards id="Cards" card-height="128" card-border="line">
+        <panel id="PanelIdCards" padding="10" border-width="1" border-radius="10">
+          <cards id="Cards" card-height="128" card-border-type="line" border-radius="10">
             <card
               title="Card #1 - Risus sed vulputate odio ut"
               description="Nibh tortor id aliquet lectus proin nibh nisl condimentum id.\nVitae semper quis lectus nulla at volutpat diam."
@@ -119,8 +138,8 @@
           </cards>
         </panel>
 
-        <panel id="PanelIdList" padding="10" border="1">
-          <list id="List" sort="ascending">
+        <panel id="PanelIdList" padding="10" border-width="1" border-radius="10">
+          <list id="List" sort="ascending" show-row-border="true">
             <list-item>Lorem ipsum dolor sit amet</list-item>
             <list-item>Consectetur adipiscing elit</list-item>
             <list-item>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</list-item>
@@ -152,16 +171,16 @@
       </panel>
 
       <panel spacing="10">
-        <panel id="PanelIdTiles" padding="10" border="1">
+        <panel id="PanelIdTiles" padding="10" border-width="1" border-radius="10">
           <tiles
             id="Tiles"
             tile-size="128"
-            spacing="5"
-            font-size="12"
+            wrap="true"
+            border-radius="10"
+            spacing="10"
             text-color="#FFFFFF"
             text-halign="center"
             text-valign="bottom"
-            wrap="true"
           >
             <tile image="img/tile-1.jpg" text="Tile #1" />
             <tile image="img/tile-2.jpg" text="Tile #2" />
@@ -174,7 +193,7 @@
           </tiles>
         </panel>
 
-        <panel id="PanelIdTableWithGroups" padding="10" border="1">
+        <panel id="PanelIdTableWithGroups" padding="10" border-width="1" border-radius="10">
           <table id="TableWithGroups" show-column-border="true" show-row-border="true" sort="ascending" sort-column="0">
             <table-header>
               <table-column>Dolor</table-column>
@@ -222,14 +241,17 @@
 
         <slider
           id="Slider"
-          height="20"
           value="0.5"
           fill-progress="true"
           progress-color="rgb(20, 130, 255)"
           thumb-color="rgb(128, 128, 128)"
-          thumb-border-color="#000000"
           thumb-width="20"
+          thumb-border-color="#000000"
+          thumb-border-radius="10"
+          thumb-border-width="1"
           background-color="rgb(192, 192, 192)"
+          border-radius="5"
+          height="20"
         />
 
         <panel width="40" halign="right" valign="middle">

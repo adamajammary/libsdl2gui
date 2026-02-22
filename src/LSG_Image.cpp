@@ -3,14 +3,17 @@
 LSG_Image::LSG_Image(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->aspectRatio = {};
-	this->orientation = {};
-	this->scaleFactor = {};
+	this->aspectRatio  = {};
+	this->borderRadius = 0;
+	this->borderWidth  = 0;
+	this->orientation  = {};
+	this->scaleFactor  = {};
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	this->file = (attributes.contains("file") ? attributes["file"] : "");
-	this->fill = (attributes.contains("fill") && attributes["fill"] == "true");
+	this->file = (xmlAttributes.contains("file") ? xmlAttributes["file"] : "");
+
+	this->fill = (xmlAttributes.contains("fill") && xmlAttributes["fill"] == "true");
 }
 
 LSG_Image::~LSG_Image()
@@ -100,12 +103,10 @@ void LSG_Image::Render(SDL_Renderer* renderer)
 
 void LSG_Image::render(SDL_Renderer* renderer)
 {
-	LSG_Component::Render(renderer);
-
 	if (!this->texture)
 		return;
 
-	auto fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
+	auto fillArea = this->getFillArea();
 
 	if (this->fill) {
 		SDL_RenderCopy(renderer, this->texture, nullptr, &fillArea);
@@ -124,6 +125,14 @@ void LSG_Image::render(SDL_Renderer* renderer)
 	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, maxSize, this->getAlignment());
 
 	SDL_RenderCopy(renderer, this->texture, nullptr, &destination);
+
+	LSG_Graphics::RenderRoundedCorners(
+		renderer,
+		this->parent->backgroundColor,
+		this->borderRadius,
+		destination,
+		std::format("{}_image", this->id)
+	);
 }
 
 void LSG_Image::rotate()

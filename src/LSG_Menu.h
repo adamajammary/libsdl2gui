@@ -48,6 +48,7 @@ private:
 	bool                  isMouseOverMenu(const SDL_Point& mousePosition) const;
 	bool                  isMouseOverNavBack(const SDL_Point& mousePosition) const;
 	void                  renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu) const;
+	void                  renderHighlightIconOpen(SDL_Renderer* renderer, const SDL_Rect& background) const;
 	void                  renderIconClose(SDL_Renderer*  renderer, const SDL_Rect& menu) const;
 	void                  renderIconOpen(SDL_Renderer* renderer) const;
 	void                  renderMenu(SDL_Renderer* renderer);

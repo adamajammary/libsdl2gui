@@ -1,5 +1,15 @@
 #include "LSG_Graphics.h"
 
+LSG_UmapTextures LSG_Graphics::textures = {};
+
+void LSG_Graphics::DestroyTextures()
+{
+	for (const auto& texture : LSG_Graphics::textures)
+		SDL_DestroyTexture(texture.second);
+
+	LSG_Graphics::textures.clear();
+}
+
 SDL_Rect LSG_Graphics::GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment)
 {
 	SDL_Rect destination = {
@@ -154,15 +164,15 @@ SDL_Texture* LSG_Graphics::GetDownScaledTexture(const std::string& imageFile, co
 	return texture;
 }
 
-SDL_Rect LSG_Graphics::GetFillArea(const SDL_Rect& background, int border, int padding)
+SDL_Rect LSG_Graphics::GetFillArea(const SDL_Rect& background, int borderWidth, int padding)
 {
 	SDL_Rect fillArea = background;
 
-	auto border2x  = (border  + border);
+	auto border2x  = (borderWidth + borderWidth);
 	auto padding2x = (padding + padding);
 
-	fillArea.x += (border + padding);
-	fillArea.y += (border + padding);
+	fillArea.x += (borderWidth + padding);
+	fillArea.y += (borderWidth + padding);
 	fillArea.w -= (border2x + padding2x);
 	fillArea.h -= (border2x + padding2x);
 
@@ -498,36 +508,95 @@ std::string LSG_Graphics::getVectorPageStart(const SDL_Color& color, const SDL_S
 	return svg;
 }
 
-SDL_Texture* LSG_Graphics::GetVectorRoundedRectangleFill(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+SDL_Texture* LSG_Graphics::getVectorRoundedCorners(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size)
 {
+	auto bottom = (size.height - borderRadius);
+
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 	auto svg = std::format(
-		"<svg width='{}px' height='{}px'>" \
-		"<rect width='{}px' height='{}px' rx='{}' ry='{}' style='fill: rgb({},{},{}); fill-opacity: {}' />" \
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
+		"<path d='M 0  {} V 0  H {} A {} {} 0 0 0 0  {}' />" \
+		"<path d='M {} {} V 0  h {} A {} {} 0 0 1 {} {}' />" \
+		"<path d='M {} {} v {} h {} A {} {} 0 0 0 {} {}' />" \
+		"<path d='M 0  {} v {} h {} A {} {} 0 0 1 0  {}' />" \
 		"</svg>",
 		size.width, size.height,
-		size.width, size.height,
-		borderRadius, borderRadius,
-		color.r, color.g, color.b, LSG_Graphics::getOpacity(color)
+		backgroundColor.r, backgroundColor.g, backgroundColor.b, LSG_Graphics::getOpacity(backgroundColor),
+		borderRadius, borderRadius, borderRadius, borderRadius, borderRadius,
+		size.width, borderRadius, -borderRadius, borderRadius, borderRadius, size.width, borderRadius,
+		size.width, bottom, borderRadius, -borderRadius, borderRadius, borderRadius, size.width, bottom,
+		bottom, borderRadius, borderRadius, borderRadius, borderRadius, bottom
 	);
 
 	return LSG_Graphics::getVector(svg);
 }
 
-SDL_Texture* LSG_Graphics::GetVectorRoundedRectangleWithBorder(const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Size& size)
+SDL_Texture* LSG_Graphics::getVectorRoundedRectangleBottom(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+{
+	auto bottom = (size.height - borderRadius);
+	auto right  = (size.width  - borderRadius);
+
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
+		"<path d='M 0 {} V 0 H {} V {} A {} {} 0 0 1 {} {} H {} A {} {} 0 0 1 0 {}' />" \
+		"</svg>",
+		size.width, size.height,
+		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
+		bottom, size.width, bottom, borderRadius, borderRadius, right, size.height, borderRadius, borderRadius, borderRadius, bottom
+
+	);
+
+	return LSG_Graphics::getVector(svg);
+}
+
+SDL_Texture* LSG_Graphics::getVectorRoundedRectangleFill(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+{
+	auto svg = std::format(
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
+		"<rect width='{}px' height='{}px' rx='{}' ry='{}' />" \
+		"</svg>",
+		size.width, size.height,
+		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
+		size.width, size.height,
+		borderRadius, borderRadius
+	);
+
+	return LSG_Graphics::getVector(svg);
+}
+
+SDL_Texture* LSG_Graphics::getVectorRoundedRectangleTop(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+{
+	auto right = (size.width  - borderRadius);
+
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
+		"<path d='M {} {} V {} H 0 V {} A {} {} 0 0 1 {} 0 H {} A {} {} 0 0 1 {} {}' />" \
+		"</svg>",
+		size.width, size.height,
+		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
+		size.width, borderRadius, size.height, borderRadius, borderRadius, borderRadius, borderRadius, right, borderRadius, borderRadius, size.width, borderRadius
+	);
+
+	return LSG_Graphics::getVector(svg);
+}
+
+SDL_Texture* LSG_Graphics::getVectorRoundedRectangleWithBorder(const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Size& size)
 {
 	auto borderx = (borderWidth + borderWidth);
 
 	auto svg = std::format(
-		"<svg width='{}px' height='{}px'>" \
-		"<rect  x='{}' y='{}' width='{}px' height='{}px' rx='{}' ry='{}' style='fill: rgb({},{},{}); fill-opacity: {}; stroke: rgb({},{},{}); stroke-opacity: {}; stroke-width: {}' />" \
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}; stroke: rgb({},{},{}); stroke-opacity: {}; stroke-width: {}'>" \
+		"<rect x='{}' y='{}' width='{}px' height='{}px' rx='{}' ry='{}' />" \
 		"</svg>",
 		(size.width + borderx), (size.height + borderx),
-		borderWidth, borderWidth,
-		size.width, size.height,
-		borderRadius, borderRadius,
 		fillColor.r, fillColor.g, fillColor.b, LSG_Graphics::getOpacity(fillColor),
 		borderColor.r, borderColor.g, borderColor.b, LSG_Graphics::getOpacity(borderColor),
-		borderWidth
+		borderWidth,
+		borderWidth, borderWidth,
+		size.width, size.height,
+		borderRadius, borderRadius
 	);
 
 	return LSG_Graphics::getVector(svg);
@@ -563,9 +632,9 @@ bool LSG_Graphics::IsColorEquals(const SDL_Color& a, const SDL_Color& b)
 	return ((a.r == b.r) && (a.g == b.g) && (a.b == b.b) && (a.a == b.a));
 }
 
-void LSG_Graphics::RenderBorder(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background)
+void LSG_Graphics::RenderBorder(SDL_Renderer* renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background)
 {
-	if (border < 1)
+	if (borderWidth < 1)
 		return;
 
 	SDL_SetRenderDrawBlendMode(renderer, (color.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
@@ -574,36 +643,98 @@ void LSG_Graphics::RenderBorder(SDL_Renderer* renderer, int border, const SDL_Co
 	SDL_Rect borderArea = SDL_Rect(background);
 
 	// TOP
-	borderArea.h = border;
+	borderArea.h = borderWidth;
 
 	SDL_RenderFillRect(renderer, &borderArea);
 
 	// BOTTOM
-	borderArea.y += (background.h - border);
+	borderArea.y += (background.h - borderWidth);
 
 	SDL_RenderFillRect(renderer, &borderArea);
 
 	// LEFT
 	borderArea.y = background.y;
-	borderArea.w = border;
+	borderArea.w = borderWidth;
 	borderArea.h = background.h;
 
 	SDL_RenderFillRect(renderer, &borderArea);
 
 	// RIGHT
-	borderArea.x += (background.w - border);
+	borderArea.x += (background.w - borderWidth);
 
 	SDL_RenderFillRect(renderer, &borderArea);
 }
 
-void LSG_Graphics::RenderFill(SDL_Renderer* renderer, int border, const SDL_Color& color, const SDL_Rect& background)
+void LSG_Graphics::RenderFill(SDL_Renderer* renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background)
 {
-	auto fillArea = LSG_Graphics::GetFillArea(background, border);
+	auto fillArea = LSG_Graphics::GetFillArea(background, borderWidth);
 
 	SDL_SetRenderDrawBlendMode(renderer, (color.a < 255 ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE));
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
 	SDL_RenderFillRect(renderer, &fillArea);
+}
+
+void LSG_Graphics::RenderFillRounded(
+	SDL_Renderer*      renderer,
+	int                borderRadius,
+	const SDL_Color&   color,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleFill(color, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
+void LSG_Graphics::RenderFillRoundedBottom(
+	SDL_Renderer* renderer,
+	int borderRadius,
+	const SDL_Color& color,
+	const SDL_Rect& background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleBottom(color, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
+void LSG_Graphics::RenderFillRoundedTop(
+	SDL_Renderer*      renderer,
+	int                borderRadius,
+	const SDL_Color&   color,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleTop(color, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
+void LSG_Graphics::RenderFillWithRoundedBorder(
+	SDL_Renderer*      renderer,
+	const SDL_Color&   fillColor,
+	const SDL_Color&   borderColor,
+	int                borderRadius,
+	int                borderWidth,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+	{
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleWithBorder(
+			fillColor,
+			borderColor,
+			borderRadius,
+			borderWidth,
+			{ background.w, background.h }
+		);
+	}
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
 }
 
 void LSG_Graphics::RenderLine(SDL_Renderer* renderer, const SDL_Color& color, int x1, int y1, int x2, int y2)
@@ -612,6 +743,19 @@ void LSG_Graphics::RenderLine(SDL_Renderer* renderer, const SDL_Color& color, in
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
 	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+}
+
+void LSG_Graphics::RenderRoundedCorners(
+	SDL_Renderer*      renderer,
+	const SDL_Color&   fillColor,
+	int                borderRadius,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedCorners(fillColor, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
 }
 
 void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
@@ -623,9 +767,9 @@ void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& backgro
 		std::min(size.height, background.h)
 	};
 
-	auto dest = LSG_Graphics::GetDestinationAligned(background, size, alignment);
+	auto destination = LSG_Graphics::GetDestinationAligned(background, size, alignment);
 
-	SDL_RenderCopy(renderer, texture, &clip, &dest);
+	SDL_RenderCopy(renderer, texture, &clip, &destination);
 }
 
 void LSG_Graphics::Rotate(LSG_ItemImage& image)

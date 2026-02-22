@@ -4,8 +4,9 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 {
 	this->background      = {};
 	this->backgroundColor = {};
-	this->border          = 0;
 	this->borderColor     = {};
+	this->borderRadius    = 0;
+	this->borderWidth     = 0;
 	this->highlighted     = false;
 	this->id              = id;
 	this->layer           = layer;
@@ -19,12 +20,12 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 
 	this->text = LSG_XML::GetValue(this->xmlNode);
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	this->orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
+	this->orientation = (xmlAttributes.contains("orientation") ? xmlAttributes["orientation"] : "");
 
-	this->enabled = (!attributes.contains("enabled") || attributes["enabled"] == "true");
-	this->visible = (!attributes.contains("visible") || attributes["visible"] == "true");
+	this->enabled = (!xmlAttributes.contains("enabled") || xmlAttributes["enabled"] == "true");
+	this->visible = (!xmlAttributes.contains("visible") || xmlAttributes["visible"] == "true");
 
 	if (this->parent)
 		this->parent->children.push_back(this);
@@ -142,6 +143,11 @@ LSG_Components LSG_Component::GetChildren()
 	return this->children;
 }
 
+SDL_Rect LSG_Component::getFillArea() const
+{
+	return LSG_Graphics::GetFillArea(this->background, this->borderWidth);
+}
+
 int LSG_Component::getFontSize() const
 {
 	auto xmlFontSize = LSG_XML::GetAttribute(this->xmlNode, "font-size");
@@ -162,12 +168,12 @@ int LSG_Component::GetFontStyle() const
 
 int LSG_Component::getFontStyle(bool checkParent) const
 {
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto bold          = (attributes.contains("bold")           ? attributes["bold"] : "");
-	auto italic        = (attributes.contains("italic")         ? attributes["italic"] : "");
-	auto strikeThrough = (attributes.contains("strike-through") ? attributes["strike-through"] : "");
-	auto underline     = (attributes.contains("underline")      ? attributes["underline"] : "");
+	auto bold          = (xmlAttributes.contains("bold")           ? xmlAttributes["bold"] : "");
+	auto italic        = (xmlAttributes.contains("italic")         ? xmlAttributes["italic"] : "");
+	auto strikeThrough = (xmlAttributes.contains("strike-through") ? xmlAttributes["strike-through"] : "");
+	auto underline     = (xmlAttributes.contains("underline")      ? xmlAttributes["underline"] : "");
 
 	int style = TTF_STYLE_NORMAL;
 
@@ -412,8 +418,12 @@ void LSG_Component::Render(SDL_Renderer* renderer) const
 	if (!this->visible)
 		return;
 
-	this->renderFill(renderer);
-	this->renderBorder(renderer);
+	if (this->borderRadius > 0) {
+		this->renderFillWithRoundedBorder(renderer, std::format("{}_background_fill_with_border", this->id));
+	} else {
+		this->renderFill(renderer);
+		this->renderBorder(renderer);
+	}
 
 	for (auto child : this->children)
 	{
@@ -453,10 +463,10 @@ void LSG_Component::Render(SDL_Renderer* renderer) const
 
 void LSG_Component::renderBorder(SDL_Renderer* renderer) const
 {
-	if (this->border < 1)
+	if (this->borderWidth < 1)
 		return;
 
-	LSG_Graphics::RenderBorder(renderer, this->border, this->borderColor, this->background);
+	LSG_Graphics::RenderBorder(renderer, this->borderWidth, this->borderColor, this->background);
 }
 
 void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
@@ -469,7 +479,20 @@ void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
 
 void LSG_Component::renderFill(SDL_Renderer* renderer) const
 {
-	LSG_Graphics::RenderFill(renderer, this->border, this->backgroundColor, this->background);
+	LSG_Graphics::RenderFill(renderer, this->borderWidth, this->backgroundColor, this->background);
+}
+
+void LSG_Component::renderFillWithRoundedBorder(SDL_Renderer* renderer, const std::string& id) const
+{
+	LSG_Graphics::RenderFillWithRoundedBorder(
+		renderer,
+		this->backgroundColor,
+		this->borderColor,
+		this->borderRadius,
+		this->borderWidth,
+		this->background,
+		id
+	);
 }
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer) const
@@ -479,13 +502,23 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer) const
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const
 {
-	auto fillArea  = LSG_Graphics::GetFillArea(background, this->border);
-	auto fillColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
+	auto highlightColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 32);
+	highlightColor.a = 32;
 
-	SDL_RenderFillRect(renderer, &fillArea);
+	if (this->borderRadius > 0)
+	{
+		LSG_Graphics::RenderFillRounded(renderer, this->borderRadius, highlightColor, background, std::format("{}_highlighted_fill", this->id));
+	}
+	else
+	{
+		auto fillArea = LSG_Graphics::GetFillArea(background, this->borderWidth);
+
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(renderer, highlightColor.r, highlightColor.g, highlightColor.b, 32);
+
+		SDL_RenderFillRect(renderer, &fillArea);
+	}
 }
 
 void LSG_Component::SetAlignmentHorizontal(LSG_HAlign alignment)
@@ -521,18 +554,25 @@ void LSG_Component::SetBackgroundColor(const SDL_Color& color)
 	LSG_XML::SetAttribute(this->GetXmlNode(), "background-color", LSG_Graphics::ToXmlAttribute(color));
 }
 
-void LSG_Component::SetBorder(int border)
-{
-	this->border = border;
-
-	LSG_XML::SetAttribute(this->GetXmlNode(), "border", std::to_string(border));
-}
-
 void LSG_Component::SetBorderColor(const SDL_Color& color)
 {
 	this->borderColor = color;
 
 	LSG_XML::SetAttribute(this->GetXmlNode(), "border-color", LSG_Graphics::ToXmlAttribute(color));
+}
+
+void LSG_Component::SetBorderRadius(int radius)
+{
+	this->borderRadius = radius;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "border-radius", std::to_string(radius));
+}
+
+void LSG_Component::SetBorderWidth(int width)
+{
+	this->borderWidth = width;
+
+	LSG_XML::SetAttribute(this->GetXmlNode(), "border-width", std::to_string(width));
 }
 
 void LSG_Component::SetColors()
@@ -572,9 +612,10 @@ void LSG_Component::SetPadding(int padding)
 
 void LSG_Component::SetPositionAlign(int x, int y)
 {
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
-	auto positionX  = (attributes.contains("x") ? attributes["x"] : "");
-	auto positionY  = (attributes.contains("y") ? attributes["y"] : "");
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
+
+	auto positionX = (xmlAttributes.contains("x") ? xmlAttributes["x"] : "");
+	auto positionY = (xmlAttributes.contains("y") ? xmlAttributes["y"] : "");
 
 	if (!positionX.empty())
 		this->background.x = std::atoi(positionX.c_str());
@@ -595,11 +636,11 @@ void LSG_Component::SetPositionAlign(int x, int y)
 */
 void LSG_Component::SetSizeBlank(int sizeX, int sizeY, int componentsX, int componentsY)
 {
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
-	auto margin2x   = (this->margin * 2);
+	auto margin2x      = (this->margin * 2);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
-	auto height = (attributes.contains("height") ? attributes["height"] : "");
+	auto width  = (xmlAttributes.contains("width")  ? xmlAttributes["width"]  : "");
+	auto height = (xmlAttributes.contains("height") ? xmlAttributes["height"] : "");
 
 	if (this->parent->IsVertical())
 		sizeX -= margin2x;
@@ -615,10 +656,10 @@ void LSG_Component::SetSizeBlank(int sizeX, int sizeY, int componentsX, int comp
 
 void LSG_Component::SetSizeFixed()
 {
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
-	auto height = (attributes.contains("height") ? attributes["height"] : "");
+	auto width  = (xmlAttributes.contains("width")  ? xmlAttributes["width"]  : "");
+	auto height = (xmlAttributes.contains("height") ? xmlAttributes["height"] : "");
 
 	if (!width.empty() && (width[width.length() - 1] != '%') && (width != "0"))
 		this->background.w = LSG_Window::GetDPIScaled(std::atoi(width.c_str()));
@@ -626,12 +667,17 @@ void LSG_Component::SetSizeFixed()
 	if (!height.empty() && (height[height.length() - 1] != '%') && (height != "0"))
 		this->background.h = LSG_Window::GetDPIScaled(std::atoi(height.c_str()));
 
-	auto border  = (attributes.contains("border")  ? attributes["border"]  : "");
-	auto margin  = (attributes.contains("margin")  ? attributes["margin"]  : "");
-	auto padding = (attributes.contains("padding") ? attributes["padding"] : "");
+	auto borderRadius = (xmlAttributes.contains("border-radius") ? xmlAttributes["border-radius"] : "");
+	auto borderWidth  = (xmlAttributes.contains("border-width")  ? xmlAttributes["border-width"]  : "");
 
-	if (!border.empty())
-		this->border = LSG_Window::GetDPIScaled(std::atoi(border.c_str()));
+	if (!borderRadius.empty())
+		this->borderRadius = LSG_Window::GetDPIScaled(std::atoi(borderRadius.c_str()));
+
+	if (!borderWidth.empty())
+		this->borderWidth = LSG_Window::GetDPIScaled(std::atoi(borderWidth.c_str()));
+
+	auto margin  = (xmlAttributes.contains("margin")  ? xmlAttributes["margin"]  : "");
+	auto padding = (xmlAttributes.contains("padding") ? xmlAttributes["padding"] : "");
 
 	if (!margin.empty())
 		this->margin = LSG_Window::GetDPIScaled(std::atoi(margin.c_str()));
@@ -647,9 +693,9 @@ void LSG_Component::SetSizePercent(LSG_Component* parent)
 
 	auto parentBackground = SDL_Rect(parent->background);
 
-	if (parent->border > 0)
+	if (parent->borderWidth > 0)
 	{
-		auto parentBorder2x = (parent->border * 2);
+		auto parentBorder2x = (parent->borderWidth + parent->borderWidth);
 
 		parentBackground.w -= parentBorder2x;
 		parentBackground.h -= parentBorder2x;
@@ -660,10 +706,10 @@ void LSG_Component::SetSizePercent(LSG_Component* parent)
 
 void LSG_Component::setSizePercent(const SDL_Rect& parentBackground)
 {
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto width  = (attributes.contains("width")  ? attributes["width"]  : "");
-	auto height = (attributes.contains("height") ? attributes["height"] : "");
+	auto width  = (xmlAttributes.contains("width")  ? xmlAttributes["width"]  : "");
+	auto height = (xmlAttributes.contains("height") ? xmlAttributes["height"] : "");
 
 	if (!width.empty() && width.ends_with('%'))
 		this->background.w = (int)((double)parentBackground.w * std::atof(width.c_str()) * 0.01);

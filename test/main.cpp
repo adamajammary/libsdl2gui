@@ -11,6 +11,9 @@
 
 static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile)
 {
+    if (colorThemeFile == LSG_GetColorTheme())
+        return;
+
     LSG_SetColorTheme(colorThemeFile);
 
     LSG_SetMenuItemSelected(menuItemId, true);

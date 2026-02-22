@@ -13,10 +13,10 @@ public:
 	static const int ColumnSpacing = 20;
 
 private:
-	std::vector<int>          columnWidths;
-	std::vector<SDL_Texture*> headerTextures;
-	int                       resizeColumn;
-	int                       resizeColumnWidth;
+	std::vector<int> columnWidths;
+	LSG_Textures     headerTextures;
+	int              resizeColumn;
+	int              resizeColumnWidth;
 
 public:
 	void         AddGroup(const LSG_TableGroup& group);

@@ -62,15 +62,19 @@ namespace LibXml {
 
 class LSG_Component;
 
-using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
-using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
-using LSG_UmapStrSize      = std::unordered_map<std::string, SDL_Size>;
+using LSG_UMapStrStr = std::unordered_map<std::string, std::string>;
 
 using LSG_ColorThemes      = std::unordered_map<std::string, LSG_UMapStrStr>;
 using LSG_Components       = std::vector<LSG_Component*>;
-using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
 using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
+using LSG_Textures         = std::vector<SDL_Texture*>;
 using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
+
+using LSG_MapIntComponent = std::map<int, LSG_Component*>;
+
+using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
+using LSG_UmapStrSize      = std::unordered_map<std::string, SDL_Size>;
+using LSG_UmapTextures     = std::unordered_map<std::string, SDL_Texture*>;
 
 enum LSG_ButtonTexture
 {

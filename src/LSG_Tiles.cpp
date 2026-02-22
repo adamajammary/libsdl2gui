@@ -3,6 +3,7 @@
 LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->borderWidth   = 0;
 	this->fillArea      = {};
 	this->grid          = {};
 	this->gridEnd       = 0;
@@ -17,16 +18,17 @@ LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode,
 	this->totalSize     = 0;
 	this->wrap          = true;
 
-	this->spacing    = LSG_Window::GetDPIScaled(this->GetSpacing());
-	this->tileBorder = LSG_Window::GetDPIScaled(LSG_Tiles::TileBorder);
+	this->spacing             = LSG_Window::GetDPIScaled(this->GetSpacing());
+	this->selectedBorderWidth = LSG_Window::GetDPIScaled(LSG_Tiles::DefaultSelectedBorderWidth);
+	this->textPadding         = LSG_Window::GetDPIScaled(LSG_Tiles::DefaultTextPadding);
 
-	auto attributes = LSG_XML::GetAttributes(xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(xmlNode);
 
-	this->textAlignment = this->getTextAlignment(attributes);
+	this->textAlignment = this->getTextAlignment(xmlAttributes);
 
-	this->wrapTiles = (attributes.contains("wrap") ? (attributes["wrap"] != "false") : true);
+	this->wrapTiles = (xmlAttributes.contains("wrap") ? (xmlAttributes["wrap"] != "false") : true);
 
-	this->xmlTileSize = (attributes.contains("tile-size") ? attributes["tile-size"] : "");
+	this->xmlTileSize = (xmlAttributes.contains("tile-size") ? xmlAttributes["tile-size"] : "");
 }
 
 LSG_Tiles::~LSG_Tiles()
@@ -70,11 +72,11 @@ void LSG_Tiles::AddTile(const LSG_TileItem& tile)
 
 void LSG_Tiles::AddTile(LibXml::xmlNode* node)
 {
-	auto attributes = LSG_XML::GetAttributes(node);
+	auto xmlAttributes = LSG_XML::GetAttributes(node);
 
 	this->tiles.push_back({
-		.image = { .filePath = (attributes.contains("image") ? attributes["image"] : "") },
-		.text  = { .text     = (attributes.contains("text")  ? attributes["text"]  : "") }
+		.image = { .filePath = (xmlAttributes.contains("image") ? xmlAttributes["image"] : "") },
+		.text  = { .text     = (xmlAttributes.contains("text")  ? xmlAttributes["text"]  : "") }
 	});
 }
 
@@ -127,10 +129,10 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 	this->image.destination.x = this->offset;
 	this->image.destination.w = this->tileSize;
 
-	this->text.clip = { 0, 0, std::min(tile.text.texture.size.width, (this->tileSize - LSG_Tiles::TextPadding)), tile.text.texture.size.height };
+	this->text.clip = { 0, 0, std::min(tile.text.texture.size.width, (this->tileSize - this->textPadding)), tile.text.texture.size.height };
 
 	this->text.destination   = SDL_Rect(this->image.destination);
-	this->text.destination.h = std::min((tile.text.texture.size.height + LSG_Tiles::TextPadding), this->tileSize);
+	this->text.destination.h = std::min((tile.text.texture.size.height + this->textPadding), this->tileSize);
 
 	if (tile.text.text.empty() || !tile.text.texture.size.height)
 		this->text.destination.h = 0;
@@ -185,10 +187,10 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 	this->image.destination.y = this->offset;
 	this->image.destination.h = this->tileSize;
 
-	this->text.clip = { 0, 0, std::min(tile.text.texture.size.width, (this->image.destination.w - LSG_Tiles::TextPadding)), tile.text.texture.size.height };
+	this->text.clip = { 0, 0, std::min(tile.text.texture.size.width, (this->image.destination.w - this->textPadding)), tile.text.texture.size.height };
 
 	this->text.destination.y = this->image.destination.y;
-	this->text.destination.h = std::min((tile.text.texture.size.height + LSG_Tiles::TextPadding), this->image.destination.h);
+	this->text.destination.h = std::min((tile.text.texture.size.height + this->textPadding), this->image.destination.h);
 
 	if (tile.text.text.empty() || !tile.text.texture.size.height)
 		this->text.destination.h = 0;
@@ -319,12 +321,12 @@ int LSG_Tiles::getRowCount() const
 
 int LSG_Tiles::getScrollOffsetX() const
 {
-	return (this->showScrollX ? std::min(this->scrollOffsetX, (this->totalSize - this->fillArea.w)) : 0);
+	return (this->scrollHorizontal.show ? std::max(std::min(this->scrollHorizontal.offset, (this->totalSize - this->fillArea.w)), 0) : 0);
 }
 
 int LSG_Tiles::getScrollOffsetY() const
 {
-	return (this->showScrollY ? std::min(this->scrollOffsetY, (this->totalSize - this->fillArea.h)) : 0);
+	return (this->scrollVertical.show ? std::max(std::min(this->scrollVertical.offset, (this->totalSize - this->fillArea.h)), 0) : 0);
 }
 
 int LSG_Tiles::getSelectedTile() const
@@ -339,7 +341,7 @@ std::vector<int> LSG_Tiles::GetSelectedTiles() const
 
 SDL_Size LSG_Tiles::GetSize() const
 {
-	auto maxWidth = (this->background.w - this->border);
+	auto maxWidth = (this->background.w - this->borderWidth);
 
 	auto tileCount = (int)this->tiles.size();
 	auto tileSize  = this->getTileSize(maxWidth);
@@ -391,26 +393,31 @@ LSG_Alignment LSG_Tiles::getTextAlignment(const LSG_UMapStrStr& xmlAttributes) c
 SDL_Rect LSG_Tiles::getTextDestination()
 {
 	SDL_Rect textDestination = {
-		(this->text.destination.x + LSG_Tiles::TextPadding),
+		this->text.destination.x,
 		this->text.destination.y,
 		this->text.clip.w,
 		this->text.clip.h
 	};
 
+	auto heightDiff = (this->text.destination.h - textDestination.h);
+
+	if (heightDiff > 0)
+		textDestination.y += (heightDiff / 2);
+
 	if (this->wrapTiles)
 	{
 		switch (this->textAlignment.halign) {
-			case LSG_HALIGN_CENTER: textDestination.x += ((this->image.destination.w - LSG_Tiles::TextPadding - textDestination.w) / 2); break;
-			case LSG_HALIGN_RIGHT:  textDestination.x += (this->image.destination.w  - LSG_Tiles::TextPadding - textDestination.w); break;
-			default: break;
+			case LSG_HALIGN_CENTER: textDestination.x += ((this->image.destination.w - textDestination.w) / 2); break;
+			case LSG_HALIGN_RIGHT:  textDestination.x += (this->image.destination.w - textDestination.w - this->textPadding); break;
+			default: textDestination.x += this->textPadding; break;
 		}
 
 		return textDestination;
 	}
 
 	switch (this->textAlignment.halign) {
-		case LSG_HALIGN_CENTER: textDestination.x += ((this->tileSize - LSG_Tiles::TextPadding - textDestination.w) / 2); break;
-		case LSG_HALIGN_RIGHT:  textDestination.x += (this->tileSize  - LSG_Tiles::TextPadding - textDestination.w); break;
+		case LSG_HALIGN_CENTER: textDestination.x += ((this->tileSize - textDestination.w) / 2); break;
+		case LSG_HALIGN_RIGHT:  textDestination.x += (this->tileSize  - textDestination.w - this->textPadding); break;
 		default: break;
 	}
 
@@ -628,14 +635,14 @@ void LSG_Tiles::Render(SDL_Renderer* renderer)
 
 void LSG_Tiles::render(SDL_Renderer* renderer)
 {
-	LSG_Component::Render(renderer);
+	this->renderFill(renderer);
 
 	if (this->tiles.empty())
 		return;
 
-	auto scrollBarSize2x = LSG_ScrollBar::GetSize2x();
+	auto minSize = (LSG_ScrollBar::GetSize() * 4);
 
-	if (this->fillArea.h < scrollBarSize2x)
+	if ((this->background.w < minSize) || (this->background.h < minSize))
 		return;
 
 	for (int i = 0; i < (int)this->tiles.size(); i++)
@@ -676,51 +683,77 @@ void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
 	if (!isSelected && !isHighlighted)
 		return;
 
-	auto color = LSG_Graphics::GetInverseColor(this->backgroundColor);
+	auto inverseColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
+
+	SDL_Color highlightColor = { inverseColor.r, inverseColor.g, inverseColor.b, 64 };
 
 	if (isSelected)
-		LSG_Graphics::RenderBorder(renderer, this->tileBorder, { color.r, color.g, color.b, 255 }, this->image.destination);
+	{
+		if (this->borderRadius > 0)
+		{
+			LSG_Graphics::RenderFillWithRoundedBorder(
+				renderer,
+				{ 0, 0, 0, 0 },
+				this->borderColor,
+				this->borderRadius,
+				this->selectedBorderWidth,
+				this->image.destination,
+				std::format("{}_tile_selected", this->id)
+			);
+		} else {
+			LSG_Graphics::RenderBorder(renderer, this->selectedBorderWidth, this->borderColor, this->image.destination);
+		}
+	}
 
 	if (isHighlighted)
-		LSG_Graphics::RenderFill(renderer, 0, { color.r, color.g, color.b, 64 }, this->image.destination);
+	{
+		if (this->borderRadius > 0)
+		{
+			LSG_Graphics::RenderFillRounded(
+				renderer,
+				this->borderRadius,
+				highlightColor,
+				this->image.destination,
+				std::format("{}_tile_highlighted", this->id)
+			);
+		} else {
+			LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->image.destination);
+		}
+	}
 }
 
 void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const
 {
-	LSG_Graphics::RenderFill(renderer, 0, { 0, 0, 0, 128 }, this->image.destination);
-
 	if (!image.texture.texture)
 		return;
 
-	auto destination = SDL_Rect(this->image.destination);
+	SDL_RenderCopy(renderer, image.texture.texture, &this->image.clip, &this->image.destination);
 
-	if (this->text.destination.h > 0)
+	if (this->borderRadius > 0)
 	{
-		switch (this->textAlignment.valign) {
-		case LSG_VALIGN_TOP:
-			destination.y += this->text.destination.h;
-			destination.h -= this->text.destination.h;
-			break;
-		case LSG_VALIGN_BOTTOM:
-			destination.h -= this->text.destination.h;
-			break;
-		default:
-			break;
-		}
+		LSG_Graphics::RenderRoundedCorners(
+			renderer,
+			this->backgroundColor,
+			this->borderRadius,
+			this->image.destination,
+			std::format("{}_tile_image", this->id)
+		);
 	}
-
-	SDL_RenderCopy(renderer, image.texture.texture, &this->image.clip, &destination);
 }
 
 void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)
 {
-	if (text.text.empty() || !this->isTextVisible())
+	if (text.text.empty() || !this->isTextVisible() || !text.texture.texture)
 		return;
 
-	LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::TextBackground, this->text.destination);
+	auto id = std::format("{}_tile_text", this->id);
 
-	if (!text.texture.texture)
-		return;
+	if (this->borderRadius > 0 && this->textAlignment.valign == LSG_VALIGN_BOTTOM)
+		LSG_Graphics::RenderFillRoundedBottom(renderer, this->borderRadius, LSG_Tiles::DefaultTextBackground, this->text.destination, id);
+	else if (this->borderRadius > 0 && this->textAlignment.valign == LSG_VALIGN_TOP)
+		LSG_Graphics::RenderFillRoundedTop(renderer, this->borderRadius, LSG_Tiles::DefaultTextBackground, this->text.destination, id);
+	else
+		LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::DefaultTextBackground, this->text.destination);
 
 	auto destination = this->getTextDestination();
 
@@ -729,17 +762,17 @@ void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)
 
 void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)
 {
-	if (this->showScrollX)
+	if (this->scrollHorizontal.show)
 	{
 		this->grid.h += LSG_ScrollBar::GetSize();
 
-		this->renderScrollBarHorizontal(renderer, this->grid, this->totalSize, this->backgroundColor, this->highlighted);
+		this->renderScrollBarHorizontal(renderer, this->grid, this->totalSize, this->backgroundColor, this->highlighted, this);
 	}
-	else if (this->showScrollY)
+	else if (this->scrollVertical.show)
 	{
 		this->grid.w += LSG_ScrollBar::GetSize();
 
-		this->renderScrollBarVertical(renderer, this->grid, this->totalSize, this->backgroundColor, this->highlighted);
+		this->renderScrollBarVertical(renderer, this->grid, this->totalSize, this->backgroundColor, this->highlighted, this);
 	}
 }
 
@@ -756,9 +789,9 @@ void LSG_Tiles::reset(bool resetScroll)
 void LSG_Tiles::resetScroll()
 {
 	if (!this->wrapTiles)
-		this->scrollOffsetX = 0;
+		this->scrollHorizontal.offset = 0;
 	else
-		this->scrollOffsetY = 0;
+		this->scrollVertical.offset = 0;
 }
 
 bool LSG_Tiles::Select(int index)
@@ -844,9 +877,9 @@ void LSG_Tiles::SelectLast(bool keyShift)
 		return;
 
 	if (!this->wrapTiles)
-		this->scrollOffsetX = LSG_ConstTexture::MaxSize;
+		this->scrollHorizontal.offset = LSG_ConstTexture::MaxSize;
 	else
-		this->scrollOffsetY = LSG_ConstTexture::MaxSize;
+		this->scrollVertical.offset = LSG_ConstTexture::MaxSize;
 
 	auto last = ((int)this->tiles.size() - 1);
 
@@ -874,9 +907,9 @@ void LSG_Tiles::SelectNext(bool keyShift)
 		auto maxTilesInView = std::min((this->fillArea.w / tileSizeSpaced), (int)this->tiles.size());
 
 		if ((next % maxTilesInView) == 0)
-			this->scrollOffsetX = (tileSizeSpaced * next);
+			this->scrollHorizontal.offset = (tileSizeSpaced * next);
 	} else if ((next % this->tilesPerRow) == 0) {
-		this->scrollOffsetY += tileSizeSpaced;
+		this->scrollVertical.offset += tileSizeSpaced;
 	}
 
 	if (keyShift)
@@ -905,7 +938,7 @@ void LSG_Tiles::SelectNextPage(bool keyShift)
 	if ((next >= (int)this->tiles.size()) && (next < maxTiles))
 		next = ((int)this->tiles.size() - 1);
 
-	this->scrollOffsetY += ((this->tileSize + this->spacing) * 2);
+	this->scrollVertical.offset += ((this->tileSize + this->spacing) * 2);
 
 	if (keyShift)
 		this->selectShift(next);
@@ -929,7 +962,7 @@ void LSG_Tiles::SelectNextRow(bool keyShift)
 	if ((next >= (int)this->tiles.size()) && (next < maxTiles))
 		next = ((int)this->tiles.size() - 1);
 
-	this->scrollOffsetY += (this->tileSize + this->spacing);
+	this->scrollVertical.offset += (this->tileSize + this->spacing);
 
 	if (keyShift)
 		this->selectShift(next);
@@ -960,9 +993,9 @@ void LSG_Tiles::SelectPrevious(bool keyShift)
 		auto maxTilesInView = std::min((this->fillArea.w / tileSizeSpaced), (int)this->tiles.size());
 
 		if ((previous % maxTilesInView) == (maxTilesInView - 1))
-			this->scrollOffsetX = std::max((tileSizeSpaced * (current - maxTilesInView)), 0);
+			this->scrollHorizontal.offset = std::max((tileSizeSpaced * (current - maxTilesInView)), 0);
 	} else if ((previous % this->tilesPerRow) == (this->tilesPerRow - 1)) {
-		this->scrollOffsetY = std::max((this->scrollOffsetY - tileSizeSpaced), 0);
+		this->scrollVertical.offset = std::max((this->scrollVertical.offset - tileSizeSpaced), 0);
 	}
 
 	if (keyShift)
@@ -993,7 +1026,7 @@ void LSG_Tiles::SelectPreviousPage(bool keyShift)
 	if (previous < 0)
 		return;
 
-	this->scrollOffsetY = std::max((this->scrollOffsetY - ((this->tileSize + this->spacing) * 2)), 0);
+	this->scrollVertical.offset = std::max((this->scrollVertical.offset - ((this->tileSize + this->spacing) * 2)), 0);
 
 	if (keyShift)
 		this->selectShift(previous);
@@ -1016,7 +1049,7 @@ void LSG_Tiles::SelectPreviousRow(bool keyShift)
 	if (previous < 0)
 		return;
 
-	this->scrollOffsetY = std::max((this->scrollOffsetY - (this->tileSize + this->spacing)), 0);
+	this->scrollVertical.offset = std::max((this->scrollVertical.offset - (this->tileSize + this->spacing)), 0);
 
 	if (keyShift)
 		this->selectShift(previous);
@@ -1070,17 +1103,17 @@ void LSG_Tiles::sendEvent(LSG_EventType type) const
 
 void LSG_Tiles::setGrid()
 {
-	this->fillArea = LSG_Graphics::GetFillArea(this->background, this->border);
+	this->fillArea = this->getFillArea();
 	this->tileSize = this->getTileSize(this->fillArea.w);
 
 	this->calculateGridDimensions();
 
 	if (!this->wrapTiles)
-		this->showScrollX = (this->totalSize > this->fillArea.w);
+		this->scrollHorizontal.show = (this->totalSize > this->fillArea.w);
 	else
-		this->showScrollY = (this->totalSize > this->fillArea.h);
+		this->scrollVertical.show = (this->totalSize > this->fillArea.h);
 
-	if (this->showScrollX)
+	if (this->scrollHorizontal.show)
 	{
 		this->fillArea.h -= LSG_ScrollBar::GetSize();
 
@@ -1088,7 +1121,7 @@ void LSG_Tiles::setGrid()
 
 		this->calculateGridDimensions();
 	}
-	else if (this->showScrollY)
+	else if (this->scrollVertical.show)
 	{
 		this->fillArea.w -= LSG_ScrollBar::GetSize();
 
@@ -1096,18 +1129,31 @@ void LSG_Tiles::setGrid()
 	}
 
 	if (!this->wrapTiles)
-		this->scrollOffsetX = this->getScrollOffsetX();
+	{
+		if (this->tileSize > this->fillArea.h)
+		{
+			this->tileSize = this->fillArea.h;
+
+			this->calculateGridDimensions();
+		}
+
+		this->scrollHorizontal.show   = (this->totalSize > this->fillArea.w);
+		this->scrollHorizontal.offset = this->getScrollOffsetX();
+	}
 	else
-		this->scrollOffsetY = this->getScrollOffsetY();
+	{
+		this->scrollVertical.show   = (this->totalSize > this->fillArea.h);
+		this->scrollVertical.offset = this->getScrollOffsetY();
+	}
 
 	this->grid = this->getGrid();
 
 	if (!this->wrapTiles) {
 		this->gridEnd = (this->grid.x + this->grid.w);
-		this->offset  = (this->grid.x - this->scrollOffsetX);
+		this->offset  = (this->grid.x - this->scrollHorizontal.offset);
 	} else {
 		this->gridEnd = (this->grid.y + this->grid.h);
-		this->offset  = (this->grid.y - this->scrollOffsetY);
+		this->offset  = (this->grid.y - this->scrollVertical.offset);
 	}
 }
 
@@ -1158,7 +1204,7 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 
 void LSG_Tiles::SetTiles()
 {
-	this->reset();
+	this->reset(true);
 }
 
 void LSG_Tiles::setTiles()
