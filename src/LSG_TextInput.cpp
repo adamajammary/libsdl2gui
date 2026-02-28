@@ -477,7 +477,7 @@ void LSG_TextInput::renderHighlightedText(SDL_Renderer* renderer, const SDL_Rect
 		this->highlightedTextSize.height
 	};
 
-	this->renderHighlight(renderer, destination);
+	this->renderHighlight(renderer, destination, 0);
 }
 
 void LSG_TextInput::renderIconClear(SDL_Renderer* renderer, const SDL_Rect& icon)
@@ -491,7 +491,7 @@ void LSG_TextInput::renderIconClear(SDL_Renderer* renderer, const SDL_Rect& icon
 	SDL_RenderCopy(renderer, this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR], nullptr, &icon);
 
 	if (this->enabled && this->highlightedIconClear)
-		this->renderHighlight(renderer, icon);
+		this->renderHighlight(renderer, icon, (icon.h / 2));
 }
 
 void LSG_TextInput::renderText(SDL_Renderer* renderer, const SDL_Rect& background)

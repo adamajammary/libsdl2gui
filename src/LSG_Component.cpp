@@ -497,18 +497,18 @@ void LSG_Component::renderFillWithRoundedBorder(SDL_Renderer* renderer, const st
 
 void LSG_Component::renderHighlight(SDL_Renderer* renderer) const
 {
-	this->renderHighlight(renderer, this->background);
+	this->renderHighlight(renderer, this->background, this->borderRadius);
 }
 
-void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const
+void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background, int borderRadius) const
 {
 	auto highlightColor = LSG_Graphics::GetInverseColor(this->backgroundColor);
 
 	highlightColor.a = 32;
 
-	if (this->borderRadius > 0)
+	if (borderRadius > 0)
 	{
-		LSG_Graphics::RenderFillRounded(renderer, this->borderRadius, highlightColor, background, std::format("{}_highlighted_fill", this->id));
+		LSG_Graphics::RenderFillRounded(renderer, borderRadius, highlightColor, background, std::format("{}_highlighted_fill", this->id));
 	}
 	else
 	{

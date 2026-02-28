@@ -107,7 +107,7 @@ protected:
 	void          renderFill(SDL_Renderer* renderer) const;
 	void          renderFillWithRoundedBorder(SDL_Renderer* renderer, const std::string& id) const;
 	void          renderHighlight(SDL_Renderer* renderer) const;
-	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background) const;
+	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background, int borderRadius) const;
 
 private:
 	void setSizePercent(const SDL_Rect& parentBackground);

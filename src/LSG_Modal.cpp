@@ -466,7 +466,7 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer) const
 	SDL_RenderCopy(renderer, texture, nullptr, &destination);
 
 	if (this->highlighted)
-		this->renderHighlight(renderer, destination);
+		this->renderHighlight(renderer, destination, (destination.h / 2));
 }
 
 void LSG_Modal::renderHeaderLine(SDL_Renderer* renderer, int headerHeight) const

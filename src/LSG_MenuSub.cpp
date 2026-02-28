@@ -71,7 +71,7 @@ void LSG_MenuSub::Render(SDL_Renderer* renderer) const
 	this->renderText(renderer, this->textures[LSG_SUB_MENU_TEXTURE_TEXT]);
 
 	if (this->enabled && this->highlighted)
-		this->renderHighlight(renderer, this->background);
+		this->renderHighlight(renderer);
 
 	this->renderArrow(renderer);
 }

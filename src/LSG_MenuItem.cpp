@@ -84,7 +84,7 @@ void LSG_MenuItem::Render(SDL_Renderer* renderer) const
 		this->renderSelected(renderer);
 
 	if (this->enabled && this->highlighted)
-		this->renderHighlight(renderer, this->background);
+		this->renderHighlight(renderer);
 }
 
 void LSG_MenuItem::renderIcon(SDL_Renderer* renderer) const

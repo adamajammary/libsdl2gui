@@ -3,6 +3,8 @@
 LSG_Menu::LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->borderRadius         = 0;
+	this->borderWidth          = 0;
 	this->highlightedIconClose = false;
 	this->highlightedNavBack   = false;
 	this->isOpen               = false;
@@ -308,10 +310,13 @@ void LSG_Menu::renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu) co
 
 void LSG_Menu::renderHighlightIconOpen(SDL_Renderer* renderer, const SDL_Rect& background) const
 {
-	auto diffSize = (this->borderRadius - (background.h / 2));
+	auto highlightSize    = LSG_Window::GetDPIScaled(LSG_MenuItem::Height + 8);
+	auto maxHighlightSize = std::min(this->background.h, highlightSize);
+	auto borderRadius     = LSG_Window::GetDPIScaled(maxHighlightSize / 2);
+	auto diffSize         = (borderRadius - (background.h / 2));
 
 	if (diffSize <= 0) {
-		this->renderHighlight(renderer, background);
+		this->renderHighlight(renderer, background, borderRadius);
 		return;
 	}
 
@@ -325,7 +330,7 @@ void LSG_Menu::renderHighlightIconOpen(SDL_Renderer* renderer, const SDL_Rect& b
 		(background.h + offset2x)
 	};
 
-	this->renderHighlight(renderer, icon);
+	this->renderHighlight(renderer, icon, borderRadius);
 }
 
 void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu) const
@@ -333,12 +338,12 @@ void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu) con
 	if (!this->textures[LSG_MENU_TEXTURE_ICON_CLOSE])
 		return;
 
-	auto destination = this->getIconClose(menu);
+	auto icon = this->getIconClose(menu);
 
-	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_CLOSE], nullptr, &destination);
+	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_CLOSE], nullptr, &icon);
 
 	if (this->enabled && this->highlightedIconClose)
-		this->renderHighlight(renderer, destination);
+		this->renderHighlight(renderer, icon, (icon.h / 2));
 }
 
 void LSG_Menu::renderIconOpen(SDL_Renderer* renderer) const
@@ -346,12 +351,12 @@ void LSG_Menu::renderIconOpen(SDL_Renderer* renderer) const
 	if (!this->textures[LSG_MENU_TEXTURE_ICON_OPEN])
 		return;
 
-	auto destination = this->getIconOpen();
+	auto icon = this->getIconOpen();
 
-	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_OPEN], nullptr, &destination);
+	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_OPEN], nullptr, &icon);
 
 	if (this->enabled && this->highlighted)
-		this->renderHighlightIconOpen(renderer, destination);
+		this->renderHighlightIconOpen(renderer, icon);
 }
 
 void LSG_Menu::renderMenu(SDL_Renderer* renderer)
@@ -452,7 +457,7 @@ void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu) const
 	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_NAV_BACK], nullptr, &destination);
 
 	if (this->enabled && this->highlightedNavBack)
-		this->renderHighlight(renderer, this->getNavBackHighlight(menu));
+		this->renderHighlight(renderer, this->getNavBackHighlight(menu), (maxHeight / 2));
 }
 
 void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu) const
@@ -501,11 +506,6 @@ void LSG_Menu::setMenuClosed()
 	};
 
 	this->textures[LSG_MENU_TEXTURE_ICON_OPEN] = LSG_Graphics::GetVector(LSG_VECTOR_MENU, this->textColor, maxIconSize);
-
-	auto highlightSize    = LSG_Window::GetDPIScaled(LSG_MenuItem::Height + 8);
-	auto maxHighlightSize = std::min(this->background.h, highlightSize);
-
-	this->borderRadius = LSG_Window::GetDPIScaled(maxHighlightSize / 2);
 }
 
 void LSG_Menu::setMenuOpened()
@@ -541,8 +541,6 @@ void LSG_Menu::setMenuOpened()
 		std::min(this->background.h, iconSize),
 		std::min(this->background.h, iconSize)
 	};
-
-	this->borderRadius = LSG_Window::GetDPIScaled(maxIconSize.height / 2);
 
 	this->textures[LSG_MENU_TEXTURE_ICON_CLOSE] = LSG_Graphics::GetVector(LSG_VECTOR_CLOSE, this->textColor, maxIconSize);
 
