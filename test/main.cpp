@@ -9,9 +9,9 @@
 
 #include <libsdl2gui.h>
 
-static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile)
+static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile, bool isInit = false)
 {
-    if (colorThemeFile == LSG_GetColorTheme())
+    if ((colorThemeFile == LSG_GetColorTheme()) && !isInit)
         return;
 
     LSG_SetColorTheme(colorThemeFile);
@@ -203,9 +203,9 @@ int SDL_main(int argc, char* argv[])
         if (LSG_IsRunning())
         {
             if (!LSG_IsPreferredDarkMode())
-                setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+                setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme", true);
             else
-                setColorTheme("MenuIdColorThemeDark",  "ui/dark.colortheme");
+                setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme", true);
         }
 
         std::vector<SDL_Event> events;
