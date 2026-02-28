@@ -14,21 +14,22 @@ protected:
 	static inline const SDL_Color DefaultProgressColor   = { 82, 180, 30, 255 };
 
 protected:
+	int       lastProgressValue;
 	SDL_Color progressColor;
 	double    value;
 
 public:
 	double       GetValue() const;
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	virtual void Render(SDL_Renderer* renderer) const override;
+	void         Render(SDL_Renderer* renderer);
 	virtual void SetColors() override;
 	void         SetValue(double value);
 
 protected:
-	void renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressValue, const SDL_Rect& fillArea) const;
+	void renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressValue, const SDL_Rect& fillArea);
 
 private:
-	void render(SDL_Renderer* renderer) const;
+	void render(SDL_Renderer* renderer);
 };
 
 #endif

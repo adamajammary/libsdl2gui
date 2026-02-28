@@ -13,6 +13,7 @@ private:
 	static LSG_UmapTextures textures;
 
 public:
+	static void                    DestroyTexture(const std::string& id);
 	static void                    DestroyTextures();
 	static SDL_Rect                GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment);
 	static SDL_Point               GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize);

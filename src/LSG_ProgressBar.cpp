@@ -3,8 +3,9 @@
 LSG_ProgressBar::LSG_ProgressBar(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->progressColor = {};
-	this->value         = 0.0;
+	this->lastProgressValue = 0;
+	this->progressColor     = {};
+	this->value             = 0.0;
 
 	auto attributes = this->GetXmlAttributes();
 
@@ -30,13 +31,13 @@ void LSG_ProgressBar::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_ProgressBar::Render(SDL_Renderer* renderer) const
+void LSG_ProgressBar::Render(SDL_Renderer* renderer)
 {
 	if (this->visible)
 		this->render(renderer);
 }
 
-void LSG_ProgressBar::render(SDL_Renderer* renderer) const
+void LSG_ProgressBar::render(SDL_Renderer* renderer)
 {
 	LSG_Component::Render(renderer);
 
@@ -53,16 +54,25 @@ void LSG_ProgressBar::render(SDL_Renderer* renderer) const
 		this->renderDisabled(renderer);
 }
 
-void LSG_ProgressBar::renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressValue, const SDL_Rect& fillArea) const
+void LSG_ProgressBar::renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressValue, const SDL_Rect& fillArea)
 {
 	if (this->borderRadius > 0)
 	{
+		auto textureId = std::format("{}_progress_fill", this->id);
+
+		if (progressValue != this->lastProgressValue)
+		{
+			LSG_Graphics::DestroyTexture(textureId);
+
+			this->lastProgressValue = progressValue;
+		}
+
 		LSG_Graphics::RenderFillRounded(
 			renderer,
 			this->borderRadius,
 			this->progressColor,
 			progressArea,
-			std::format("{}_progress_fill", this->id)
+			textureId
 		);
 
 		if (progressArea.w < (fillArea.w - this->borderRadius))

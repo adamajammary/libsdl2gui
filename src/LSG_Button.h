@@ -20,7 +20,7 @@ private:
 public:
 	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	virtual void Render(SDL_Renderer* renderer);
+	void         Render(SDL_Renderer* renderer);
 	void         Set(const std::string& text, const std::string& iconPath);
 	void         Set();
 

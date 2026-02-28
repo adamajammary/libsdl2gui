@@ -2,6 +2,16 @@
 
 LSG_UmapTextures LSG_Graphics::textures = {};
 
+void LSG_Graphics::DestroyTexture(const std::string& id)
+{
+	if (!LSG_Graphics::textures.contains(id))
+		return;
+
+	SDL_DestroyTexture(LSG_Graphics::textures[id]);
+
+	LSG_Graphics::textures.erase(id);
+}
+
 void LSG_Graphics::DestroyTextures()
 {
 	for (const auto& texture : LSG_Graphics::textures)
