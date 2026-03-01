@@ -126,13 +126,16 @@ void LSG_Image::render(SDL_Renderer* renderer)
 
 	SDL_RenderCopy(renderer, this->texture, nullptr, &destination);
 
-	LSG_Graphics::RenderRoundedCorners(
-		renderer,
-		this->parent->backgroundColor,
-		this->borderRadius,
-		destination,
-		std::format("{}_image", this->id)
-	);
+	if (this->borderRadius > 0)
+	{
+		LSG_Graphics::RenderRoundedCorners(
+			renderer,
+			this->parent->backgroundColor,
+			this->borderRadius,
+			destination,
+			std::format("{}_image", this->id)
+		);
+	}
 }
 
 void LSG_Image::rotate()
@@ -214,7 +217,7 @@ void LSG_Image::setTexture()
 		return;
 
 	this->orientation = LSG_Exif::GetOrientation(LSG_Exif::Get(this->file).tags);
-	this->texture = LSG_Window::ToTexture(this->file);
+	this->texture     = LSG_Window::ToTexture(this->file);
 
 	if (this->texture)
 		this->rotate();

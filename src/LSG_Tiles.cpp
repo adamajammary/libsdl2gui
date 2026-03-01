@@ -748,12 +748,12 @@ void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)
 
 	auto id = std::format("{}_tile_text", this->id);
 
+	LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::DefaultTextBackground, this->text.destination);
+
 	if (this->borderRadius > 0 && this->textAlignment.valign == LSG_VALIGN_BOTTOM)
-		LSG_Graphics::RenderFillRoundedBottom(renderer, this->borderRadius, LSG_Tiles::DefaultTextBackground, this->text.destination, id);
+		LSG_Graphics::RenderRoundedCornersBottom(renderer, this->backgroundColor, this->borderRadius, this->text.destination, id);
 	else if (this->borderRadius > 0 && this->textAlignment.valign == LSG_VALIGN_TOP)
-		LSG_Graphics::RenderFillRoundedTop(renderer, this->borderRadius, LSG_Tiles::DefaultTextBackground, this->text.destination, id);
-	else
-		LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::DefaultTextBackground, this->text.destination);
+		LSG_Graphics::RenderRoundedCornersTop(renderer, this->backgroundColor, this->borderRadius, this->text.destination, id);
 
 	auto destination = this->getTextDestination();
 

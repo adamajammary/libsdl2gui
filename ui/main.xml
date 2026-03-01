@@ -180,7 +180,7 @@
             spacing="10"
             text-color="#FFFFFF"
             text-halign="center"
-            text-valign="bottom"
+            text-valign="top"
           >
             <tile image="img/tile-1.jpg" text="Tile #1" />
             <tile image="img/tile-2.jpg" text="Tile #2" />

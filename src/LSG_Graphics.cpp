@@ -304,6 +304,54 @@ float LSG_Graphics::getOpacity(const SDL_Color& color)
 	return (color.a < 255 ? ((float)color.a / 255.0f) : 1.0f);
 }
 
+std::string LSG_Graphics::getPathCornerBottomLeft(int radius, const SDL_Size& size)
+{
+	auto bottom = (size.height - radius);
+
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<path d='M 0  {} v {} h {} A {} {} 0 0 1 0  {}' />",
+		bottom, radius, radius, radius, radius, bottom
+	);
+
+	return svg;
+}
+
+std::string LSG_Graphics::getPathCornerBottomRight(int radius, const SDL_Size& size)
+{
+	auto bottom = (size.height - radius);
+
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<path d='M {} {} v {} h {} A {} {} 0 0 0 {} {}' />",
+		size.width, bottom, radius, -radius, radius, radius, size.width, bottom
+	);
+
+	return svg;
+}
+
+std::string LSG_Graphics::getPathCornerTopLeft(int radius, const SDL_Size& size)
+{
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<path d='M 0  {} V 0  H {} A {} {} 0 0 0 0  {}' />",
+		radius, radius, radius, radius, radius
+	);
+
+	return svg;
+}
+
+std::string LSG_Graphics::getPathCornerTopRight(int radius, const SDL_Size& size)
+{
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<path d='M {} {} V 0  h {} A {} {} 0 0 1 {} {}' />",
+		size.width, radius, -radius, radius, radius, size.width, radius
+	);
+
+	return svg;
+}
+
 SDL_Size LSG_Graphics::GetTextureSize(SDL_Texture* texture)
 {
 	if (!texture)
@@ -520,41 +568,40 @@ std::string LSG_Graphics::getVectorPageStart(const SDL_Color& color, const SDL_S
 
 SDL_Texture* LSG_Graphics::getVectorRoundedCorners(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size)
 {
-	auto bottom = (size.height - borderRadius);
-
-	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 	auto svg = std::format(
-		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
-		"<path d='M 0  {} V 0  H {} A {} {} 0 0 0 0  {}' />" \
-		"<path d='M {} {} V 0  h {} A {} {} 0 0 1 {} {}' />" \
-		"<path d='M {} {} v {} h {} A {} {} 0 0 0 {} {}' />" \
-		"<path d='M 0  {} v {} h {} A {} {} 0 0 1 0  {}' />" \
-		"</svg>",
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>{} {} {} {}</svg>",
 		size.width, size.height,
 		backgroundColor.r, backgroundColor.g, backgroundColor.b, LSG_Graphics::getOpacity(backgroundColor),
-		borderRadius, borderRadius, borderRadius, borderRadius, borderRadius,
-		size.width, borderRadius, -borderRadius, borderRadius, borderRadius, size.width, borderRadius,
-		size.width, bottom, borderRadius, -borderRadius, borderRadius, borderRadius, size.width, bottom,
-		bottom, borderRadius, borderRadius, borderRadius, borderRadius, bottom
+		LSG_Graphics::getPathCornerTopLeft(borderRadius,     size),
+		LSG_Graphics::getPathCornerTopRight(borderRadius,    size),
+		LSG_Graphics::getPathCornerBottomRight(borderRadius, size),
+		LSG_Graphics::getPathCornerBottomLeft(borderRadius,  size)
 	);
 
 	return LSG_Graphics::getVector(svg);
 }
 
-SDL_Texture* LSG_Graphics::getVectorRoundedRectangleBottom(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+SDL_Texture* LSG_Graphics::getVectorRoundedCornersBottom(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size)
 {
-	auto bottom = (size.height - borderRadius);
-	auto right  = (size.width  - borderRadius);
-
-	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 	auto svg = std::format(
-		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
-		"<path d='M 0 {} V 0 H {} V {} A {} {} 0 0 1 {} {} H {} A {} {} 0 0 1 0 {}' />" \
-		"</svg>",
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>{} {}</svg>",
 		size.width, size.height,
-		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
-		bottom, size.width, bottom, borderRadius, borderRadius, right, size.height, borderRadius, borderRadius, borderRadius, bottom
+		backgroundColor.r, backgroundColor.g, backgroundColor.b, LSG_Graphics::getOpacity(backgroundColor),
+		LSG_Graphics::getPathCornerBottomRight(borderRadius, size),
+		LSG_Graphics::getPathCornerBottomLeft(borderRadius,  size)
+	);
 
+	return LSG_Graphics::getVector(svg);
+}
+
+SDL_Texture* LSG_Graphics::getVectorRoundedCornersTop(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size)
+{
+	auto svg = std::format(
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>{} {}</svg>",
+		size.width, size.height,
+		backgroundColor.r, backgroundColor.g, backgroundColor.b, LSG_Graphics::getOpacity(backgroundColor),
+		LSG_Graphics::getPathCornerTopLeft(borderRadius,  size),
+		LSG_Graphics::getPathCornerTopRight(borderRadius, size)
 	);
 
 	return LSG_Graphics::getVector(svg);
@@ -570,23 +617,6 @@ SDL_Texture* LSG_Graphics::getVectorRoundedRectangleFill(const SDL_Color& color,
 		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
 		size.width, size.height,
 		borderRadius, borderRadius
-	);
-
-	return LSG_Graphics::getVector(svg);
-}
-
-SDL_Texture* LSG_Graphics::getVectorRoundedRectangleTop(const SDL_Color& color, int borderRadius, const SDL_Size& size)
-{
-	auto right = (size.width  - borderRadius);
-
-	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
-	auto svg = std::format(
-		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
-		"<path d='M {} {} V {} H 0 V {} A {} {} 0 0 1 {} 0 H {} A {} {} 0 0 1 {} {}' />" \
-		"</svg>",
-		size.width, size.height,
-		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
-		size.width, borderRadius, size.height, borderRadius, borderRadius, borderRadius, borderRadius, right, borderRadius, borderRadius, size.width, borderRadius
 	);
 
 	return LSG_Graphics::getVector(svg);
@@ -698,32 +728,6 @@ void LSG_Graphics::RenderFillRounded(
 	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
 }
 
-void LSG_Graphics::RenderFillRoundedBottom(
-	SDL_Renderer* renderer,
-	int borderRadius,
-	const SDL_Color& color,
-	const SDL_Rect& background,
-	const std::string& id
-) {
-	if (!LSG_Graphics::textures.contains(id))
-		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleBottom(color, borderRadius, { background.w, background.h });
-
-	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
-}
-
-void LSG_Graphics::RenderFillRoundedTop(
-	SDL_Renderer*      renderer,
-	int                borderRadius,
-	const SDL_Color&   color,
-	const SDL_Rect&    background,
-	const std::string& id
-) {
-	if (!LSG_Graphics::textures.contains(id))
-		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleTop(color, borderRadius, { background.w, background.h });
-
-	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
-}
-
 void LSG_Graphics::RenderFillWithRoundedBorder(
 	SDL_Renderer*      renderer,
 	const SDL_Color&   fillColor,
@@ -770,6 +774,32 @@ void LSG_Graphics::RenderRoundedCorners(
 
 void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
 {
+void LSG_Graphics::RenderRoundedCornersBottom(
+	SDL_Renderer*      renderer,
+	const SDL_Color&   fillColor,
+	int                borderRadius,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedCornersBottom(fillColor, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
+void LSG_Graphics::RenderRoundedCornersTop(
+	SDL_Renderer*      renderer,
+	const SDL_Color&   fillColor,
+	int                borderRadius,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedCornersTop(fillColor, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
 	SDL_Rect clip = {
 		0,
 		0,
