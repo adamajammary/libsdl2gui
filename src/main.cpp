@@ -1459,6 +1459,27 @@ void LSG_RemoveTile(const std::string& id, int index)
 	static_cast<LSG_Tiles*>(component)->RemoveTile(index);
 }
 
+void LSG_RenderTextureWithRoundedCorners(
+	SDL_Renderer*      renderer,
+	SDL_Texture*       texture,
+	const SDL_Rect&    destination,
+	const SDL_Rect*    clip,
+	int                radius,
+	const SDL_Color&   color,
+	const std::string& id
+) {
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	if (!renderer)
+		throw std::invalid_argument("'renderer' cannot be NULL");
+
+	if (!texture)
+		throw std::invalid_argument("'texture' cannot be NULL");
+
+	LSG_Graphics::RenderTextureWithRoundedCorners(renderer, texture, destination, clip, radius, color, id);
+}
+
 std::vector<SDL_Event> LSG_Run()
 {
 	if (!isRunning)

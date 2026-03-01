@@ -124,18 +124,15 @@ void LSG_Image::render(SDL_Renderer* renderer)
 
 	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, maxSize, this->getAlignment());
 
-	SDL_RenderCopy(renderer, this->texture, nullptr, &destination);
-
-	if (this->borderRadius > 0)
-	{
-		LSG_Graphics::RenderRoundedCorners(
-			renderer,
-			this->parent->backgroundColor,
-			this->borderRadius,
-			destination,
-			std::format("{}_image", this->id)
-		);
-	}
+	LSG_Graphics::RenderTextureWithRoundedCorners(
+		renderer,
+		this->texture,
+		destination,
+		nullptr,
+		this->borderRadius,
+		this->parent->backgroundColor,
+		std::format("{}_image", this->id)
+	);
 }
 
 void LSG_Image::rotate()

@@ -39,6 +39,7 @@ public:
 	static void                    RenderRoundedCornersBottom(SDL_Renderer* renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
 	static void                    RenderRoundedCornersTop(SDL_Renderer*    renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
 	static void                    RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
+	static void                    RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& backgroundColor, const std::string& id);
 	static void                    Rotate(LSG_ItemImage& image);
 	static SDL_Color               ToSdlColor(const std::string& color);
 	static std::string             ToXmlAttribute(const SDL_Color& color);

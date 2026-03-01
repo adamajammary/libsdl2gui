@@ -537,20 +537,17 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) co
 		imageSize
 	};
 
-	SDL_RenderCopy(renderer, card.thumbnail.texture.texture, &clip, &destination);
+	auto borderRadius = (this->borderRadius > padding2x ? (this->borderRadius - this->cardPadding) : (this->borderRadius / 2));
 
-	if (this->borderRadius > 0)
-	{
-		auto borderRadius = (this->borderRadius > padding2x ? (this->borderRadius - this->cardPadding) : (this->borderRadius / 2));
-
-		LSG_Graphics::RenderRoundedCorners(
-			renderer,
-			this->backgroundColor,
-			borderRadius,
-			destination,
-			std::format("{}_card_image", this->id)
-		);
-	}
+	LSG_Graphics::RenderTextureWithRoundedCorners(
+		renderer,
+		card.thumbnail.texture.texture,
+		destination,
+		&clip,
+		borderRadius,
+		this->backgroundColor,
+		std::format("{}_card_image", this->id)
+	);
 }
 
 /**

@@ -1024,6 +1024,20 @@ DLLEXPORT void DLL LSG_RemoveTableRow(const std::string& id, int row);
 DLLEXPORT void DLL LSG_RemoveTile(const std::string& id, int index);
 
 /**
+ * @brief Renders the texture with rounded corners.
+ * @param renderer    The SDL rendering context
+ * @param texture     The texture to render
+ * @param destination Where the texture should be rendered
+ * @param clip        Optional source clipping, or NULL to render the entire texture.
+ * @param radius      The corner radius in pixels
+ * @param color       The backhround color used to fill the corners
+ * @param id          A unique ID (like a component ID) used for texture caching
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& color, const std::string& id);
+
+/**
  * @brief Handles events and renders the UI components.
  * @returns a list of SDL2 events available during this run
  * @throws runtime_error

@@ -2973,6 +2973,29 @@ Example
 LSG_RemoveTile("Tiles", 0);
 ```
 
+### LSG_RenderTextureWithRoundedCorners
+
+```cpp
+void LSG_RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& color, const std::string& id);
+```
+
+Renders the texture with rounded corners.
+
+Parameters
+
+- **renderer** The SDL rendering context
+- **texture** The texture to render
+- **destination** Where the texture should be rendered
+- **clip** Optional source clipping, or NULL to render the entire texture.
+- **radius** The corner radius in pixels
+- **color** The backhround color used to fill the corners
+- **id** A unique ID (like a component ID) used for texture caching
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_Run
 
 ```cpp

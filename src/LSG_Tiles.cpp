@@ -727,18 +727,15 @@ void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) 
 	if (!image.texture.texture)
 		return;
 
-	SDL_RenderCopy(renderer, image.texture.texture, &this->image.clip, &this->image.destination);
-
-	if (this->borderRadius > 0)
-	{
-		LSG_Graphics::RenderRoundedCorners(
-			renderer,
-			this->backgroundColor,
-			this->borderRadius,
-			this->image.destination,
-			std::format("{}_tile_image", this->id)
-		);
-	}
+	LSG_Graphics::RenderTextureWithRoundedCorners(
+		renderer,
+		image.texture.texture,
+		this->image.destination,
+		&this->image.clip,
+		this->borderRadius,
+		this->backgroundColor,
+		std::format("{}_tile_image", this->id)
+	);
 }
 
 void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)

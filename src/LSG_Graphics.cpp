@@ -772,8 +772,6 @@ void LSG_Graphics::RenderRoundedCorners(
 	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
 }
 
-void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size)
-{
 void LSG_Graphics::RenderRoundedCornersBottom(
 	SDL_Renderer*      renderer,
 	const SDL_Color&   fillColor,
@@ -800,6 +798,13 @@ void LSG_Graphics::RenderRoundedCornersTop(
 	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
 }
 
+void LSG_Graphics::RenderTexture(
+	SDL_Renderer*        renderer,
+	const SDL_Rect&      background,
+	const LSG_Alignment& alignment,
+	SDL_Texture*         texture,
+	const SDL_Size&      size
+) {
 	SDL_Rect clip = {
 		0,
 		0,
@@ -810,6 +815,29 @@ void LSG_Graphics::RenderRoundedCornersTop(
 	auto destination = LSG_Graphics::GetDestinationAligned(background, size, alignment);
 
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
+}
+
+void LSG_Graphics::RenderTextureWithRoundedCorners(
+	SDL_Renderer*      renderer,
+	SDL_Texture*       texture,
+	const SDL_Rect&    destination,
+	const SDL_Rect*    clip,
+	int                radius,
+	const SDL_Color&   backgroundColor,
+	const std::string& id
+) {
+	SDL_RenderCopy(renderer, texture, clip, &destination);
+
+	if (radius < 1)
+		return;
+
+	LSG_Graphics::RenderRoundedCorners(
+		renderer,
+		backgroundColor,
+		radius,
+		destination,
+		std::format("{}_texture_with_rounded_corners", id)
+	);
 }
 
 void LSG_Graphics::Rotate(LSG_ItemImage& image)
