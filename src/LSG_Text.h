@@ -16,7 +16,9 @@ private:
 	std::mutex surfaceLock;
 
 public:
-	static TTF_Font*           GetFontArial(int fontSize);
+	static bool                FontSupportsText(TTF_Font* font, uint16_t* text);
+	static TTF_Font*           GetFont(int size, uint16_t* text = nullptr);
+	static TTF_Font*           GetFontCJK(int size);
 	static std::string         GetFullPath(const std::string& path);
 	static LSG_TableRowCompare GetTableRowCompare(int column);
 	static std::string         Join(const LSG_Strings& strings, const std::string& separator);

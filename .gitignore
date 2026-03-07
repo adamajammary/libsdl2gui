@@ -1,11 +1,11 @@
 *.aps
 *.cmake
 *.sln
-*.tt[cf]
 *.vcxproj*
 
 .vs
 build
+fonts
 CMakeCache.txt
 CMakeFiles
 Debug

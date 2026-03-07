@@ -6,27 +6,47 @@ LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, c
 	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
 }
 
+bool LSG_Text::FontSupportsText(TTF_Font* font, uint16_t* text)
+{
+	if (!font || !text)
+		return false;
+
+	for (size_t i = 0; text[i] != 0; i++)
+	{
+		if (!std::iswspace(text[i]) && !TTF_GlyphIsProvided(font, text[i]))
+			return false;
+	}
+
+	return true;
+}
+
 /**
  * @throws invalid_argument
  */
-TTF_Font* LSG_Text::GetFontArial(int fontSize)
+TTF_Font* LSG_Text::GetFont(int size, uint16_t* text)
 {
-	#if defined _android
-		auto FONT_PATH = "/system/fonts/NotoSansCJK-Regular.ttc";
-	#elif defined _ios
-		auto FONT_PATH = LSG_Text::GetFullPath("ui/Arial.ttf");
-	#elif defined _linux
-		auto FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
-	#elif defined  _macosx
-		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial.ttf";
-	#elif defined _windows
-		auto FONT_PATH = "C:\\Windows\\Fonts\\arial.ttf";
-	#endif
+	auto fontPath = LSG_Text::GetFullPath("fonts/DejaVuSans.ttf");
+	auto fontSize = LSG_Window::GetDPIScaled(size);
 
-	auto font = TTF_OpenFont(FONT_PATH, LSG_Window::GetDPIScaled(fontSize));
+	auto font = TTF_OpenFont(fontPath.c_str(), fontSize);
+
+	if (text && !LSG_Text::FontSupportsText(font, text))
+	{
+		TTF_CloseFont(font);
+
+		font = LSG_Text::GetFontCJK(fontSize);
+	}
 
 	if (!font)
-		throw std::invalid_argument(std::format("Failed to open default font '{}': {}", FONT_PATH, TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to open default font: {}", TTF_GetError()));
+
+	return font;
+}
+
+TTF_Font* LSG_Text::GetFontCJK(int size)
+{
+	auto fontPath = LSG_Text::GetFullPath("fonts/NotoSansCJK-Regular.ttc");
+	auto font     = TTF_OpenFont(fontPath.c_str(), size);
 
 	return font;
 }
@@ -86,20 +106,20 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
 	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
 
-	auto font = LSG_Text::GetFontArial(size);
+	auto text16 = LSG_Text::ToUTF16(text);
+	auto font   = LSG_Text::GetFont(size, text16);
 
 	TTF_SetFontStyle(font, style);
 
-	SDL_Surface* surface   = nullptr;
-	auto         textUTF16 = LSG_Text::ToUTF16(text);
+	SDL_Surface* surface = nullptr;
 
 	if (this->wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, color, 0);
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, color, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, textUTF16, color);
+		surface = TTF_RenderUNICODE_Blended(font, text16, color);
 
 	TTF_CloseFont(font);
-	SDL_free(textUTF16);
+	SDL_free(text16);
 
 	if (!surface)
 		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));

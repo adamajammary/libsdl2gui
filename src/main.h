@@ -5,6 +5,7 @@
 #include <cstdio>    // snprintf()
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
+#include <cwctype>   // iswspace()
 #include <format>
 #include <fstream>
 #include <mutex>

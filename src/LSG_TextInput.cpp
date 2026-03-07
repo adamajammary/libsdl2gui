@@ -87,12 +87,15 @@ void LSG_TextInput::Delete()
 size_t LSG_TextInput::getCursorPosition(const SDL_Point& mousePosition)
 {
 	auto background = LSG_UI::GetScrolledBackground(this);
-	auto iconSize   = LSG_Graphics::GetTextureSize(this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR]);
+	auto fillArea   = LSG_Graphics::GetFillArea(background, this->borderWidth, this->padding);
 
-	auto border2x  = (this->borderWidth + this->borderWidth);
-	auto padding3x = (this->padding * 3);
+	if (this->borderRadius > 0) {
+		fillArea.x += this->borderRadius;
+		fillArea.w -= (this->borderRadius + this->borderRadius);
+	}
 
-	auto fillWidth = (background.w - iconSize.width - padding3x - border2x);
+	auto iconSize  = LSG_Graphics::GetTextureSize(this->textures[LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR]);
+	auto fillWidth = (fillArea.w - iconSize.width);
 
 	auto textWidth        = this->highlightedTextSize.width;
 	auto directionalWidth = (this->highlightedTextLength < 0 ? -textWidth : textWidth);
@@ -105,39 +108,9 @@ size_t LSG_TextInput::getCursorPosition(const SDL_Point& mousePosition)
 	if (!this->value.empty() && (page > 0) && (page == lastPage))
 		offsetX = (this->textSize.width - fillWidth);
 
-	auto startX = (background.x + this->borderWidth + this->padding);
-	auto clickX = (mousePosition.x + LSG_Cursor::IBeamOffset);
+	auto positionX = (mousePosition.x + LSG_Cursor::IBeamOffset - fillArea.x + offsetX);
 
-	auto position = (clickX - startX + offsetX);
-
-	auto   font = LSG_Text::GetFontArial(this->getFontSize());
-	size_t i;
-	int    w, x = 0;
-
-	for (i = 0; i < this->value.size(); i++)
-	{
-		if (this->value[i] < 0)
-		{
-			auto text16 = LSG_Text::ToUTF16(this->value.substr(i, 2));
-
-			TTF_SizeUNICODE(font, text16, &w, nullptr);
-			SDL_free(text16);
-		} else {
-			TTF_SizeUTF8(font, this->value.substr(i, 1).c_str(), &w, nullptr);
-		}
-
-		if ((x + w) > position)
-			break;
-
-		x += w;
-
-		if (this->value[i] < 0)
-			i++;
-	}
-
-	TTF_CloseFont(font);
-
-	return i;
+	return this->getIndex(positionX);
 }
 
 SDL_Rect LSG_TextInput::getIconClear(const SDL_Rect& fillArea) const
@@ -152,6 +125,56 @@ SDL_Rect LSG_TextInput::getIconClear(const SDL_Rect& fillArea) const
 	};
 
 	return iconClear;
+}
+
+size_t LSG_TextInput::getIndex(int mousePositionX)
+{
+	TTF_Font* fontCJK     = nullptr;
+	auto      fontSize    = this->getFontSize();
+	auto      fontDefault = LSG_Text::GetFont(fontSize);
+
+	size_t index;
+	int    positionX = 0;
+
+	for (index = 0; index < this->value.size(); index++)
+	{
+		int width;
+
+		if (this->value[index] < 0)
+		{
+			auto char16 = LSG_Text::ToUTF16(this->value.substr(index, 2));
+			auto font   = fontDefault;
+
+			if (!LSG_Text::FontSupportsText(font, char16))
+			{
+				if (!fontCJK)
+					fontCJK = LSG_Text::GetFontCJK(fontSize);
+
+				font = fontCJK;
+			}
+
+			TTF_SizeUNICODE(font, char16, &width, nullptr);
+
+			SDL_free(char16);
+		} else {
+			TTF_SizeUTF8(fontDefault, this->value.substr(index, 1).c_str(), &width, nullptr);
+		}
+
+		if ((positionX + width) > mousePositionX)
+			break;
+
+		positionX += width;
+
+		if (this->value[index] < 0)
+			index++;
+	}
+
+	TTF_CloseFont(fontDefault);
+
+	if (fontCJK)
+		TTF_CloseFont(fontCJK);
+
+	return index;
 }
 
 std::string LSG_TextInput::GetValue() const
@@ -631,15 +654,22 @@ void LSG_TextInput::setCursor()
 		return;
 	}
 
-	auto font         = LSG_Text::GetFontArial(this->getFontSize());
-	auto cursorText16 = LSG_Text::ToUTF16(this->value.substr(0, this->cursorPosition));
+	auto fontSize = this->getFontSize();
 
-	TTF_SizeUNICODE(font, cursorText16, &this->cursorTextWidth, nullptr);
+	auto cursorText16 = LSG_Text::ToUTF16(this->value.substr(0, this->cursorPosition));
+	auto cursorFont   = LSG_Text::GetFont(fontSize, cursorText16);
+
+	TTF_SizeUNICODE(cursorFont, cursorText16, &this->cursorTextWidth, nullptr);
+
+	TTF_CloseFont(cursorFont);
 	SDL_free(cursorText16);
 
 	auto text16 = LSG_Text::ToUTF16(this->value);
+	auto font   = LSG_Text::GetFont(fontSize, text16);
 
 	TTF_SizeUNICODE(font, text16, &this->textSize.width, &this->textSize.height);
+
+	TTF_CloseFont(font);
 	SDL_free(text16);
 
 	if (this->highlightedTextLength != 0)
@@ -648,14 +678,15 @@ void LSG_TextInput::setCursor()
 		auto length = std::abs(this->highlightedTextLength);
 
 		auto highlightedText16 = LSG_Text::ToUTF16(this->value.substr(start, length));
+		auto highlightedFont   = LSG_Text::GetFont(fontSize, highlightedText16);
 
-		TTF_SizeUNICODE(font, highlightedText16, &this->highlightedTextSize.width, &this->highlightedTextSize.height);
+		TTF_SizeUNICODE(highlightedFont, highlightedText16, &this->highlightedTextSize.width, &this->highlightedTextSize.height);
+
+		TTF_CloseFont(highlightedFont);
 		SDL_free(highlightedText16);
 	} else {
 		this->highlightedTextSize = {};
 	}
-
-	TTF_CloseFont(font);
 }
 	
 void LSG_TextInput::setIconClear()

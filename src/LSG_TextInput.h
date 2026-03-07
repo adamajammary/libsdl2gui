@@ -54,6 +54,7 @@ public:
 private:
 	size_t       getCursorPosition(const SDL_Point& mousePosition);
 	SDL_Rect     getIconClear(const SDL_Rect& fillArea) const;
+	size_t       getIndex(int mousePositionX);
 	void         moveCursorTo(const SDL_Point& mousePosition);
 	void         render(SDL_Renderer* renderer);
 	void         renderCursor(SDL_Renderer* renderer, const SDL_Rect& background);

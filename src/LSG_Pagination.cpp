@@ -234,7 +234,7 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	SDL_Surface* surface = nullptr;
 	SDL_Texture* texture = nullptr;
 
-	auto font = LSG_Text::GetFontArial(LSG_Pagination::FontSize);
+	auto font = LSG_Text::GetFont(LSG_Pagination::FontSize);
 
 	if (font)
 		surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
