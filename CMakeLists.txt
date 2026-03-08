@@ -99,8 +99,6 @@ if (WIN32)
     set(LIBS      "${LIB_SDLL}" "${LIB_SDIL}" "${LIB_SDTL}" "${LIB_XMLL}")
     set(TEST_LIBS "${LIB_SDLL}")
 else()
-    set(LIB_PREP "lib")
-
     set(LIBS      "${LIB_SDL}" "${LIB_SDLI}" "${LIB_SDLT}" "${LIB_XML}")
     set(TEST_LIBS "${LIB_SDL}")
 
@@ -207,7 +205,7 @@ else()
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/include\")
     add_custom_command(TARGET sdl2gui POST_BUILD COMMAND mkdir -p \"${DIST_DIR}/lib\")
 
-    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}${LIB_PREP}sdl2gui.${DLL_EXT} ${DIST_DIR}/lib/)
+    add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/lib/)
 endif()
 
 # includes
