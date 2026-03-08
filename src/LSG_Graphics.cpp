@@ -14,6 +14,9 @@ void LSG_Graphics::DestroyTexture(const std::string& id)
 
 void LSG_Graphics::DestroyTextures()
 {
+	if (LSG_Graphics::textures.empty())
+		return;
+
 	for (const auto& texture : LSG_Graphics::textures)
 		SDL_DestroyTexture(texture.second);
 

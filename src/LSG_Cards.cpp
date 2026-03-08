@@ -907,6 +907,8 @@ void LSG_Cards::SetCards()
 
 void LSG_Cards::setCards()
 {
+	LSG_Graphics::DestroyTextures();
+
 	std::thread(&LSG_Cards::setCardSurfaces, this).detach();
 }
 

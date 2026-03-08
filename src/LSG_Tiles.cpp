@@ -1206,6 +1206,8 @@ void LSG_Tiles::SetTiles()
 
 void LSG_Tiles::setTiles()
 {
+	LSG_Graphics::DestroyTextures();
+
 	std::thread(&LSG_Tiles::setTileSurfaces, this).detach();
 }
 

@@ -705,6 +705,8 @@ void LSG_Table::SetRows()
 
 void LSG_Table::setRows(bool sort)
 {
+	LSG_Graphics::DestroyTextures();
+
 	if (this->showPagination())
 		this->initPagination(this->getFillArea(), this->backgroundColor);
 

@@ -505,6 +505,8 @@ void LSG_List::SetItems()
 
 void LSG_List::setItems(bool sort)
 {
+	LSG_Graphics::DestroyTextures();
+
 	if (this->showPagination())
 		this->initPagination(this->getFillArea(), this->backgroundColor);
 
