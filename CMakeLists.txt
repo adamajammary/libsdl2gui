@@ -86,7 +86,7 @@ if (NOT EXISTS "${SRC_DIR}/fonts")
     file(ARCHIVE_EXTRACT INPUT "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}.zip" DESTINATION "${SRC_DIR}/fonts/")
 
     file(RENAME "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}/ttf/DejaVuSans.ttf" "${SRC_DIR}/fonts/DejaVuSans.ttf")
-    file(RENAME "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}/LICENSE"            "${SRC_DIR}/fonts/LICENSE-DejaVu")
+    file(RENAME "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}/LICENSE"            "${SRC_DIR}/fonts/LICENSE-DejaVu.txt")
 
     file(REMOVE_RECURSE "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}")
     file(REMOVE         "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}.zip")
