@@ -285,8 +285,6 @@ if (ANDROID)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${LIB_OMP} ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${OpenMP_CXX_LIBRARIES} ${OUT_DIR}/libs/${ANDROID_ABI}/)
-
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND chmod a+x ${CMAKE_BINARY_DIR}/android/gradlew)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew --stop)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND ${CMAKE_BINARY_DIR}/android/gradlew assembleDebug WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/android)
