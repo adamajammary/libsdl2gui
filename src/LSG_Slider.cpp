@@ -15,10 +15,10 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 		this->fillProgress = (attributes["fill-progress"] == "true");
 
 	if (attributes.contains("thumb-border-radius"))
-		this->thumb.borderRadius = std::atoi(attributes["thumb-border-radius"].c_str());
+		this->thumb.borderRadius = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-border-radius"].c_str()));
 
 	if (attributes.contains("thumb-border-width"))
-		this->thumb.borderWidth = std::atoi(attributes["thumb-border-width"].c_str());
+		this->thumb.borderWidth = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-border-width"].c_str()));
 
 	if (attributes.contains("thumb-width"))
 		this->thumb.width = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-width"].c_str()));
