@@ -183,11 +183,11 @@ if (MSVC)
 
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "-Xclang" "-fopenmp")
+    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "-Xclang -fopenmp")
 
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang" "-fopenmp")
 else()
-    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}" "-fopenmp")
+    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS} -fopenmp")
 
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-fopenmp")
 endif()
