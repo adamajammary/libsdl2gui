@@ -166,7 +166,8 @@ LSG_IFD LSG_Exif::getIFD(LSG_ExifState& state)
 {
 	LSG_IFD ifd = {};
 
-	std::fread(&ifd.data, 1, 12, state.file);
+	if (std::fread(&ifd.data, 1, 12, state.file) < 12)
+		return ifd;
 
 	ifd.tagID      = LSG_Bytes::ToUInt(ifd.data[0], ifd.data[1], state.isByteOrderIntel);
 	ifd.dataType   = (LSG_IFD_DataType)LSG_Bytes::ToUInt(ifd.data[2], ifd.data[3], state.isByteOrderIntel);
@@ -241,7 +242,8 @@ long LSG_Exif::getOffsetIFD(LSG_ExifState& state)
 {
 	uint8_t ifd[4];
 
-	std::fread(&ifd, 1, 4, state.file);
+	if (std::fread(&ifd, 1, 4, state.file) < 4)
+		return 0;
 
 	return LSG_Bytes::ToUInt(ifd[0], ifd[1], ifd[2], ifd[3], state.isByteOrderIntel);
 }
@@ -295,7 +297,8 @@ uint16_t LSG_Exif::getNrOfDirectories(LSG_ExifState& state)
 {
 	uint8_t nrOfIFDs[2];
 
-	std::fread(&nrOfIFDs, 1, 2, state.file);
+	if (std::fread(&nrOfIFDs, 1, 2, state.file) < 2)
+		return 0;
 
 	return LSG_Bytes::ToUInt(nrOfIFDs[0], nrOfIFDs[1], state.isByteOrderIntel);
 }
@@ -327,9 +330,10 @@ SDL_Surface* LSG_Exif::getThumbnail(LSG_ExifState& state)
 
 	auto pixels = (uint8_t*)std::malloc(dataSize);
 
-	std::fread(pixels, 1, dataSize, state.file);
+	SDL_Surface* thumbnail = nullptr;
 
-	auto thumbnail = IMG_LoadJPG_RW(SDL_RWFromConstMem(pixels, dataSize));
+	if (std::fread(pixels, 1, dataSize, state.file) == dataSize)
+		thumbnail = IMG_LoadJPG_RW(SDL_RWFromConstMem(pixels, dataSize));
 
 	std::free(pixels);
 
@@ -343,6 +347,8 @@ std::string LSG_Exif::getValueString(const LSG_IFD& ifd, LSG_ExifState& state)
 	if (!buffer)
 		return "";
 
+	size_t bufferSize = ifd.nrOfValues;
+
 	if (ifd.nrOfValues > 4)
 	{
 		auto position = std::ftell(state.file);
@@ -350,14 +356,14 @@ std::string LSG_Exif::getValueString(const LSG_IFD& ifd, LSG_ExifState& state)
 
 		std::fseek(state.file, (state.offsetHeader + offset), SEEK_SET);
 
-		std::fread(buffer, 1, ifd.nrOfValues, state.file);
+		bufferSize = std::fread(buffer, 1, ifd.nrOfValues, state.file);
 
 		std::fseek(state.file, position, SEEK_SET);
 	} else {
 		std::memcpy(buffer, &ifd.data[8], ifd.nrOfValues);
 	}
 
-	auto value = std::string(buffer);
+	auto value = (bufferSize == ifd.nrOfValues ? std::string(buffer) : "");
 
 	std::free(buffer);
 
@@ -389,7 +395,10 @@ LSG_URationals LSG_Exif::getValueURationals(const LSG_IFD& ifd, LSG_ExifState& s
 	{
 		uint8_t bytes[8];
 
-		std::fread(&bytes, 1, 8, state.file);
+		if (std::fread(&bytes, 1, 8, state.file) < 8) {
+			values.clear();
+			break;
+		}
 
 		values.push_back({
 			.numerator   = LSG_Bytes::ToUInt(bytes[0], bytes[1], bytes[2], bytes[3], state.isByteOrderIntel),
@@ -406,15 +415,21 @@ bool LSG_Exif::isExif(LSG_ExifState& state)
 {
 	char exifString[6] = {};
 
-	std::fread(&exifString, 1, 6, state.file);
+	if (std::fread(&exifString, 1, 6, state.file) < 6)
+		return false;
 
 	bool isExif = (std::strncmp(exifString, "Exif\0\0", 6) == 0);
 
 	state.offsetHeader = std::ftell(state.file);
 
+	// "II" (Intel/Little endian) or "MM" (Motorola/Big endian)
+
 	char byteOrder[2] = {};
 
-	std::fread(&byteOrder, 1, 2, state.file); // "II" (Intel/Little endian) or "MM" (Motorola/Big endian)
+	if (std::fread(&byteOrder, 1, 2, state.file) < 2) {
+		state.offsetHeader = 0;
+		return false;
+	}
 
 	state.isByteOrderIntel = (std::strncmp(byteOrder, "II", 2) == 0);
 
@@ -425,9 +440,14 @@ bool LSG_Exif::isMarker(LSG_ExifState& state)
 {
 	uint8_t tiffMarker[2];
 
-	std::fread(&tiffMarker, 1, 2, state.file);
+	if (std::fread(&tiffMarker, 1, 2, state.file) < 2)
+		return false;
 
-	return (LSG_Bytes::ToUInt(tiffMarker[0], tiffMarker[1], state.isByteOrderIntel) == 0x2A);  // Exif (0x2A)
+	// Exif (0x2A)
+
+	auto marker = LSG_Bytes::ToUInt(tiffMarker[0], tiffMarker[1], state.isByteOrderIntel);
+
+	return (marker == 0x2A);
 }
 
 bool LSG_Exif::isValid(LSG_ExifState& state)
