@@ -180,7 +180,11 @@ set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 
-target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang -fopenmp")
+if (ANDROID OR APPLE)
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang" "-fopenmp")
+else()
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-fopenmp")
+endif()
 
 # dist dir
 
