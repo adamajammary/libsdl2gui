@@ -31,7 +31,6 @@ private:
 	int                   cardPadding;
 	int                   cardSpacing;
 	std::vector<LSG_Card> cards;
-	std::mutex            cardsLock;
 	int                   highlightedRow;
 	SDL_Point             offset;
 	SDL_Texture*          renderTarget;

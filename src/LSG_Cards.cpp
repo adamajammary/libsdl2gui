@@ -61,11 +61,7 @@ void LSG_Cards::Activate(const SDL_Point& mousePosition)
 
 void LSG_Cards::AddCard(const LSG_CardItem& cardItem)
 {
-	this->cardsLock.lock();
-
 	this->cards.push_back(LSG_Cards::ToCard(cardItem));
-
-	this->cardsLock.unlock();
 
 	this->reset();
 }
@@ -127,12 +123,8 @@ void LSG_Cards::destroyTextures()
 {
 	this->resetRenderTarget();
 
-	this->cardsLock.lock();
-
 	for (auto& card : this->cards)
 		this->destroyTextures(card);
-
-	this->cardsLock.unlock();
 }
 
 LSG_CardItem LSG_Cards::GetCard(int row) const
@@ -245,11 +237,7 @@ void LSG_Cards::RemoveCard(int row)
 	if ((row < 0) || (row >= (int)this->cards.size()))
 		return;
 
-	this->cardsLock.lock();
-
 	this->cards.erase(this->cards.begin() + (size_t)row);
-
-	this->cardsLock.unlock();
 
 	this->reset();
 
@@ -590,14 +578,10 @@ void LSG_Cards::resetHighlight()
 
 void LSG_Cards::resetRenderTarget()
 {
-	this->cardsLock.lock();
-
 	if (this->renderTarget) {
 		SDL_DestroyTexture(this->renderTarget);
 		this->renderTarget = nullptr;
 	}
-
-	this->cardsLock.unlock();
 }
 
 void LSG_Cards::select(LSG_EventType eventType)
@@ -868,14 +852,10 @@ void LSG_Cards::SetCard(int row, const LSG_CardItem& cardItem)
 	if ((row < 0) || (row >= (int)this->cards.size()))
 		return;
 
-	this->cardsLock.lock();
-
 	this->destroyTextures(this->cards[row]);
 	this->destroySurfaces(this->cards[row]);
 
 	this->cards[row] = LSG_Cards::ToCard(cardItem);
-
-	this->cardsLock.unlock();
 
 	this->reset();
 }
@@ -884,16 +864,12 @@ void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 {
 	this->destroyTextures();
 
-	this->cardsLock.lock();
-
 	this->destroySurfaces();
 
 	this->cards.clear();
 
 	for (const auto& cardItem : cardItems)
 		this->cards.push_back(LSG_Cards::ToCard(cardItem));
-
-	this->cardsLock.unlock();
 
 	this->reset(true);
 
@@ -909,13 +885,11 @@ void LSG_Cards::setCards()
 {
 	LSG_Graphics::DestroyTextures();
 
-	std::thread(&LSG_Cards::setCardSurfaces, this).detach();
+	LSG_Cards::setCardSurfaces();
 }
 
 void LSG_Cards::setCardSurfaces()
 {
-	this->cardsLock.lock();
-
 	this->destroySurfaces();
 
 	#pragma omp parallel for
@@ -932,14 +906,10 @@ void LSG_Cards::setCardSurfaces()
 		if (!card.description.text.empty())
 			card.description.surface = this->getSurface(card.description.text);
 	}
-
-	this->cardsLock.unlock();
 }
 
 void LSG_Cards::setCardTextures()
 {
-	this->cardsLock.lock();
-
 	for (auto& card : this->cards)
 	{
 		if (!card.thumbnail.filePath.empty() && !card.thumbnail.texture.texture && card.thumbnail.surface)
@@ -964,8 +934,6 @@ void LSG_Cards::setCardTextures()
 	}
 
 	this->destroySurfaces();
-
-	this->cardsLock.unlock();
 }
 
 LSG_Card LSG_Cards::ToCard(const LSG_CardItem& cardItem)
