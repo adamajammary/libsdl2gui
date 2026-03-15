@@ -182,7 +182,7 @@ target_include_directories(sdl2gui PRIVATE ${INCS})
 
 if (MSVC)
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-openmp")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang" "-fopenmp")
 else()
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-fopenmp")
