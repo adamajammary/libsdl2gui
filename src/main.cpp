@@ -40,7 +40,7 @@ static void initBasePath()
 		throw std::runtime_error("Failed to get an app-specific location where files can be written.");
 
 	auto jniAssetManager = LSG_AndroidJNI::GetAssetManager();
-	auto dirs            = { "img", "ui" };
+	auto dirs            = { "fonts", "img", "ui" };
 
 	for (auto dir : dirs)
 	{
