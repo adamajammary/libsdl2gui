@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<window title="SDL2 GUI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
+<window title="SDL UI Library" width="800" height="600" color-theme-file="ui/dark.colortheme">
   <modal
     id="ModalIdAbout"
-    title="SDL2 GUI Library"
+    title="SDL UI Library"
     width="65%"
     min-width="380"
     max-width="500"
@@ -13,7 +13,7 @@
     border-width="1"
   >
     <panel orientation="vertical" halign="center" valign="middle" spacing="10">
-      <text>A free cross-platform user interface library using SDL2.</text>
+      <text>A free cross-platform user interface library using SDL.</text>
       <text>(c) 2021 Adam A. Jammary (Jammary Studio)</text>
     </panel>
   </modal>
@@ -44,8 +44,8 @@
         border-width="1"
       />
 
-      <panel width="165" halign="right" valign="middle">
-        <text font-size="18">SDL2 GUI Library</text>
+      <panel width="150" halign="right" valign="middle">
+        <text font-size="18">SDL UI Library</text>
       </panel>
     </panel>
 

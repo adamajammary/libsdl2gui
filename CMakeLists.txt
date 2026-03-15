@@ -12,14 +12,11 @@ set(CMAKE_CXX_STANDARD          "20")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-if (NOT IOS)
-    find_package(OpenMP REQUIRED)
-endif()
-
 # libsdl2gui depends on the following third-party libraries:
-# - sdl2, sdl2_image, sdl2_ttf, libtiff, libwebp, libxml2
+# - sdl2, sdl2_image, sdl2_ttf, libtiff, libwebp, libxml2, openmp
 
 if (ANDROID)
+    set(EXT_LIB_OMP  libomp.so)
     set(EXT_LIB_SDL  libSDL2.so)
     set(EXT_LIB_SDLI libSDL2_image.so)
     set(EXT_LIB_SDLT libSDL2_ttf.so)
@@ -40,6 +37,8 @@ elseif (APPLE)
     set(EXT_LIB_SDLT libSDL2_ttf-2.0.0.dylib)
     set(EXT_LIB_XML  libxml2.16.dylib)
 elseif (WIN32)
+    set(EXT_LIB_OMP  libomp.dll)
+    set(EXT_LIB_OMPL libomp.dll.lib)
     set(EXT_LIB_SDL  SDL2.dll)
     set(EXT_LIB_SDLL SDL2.lib)
     set(EXT_LIB_SDLI SDL2_image.dll)
@@ -49,12 +48,14 @@ elseif (WIN32)
     set(EXT_LIB_XML  libxml2.dll)
     set(EXT_LIB_XMLL libxml2.lib)
 else()
+    set(EXT_LIB_OMP  libomp.so)
     set(EXT_LIB_SDL  libSDL2-2.0.so.0)
     set(EXT_LIB_SDLI libSDL2_image-2.0.so.0)
     set(EXT_LIB_SDLT libSDL2_ttf-2.0.so.0)
     set(EXT_LIB_XML  libxml2.so.16)
 endif()
 
+find_file(LIB_OMP  ${EXT_LIB_OMP}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 find_file(LIB_SDL  ${EXT_LIB_SDL}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 find_file(LIB_SDLI ${EXT_LIB_SDLI} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 find_file(LIB_SDLT ${EXT_LIB_SDLT} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
@@ -62,12 +63,10 @@ find_file(LIB_XML  ${EXT_LIB_XML}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FI
 
 if (IOS)
     find_file(LIB_FT   ${EXT_LIB_FT}   PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
-    find_file(LIB_OMP  ${EXT_LIB_OMP}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WPDC ${EXT_LIB_WPDC} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WPDM ${EXT_LIB_WPDM} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
-elseif (APPLE)
-    find_file(LIB_OMP ${EXT_LIB_OMP} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
 elseif (WIN32)
+    find_file(LIB_OMPL ${EXT_LIB_OMPL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_SDLL ${EXT_LIB_SDLL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_SDIL ${EXT_LIB_SDIL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_SDTL ${EXT_LIB_SDTL} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
@@ -96,14 +95,14 @@ set(INCS      "${SRC_DIR}/include" "${INC_DIR}" "${INC_DIR}/libxml2")
 set(TEST_INCS "${SRC_DIR}/include" "${INC_DIR}")
 
 if (WIN32)
-    set(LIBS      "${LIB_SDLL}" "${LIB_SDIL}" "${LIB_SDTL}" "${LIB_XMLL}")
+    set(LIBS      "${LIB_SDLL}" "${LIB_SDIL}" "${LIB_SDTL}" "${LIB_XMLL}" "${LIB_OMPL}")
     set(TEST_LIBS "${LIB_SDLL}")
 else()
-    set(LIBS      "${LIB_SDL}" "${LIB_SDLI}" "${LIB_SDLT}" "${LIB_XML}")
+    set(LIBS      "${LIB_SDL}" "${LIB_SDLI}" "${LIB_SDLT}" "${LIB_XML}" "${LIB_OMP}")
     set(TEST_LIBS "${LIB_SDL}")
 
     if (IOS)
-        set(LIBS ${LIBS} "${LIB_FT}" "${LIB_OMP}" "${LIB_WPDC}" "${LIB_WPDM}")
+        set(LIBS ${LIBS} "${LIB_FT}" "${LIB_WPDC}" "${LIB_WPDM}")
     endif()
 endif()
 
@@ -181,11 +180,7 @@ set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 
-if (IOS)
-    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang -fopenmp")
-else()
-    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} OpenMP::OpenMP_CXX)
-endif()
+target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang -fopenmp")
 
 # dist dir
 
@@ -255,7 +250,7 @@ if (IOS)
 
     set_target_properties(testsdl2gui PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST           "${INFO_PLIST}"
-        MACOSX_BUNDLE_BUNDLE_NAME          "SDL2 GUI Library"
+        MACOSX_BUNDLE_BUNDLE_NAME          "SDL UI Library"
         MACOSX_BUNDLE_COPYRIGHT            "(c) 2021 Adam A. Jammary (Jammary Studio)"
         MACOSX_BUNDLE_GUI_IDENTIFIER       "com.libsdl2gui.test"
         MACOSX_BUNDLE_ICON_FILE            "icon"
@@ -288,7 +283,7 @@ if (ANDROID)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libtestsdl2gui.so ${OUT_DIR}/libs/${ANDROID_ABI}/libmain.so)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f libsdl2gui.so     ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${OUT_DIR}/libs/${ANDROID_ABI}/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${LIB_OMP} ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${OpenMP_CXX_LIBRARIES} ${OUT_DIR}/libs/${ANDROID_ABI}/)
 
@@ -312,7 +307,7 @@ elseif (WIN32)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui.exe ${DIST_DIR}/bin/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}sdl2gui.dll     ${DIST_DIR}/bin/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${DIST_DIR}/bin/)
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${LIB_OMP} ${DIST_DIR}/bin/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/fonts ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img   ${OUT_DIR}/)
@@ -326,11 +321,7 @@ else()
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}testsdl2gui           ${DIST_DIR}/bin/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${CFG_DIR}libsdl2gui.${DLL_EXT} ${DIST_DIR}/bin/)
 
-    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${DIST_DIR}/bin/)
-
-    if (OS STREQUAL "_macosx")
-        add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_OMP} ${DIST_DIR}/bin/)
-    endif()
+    add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -f ${LIB_SDL} ${LIB_SDLI} ${LIB_SDLT} ${LIB_XML} ${LIB_OMP} ${DIST_DIR}/bin/)
 
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/fonts        ${OUT_DIR}/)
     add_custom_command(TARGET testsdl2gui POST_BUILD COMMAND cp -rf ${DIST_DIR}/bin/img          ${OUT_DIR}/)

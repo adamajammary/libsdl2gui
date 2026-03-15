@@ -1039,7 +1039,7 @@ DLLEXPORT void DLL LSG_RenderTextureWithRoundedCorners(SDL_Renderer* renderer, S
 
 /**
  * @brief Handles events and renders the UI components.
- * @returns a list of SDL2 events available during this run
+ * @returns a list of SDL events available during this run
  * @throws runtime_error
  */
 DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
@@ -1702,7 +1702,7 @@ DLLEXPORT void DLL LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder,
 /**
  * @brief Tries to initialize the library and open a new window based on layout from XML file.
  * @param xmlFile Window and UI component layout file. ex: "ui/main.xml"
- * @returns an SDL2 renderer
+ * @returns an SDL renderer
  * @throws runtime_error
  */
 DLLEXPORT SDL_Renderer* DLL LSG_Start(const std::string& xmlFile);

@@ -1,10 +1,10 @@
 # libsdl2gui
 
-## A free cross-platform user interface library using SDL2
+## A free cross-platform user interface library using SDL
 
 Copyright (C) 2021 Adam A. Jammary (Jammary Studio)
 
-libsdl2gui is a free cross-platform user interface library using SDL2.
+libsdl2gui is a free cross-platform user interface library using SDL (Simple DirectMedia Layer).
 
 ## 3rd Party Libraries
 
@@ -15,7 +15,8 @@ Library | Version | License
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.24.0](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-2.24.0.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
 [libtiff](https://github.com/libsdl-org/libtiff) | [4.7.1](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.1.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
 [libwebp](https://github.com/webmproject/libwebp) | [1.6.0](https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
-[libXML2](https://github.com/GNOME/libxml2) | [2.15.1](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.1.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[libXML2](https://github.com/GNOME/libxml2) | [2.15.2](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.2.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[OpenMP LLVM](https://github.com/llvm/llvm-project/tree/main/openmp) | [21.1.8](https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/openmp-21.1.8.src.tar.xz) | [Apache License](https://github.com/llvm/llvm-project/blob/main/openmp/LICENSE.TXT)
 [DejaVu fonts](https://dejavu-fonts.github.io/) | [2.37](https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-sans-ttf-2.37.zip) | [DejaVu Fonts license](https://dejavu-fonts.github.io/License.html)
 [Noto CJK fonts](https://github.com/notofonts/noto-cjk) | [2.004](https://github.com/notofonts/noto-cjk/blob/main/Sans/OTC/NotoSansCJK-Regular.ttc) | [SIL Open Font license](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
 
@@ -70,7 +71,7 @@ Make sure the correct Android SDK path is set as either
 - an environment variable `ANDROID_HOME=/path/to/ANDROID_SDK` or
 - a local property `sdk.dir=/path/to/ANDROID_SDK` in the **android/local.properties** file
 
-> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL2 Android README](https://wiki.libsdl.org/SDL2/README-android) for more details.
+> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL Android README](https://wiki.libsdl.org/SDL2/README-android) for more details.
 
 ```bash
 cmake .. -G "Unix Makefiles" \
@@ -114,7 +115,7 @@ make
 
 You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
 
-> See [SDL2 iOS README](https://wiki.libsdl.org/SDL2/README-ios) for more details.
+> See [SDL iOS README](https://wiki.libsdl.org/SDL2/README-ios) for more details.
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
@@ -3006,7 +3007,7 @@ std::vector<SDL_Event> LSG_Run();
 
 Handles events and renders the UI components.
 
-Returns a list of SDL2 events available during this run.
+Returns a list of SDL events available during this run.
 
 Exceptions
 
@@ -4460,7 +4461,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
+LSG_SetTitle("ModalIdAbout", "SDL GUI Library");
 ```
 
 ### LSG_SetToggle
@@ -4776,7 +4777,7 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile);
 
 Tries to initialize the library and open a new window based on layout from XML file.
 
-Returns an SDL2 renderer.
+Returns an SDL renderer.
 
 Parameters
 

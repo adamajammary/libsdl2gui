@@ -114,15 +114,15 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
 	if ((SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) || (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0))
-		throw std::runtime_error(std::format("Failed to initialize SDL2: {}", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL: {}", SDL_GetError()));
 
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
 	if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP) < 15)
-		throw std::runtime_error(std::format("Failed to initialize SDL2_image: {}", IMG_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL_image: {}", IMG_GetError()));
 
 	if (TTF_Init() < 0)
-		throw std::runtime_error(std::format("Failed to initialize SDL2_ttf: {}", TTF_GetError()));
+		throw std::runtime_error(std::format("Failed to initialize SDL_ttf: {}", TTF_GetError()));
 
 	auto renderer = LSG_Window::Open(title, width, height);
 
