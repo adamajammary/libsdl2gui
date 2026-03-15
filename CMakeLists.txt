@@ -175,16 +175,20 @@ else()
     add_library(sdl2gui SHARED ${SOURCES_CPP} ${SOURCES_H} ${INC_H} ${RC})
 endif()
 
-set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}")
-
 target_compile_definitions(sdl2gui PRIVATE ${OS} _CRT_SECURE_NO_WARNINGS NOMINMAX MAKEDLL)
 target_include_directories(sdl2gui PRIVATE ${INCS})
 
 if (MSVC)
-    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-openmp")
+    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "-openmp")
+
+    target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS})
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "-Xclang" "-fopenmp")
+
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-Xclang" "-fopenmp")
 else()
+    set_property(TARGET sdl2gui PROPERTY COMPILE_FLAGS "${OS_CFLAGS}" "-fopenmp")
+
     target_link_libraries(sdl2gui PRIVATE ${OS_LIBS} ${LIBS} "-fopenmp")
 endif()
 
