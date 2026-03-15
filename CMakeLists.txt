@@ -341,18 +341,18 @@ endif()
 if (OS STREQUAL "_linux")
     add_custom_target(testsdl2gui_rpath ALL DEPENDS testsdl2gui)
 
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND patchelf --set-rpath '\$$ORIGIN' ${DIST_DIR}/bin/testsdl2gui)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND patchelf --set-rpath '\$$ORIGIN' ${DIST_DIR}/bin/testsdl2gui)
 elseif (OS STREQUAL "_macosx")
     add_custom_target(testsdl2gui_rpath ALL DEPENDS testsdl2gui)
 
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_OMP}  @executable_path/${EXT_LIB_OMP}  ${DIST_DIR}/bin/libsdl2gui.dylib)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_SDL}  @executable_path/${EXT_LIB_SDL}  ${DIST_DIR}/bin/libsdl2gui.dylib)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_SDLI} @executable_path/${EXT_LIB_SDLI} ${DIST_DIR}/bin/libsdl2gui.dylib)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_SDLT} @executable_path/${EXT_LIB_SDLT} ${DIST_DIR}/bin/libsdl2gui.dylib)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_XML}  @executable_path/${EXT_LIB_XML}  ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_OMP}  @executable_path/${EXT_LIB_OMP}  ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_SDL}  @executable_path/${EXT_LIB_SDL}  ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_SDLI} @executable_path/${EXT_LIB_SDLI} ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_SDLT} @executable_path/${EXT_LIB_SDLT} ${DIST_DIR}/bin/libsdl2gui.dylib)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_XML}  @executable_path/${EXT_LIB_XML}  ${DIST_DIR}/bin/libsdl2gui.dylib)
 
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/libsdl2gui.dylib @executable_path/libsdl2gui.dylib ${DIST_DIR}/bin/testsdl2gui)
-    add_custom_command(TARGET testsdl2gui_rpath COMMAND install_name_tool -change @rpath/${EXT_LIB_SDL}   @executable_path/${EXT_LIB_SDL}   ${DIST_DIR}/bin/testsdl2gui)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/libsdl2gui.dylib @executable_path/libsdl2gui.dylib ${DIST_DIR}/bin/testsdl2gui)
+    add_custom_command(TARGET testsdl2gui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_SDL}   @executable_path/${EXT_LIB_SDL}   ${DIST_DIR}/bin/testsdl2gui)
 endif()
 
 # install
