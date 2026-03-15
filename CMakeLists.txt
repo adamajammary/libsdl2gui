@@ -213,7 +213,8 @@ add_custom_command(TARGET sdl2gui POST_BUILD COMMAND cp -f ${INC_H} ${DIST_DIR}/
 
 # licenses
 
-if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
+if (EXISTS "${EXT_LIB_DIR}/LICENSE-openmp.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-openmp.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2_ttf.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2_image.txt")
