@@ -237,9 +237,6 @@ int SDL_main(int argc, char* argv[])
 }
 
 #if !defined _windows
-#if defined __cplusplus
-extern "C"
-#endif
 int main(int argc, char* argv[])
 {
 #if defined _ios
