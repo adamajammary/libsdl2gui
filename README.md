@@ -148,7 +148,6 @@ The app should now be installed on the device with the name **testsdl2gui**.
 > If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
 
 ![Screenshot of Test project on iPhone](screenshots/iphone_480p.png)
-![Screenshot of Test project on iPad](screenshots/ipad_480p.png)
 
 ### macOS
 
