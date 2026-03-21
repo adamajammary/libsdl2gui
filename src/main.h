@@ -8,8 +8,10 @@
 #include <cwctype>   // iswspace()
 #include <format>
 #include <fstream>
+#include <mutex>
 #include <omp.h>     // #pragma omp parallel for
 #include <set>
+#include <thread>
 #include <unordered_map>
 
 #if defined _android

@@ -58,10 +58,14 @@ void LSG_Tiles::Activate(const SDL_Point& mousePosition) const
 
 void LSG_Tiles::AddTile(const LSG_TileItem& tile)
 {
+	this->tilesLock.lock();
+
 	this->tiles.push_back({
 		.image = { .filePath = tile.image },
 		.text  = { .text     = tile.text  }
 	});
+
+	this->tilesLock.unlock();
 
 	this->reset();
 }
@@ -274,8 +278,12 @@ void LSG_Tiles::destroyTextures(LSG_Tile& tile)
 
 void LSG_Tiles::destroyTextures()
 {
+	this->tilesLock.lock();
+
 	for (auto& tile : this->tiles)
 		this->destroyTextures(tile);
+
+	this->tilesLock.unlock();
 }
 
 SDL_Rect LSG_Tiles::getGrid()
@@ -583,7 +591,11 @@ void LSG_Tiles::RemoveTile(int index)
 
 	this->destroyTextures(this->tiles[index]);
 
+	this->tilesLock.lock();
+
 	this->tiles.erase(this->tiles.begin() + (size_t)index);
+
+	this->tilesLock.unlock();
 
 	this->reset();
 
@@ -1147,6 +1159,8 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 	if ((index < 0) || (index >= (int)this->tiles.size()))
 		return;
 
+	this->tilesLock.lock();
+
 	this->destroyTextures(this->tiles[index]);
 	this->destroySurfaces(this->tiles[index]);
 
@@ -1155,12 +1169,17 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 		.text  = { .text     = tile.text  }
 	};
 
+	this->tilesLock.unlock();
+
 	this->reset();
 }
 
 void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 {
 	this->destroyTextures();
+
+	this->tilesLock.lock();
+
 	this->destroySurfaces();
 
 	this->tiles.clear();
@@ -1172,6 +1191,8 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 			.text  = { .text     = tile.text  }
 		});
 	}
+
+	this->tilesLock.unlock();
 
 	this->reset(true);
 
@@ -1187,11 +1208,13 @@ void LSG_Tiles::setTiles()
 {
 	LSG_Graphics::DestroyTextures();
 
-	LSG_Tiles::setTileSurfaces();
+	std::thread(&LSG_Tiles::setTileSurfaces, this).detach();
 }
 
 void LSG_Tiles::setTileSurfaces()
 {
+	this->tilesLock.lock();
+
 	this->destroySurfaces();
 
 	#pragma omp parallel for
@@ -1205,10 +1228,14 @@ void LSG_Tiles::setTileSurfaces()
 		if (!tile.text.text.empty())
 			tile.text.surface = this->getSurface(tile.text.text);
 	}
+
+	this->tilesLock.unlock();
 }
 
 void LSG_Tiles::setTileTextures()
 {
+	this->tilesLock.lock();
+
 	for (auto& tile : this->tiles)
 	{
 		if (!tile.image.filePath.empty() && !tile.image.texture.texture && tile.image.surface)
@@ -1227,4 +1254,6 @@ void LSG_Tiles::setTileTextures()
 	}
 
 	this->destroySurfaces();
+
+	this->tilesLock.unlock();
 }

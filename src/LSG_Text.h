@@ -12,6 +12,9 @@ public:
 protected:
 	bool wrap;
 
+private:
+	std::mutex surfaceLock;
+
 public:
 	static bool                FontSupportsText(TTF_Font* font, uint16_t* text);
 	static TTF_Font*           GetFont(int size, uint16_t* text = nullptr);

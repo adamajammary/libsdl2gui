@@ -46,6 +46,7 @@ private:
 	int                   textPadding;
 	int                   tileSize;
 	std::vector<LSG_Tile> tiles;
+	std::mutex            tilesLock;
 	int                   tilesPerRow;
 	int                   totalSize;
 	bool                  wrapTiles;
