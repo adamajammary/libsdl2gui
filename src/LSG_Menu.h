@@ -10,7 +10,7 @@ public:
 	~LSG_Menu();
 
 public:
-	static const int LayerOffset = 1000000000;
+	static const int LayerOffset = 100000000;
 
 private:
 	static const int DefaultWidth   = 300;
@@ -30,7 +30,9 @@ public:
 	bool         IsHighlightedNavBack() const;
 	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition) const;
 	bool         IsOpen() const;
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	void         Navigate(LSG_Component* component);
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
+	void         Open();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
 	void         Render(SDL_Renderer* renderer);
 	void         SetMenu();
@@ -43,17 +45,17 @@ private:
 	SDL_Rect              getNavBackHighlight(const SDL_Rect& menu) const;
 	int                   getTextureHeight(const SDL_Rect& background) const;
 	bool                  isMouseOverIconClose(const SDL_Point& mousePosition) const;
-	bool                  isMouseOverMenu(const SDL_Point&      mousePosition) const;
-	bool                  isMouseOverNavBack(const SDL_Point&   mousePosition) const;
-	void                  navigate(LSG_Component* component);
-	void                  open();
-	void                  renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu);
-	void                  renderIconClose(SDL_Renderer*  renderer, const SDL_Rect& menu);
-	void                  renderIconOpen(SDL_Renderer* renderer);
-	void                  renderMenu(SDL_Renderer*     renderer);
+	bool                  isMouseOverMenu(const SDL_Point& mousePosition) const;
+	bool                  isMouseOverNavBack(const SDL_Point& mousePosition) const;
+	void                  renderHeaderLine(SDL_Renderer* renderer, const SDL_Rect& menu) const;
+	void                  renderHighlightIconOpen(SDL_Renderer* renderer, const SDL_Rect& background) const;
+	void                  renderIconClose(SDL_Renderer*  renderer, const SDL_Rect& menu) const;
+	void                  renderIconOpen(SDL_Renderer* renderer) const;
+	void                  renderMenu(SDL_Renderer* renderer);
 	void                  renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, const SDL_Size& textureSize);
-	void                  renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu);
-	void                  renderTitle(SDL_Renderer*   renderer, const SDL_Rect& menu);
+	void                  renderMenuItems(SDL_Renderer* renderer) const;
+	void                  renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu) const;
+	void                  renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu) const;
 	virtual void          sendEvent(LSG_EventType type) const override {};
 	void                  setMenuOpened();
 	void                  setMenuClosed();

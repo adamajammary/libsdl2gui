@@ -3,37 +3,50 @@
 LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->lastFontSize  = 0;
-	this->lastFontStyle = -1;
-	this->lastTextColor = {};
-
 	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
+}
+
+bool LSG_Text::FontSupportsText(TTF_Font* font, uint16_t* text)
+{
+	if (!font || !text)
+		return false;
+
+	for (size_t i = 0; text[i] != 0; i++)
+	{
+		if (!std::iswspace(text[i]) && !TTF_GlyphIsProvided(font, text[i]))
+			return false;
+	}
+
+	return true;
 }
 
 /**
  * @throws invalid_argument
  */
-TTF_Font* LSG_Text::GetFontArial(int fontSize)
+TTF_Font* LSG_Text::GetFont(int size, uint16_t* text)
 {
-	#if defined _android
-		auto FONT_PATH = "/system/fonts/NotoSansCJK-Regular.ttc";
-	#elif defined _ios
-		auto fullPath  = LSG_Text::GetFullPath("ui/Arial Unicode.ttf");
-		auto FONT_PATH = fullPath.c_str();
-	#elif defined _linux
-		auto NOTO_SANS_CJK = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
-		auto DEJAVU_SANS   = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-		auto FONT_PATH     = (std::filesystem::exists(NOTO_SANS_CJK) ? NOTO_SANS_CJK : DEJAVU_SANS);
-	#elif defined  _macosx
-		auto FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf";
-	#elif defined _windows
-		auto FONT_PATH = "C:\\Windows\\Fonts\\ARIALUNI.TTF";
-	#endif
+	auto fontPath = LSG_Text::GetFullPath("fonts/DejaVuSans.ttf");
+	auto fontSize = LSG_Window::GetDPIScaled(size);
 
-	auto font = TTF_OpenFont(FONT_PATH, LSG_Graphics::GetDPIScaled(fontSize));
+	auto font = TTF_OpenFont(fontPath.c_str(), fontSize);
+
+	if (text && !LSG_Text::FontSupportsText(font, text))
+	{
+		TTF_CloseFont(font);
+
+		font = LSG_Text::GetFontCJK(fontSize);
+	}
 
 	if (!font)
-		throw std::invalid_argument(LSG_Text::Format("Failed to open default font '%s': %s", FONT_PATH, TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to open default font: {}", TTF_GetError()));
+
+	return font;
+}
+
+TTF_Font* LSG_Text::GetFontCJK(int size)
+{
+	auto fontPath = LSG_Text::GetFullPath("fonts/NotoSansCJK-Regular.ttc");
+	auto font     = TTF_OpenFont(fontPath.c_str(), size);
 
 	return font;
 }
@@ -41,9 +54,9 @@ TTF_Font* LSG_Text::GetFontArial(int fontSize)
 std::string LSG_Text::GetFullPath(const std::string& path)
 {
 	#if defined _windows
-		return (path.size() > 1 && path[1] != ':' ? LSG_Text::Format("%s%s", LSG_GetBasePath(), path.c_str()) : path);
+		return (path.size() > 1 && path[1] != ':' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
 	#else
-		return (!path.empty() && path[0] != '/' ? LSG_Text::Format("%s%s", LSG_GetBasePath(), path.c_str()) : path);
+		return (!path.empty() && path[0] != '/' ? std::format("{}{}", LSG_GetBasePath(), path) : path);
 	#endif
 }
 
@@ -82,51 +95,51 @@ LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 //	return xmlText;
 //}
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
 {
 	if (text.empty())
 		return nullptr;
+
+	this->surfaceLock.lock();
 
 	auto color = (!textColor    ? this->textColor      : *textColor);
 	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
 	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
 
-	auto font = LSG_Text::GetFontArial(size);
+	auto text16 = LSG_Text::ToUTF16(text);
+	auto font   = LSG_Text::GetFont(size, text16);
 
 	TTF_SetFontStyle(font, style);
 
-	SDL_Surface* surface   = nullptr;
-	auto         textUTF16 = LSG_Text::ToUTF16(text);
+	SDL_Surface* surface = nullptr;
 
 	if (this->wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, textUTF16, color, 0);
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, color, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, textUTF16, color);
+		surface = TTF_RenderUNICODE_Blended(font, text16, color);
 
 	TTF_CloseFont(font);
-	SDL_free(textUTF16);
+	SDL_free(text16);
 
 	if (!surface)
-		throw std::invalid_argument(LSG_Text::Format("Failed to create a Unicode surface: %s", TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));
 
+	this->surfaceLock.unlock();
+
+	return surface;
+}
+
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+{
+	if (text.empty())
+		return nullptr;
+
+	auto surface = this->getSurface(text, fontSize, fontStyle, textColor);
 	auto texture = LSG_Window::ToTexture(surface);
 
 	SDL_FreeSurface(surface);
 
-	this->lastFontSize  = size;
-	this->lastFontStyle = style;
-	this->lastTextColor = SDL_Color(color);
-
 	return texture;
-}
-
-bool LSG_Text::hasChanged()
-{
-	bool isColorChanged     = !LSG_Graphics::IsColorEquals(this->textColor, this->lastTextColor);
-	bool isFontSizeChanged  = (this->getFontSize()  != this->lastFontSize);
-	bool isFontStyleChanged = (this->getFontStyle() != this->lastFontStyle);
-
-	return (isColorChanged || isFontSizeChanged || isFontStyleChanged);
 }
 
 std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separator)
@@ -168,7 +181,7 @@ uint16_t* LSG_Text::ToUTF16(const std::string& text)
 	#endif
 
 	if (!textUTF16)
-		throw std::invalid_argument(LSG_Text::Format("Failed to convert UTF8 text '%s'", formattedText.c_str()));
+		throw std::invalid_argument(std::format("Failed to convert UTF8 text '{}'", formattedText));
 
 	return textUTF16;
 }

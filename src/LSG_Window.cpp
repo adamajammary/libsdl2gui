@@ -1,5 +1,6 @@
 #include "LSG_Window.h"
 
+float         LSG_Window::dpiScale  = 1.0f;
 SDL_Renderer* LSG_Window::renderer  = nullptr;
 SDL_SysWMinfo LSG_Window::sysWmInfo = {};
 SDL_Window*   LSG_Window::window    = nullptr;
@@ -15,16 +16,21 @@ void LSG_Window::Close()
 		SDL_DestroyWindow(LSG_Window::window);
 		LSG_Window::window = nullptr;
 	}
-
-	SDL_Quit();
 }
 
-float LSG_Window::GetDPI()
+#if defined _android
+float LSG_Window::getDPIScale()
 {
 	float dpi;
 	SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(LSG_Window::window), &dpi, nullptr, nullptr);
 
 	return dpi;
+}
+#endif
+
+int LSG_Window::GetDPIScaled(int value)
+{
+	return (int)((float)value * LSG_Window::dpiScale);
 }
 
 #if defined _windows
@@ -69,13 +75,18 @@ SDL_Point LSG_Window::GetPosition()
 	return position;
 }
 
+/**
+ * @throws runtime_error
+ */
 SDL_Size LSG_Window::GetSize()
 {
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 
-	SDL_SetRenderTarget(LSG_Window::renderer, nullptr);
-
 	SDL_Size size = {};
+
+	if (SDL_SetRenderTarget(LSG_Window::renderer, nullptr) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
+
 	SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
@@ -103,22 +114,33 @@ std::string LSG_Window::GetTitle()
 	return SDL_GetWindowTitle(LSG_Window::window);
 }
 
-void LSG_Window::InitRenderTarget(SDL_Texture** renderTarget, const SDL_Size& textureSize)
+/**
+ * @throws runtime_error
+ */
+void LSG_Window::InitRenderTarget(SDL_Texture* &renderTarget, const SDL_Size& textureSize)
 {
-	if (*renderTarget)
+	if (renderTarget)
 	{
-		auto targetSize = LSG_Graphics::GetTextureSize(*renderTarget);
+		auto targetSize = LSG_Graphics::GetTextureSize(renderTarget);
 
 		if ((textureSize.width != targetSize.width) || (textureSize.height != targetSize.height)) {
-			SDL_DestroyTexture(*renderTarget);
-			*renderTarget = nullptr;
+			SDL_DestroyTexture(renderTarget);
+			renderTarget = nullptr;
 		}
 	}
 
-	if (!*renderTarget) {
-		auto format   = SDL_GetWindowPixelFormat(LSG_Window::window);
-		*renderTarget = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
+	if (!renderTarget)
+	{
+		auto format = SDL_GetWindowPixelFormat(LSG_Window::window);
+
+		if (format == SDL_PIXELFORMAT_UNKNOWN)
+			throw std::runtime_error(std::format("Failed to get window pixel format: {}", SDL_GetError()));
+
+		renderTarget = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, textureSize.width, textureSize.height);
 	}
+
+	if (!renderTarget)
+		throw std::runtime_error(std::format("Failed to create a render target: {}", SDL_GetError()));
 }
 
 bool LSG_Window::IsMaximized()
@@ -139,7 +161,7 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 	);
 
 	if (!LSG_Window::window)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a window: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a window: {}", SDL_GetError()));
 
 	#if defined _linux || defined _macosx || defined _windows
 		auto iconFile    = LSG_Text::GetFullPath("img/icon.png");
@@ -148,8 +170,6 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		SDL_SetWindowIcon(LSG_Window::window, iconSurface);
 		SDL_FreeSurface(iconSurface);
 	#endif
-
-	SDL_SetWindowMinimumSize(LSG_Window::window, LSG_Window::MinSize, LSG_Window::MinSize);
 
     SDL_VERSION(&LSG_Window::sysWmInfo.version);
     SDL_GetWindowWMInfo(LSG_Window::window, &LSG_Window::sysWmInfo);
@@ -160,7 +180,17 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_SOFTWARE);
 
 	if (!LSG_Window::renderer)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
+
+	SDL_RendererInfo renderInfo = {};
+
+	if (SDL_GetRendererInfo(LSG_Window::renderer, &renderInfo) < 0)
+		throw std::runtime_error(std::format("Failed to validate renderer: {}", SDL_GetError()));
+
+	if ((renderInfo.flags & SDL_RENDERER_TARGETTEXTURE) < SDL_RENDERER_TARGETTEXTURE)
+		throw std::runtime_error(std::format("The renderer does not support target textures: {}\n", SDL_GetError()));
+
+	LSG_Window::SetDPIScale();
 
 	return LSG_Window::renderer;
 }
@@ -174,12 +204,12 @@ void LSG_Window::OpenTest()
 	auto surface = SDL_CreateRGBSurfaceWithFormat(0, 800, 600, 24, SDL_PIXELFORMAT_RGB24);
 
 	if (!surface)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a surface: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a surface: {}", SDL_GetError()));
 
 	LSG_Window::renderer = SDL_CreateSoftwareRenderer(surface);
 
 	if (!LSG_Window::renderer)
-		throw std::runtime_error(LSG_Text::Format("Failed to create a renderer: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
 }
 #endif
 
@@ -196,9 +226,9 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 		(openFolder ? "Select a folder" : "Select a file"),
 		nullptr,
 		(openFolder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN),
-		GTK_STOCK_CANCEL,
+		"_Cancel",
 		GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN,
+		"_Open",
 		GTK_RESPONSE_ACCEPT,
 		nullptr
 	);
@@ -701,12 +731,16 @@ void LSG_Window::Render()
 	LSG_UI::Render(LSG_Window::renderer);
 }
 
+/**
+ * @throws runtime_error
+ */
 SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format)
 {
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 	auto newTexture   = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, size.width, size.height);
 
-	SDL_SetRenderTarget(LSG_Window::renderer, newTexture);
+	if (SDL_SetRenderTarget(LSG_Window::renderer, newTexture) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
 	SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
 
@@ -735,9 +769,9 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 		"Save File",
 		nullptr,
 		GTK_FILE_CHOOSER_ACTION_SAVE,
-		GTK_STOCK_CANCEL,
+		"_Cancel",
 		GTK_RESPONSE_CANCEL,
-		GTK_STOCK_SAVE_AS,
+		"_Save",
 		GTK_RESPONSE_ACCEPT,
 		nullptr
 	);
@@ -865,6 +899,15 @@ std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 }
 #endif
 
+void LSG_Window::SetDPIScale()
+{
+	#if defined _android
+		LSG_Window::dpiScale = (LSG_Window::getDPIScale() / 160.0f);
+	#else
+		LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
+	#endif
+}
+
 void LSG_Window::SetMaximized(bool maximized)
 {
 	if (maximized)
@@ -907,7 +950,7 @@ SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)
 	auto texture  = IMG_LoadTexture(LSG_Window::renderer, filePath.c_str());
 	
 	if (!texture)
-		throw std::runtime_error(LSG_Text::Format("Failed to create texture from image '%s': %s", filePath.c_str(), SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create texture from image '{}': {}", filePath, SDL_GetError()));
 
 	return texture;
 }
@@ -920,7 +963,7 @@ SDL_Texture* LSG_Window::ToTexture(SDL_Surface* surface)
 	auto texture = SDL_CreateTextureFromSurface(LSG_Window::renderer, surface);
 
 	if (!texture)
-		throw std::runtime_error(LSG_Text::Format("Failed to create texture from surface: %s", SDL_GetError()));
+		throw std::runtime_error(std::format("Failed to create texture from surface: {}", SDL_GetError()));
 
 	return texture;
 }

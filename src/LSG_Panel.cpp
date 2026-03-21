@@ -13,35 +13,14 @@ LSG_Panel::~LSG_Panel()
 		SDL_DestroyTexture(this->renderTarget);
 }
 
-void LSG_Panel::AddButton(const LSG_ButtonItem& button)
-{
-	auto buttonNode = LSG_XML::AddChildNode(this->xmlNode, "button");
-
-	if (!buttonNode)
-		return;
-
-	LSG_XML::SetAttribute(buttonNode, "id", button.id);
-
-	auto textNode = LSG_XML::AddChildNode(buttonNode, "text");
-
-	LSG_XML::SetValue(textNode, button.text);
-
-	auto buttonComponent = LSG_UI::AddXmlNode(buttonNode, this);
-
-	buttonComponent->SetAlignmentHorizontal(button.halign);
-	buttonComponent->SetAlignmentVertical(button.valign);
-
-	auto textComponent = LSG_UI::AddXmlNode(textNode, buttonComponent);
-
-	textComponent->SetColors();
-}
-
 SDL_Size LSG_Panel::GetSize() const
 {
-	auto attributes  = this->GetXmlAttributes();
-	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
-	bool isVertical  = (orientation == "vertical");
-	auto spacing     = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
+	if (this->children.empty() || !this->IsScrollablePanel(true))
+		return { this->background.w, this->background.h };
+
+	bool isVertical = this->IsVertical();
+	auto xmlSpacing = this->GetXmlAttribute("spacing");
+	auto spacing    = (!xmlSpacing.empty() ? LSG_Window::GetDPIScaled(std::atoi(xmlSpacing.c_str())) : 0);
 
 	SDL_Size totalSize       = {};
 	int      visibleChildren = 0;
@@ -54,8 +33,8 @@ SDL_Size LSG_Panel::GetSize() const
 		auto     childMargin2x = (child->margin + child->margin);
 		SDL_Size childSize     = { child->background.w, child->background.h };
 
-		if (child->IsButton())
-			childSize = static_cast<LSG_Button*>(child)->GetSize();
+		if (child->IsCards())
+			childSize = static_cast<LSG_Cards*>(child)->GetSize();
 		else if (child->IsImage())
 			childSize = static_cast<LSG_Image*>(child)->GetSize();
 		else if (child->IsList())
@@ -64,9 +43,7 @@ SDL_Size LSG_Panel::GetSize() const
 			childSize = static_cast<LSG_Panel*>(child)->GetSize();
 		else if (child->IsTable())
 			childSize = static_cast<LSG_Table*>(child)->GetSize();
-		else if (child->IsTextInput())
-			childSize = static_cast<LSG_TextInput*>(child)->GetSize();
-		else if (child->IsTextLabel())
+		else  if (child->IsTextLabel())
 			childSize = static_cast<LSG_TextLabel*>(child)->GetSize();
 		else if (child->IsTiles())
 			childSize = static_cast<LSG_Tiles*>(child)->GetSize();
@@ -95,18 +72,32 @@ SDL_Size LSG_Panel::GetSize() const
 
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	if (this->showScrollY)
+	if (this->scrollVertical.show)
 		totalSize.width += scrollBarSize;
 
-	if (this->showScrollX)
+	if (this->scrollHorizontal.show)
 		totalSize.height += scrollBarSize;
 
-	return totalSize;
+	return {
+		std::max(totalSize.width,  this->background.w),
+		std::max(totalSize.height, this->background.h)
+	};
 }
 
 bool LSG_Panel::IsScroll() const
 {
 	return this->scrollable;
+}
+
+void LSG_Panel::OffsetBackgroundY(int headerHeight)
+{
+	for (auto child : this->children)
+	{
+		child->background.y += headerHeight;
+
+		if (child->IsPanel() && !child->IsScrollablePanel(true))
+			static_cast<LSG_Panel*>(child)->OffsetBackgroundY(headerHeight);
+	}
 }
 
 void LSG_Panel::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -121,23 +112,40 @@ void LSG_Panel::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->background.w = textureSize.width;
 	this->background.h = textureSize.height;
 
-	LSG_Component::Render(renderer);
+	auto border2x  = (this->borderWidth + this->borderWidth);
+	auto padding2x = (this->padding + this->padding);
 
-	SDL_Point offset = {
-		(position.x + this->border + this->padding),
-		(position.y + this->border + this->padding)
+	SDL_Rect background = {
+		(this->background.x + this->borderWidth + this->padding),
+		(this->background.y + this->borderWidth + this->padding),
+		(this->background.w - border2x - padding2x),
+		(this->background.h - border2x - padding2x)
 	};
 
-	SDL_Size maxSize = { this->background.w, this->background.h };
+	this->render(renderer, background);
+}
 
-	this->renderChildren(renderer, offset, maxSize);
+void LSG_Panel::render(SDL_Renderer* renderer, const SDL_Rect& background)
+{
+	if (this->borderRadius > 0) {
+		this->renderFillWithRoundedBorder(renderer, std::format("{}_background", this->id));
+	} else {
+		this->renderFill(renderer);
+		this->renderBorder(renderer);
+	}
+
+	this->renderChildren(renderer, background);
+
+	if (!this->enabled)
+		this->renderDisabled(renderer);
 }
 
 void LSG_Panel::Render(SDL_Renderer* renderer)
 {
-	this->scrollable  = false;
-	this->showScrollX = false;
-	this->showScrollY = false;
+	this->scrollable = false;
+
+	this->scrollHorizontal.show = false;
+	this->scrollVertical.show   = false;
 
 	if (!this->visible)
 		return;
@@ -149,23 +157,29 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 		return;
 	}
 
-	auto fillArea = this->getFillArea(this->background, this->border);
+	auto fillArea = this->getFillArea();
 
 	if (fillArea.h < LSG_ScrollBar::GetSize2x())
 		return;
 
 	auto textureSize = this->GetSize();
 
-	if ((textureSize.width <= this->background.w) && (textureSize.height <= this->background.h)) {
-		LSG_Component::Render(renderer);
+	if ((textureSize.width <= this->background.w) && (textureSize.height <= this->background.h))
+	{
+		fillArea.x += this->padding;
+		fillArea.y += this->padding;
+
+		this->render(renderer, fillArea);
+
 		return;
 	}
 
 	auto scrollBarSize = LSG_ScrollBar::GetSize();
 
-	this->scrollable  = true;
-	this->showScrollX = ((textureSize.width  + scrollBarSize) > this->background.w);
-	this->showScrollY = ((textureSize.height + scrollBarSize) > this->background.h);
+	this->scrollable = true;
+
+	this->scrollHorizontal.show = ((textureSize.width  + scrollBarSize) > this->background.w);
+	this->scrollVertical.show   = ((textureSize.height + scrollBarSize) > this->background.h);
 
 	SDL_Size maxSize = {
 		std::max(this->background.w, textureSize.width),
@@ -175,31 +189,39 @@ void LSG_Panel::Render(SDL_Renderer* renderer)
 	this->renderContentToTexture(renderer, maxSize);
 
 	this->renderContent(renderer, fillArea, maxSize);
-	this->renderBorder(renderer,  this->border, this->borderColor, this->background);
-	this->renderScroll(renderer,  fillArea, maxSize);
+
+	this->renderBorder(renderer);
+
+	this->renderScroll(renderer, fillArea, maxSize);
 }
 
-void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, const SDL_Size& maxSize)
+void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Rect& background)
 {
-	auto attributes  = this->GetXmlAttributes();
-	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
-	auto spacing     = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
+	bool isVertical = this->IsVertical();
+	auto xmlSpacing = this->GetXmlAttribute("spacing");
+	auto spacing    = (!xmlSpacing.empty() ? LSG_Window::GetDPIScaled(std::atoi(xmlSpacing.c_str())) : 0);
 
-	LSG_UmapStrSize sizes;
-
-	for (auto child : this->children) {
-		if (child->visible)
-			sizes[child->GetID()] = { child->background.w, child->background.h };
-	}
-
-	bool isVertical  = (orientation == "vertical");
-	auto contentSize = (isVertical ? maxSize.height : maxSize.width);
-
-	SDL_Point offsetPosition = offset;
+	int contentSize     = 0;
+	int visibleChildren = 0;
 
 	for (auto child : this->children)
 	{
-		if (!sizes.contains(child->GetID()))
+		if (!child->visible)
+			continue;
+
+		contentSize += (isVertical ? child->background.h : child->background.w);
+
+		visibleChildren++;
+	}
+
+	auto contentSpacing = (spacing * (visibleChildren - 1));
+
+	SDL_Point offsetPosition = { background.x, background.y };
+	SDL_Size  maxSize        = { background.w, background.h };
+
+	for (auto child : this->children)
+	{
+		if (!child->visible)
 			continue;
 
 		if (isVertical)
@@ -207,30 +229,36 @@ void LSG_Panel::renderChildren(SDL_Renderer* renderer, const SDL_Point& offset, 
 		else
 			offsetPosition.x += child->margin;
 
-		auto renderPosition = LSG_UI::GetAlignedPosition(offsetPosition, attributes, sizes, contentSize, maxSize, child, this);
+		auto position = LSG_UI::GetAlignedPosition(offsetPosition, contentSize, contentSpacing, maxSize, child, this);
 
 		if (child->IsButton())
-			static_cast<LSG_Button*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Button*>(child)->Render(renderer, position);
+		else if (child->IsCards())
+			static_cast<LSG_Cards*>(child)->Render(renderer, position);
 		else if (child->IsImage())
-			static_cast<LSG_Image*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Image*>(child)->Render(renderer, position);
 		else if (child->IsLine())
-			static_cast<LSG_Line*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Line*>(child)->Render(renderer, position);
 		else if (child->IsList())
-			static_cast<LSG_List*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_List*>(child)->Render(renderer, position);
+		else if (child->IsNavigation())
+			static_cast<LSG_Navigation*>(child)->Render(renderer, position);
 		else if (child->IsPanel())
-			static_cast<LSG_Panel*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Panel*>(child)->Render(renderer, position);
 		else if (child->IsProgressBar())
-			static_cast<LSG_ProgressBar*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_ProgressBar*>(child)->Render(renderer, position);
 		else if (child->IsSlider())
-			static_cast<LSG_Slider*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Slider*>(child)->Render(renderer, position);
 		else if (child->IsTable())
-			static_cast<LSG_Table*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Table*>(child)->Render(renderer, position);
 		else if (child->IsTextInput())
-			static_cast<LSG_TextInput*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_TextInput*>(child)->Render(renderer, position);
 		else if (child->IsTextLabel())
-			static_cast<LSG_TextLabel*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_TextLabel*>(child)->Render(renderer, position);
 		else if (child->IsTiles())
-			static_cast<LSG_Tiles*>(child)->Render(renderer, renderPosition);
+			static_cast<LSG_Tiles*>(child)->Render(renderer, position);
+		else if (child->IsToggle())
+			static_cast<LSG_Toggle*>(child)->Render(renderer, position);
 
 		if (isVertical)
 			offsetPosition.y += (child->background.h + child->margin + spacing);
@@ -246,8 +274,8 @@ void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background
 	SDL_Rect destination = {
 		background.x,
 		background.y,
-		(background.w - (this->showScrollY ? scrollBarSize : 0)),
-		(background.h - (this->showScrollX ? scrollBarSize : 0))
+		(background.w - (this->scrollVertical.show   ? scrollBarSize : 0)),
+		(background.h - (this->scrollHorizontal.show ? scrollBarSize : 0))
 	};
 
 	SDL_Rect clip           = { 0, 0, destination.w, destination.h };
@@ -256,48 +284,49 @@ void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background
 	SDL_RenderCopy(renderer, this->renderTarget, &clipWithOffset, &destination);
 }
 
+/**
+ * @throws runtime_error
+ */
 void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& maxSize)
 {
-	LSG_Window::InitRenderTarget(&this->renderTarget, maxSize);
+	LSG_Window::InitRenderTarget(this->renderTarget, maxSize);
 
-	SDL_SetRenderTarget(renderer, this->renderTarget);
+	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
 	SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };
 
-	this->renderFill(renderer, 0, this->backgroundColor, background);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, background);
 
-	SDL_Point offsetPosition = { this->padding, this->padding };
+	auto padding2x = (this->padding + this->padding);
 
-	this->renderChildren(renderer, offsetPosition, maxSize);
+	background.x  = this->padding;
+	background.y  = this->padding;
+	background.w -= padding2x;
+	background.h -= padding2x;
+
+	this->renderChildren(renderer, background);
 
 	SDL_SetRenderTarget(renderer, nullptr);
 }
 
 void LSG_Panel::renderScroll(SDL_Renderer* renderer, const SDL_Rect& background, const SDL_Size& maxSize)
 {
-	if (this->showScrollX)
-		this->renderScrollBarHorizontal(renderer, background, maxSize.width,  this->backgroundColor, this->highlighted);
+	if (this->scrollHorizontal.show)
+		this->renderScrollBarHorizontal(renderer, background, maxSize.width,  this->backgroundColor, this->highlighted, this);
 
-	if (this->showScrollY)
-		this->renderScrollBarVertical(renderer,   background, maxSize.height, this->backgroundColor, this->highlighted);
+	if (this->scrollVertical.show)
+		this->renderScrollBarVertical(renderer,   background, maxSize.height, this->backgroundColor, this->highlighted, this);
 
-	if (!this->showScrollX || !this->showScrollY)
+	if (!this->scrollHorizontal.show || !this->scrollVertical.show)
 		return;
 
 	SDL_Rect bottomRight = {
-		(this->scrollBarX.x + this->scrollBarX.w),
-		(this->scrollBarY.y + this->scrollBarY.h),
-		(background.w - this->scrollBarX.w),
-		(background.h - this->scrollBarY.h)
+		(this->scrollHorizontal.bar.x + this->scrollHorizontal.bar.w),
+		(this->scrollVertical.bar.y   + this->scrollVertical.bar.h),
+		(background.w - this->scrollHorizontal.bar.w),
+		(background.h - this->scrollVertical.bar.h)
 	};
 
-	this->renderFill(renderer, 0, this->backgroundColor, bottomRight);
-}
-
-void LSG_Panel::SetButtons(const LSG_Buttons& buttons)
-{
-	LSG_UI::RemoveXmlChildNodes(this);
-
-	for (const auto& button : buttons)
-		LSG_Panel::AddButton(button);
+	LSG_Graphics::RenderFill(renderer, 0, this->backgroundColor, bottomRight);
 }

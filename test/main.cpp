@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 
 #include <cstdio> // snprintf(x)
+#include <format>
 
 #if defined _windows
 	#include <windows.h> // WinMain(x)
@@ -8,20 +9,11 @@
 
 #include <libsdl2gui.h>
 
-template<typename... Args>
-static std::string TextFormat(const char* formatString, const Args&... args)
+static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile, bool isInit = false)
 {
-    if (!formatString)
-        return "";
+    if ((colorThemeFile == LSG_GetColorTheme()) && !isInit)
+        return;
 
-    char buffer[1024] = {};
-    std::snprintf(buffer, 1024, formatString, args...);
-
-    return std::string(buffer);
-}
-
-static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile)
-{
     LSG_SetColorTheme(colorThemeFile);
 
     LSG_SetMenuItemSelected(menuItemId, true);
@@ -49,7 +41,7 @@ static void setColorTheme(const std::string& menuItemId, const std::string& colo
 static void handleIdEvent(const std::string& id)
 {
     if (id == "MenuIdAbout")
-        LSG_SetVisible("ModalIdAbout", true);
+        LSG_OpenModal("ModalIdAbout");
     else if ((id == "ButtonIdColorThemeDark") || (id == "MenuIdColorThemeDark"))
         setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
     else if ((id == "ButtonIdColorThemeLight") || (id == "MenuIdColorThemeLight"))
@@ -69,7 +61,7 @@ static void handleKeyEvent(const SDL_KeyboardEvent& event)
     else if (isCtrl && (key == SDLK_l))
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
     else if (isShift && (key == SDLK_F1))
-        LSG_SetVisible("ModalIdAbout", true);
+        LSG_OpenModal("ModalIdAbout");
 }
 
 static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
@@ -81,7 +73,9 @@ static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
             rowText.append("," + std::to_string(rows[i]));
     }
 
-    if (id == "List")
+    if (id == "Cards")
+        LSG_SetText("CardRow", rowText);
+    else if (id == "List")
         LSG_SetText("ListRow", rowText);
     else if (id == "TableWithGroups")
         LSG_SetText("TableWithGroupsRow", rowText);
@@ -97,7 +91,7 @@ static void handleTileEvent(const std::string& id, const std::vector<int>& tiles
     }
 
     if (id == "Tiles")
-        LSG_SetText("Tile", tileText);
+        LSG_SetText("TileIndex", tileText);
 }
 
 static void handleUserEvent(const SDL_UserEvent& event)
@@ -128,17 +122,19 @@ static void handleUserEvent(const SDL_UserEvent& event)
         break;
     case LSG_EVENT_SLIDER_VALUE_CHANGED:
         if (id == "Slider")
-            LSG_SetText("SliderValue", TextFormat("%.2f", *static_cast<double*>(event.data2)));
+            LSG_SetText("SliderValue", std::format("{:.2f}", *static_cast<double*>(event.data2)));
         break;
     case LSG_EVENT_TILE_SELECTED:
     case LSG_EVENT_TILE_UNSELECTED:
         handleTileEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
     case LSG_EVENT_TOGGLED_OFF:
-        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
+        if (id == "Toggle")
+            setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
         break;
     case LSG_EVENT_TOGGLED_ON:
-        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+        if (id == "Toggle")
+            setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
         break;
     default:
         break;
@@ -157,18 +153,6 @@ static void handleUserEvent(const SDL_UserEvent& event)
             delete static_cast<SDL_Keycode*>(event.data2);
     }
 }
-
-#if defined _android || defined _ios
-static int handleMobileEvents(void* userdata, SDL_Event* event)
-{
-    if (event->type == SDL_APP_TERMINATING) {
-        LSG_Quit();
-        return 0;
-    }
-
-    return 1;
-}
-#endif
 
 static void handleEvents(const std::vector<SDL_Event>& events)
 {
@@ -216,16 +200,12 @@ int SDL_main(int argc, char* argv[])
     {
         SDL_Renderer* renderer = LSG_Start("ui/main.xml");
 
-	    #if defined _android || defined _ios
-		    SDL_SetEventFilter(handleMobileEvents, nullptr);
-	    #endif
-
         if (LSG_IsRunning())
         {
             if (!LSG_IsPreferredDarkMode())
-                setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
+                setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme", true);
             else
-                setColorTheme("MenuIdColorThemeDark",  "ui/dark.colortheme");
+                setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme", true);
         }
 
         std::vector<SDL_Event> events;
@@ -257,9 +237,6 @@ int SDL_main(int argc, char* argv[])
 }
 
 #if !defined _windows
-#if defined __cplusplus
-extern "C"
-#endif
 int main(int argc, char* argv[])
 {
 #if defined _ios

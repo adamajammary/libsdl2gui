@@ -10,25 +10,29 @@ public:
 	~LSG_Image();
 
 private:
-	SDL_Texture*         downscaledTexture;
+	SDL_FPoint           aspectRatio;
 	std::string          file;
 	bool                 fill;
 	SDL_Size             imageSize;
 	LSG_ImageOrientation orientation;
+	SDL_FPoint           scaleFactor;
 
 public:
-	SDL_Size     GetImageSize() const;
-	SDL_Size     GetSize() const;
-	SDL_Size     GetTextureSize() const;
+	SDL_Size     GetSize();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	void         Render(SDL_Renderer* renderer);
-	void         SetImage(const std::string& file, bool fill = false);
-	void         SetImage();
+	void         Set(const std::string& file, bool fill = false);
+	void         Set();
 
 private:
-	virtual void destroyTextures() override;
-	SDL_Size     getMaxSize(const SDL_Rect& background) const;
-	void         render(SDL_Renderer* renderer);
+	void     downscaleTextureIcon(SDL_Size maxSize);
+	SDL_Size getMaxSize(const SDL_Rect& background) const;
+	void     render(SDL_Renderer* renderer);
+	void     rotate();
+	bool     scaleDown(const SDL_Point& downscaleFactor) const;
+	bool     scaleUp(const SDL_Size& textureSize, SDL_Size maxSize) const;
+	void     set();
+	void     setTexture();
 };
 
 #endif

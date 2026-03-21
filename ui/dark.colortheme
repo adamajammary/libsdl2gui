@@ -1,8 +1,12 @@
+ModalIdAbout.background-color=#202020
+ModalIdAbout.border-color=#FFFFFF
+ModalIdAbout.text-color=#FFFFFF
+
 Root.background-color=#202020
 Root.border-color=#FFFFFF
 Root.text-color=#FFFFFF
 
+PanelIdCards.background-color=#151515
 PanelIdList.background-color=#151515
 PanelIdTableWithGroups.background-color=#151515
-PanelIdTextWrap.background-color=#151515
 PanelIdTiles.background-color=#151515

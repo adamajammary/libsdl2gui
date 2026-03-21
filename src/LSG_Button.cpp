@@ -1,73 +1,74 @@
 #include "LSG_Button.h"
 
 LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
-	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
+	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->selected = false;
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
+
+	this->iconPath = (xmlAttributes.contains("icon") ? xmlAttributes["icon"] : "");
+	this->text     = (xmlAttributes.contains("text") ? xmlAttributes["text"] : "");
+
+	this->textures.resize(NR_OF_BUTTON_TEXTURES);
 }
 
-SDL_Size LSG_Button::GetSize() const
+void LSG_Button::downscaleTextureIcon(int maxSize)
 {
-	auto attributes  = this->GetXmlAttributes();
-	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
-	bool isVertical  = (orientation == "vertical");
-	auto spacing     = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
+	auto textureSize     = LSG_Graphics::GetTextureSize(this->textures[LSG_BUTTON_TEXTURE_ICON]);
+	auto downscaleFactor = LSG_Graphics::GetDownscaleFactor(textureSize, { maxSize, maxSize });
 
-	SDL_Size totalSize       = {};
-	int      visibleChildren = 0;
+	if (!this->scaleDown(downscaleFactor) && !this->scaleUp(textureSize, maxSize))
+		return;
 
-	for (auto child : this->children)
-	{
-		if (!child->visible)
-			continue;
+	if (this->textures[LSG_BUTTON_TEXTURE_ICON])
+		SDL_DestroyTexture(this->textures[LSG_BUTTON_TEXTURE_ICON]);
 
-		auto     childMargin2x = (child->margin + child->margin);
-		SDL_Size childSize     = { child->background.w, child->background.h };
-
-		if (child->IsImage())
-			childSize = static_cast<LSG_Image*>(child)->GetSize();
-		else if (child->IsTextLabel())
-			childSize = static_cast<LSG_TextLabel*>(child)->GetSize();
-
-		if (isVertical) {
-			totalSize.height += (childSize.height + childMargin2x);
-			totalSize.width   = std::max((childSize.width + childMargin2x), totalSize.width);
-		} else {
-			totalSize.width += (childSize.width + childMargin2x);
-			totalSize.height = std::max((childSize.height + childMargin2x), totalSize.height);
-		}
-
-		visibleChildren++;
-	}
-
-	auto border2x     = (this->border  + this->border);
-	auto padding2x    = (this->padding + this->padding);
-	auto totalSpacing = (spacing * (visibleChildren - 1));
-
-	if (isVertical) {
-		totalSize.height += (totalSpacing + padding2x + border2x);
-		totalSize.width  += (padding2x + border2x);
-	} else {
-		totalSize.width  += (totalSpacing + padding2x + border2x);
-		totalSize.height += (padding2x + border2x);
-	}
-
-	SDL_Size textureSize = {
-		(!attributes.contains("width")  ? totalSize.width  : this->background.w),
-		(!attributes.contains("height") ? totalSize.height : this->background.h)
-	};
-
-	return textureSize;
+	this->textures[LSG_BUTTON_TEXTURE_ICON] = LSG_Graphics::GetDownScaledTexture(this->iconPath, downscaleFactor);
 }
 
-bool LSG_Button::OnMouseClick(const SDL_Point& mousePosition)
+SDL_Rect LSG_Button::getIconDestination(int iconSize)
+{
+	SDL_Rect destination = this->background;
+
+	destination.w = iconSize;
+	destination.h = iconSize;
+
+	destination.x += ((this->background.w - iconSize) / 2);
+	destination.y += ((this->background.h - iconSize) / 2);
+
+	return destination;
+}
+
+SDL_Rect LSG_Button::getTextClip()
+{
+	SDL_Rect clip = {};
+
+	auto textureSize = LSG_Graphics::GetTextureSize(this->textures[LSG_BUTTON_TEXTURE_TEXT]);
+
+	clip.w = std::min(textureSize.width,  this->background.w);
+	clip.h = std::min(textureSize.height, this->background.h);
+
+	return clip;
+}
+
+SDL_Rect LSG_Button::getTextDestination(const SDL_Rect& clip)
+{
+	SDL_Rect destination = this->background;
+
+	destination.w = clip.w;
+	destination.h = clip.h;
+
+	destination.x += ((this->background.w - clip.w) / 2);
+	destination.y += ((this->background.h - clip.h) / 2);
+
+	return destination;
+}
+
+void LSG_Button::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled)
-		return false;
+		return;
 
 	this->sendEvent(LSG_EVENT_BUTTON_CLICKED);
-
-	return true;
 }
 
 void LSG_Button::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -75,93 +76,82 @@ void LSG_Button::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	if (!this->visible)
 		return;
 
-	auto attributes  = this->GetXmlAttributes();
-	auto textureSize = this->GetSize();
-
-	auto orientation = (attributes.contains("orientation") ? attributes["orientation"] : "");
-	auto spacing     = (attributes.contains("spacing") ? LSG_Graphics::GetDPIScaled(std::atoi(attributes["spacing"].c_str())) : 0);
-
 	this->background.x = position.x;
 	this->background.y = position.y;
-	this->background.w = textureSize.width;
-	this->background.h = textureSize.height;
-
-	LSG_Component::Render(renderer);
-
-	LSG_UmapStrSize sizes;
-
-	int  contentSize = 0;
-	bool isVertical  = (orientation == "vertical");
-
-	for (auto child : this->children)
-	{
-		if (!child->visible)
-			continue;
-
-		SDL_Size size = {};
-
-		if (child->IsImage())
-			size = static_cast<LSG_Image*>(child)->GetTextureSize();
-		else if (child->IsTextLabel())
-			size = static_cast<LSG_TextLabel*>(child)->GetTextureSize();
-
-		sizes[child->GetID()] = size;
-
-		if (isVertical)
-			contentSize += size.height;
-		else
-			contentSize += size.width;
-	}
-
-	SDL_Point offsetPosition = position;
-	SDL_Size  totalSize      = { this->background.w, this->background.h };
-
-	offsetPosition.x += (this->border + this->padding);
-	offsetPosition.y += (this->border + this->padding);
-
-	for (auto child : this->children)
-	{
-		if (!sizes.contains(child->GetID()))
-			continue;
-
-		if (isVertical)
-			offsetPosition.y += child->margin;
-		else
-			offsetPosition.x += child->margin;
-
-		auto renderPosition = LSG_UI::GetAlignedPosition(offsetPosition, attributes, sizes, contentSize, totalSize, child, this);
-
-		if (child->IsImage())
-			static_cast<LSG_Image*>(child)->Render(renderer, renderPosition);
-		else if (child->IsTextLabel())
-			static_cast<LSG_TextLabel*>(child)->Render(renderer, renderPosition);
-
-		if (isVertical)
-			offsetPosition.y += (child->background.h + child->margin + spacing);
-		else
-			offsetPosition.x += (child->background.w + child->margin + spacing);
-	}
 
 	this->render(renderer);
 }
 
-void LSG_Button::Render(SDL_Renderer* renderer) const
+void LSG_Button::Render(SDL_Renderer* renderer)
 {
-	if (!this->visible)
+	if (this->visible)
+		this->render(renderer);
+}
+
+void LSG_Button::render(SDL_Renderer* renderer)
+{
+	LSG_Component::Render(renderer);
+
+	auto iconTexture = this->textures[LSG_BUTTON_TEXTURE_ICON];
+	auto textTexture = this->textures[LSG_BUTTON_TEXTURE_TEXT];
+
+	if (!textTexture && !iconTexture)
 		return;
 
-	LSG_Component::Render(renderer);
+	SDL_Rect iconDestination, textClip, textDestination;
 
-	this->render(renderer);
-}
+	if (iconTexture)
+	{
+		int iconSize;
+		
+		if (this->IsVertical() && textTexture)
+			iconSize = (this->background.h / 4);
+		else
+			iconSize = (std::min(this->background.w, this->background.h) / 2);
 
-void LSG_Button::render(SDL_Renderer* renderer) const
-{
-	if (this->selected)
-		this->renderHighlight(renderer);
+		this->downscaleTextureIcon(iconSize);
+
+		iconDestination = this->getIconDestination(iconSize);
+	}
+
+	if (textTexture)
+	{
+		textClip        = this->getTextClip();
+		textDestination = this->getTextDestination(textClip);
+	}
+
+	if (textTexture && iconTexture)
+	{
+		if (this->IsVertical())
+			this->setLayoutVertical(iconDestination, textClip, textDestination);
+		else
+			this->setLayoutHorizontal(iconDestination, textClip, textDestination);
+	}
+
+	if (iconTexture)
+		SDL_RenderCopy(renderer, iconTexture, nullptr, &iconDestination);
+
+	if (textTexture)
+		SDL_RenderCopy(renderer, textTexture, &textClip, &textDestination);
+
+	if (!this->enabled)
+		this->renderDisabled(renderer);
 
 	if (this->enabled && this->highlighted)
 		this->renderHighlight(renderer);
+}
+
+bool LSG_Button::scaleDown(const SDL_Point& downscaleFactor) const
+{
+	return ((downscaleFactor.x > 1) || (downscaleFactor.y > 1));
+}
+
+bool LSG_Button::scaleUp(const SDL_Size& textureSize, int maxSize) const
+{
+	return (
+		((textureSize.width < maxSize) || (textureSize.height < maxSize)) &&
+		((this->iconSize.width > textureSize.width) || (this->iconSize.height > textureSize.height))
+	);
 }
 
 void LSG_Button::sendEvent(LSG_EventType type) const
@@ -178,17 +168,78 @@ void LSG_Button::sendEvent(LSG_EventType type) const
 	SDL_PushEvent(&clickEvent);
 }
 
-void LSG_Button::SetSelected(bool selected)
+void LSG_Button::Set(const std::string& text, const std::string& iconPath)
 {
-	if (!this->parent || (this->selected == selected))
+	if ((text == this->text) && (iconPath == this->iconPath))
 		return;
 
-	auto parentChildren = this->parent->GetChildren();
+	this->iconPath = iconPath;
+	this->text     = text;
 
-	for (auto child : parentChildren) {
-		if (child->IsButton())
-			static_cast<LSG_Button*>(child)->selected = false;
+	this->Set();
+}
+
+void LSG_Button::Set()
+{
+	this->destroyTextures();
+
+	this->textures.resize(NR_OF_BUTTON_TEXTURES);
+
+	if (!this->iconPath.empty())
+	{
+		this->textures[LSG_BUTTON_TEXTURE_ICON] = LSG_Window::ToTexture(this->iconPath);
+
+		if (this->textures[LSG_BUTTON_TEXTURE_ICON])
+			this->iconSize = LSG_Graphics::GetTextureSize(this->textures[LSG_BUTTON_TEXTURE_ICON]);
 	}
 
-	this->selected = selected;
+	if (!this->text.empty())
+		this->textures[LSG_BUTTON_TEXTURE_TEXT] = this->getTexture(this->text);
+}
+
+void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
+{
+	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingX);
+
+	auto totalWidth = (iconDestination.w + spacing + textDestination.w);
+	auto diffWidth  = (this->background.w - totalWidth);
+
+	if (diffWidth >= 0)
+	{
+		iconDestination.x = (this->background.x + ((this->background.w - totalWidth) / 2));
+		textDestination.x = (iconDestination.x + iconDestination.w + spacing);
+	}
+	else
+	{
+		iconDestination.x = (this->background.x + padding);
+		textDestination.x = (iconDestination.x + iconDestination.w + spacing);
+
+		textClip.w       -= std::abs(diffWidth);
+		textDestination.w = textClip.w;
+	}
+}
+
+void LSG_Button::setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
+{
+	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingY);
+
+	iconDestination.y -= ((iconDestination.h + spacing) / 2);
+	textDestination.y += ((textDestination.h + spacing) / 2);
+
+	auto minPositionX = (this->background.x);
+
+	if (textDestination.x < minPositionX)
+		textDestination.x = minPositionX;
+
+	auto totalHeight = (iconDestination.h + spacing + textDestination.h);
+	auto diffHeight  = (this->background.h - totalHeight);
+
+	if (diffHeight < 0)
+	{
+		iconDestination.y = this->background.y;
+		textDestination.y = (iconDestination.y + iconDestination.h + spacing);
+
+		textClip.h       -= std::abs(diffHeight);
+		textDestination.h = textClip.h;
+	}
 }

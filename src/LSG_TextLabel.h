@@ -10,13 +10,12 @@ public:
 	~LSG_TextLabel() {}
 
 public:
-	SDL_Size     GetSize() const;
-	SDL_Size     GetTextSize(const SDL_Size& maxSize) const;
-	SDL_Size     GetTextureSize() const;
+	SDL_Size     GetSize();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	void         Render(SDL_Renderer* renderer);
-	void         SetText(const std::string& text);
-	void         SetText();
+	void         Set(const std::string& text);
+	void         Set();
+	void         setTexture();
 
 private:
 	void render(SDL_Renderer* renderer);

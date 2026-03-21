@@ -9,30 +9,12 @@ struct LSG_TileRender
 	SDL_Rect destination = {};
 };
 
-struct LSG_TileTexture
-{
-	SDL_Texture* texture = nullptr;
-	SDL_Size     size    = {};
-};
-
-struct LSG_TileImage
-{
-	std::string     filePath = "";
-	LSG_TileTexture texture  = {};
-};
-
-struct LSG_TileText
-{
-	std::string     text    = "";
-	LSG_TileTexture texture = {};
-};
-
 struct LSG_Tile
 {
 	SDL_Rect      background  = {};
 	bool          highlighted = false;
-	LSG_TileImage image       = {};
-	LSG_TileText  text        = {};
+	LSG_ItemImage image       = {};
+	LSG_ItemText  text        = {};
 };
 
 class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
@@ -41,14 +23,13 @@ public:
 	LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Tiles();
 
-public:
-	static const int LayerOffset = 100000000;
-	static const int TextPadding = 2;
-	static const int TileBorder  = 2;
+private:
+	static const int DefaultSelectedBorderWidth = 2;
+	static const int DefaultTextPadding         = 10;
+	static const int DefaultTileSize            = 128;
 
 private:
-	static inline const SDL_Color TextBackground = { 0, 0, 0, 196 };
-	static inline const SDL_Color TileBackground = { 0, 0, 0,  64 };
+	static inline const SDL_Color DefaultTextBackground = { 0, 0, 0, 196 };
 
 private:
 	SDL_Rect              fillArea;
@@ -57,13 +38,15 @@ private:
 	LSG_TileRender        image;
 	int                   offset;
 	int                   rows;
+	int                   selectedBorderWidth;
 	std::vector<int>      selectedTiles;
 	int                   spacing;
 	LSG_TileRender        text;
 	LSG_Alignment         textAlignment;
-	int                   tileBorder;
+	int                   textPadding;
 	int                   tileSize;
 	std::vector<LSG_Tile> tiles;
+	std::mutex            tilesLock;
 	int                   tilesPerRow;
 	int                   totalSize;
 	bool                  wrapTiles;
@@ -79,7 +62,8 @@ public:
 	LSG_TileItem     GetTile(int index) const;
 	LSG_TileItems    GetTiles() const;
 	size_t           GetTilesCount() const;
-	virtual bool     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OffsetBackgroundY(int headerHeight);
+	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveTile(int index);
 	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
@@ -104,25 +88,26 @@ private:
 	void          calculateGridDimensions();
 	void          clipTileX(const LSG_Tile& tile);
 	void          clipTileY(const LSG_Tile& tile);
+	void          destroySurfaces(LSG_Tile& tile);
+	void          destroySurfaces();
 	void          destroyTextures(LSG_Tile& tile);
 	virtual void  destroyTextures() override;
 	SDL_Rect      getGrid();
-	SDL_Rect      getImageDestination() const;
 	int           getRowCount() const;
 	int           getScrollOffsetX() const;
 	int           getScrollOffsetY() const;
 	int           getSelectedTile() const;
 	LSG_Alignment getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const;
 	SDL_Rect      getTextDestination();
-	int           getTileSize() const;
+	int           getTileSize(int maxWidth) const;
 	int           getTilesPerRow() const;
 	bool          isTextVisible() const;
 	bool          isTileVisible() const;
 	void          render(SDL_Renderer* renderer);
 	void          renderHighlightSelection(SDL_Renderer* renderer, int index);
-	void          renderImage(SDL_Renderer* renderer, const LSG_TileImage& image);
+	void          renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const;
 	void          renderScrollBar(SDL_Renderer* renderer);
-	void          renderText(SDL_Renderer* renderer, const LSG_TileText& text);
+	void          renderText(SDL_Renderer* renderer, const LSG_ItemText& text);
 	void          reset(bool resetScroll = false);
 	void          resetScroll();
 	virtual void  sendEvent(LSG_EventType type) const override;
@@ -130,6 +115,9 @@ private:
 	void          selectShift(int index);
 	void          setGrid();
 	void          setTiles();
+	void          setTileSurfaces();
+	void          setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount);
+	void          setTileTextures();
 };
 
 #endif

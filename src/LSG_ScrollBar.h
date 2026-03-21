@@ -3,6 +3,19 @@
 #ifndef LSG_SCROLL_BAR_H
 #define LSG_SCROLL_BAR_H
 
+struct LSG_ScrollBarState
+{
+	SDL_Rect arrowBack         = {};
+	SDL_Rect arrowForward      = {};
+	SDL_Rect bar               = {};
+	double   clipFactor        = 0.0;
+	bool     isSlideActive     = false;
+	int      offset            = 0;
+	int      offsetOnMouseDown = 0;
+	bool     show              = false;
+	SDL_Rect thumb             = {};
+};
+
 class LSG_ScrollBar
 {
 public:
@@ -20,36 +33,23 @@ public:
 	static const int UnitWheel = 20;
 
 private:
-	static const int Size   = 20;
-	static const int Size2x = 40;
+	static const int Size          = 20;
+	static const int Size2x        = 40;
+	static const int ThumbRadius   = 5;
+	static const int ThumbRadius2x = 10;
 
 protected:
-	double   clipFactorX;
-	double   clipFactorY;
-	bool     isSlideActiveX;
-	bool     isSlideActiveY;
-	int      scrollOffsetX;
-	int      scrollOffsetY;
-	int      scrollOffsetOnMouseDownX;
-	int      scrollOffsetOnMouseDownY;
-	SDL_Rect scrollBarX;
-	SDL_Rect scrollBarY;
-	SDL_Rect scrollArrowDown;
-	SDL_Rect scrollArrowLeft;
-	SDL_Rect scrollArrowRight;
-	SDL_Rect scrollArrowUp;
-	SDL_Rect scrollThumbX;
-	SDL_Rect scrollThumbY;
-	bool     showScrollX;
-	bool     showScrollY;
+	LSG_ScrollBarState scrollHorizontal;
+	LSG_ScrollBarState scrollVertical;
 
 public:
 	static int GetSize();
 	static int GetSize2x();
 
 public:
-	int  GetScrollX() const;
-	int  GetScrollY() const;
+	int  GetScrollHorizontal() const;
+	int  GetScrollVertical() const;
+	bool IsMouseOverScrollbar(const SDL_Point& mousePosition) const;
 	bool OnScrollEnd();
 	bool OnScrollHome();
 	bool OnScrollMouseClick(const SDL_Point& mousePosition);
@@ -61,13 +61,23 @@ public:
 
 protected:
 	SDL_Rect getClipWithOffset(const SDL_Rect& clip, const SDL_Size& textureSize);
-	SDL_Rect getScrollableBackground(const SDL_Rect& fillArea, int border, const SDL_Size& textureSize);
+	SDL_Rect getScrollableBackground(const SDL_Rect& fillArea, int borderWidth, const SDL_Size& textureSize);
 	SDL_Rect getScrollableClip(const SDL_Rect& background, const SDL_Size& textureSize);
+	void     renderScrollableTexture(SDL_Renderer* renderer, const SDL_Rect& fillArea, int borderWidth, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
+	void     renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_Rect& background, int maxWidth,  const SDL_Color& backgroundColor, bool highlighted, LSG_Component* component);
+	void     renderScrollBarVertical(SDL_Renderer*   renderer, const SDL_Rect& background, int maxHeight, const SDL_Color& backgroundColor, bool highlighted, LSG_Component* component);
+	void     resetScroll();
+
+private:
+	SDL_Rect getScrollBarHorizontal(const SDL_Rect& background) const;
+	SDL_Rect getScrollBarVertical(const   SDL_Rect& background) const;
 	bool     onScrollSlideHorizontal(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
 	bool     onScrollSlideVertical(const SDL_Point&   mousePosition, const SDL_Point& lastEventPosition);
-	void     renderScrollableTexture(SDL_Renderer*  renderer, const SDL_Rect& fillArea, int border, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
-	void     renderScrollBarHorizontal(SDL_Renderer* renderer, const SDL_Rect& background, int maxWidth,  const SDL_Color& backgroundColor, bool highlighted);
-	void     renderScrollBarVertical(SDL_Renderer* renderer,   const SDL_Rect& background, int maxHeight, const SDL_Color& backgroundColor, bool highlighted);
+	void     renderScrollArrowsHorizontal(SDL_Renderer* renderer, const SDL_Color& color);
+	void     renderScrollArrowsVertical(SDL_Renderer*   renderer, const SDL_Color& color);
+	void     renderScrollBar(SDL_Renderer* renderer, const SDL_Rect& bar, const SDL_Color& backgroundColor) const;
+	void     renderScrollThumbHorizontal(SDL_Renderer* renderer, const SDL_Color& color, int maxWidth,  LSG_Component* component);
+	void     renderScrollThumbVertical(SDL_Renderer*   renderer, const SDL_Color& color, int maxHeight, LSG_Component* component);
 };
 
 #endif

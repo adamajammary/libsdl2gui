@@ -5,21 +5,24 @@
 #include <cstdio>    // snprintf()
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
+#include <cwctype>   // iswspace()
 #include <format>
 #include <fstream>
+#include <latch>
+#include <mutex>
 #include <set>
+#include <thread>
 #include <unordered_map>
 
 #if defined _android
 	#include <android/asset_manager_jni.h> // AAsset*, JNI*, j*
-	#include <sys/stat.h>                  // mkdir()
+	#include <sys/stat.h> // mkdir()
 #elif defined _ios
     #include <Photos/Photos.h>     // PHPhotoLibrary
     #include <StoreKit/StoreKit.h> // SKCloudServiceController
     #include <UIKit/UIKit.h>       // UIScreen, UIUserInterfaceStyle*
     #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h> // UTType
 #elif defined _linux
-	#include <filesystem> // exists()
 	#include <gtk/gtk.h>  // gtk_file_chooser_dialog_new(), gtk_dialog_run(), gtk_file_chooser_get_uri()
 #elif defined _macosx
 	#include <AppKit/AppKit.h>         // NSApp, NSAppearanceName*, NSOpenPanel
@@ -60,15 +63,33 @@ namespace LibXml {
 
 class LSG_Component;
 
-using LSG_UMapStrStr       = std::unordered_map<std::string, std::string>;
-using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
-using LSG_UmapStrSize      = std::unordered_map<std::string, SDL_Size>;
+using LSG_UMapStrStr = std::unordered_map<std::string, std::string>;
 
 using LSG_ColorThemes      = std::unordered_map<std::string, LSG_UMapStrStr>;
 using LSG_Components       = std::vector<LSG_Component*>;
-using LSG_MapIntComponent  = std::map<int, LSG_Component*>;
 using LSG_TableRowCompare  = std::function<bool(const LSG_Strings& row1, const LSG_Strings& row2)>;
+using LSG_Textures         = std::vector<SDL_Texture*>;
 using LSG_XmlNodes         = std::vector<LibXml::xmlNode*>;
+
+using LSG_MapIntComponent = std::map<int, LSG_Component*>;
+
+using LSG_UMapStrComponent = std::unordered_map<std::string, LSG_Component*>;
+using LSG_UmapStrSize      = std::unordered_map<std::string, SDL_Size>;
+using LSG_UmapTextures     = std::unordered_map<std::string, SDL_Texture*>;
+
+enum LSG_ButtonTexture
+{
+	LSG_BUTTON_TEXTURE_ICON,
+	LSG_BUTTON_TEXTURE_TEXT,
+	NR_OF_BUTTON_TEXTURES
+};
+
+enum LSG_CardBorder
+{
+	LSG_CARD_BORDER_FULL,
+	LSG_CARD_BORDER_LINE,
+	LSG_CARD_BORDER_NONE
+};
 
 enum LSG_MenuTexture
 {
@@ -118,24 +139,25 @@ enum LSG_TriangleOrientation
 	LSG_TRIANGLE_ORIENTATION_DOWN
 };
 
-enum LSG_VectorIcon
+enum LSG_Vector
 {
-	LSG_VECTOR_ICON_BACK,
-	LSG_VECTOR_ICON_CLOSE,
-	LSG_VECTOR_ICON_MENU,
-	LSG_VECTOR_ICON_NEXT,
-	LSG_VECTOR_ICON_PAGE_BACK,
-	LSG_VECTOR_ICON_PAGE_END,
-	LSG_VECTOR_ICON_PAGE_NEXT,
-	LSG_VECTOR_ICON_PAGE_START,
-	LSG_VECTOR_ICON_TOGGLE_OFF,
-	LSG_VECTOR_ICON_TOGGLE_ON
+	LSG_VECTOR_BACK,
+	LSG_VECTOR_CHECK,
+	LSG_VECTOR_CLOSE,
+	LSG_VECTOR_MENU,
+	LSG_VECTOR_NEXT,
+	LSG_VECTOR_PAGE_BACK,
+	LSG_VECTOR_PAGE_END,
+	LSG_VECTOR_PAGE_NEXT,
+	LSG_VECTOR_PAGE_START,
+	LSG_VECTOR_TOGGLE_OFF,
+	LSG_VECTOR_TOGGLE_ON
 };
 
 #if defined _android
 struct LSG_ConstAndroid
 {
-	static inline const std::string ActivityClassPath = "com/libsdl2gui/lib/Sdl2GuiActivity";
+	static inline const std::string ActivityClassPath = "com/libsdl2gui/app/Sdl2GuiActivity";
 };
 #endif
 
@@ -146,9 +168,11 @@ struct LSG_Cursor
 
 struct LSG_ConstDefaultColor
 {
+	static inline const SDL_Color Black = { 0, 0, 0, 255 };
+
 	static inline const SDL_Color Background = { 245, 245, 245, 255 };
-	static inline const SDL_Color Border     = { 0, 0, 0, 255 };
-	static inline const SDL_Color Text       = { 0, 0, 0, 255 };
+	static inline const SDL_Color Border     = Black;
+	static inline const SDL_Color Text       = Black;
 };
 
 struct LSG_ConstClickTime
@@ -191,15 +215,34 @@ struct LSG_ConstTexture
 
 struct LSG_ConstUnicodeCharacter
 {
-	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x86, (char)0x91, 0 };
-	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x86, (char)0x93, 0 };
-	static inline const char Checkmark[4] = { (char)0xE2, (char)0x9C, (char)0x93, 0 };
+	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x96, (char)0xB2, 0 };
+	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x96, (char)0xBC, 0 };
 };
 
 struct LSG_Alignment
 {
 	LSG_HAlign halign = LSG_HALIGN_LEFT;
 	LSG_VAlign valign = LSG_VALIGN_TOP;
+};
+
+struct LSG_ItemTexture
+{
+	SDL_Size     size = {};
+	SDL_Texture* texture = nullptr;
+};
+
+struct LSG_ItemImage
+{
+	std::string     filePath = "";
+	SDL_Surface*    surface  = nullptr;
+	LSG_ItemTexture texture  = {};
+};
+
+struct LSG_ItemText
+{
+	SDL_Surface*    surface = nullptr;
+	std::string     text    = "";
+	LSG_ItemTexture texture = {};
 };
 
 const char* LSG_GetBasePath();
@@ -217,25 +260,27 @@ const char* LSG_GetBasePath();
 #include "LSG_Component.h"
 #include "LSG_Text.h"
 
+#include "LSG_Cards.h"
+#include "LSG_List.h"
+#include "LSG_Menu.h"
+#include "LSG_Panel.h"
+#include "LSG_ProgressBar.h"
+#include "LSG_Slider.h"
+#include "LSG_TextLabel.h"
+#include "LSG_Tiles.h"
+#include "LSG_Events.h"
+
 #include "LSG_Button.h"
 #include "LSG_Bytes.h"
 #include "LSG_Exif.h"
-#include "LSG_Events.h"
 #include "LSG_Image.h"
 #include "LSG_Line.h"
-#include "LSG_List.h"
-#include "LSG_Menu.h"
 #include "LSG_MenuItem.h"
 #include "LSG_MenuSub.h"
 #include "LSG_Modal.h"
 #include "LSG_Navigation.h"
-#include "LSG_Panel.h"
-#include "LSG_ProgressBar.h"
-#include "LSG_Slider.h"
 #include "LSG_Table.h"
 #include "LSG_TextInput.h"
-#include "LSG_TextLabel.h"
-#include "LSG_Tiles.h"
 #include "LSG_Toggle.h"
 #include "LSG_UI.h"
 #include "LSG_Window.h"

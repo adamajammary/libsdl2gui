@@ -3,14 +3,16 @@
 LSG_Navigation::LSG_Navigation(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->arrow    = {};
-	this->position = 0;
-	this->textSize = {};
+	this->arrow        = {};
+	this->borderRadius = 0;
+	this->borderWidth  = 0;
+	this->position     = 0;
+	this->textSize     = {};
 
-	auto attributes = LSG_XML::GetAttributes(this->xmlNode);
+	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
-	auto xmlItemsPerNavigation = (attributes.contains("items-per-navigation") ? attributes["items-per-navigation"] : "");
-	auto xmlItemsTotal         = (attributes.contains("items-total")          ? attributes["items-total"]          : "");
+	auto xmlItemsPerNavigation = (xmlAttributes.contains("items-per-navigation") ? xmlAttributes["items-per-navigation"] : "");
+	auto xmlItemsTotal         = (xmlAttributes.contains("items-total")          ? xmlAttributes["items-total"]          : "");
 
 	this->items.perNavigation = (!xmlItemsPerNavigation.empty() ? std::atoll(xmlItemsPerNavigation.c_str()) : 1);
 	this->items.total         = (!xmlItemsTotal.empty()         ? std::atoll(xmlItemsTotal.c_str())         : 0);
@@ -99,15 +101,15 @@ std::string LSG_Navigation::getText() const
 	auto end   = std::min((this->position + (int)this->items.perNavigation), (int)this->items.total);
 
 	if (end > start)
-		return LSG_Text::Format("%d - %d / %llu", start, end, this->items.total);
+		return std::format("{} - {} / {}", start, end, this->items.total);
 
-	return LSG_Text::Format("%d / %llu", start, this->items.total);
+	return std::format("{} / {}", start, this->items.total);
 }
 
 bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
 {
-	auto fillArea = this->getFillArea(this->background, this->border);
-	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+	auto fillArea = this->getFillArea();
+	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
 	auto arrow       = this->getArrow(destination, padding);
@@ -183,16 +185,17 @@ void LSG_Navigation::navigate(int position, const std::string& text)
 		this->text = this->getText();
 
 	this->destroyTextures();
+
 	this->set();
 }
 
-bool LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown() || !this->items.total)
-		return false;
+		return;
 
-	auto fillArea = this->getFillArea(this->background, this->border);
-	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+	auto fillArea = this->getFillArea();
+	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	auto destination = this->getArrowDestination(fillArea, padding);
 	auto arrow       = this->getArrow(destination, padding);
@@ -220,8 +223,6 @@ bool LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 
 	if (this->canNavigate.forward && SDL_PointInRect(&mousePosition, &arrow))
 		this->sendEvent(LSG_EVENT_NAVIGATE_FORWARD);
-
-	return true;
 }
 
 void LSG_Navigation::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -243,13 +244,13 @@ void LSG_Navigation::Render(SDL_Renderer* renderer) const
 
 void LSG_Navigation::render(SDL_Renderer* renderer) const
 {
-	LSG_Component::Render(renderer);
+	this->renderFill(renderer);
 
 	if (!this->arrow.back || !this->arrow.end || !this->arrow.forward || !this->arrow.home || !this->texture)
 		return;
 
-	auto fillArea = this->getFillArea(this->background, this->border);
-	auto padding  = LSG_Graphics::GetDPIScaled(LSG_Navigation::ArrowPadding);
+	auto fillArea = this->getFillArea();
+	auto padding  = LSG_Window::GetDPIScaled(LSG_Navigation::ArrowPadding);
 
 	LSG_Navigation::renderArrows(renderer, fillArea, padding);
 	LSG_Navigation::renderText(renderer,   fillArea, padding);
@@ -299,15 +300,6 @@ void LSG_Navigation::renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea
 	SDL_RenderCopy(renderer, this->texture, &clip, &destination);
 }
 
-void LSG_Navigation::reset()
-{
-	if (!this->hasChanged())
-		return;
-
-	this->destroyTextures();
-	this->set();
-}
-
 void LSG_Navigation::sendEvent(LSG_EventType type) const
 {
 	if (!this->enabled)
@@ -324,25 +316,24 @@ void LSG_Navigation::sendEvent(LSG_EventType type) const
 
 void LSG_Navigation::set()
 {
-	auto color     = LSG_Graphics::GetThumbColor(this->backgroundColor);
-	auto colorPrev = (this->canNavigate.back    ? color : LSG_ScrollBar::DefaultThumbColor);
-	auto colorNext = (this->canNavigate.forward ? color : LSG_ScrollBar::DefaultThumbColor);
+	auto colorPrev = (this->canNavigate.back    ? this->textColor : LSG_ScrollBar::DefaultThumbColor);
+	auto colorNext = (this->canNavigate.forward ? this->textColor : LSG_ScrollBar::DefaultThumbColor);
 
-	this->arrow.size = this->getFontSize();
+	this->arrow.size = LSG_Window::GetDPIScaled(this->getFontSize());
 
 	SDL_Size size = { this->arrow.size, this->arrow.size };
 
 	if (!this->arrow.home)
-		this->arrow.home = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_START, colorPrev, size);
+		this->arrow.home = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_START, colorPrev, size);
 
 	if (!this->arrow.back)
-		this->arrow.back = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_BACK, colorPrev, size);
+		this->arrow.back = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_BACK, colorPrev, size);
 
 	if (!this->arrow.forward)
-		this->arrow.forward = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_NEXT, colorNext, size);
+		this->arrow.forward = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_NEXT, colorNext, size);
 
 	if (!this->arrow.end)
-		this->arrow.end = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_END, colorNext, size);
+		this->arrow.end = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_END, colorNext, size);
 
 	if (!this->texture)
 	{
@@ -363,10 +354,13 @@ void LSG_Navigation::Set(size_t itemsTotal, size_t itemsPerNavigation)
 	this->text = this->getText();
 
 	this->destroyTextures();
+
 	this->set();
 }
 
 void LSG_Navigation::Set()
 {
-	this->reset();
+	this->destroyTextures();
+
+	this->set();
 }

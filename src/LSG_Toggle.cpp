@@ -3,14 +3,16 @@
 LSG_Toggle::LSG_Toggle(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->borderRadius = 0;
+	this->borderWidth  = 0;
+
 	this->on = (LSG_XML::GetAttribute(this->xmlNode, "on") == "true");
 }
 
 SDL_Rect LSG_Toggle::getDestination() const
 {
-	auto fillArea    = this->getArea(this->background);
-	auto size        = this->getMaxSize(fillArea);
-	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, size, this->getAlignment());
+	auto fillArea    = this->getFillArea();
+	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, this->getMaxSize(fillArea), this->getAlignment());
 
 	return destination;
 }
@@ -35,15 +37,13 @@ bool LSG_Toggle::IsOn() const
 	return this->on;
 }
 
-bool LSG_Toggle::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Toggle::OnMouseClick(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || LSG_Events::IsMouseDown())
-		return false;
+		return;
 
 	if (this->IsMouseOver(mousePosition))
 		this->toggle();
-
-	return true;
 }
 
 void LSG_Toggle::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -65,7 +65,7 @@ void LSG_Toggle::Render(SDL_Renderer* renderer) const
 
 void LSG_Toggle::render(SDL_Renderer* renderer) const
 {
-	LSG_Component::Render(renderer);
+	this->renderFill(renderer);
 
 	if (!this->texture)
 		return;
@@ -100,10 +100,10 @@ void LSG_Toggle::Set()
 {
 	this->destroyTextures();
 
-	auto fillArea = this->getArea(this->background);
-	auto icon     = (this->on ? LSG_VECTOR_ICON_TOGGLE_OFF : LSG_VECTOR_ICON_TOGGLE_ON);
+	auto size = this->getMaxSize(this->getFillArea());
+	auto icon = (this->on ? LSG_VECTOR_TOGGLE_OFF : LSG_VECTOR_TOGGLE_ON);
 
-	this->texture = LSG_Graphics::GetVector(icon, this->textColor, this->getMaxSize(fillArea));
+	this->texture = LSG_Graphics::GetVector(icon, this->textColor, size);
 }
 
 void LSG_Toggle::toggle()

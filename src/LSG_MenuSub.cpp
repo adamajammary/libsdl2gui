@@ -3,6 +3,7 @@
 LSG_MenuSub::LSG_MenuSub(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_MenuItem(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->textures.resize(NR_OF_SUB_MENU_TEXTURES);
 }
 
 void LSG_MenuSub::AddItem(const std::string& item, const std::string& itemId)
@@ -26,9 +27,37 @@ void LSG_MenuSub::AddItem(const std::string& item, const std::string& itemId)
 
 int LSG_MenuSub::getMaxHeightArrow() const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
+	auto padding   = LSG_Window::GetDPIScaled(LSG_MenuSub::PaddingArrow2x);
 
-	return (this->background.h - padding);
+	return (maxHeight - padding);
+}
+
+LSG_Menu* LSG_MenuSub::getMenu() const
+{
+	LSG_Menu* menu = nullptr;
+
+	auto parent = this->GetParent();
+
+	while (parent)
+	{
+		if (parent->IsMenu()) {
+			menu = static_cast<LSG_Menu*>(parent);
+			break;
+		}
+
+		parent = parent->GetParent();
+	}
+
+	return menu;
+}
+
+void LSG_MenuSub::Open()
+{
+	auto menu = LSG_MenuSub::getMenu();
+
+	if (menu)
+		menu->Navigate(this);
 }
 
 void LSG_MenuSub::Render(SDL_Renderer* renderer) const
@@ -42,7 +71,7 @@ void LSG_MenuSub::Render(SDL_Renderer* renderer) const
 	this->renderText(renderer, this->textures[LSG_SUB_MENU_TEXTURE_TEXT]);
 
 	if (this->enabled && this->highlighted)
-		this->renderHighlight(renderer, this->background);
+		this->renderHighlight(renderer);
 
 	this->renderArrow(renderer);
 }
@@ -66,9 +95,10 @@ void LSG_MenuSub::renderArrow(SDL_Renderer* renderer) const
 	SDL_RenderCopy(renderer, texture, nullptr, &destination);
 }
 
-void LSG_MenuSub::SetSubMenu(const SDL_Rect& background)
+void LSG_MenuSub::Set()
 {
-	this->background = background;
+	if (!this->visible)
+		return;
 
 	this->destroyTextures();
 
@@ -82,5 +112,5 @@ void LSG_MenuSub::SetSubMenu(const SDL_Rect& background)
 	auto     maxSize = this->getMaxHeightArrow();
 	SDL_Size size    = { maxSize, maxSize };
 
-	this->textures[LSG_SUB_MENU_TEXTURE_ARROW] = LSG_Graphics::GetVector(LSG_VECTOR_ICON_NEXT, this->textColor, size);
+	this->textures[LSG_SUB_MENU_TEXTURE_ARROW] = LSG_Graphics::GetVector(LSG_VECTOR_NEXT, this->textColor, size);
 }

@@ -55,7 +55,7 @@ void LSG_Pagination::destroyPageTextures()
 
 SDL_Size LSG_Pagination::getArrowSize(const SDL_Rect& arrow) const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_Pagination::ArrowPadding);
+	auto padding = LSG_Window::GetDPIScaled(LSG_Pagination::ArrowPadding);
 
 	return { arrow.w - padding, arrow.h - padding };
 }
@@ -111,7 +111,7 @@ std::string LSG_Pagination::getLabel() const
 	auto page  = (this->page + 1);
 	auto last  = (this->GetLastPage() + 1);
 
-	return LSG_Text::Format("%d - %d / %d (%d / %d)", (start + 1), end, rows, page, last);
+	return std::format("{} - {} / {} ({} / {})", (start + 1), end, rows, page, last);
 }
 
 int LSG_Pagination::GetLastPage() const
@@ -234,7 +234,7 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	SDL_Surface* surface = nullptr;
 	SDL_Texture* texture = nullptr;
 
-	auto font = LSG_Text::GetFontArial(LSG_Pagination::FontSize);
+	auto font = LSG_Text::GetFont(LSG_Pagination::FontSize);
 
 	if (font)
 		surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
@@ -310,10 +310,10 @@ void LSG_Pagination::initPagination(const SDL_Rect& background, const SDL_Color&
 
 	this->destroyPageTextures();
 
-	this->textureArrowHome = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_START, colorPrev, this->getArrowSize(this->arrowHome));
-	this->textureArrowPrev = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_BACK,  colorPrev, this->getArrowSize(this->arrowPrev));
-	this->textureArrowNext = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_NEXT,  colorNext, this->getArrowSize(this->arrowNext));
-	this->textureArrowEnd  = LSG_Graphics::GetVector(LSG_VECTOR_ICON_PAGE_END,   colorNext, this->getArrowSize(this->arrowEnd));
+	this->textureArrowHome = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_START, colorPrev, this->getArrowSize(this->arrowHome));
+	this->textureArrowPrev = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_BACK,  colorPrev, this->getArrowSize(this->arrowPrev));
+	this->textureArrowNext = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_NEXT,  colorNext, this->getArrowSize(this->arrowNext));
+	this->textureArrowEnd  = LSG_Graphics::GetVector(LSG_VECTOR_PAGE_END,   colorNext, this->getArrowSize(this->arrowEnd));
 
 	this->textureLabel = this->getPaginationTexture(this->getLabel(), color);
 }

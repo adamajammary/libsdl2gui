@@ -25,11 +25,12 @@ public:
 	void         Close();
 	bool         IsClosed() const;
 	bool         IsSelected() const;
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override {}
+	bool         OnMouseDown(const SDL_Point& mousePosition);
 	void         Open();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
 	virtual void Render(SDL_Renderer* renderer) const override;
-	void         SetMenuItem(const SDL_Rect& background);
+	void         Set();
 	void         SetSelected(bool selected = true);
 
 protected:

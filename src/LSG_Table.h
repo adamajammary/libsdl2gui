@@ -11,13 +11,12 @@ public:
 
 public:
 	static const int ColumnSpacing = 20;
-	static const int LayerOffset   = 100000000;
 
 private:
-	std::vector<int>          columnWidths;
-	std::vector<SDL_Texture*> headerTextures;
-	int                       resizeColumn;
-	int                       resizeColumnWidth;
+	std::vector<int> columnWidths;
+	LSG_Textures     headerTextures;
+	int              resizeColumn;
+	int              resizeColumnWidth;
 
 public:
 	void         AddGroup(const LSG_TableGroup& group);
@@ -28,7 +27,7 @@ public:
 	int          GetSortColumn() const;
 	SDL_Size     GetSize() const;
 	bool         IsMouseOverColumnBorder(const SDL_Point& mousePosition);
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	bool         OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
 	void         OnMouseUp(bool resetWidth);
 	void         RemoveGroup(const std::string& group);

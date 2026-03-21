@@ -49,7 +49,7 @@ public:
 	void         NavigateForward(const std::string& text);
 	void         NavigateHome(const std::string& text);
 	void         NavigateTo(int position, const std::string& text);
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	virtual void Render(SDL_Renderer* renderer) const override;
 	void         Set(size_t itemsTotal, size_t itemsPerNavigation);
@@ -66,7 +66,6 @@ private:
 	void            render(SDL_Renderer* renderer) const;
 	void            renderArrows(SDL_Renderer* renderer, const SDL_Rect& fillArea, int padding) const;
 	void            renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea, int padding) const;
-	void            reset();
 	virtual void    sendEvent(LSG_EventType type) const override;
 	void            set();
 };

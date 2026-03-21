@@ -84,6 +84,7 @@ enum LSG_ExifTagID
 	LSG_EXIF_TAG_ID_CAMERA_EXPOSURE_TIME = 0x829a,
 	LSG_EXIF_TAG_ID_CAMERA_ISO           = 0x8827,
 	LSG_EXIF_TAG_ID_DATE_TIME_ORIGINAL   = 0x9003,
+	LSG_EXIF_TAG_ID_DATE_TIME_OFFSET     = 0x9011,
 	LSG_EXIF_TAG_ID_GPS_LATITUDE_REF     = 0x0001,
 	LSG_EXIF_TAG_ID_GPS_LATITUDE         = 0x0002,
 	LSG_EXIF_TAG_ID_GPS_LONGITUDE_REF    = 0x0003,
@@ -133,15 +134,14 @@ struct SDL_Size
 	int height = 0;
 };
 
-struct LSG_ButtonItem
+struct LSG_CardItem
 {
-	std::string id     = "";
-	std::string text   = "";
-	LSG_HAlign  halign = LSG_HALIGN_CENTER;
-	LSG_VAlign  valign = LSG_VALIGN_MIDDLE;
+	std::string title       = "";
+	std::string description = "";
+	std::string thumbnail   = "";
 };
 
-using LSG_Buttons = std::vector<LSG_ButtonItem>;
+using LSG_CardItems = std::vector<LSG_CardItem>;
 
 using LSG_ExifTags = std::map<uint16_t, std::string>;
 
@@ -193,6 +193,15 @@ struct LSG_TileItem
 using LSG_TileItems = std::vector<LSG_TileItem>;
 
 /**
+ * @brief Adds a new card to the cards list.
+ * @param id   <cards> component ID
+ * @param card Card item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_AddCard(const std::string& id, const LSG_CardItem& card);
+
+/**
  * @brief Adds a new item to the list.
  * @param id   <list> component ID
  * @param item List item
@@ -200,15 +209,6 @@ using LSG_TileItems = std::vector<LSG_TileItem>;
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_AddListItem(const std::string& id, const std::string& item);
-
-/**
- * @brief Adds a new button to the panel.
- * @param id    <panel> component ID
- * @param button Button item
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT void DLL LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button);
 
 /**
  * @brief Adds a new item to the sub-menu.
@@ -256,6 +256,14 @@ DLLEXPORT void DLL LSG_AddTile(const std::string& id, const LSG_TileItem& tile);
 DLLEXPORT void DLL LSG_ClearTextInput(const std::string& id);
 
 /**
+ * @brief Closes the modal.
+ * @param id <modal> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_CloseModal(const std::string& id);
+
+/**
  * @returns the background color of the component
  * @param id Component ID
  * @throws invalid_argument
@@ -264,10 +272,49 @@ DLLEXPORT void DLL LSG_ClearTextInput(const std::string& id);
 DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
 
 /**
+ * @returns the card item from the cards list
+ * @param id    <cards> component ID
+ * @param index 0-based card index position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_CardItem DLL LSG_GetCard(const std::string& id, int index);
+
+/**
+ * @returns all the card items from the cards list
+ * @param id <cards> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_CardItems DLL LSG_GetCards(const std::string& id);
+
+/**
+ * @returns the number of card rows in the cards list
+ * @param id <cards> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT size_t DLL LSG_GetCardsCount(const std::string& id);
+
+/**
  * @returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" if none applied.
  * @throws runtime_error
  */
 DLLEXPORT std::string DLL LSG_GetColorTheme();
+
+/**
+ * @returns a scaled value relative to the display DPI factor
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetDPIScaled(int value);
+
+/**
+ * @returns the font style of the component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT int DLL LSG_GetFontStyle(const std::string& id);
 
 /**
  * @returns EXIF (Exchangeable Image File Format) data from the image file (if it exists)
@@ -299,6 +346,15 @@ DLLEXPORT LSG_ImageOrientation DLL LSG_GetImageOrientation(const LSG_ExifTags& t
  * @throws runtime_error
  */
 DLLEXPORT SDL_Surface* DLL LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
+
+/**
+ * @returns a downscaled thumbnail of the original image
+ * @param surface Image surface
+ * @param maxSize  Max size of thumbnail
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT SDL_Surface* DLL LSG_GetImageThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
 
 /**
  * @returns the last 0-based page index of the list or table
@@ -446,6 +502,14 @@ DLLEXPORT int DLL LSG_GetScrollHorizontal(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetScrollVertical(const std::string& id);
+
+/**
+ * @returns the selected 0-based row indices (-1 for unselected) of the cards list
+ * @param id <cards> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::vector<int> DLL LSG_GetSelectedCards(const std::string& id);
 
 /**
  * @returns the selected 0-based row indices (-1 for unselected) of the list or table
@@ -828,6 +892,22 @@ DLLEXPORT void DLL LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)
 #endif
 
 /**
+ * @brief Opens the menu.
+ * @param id <menu> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenMenu(const std::string& id);
+
+/**
+ * @brief Opens the modal.
+ * @param id <modal> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenModal(const std::string& id);
+
+/**
  * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
  * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
  * @throws runtime_error
@@ -846,6 +926,14 @@ DLLEXPORT void DLL LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*
 #endif
 
 /**
+ * @brief Opens the sub-menu.
+ * @param id <menu-sub> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenSubMenu(const std::string& id);
+
+/**
  * @brief Presents the render buffer to the screen/window.
  * @throws runtime_error
  */
@@ -855,6 +943,15 @@ DLLEXPORT void DLL LSG_Present();
  * @brief Cleans up allocated resources and closes the window.
  */
 DLLEXPORT void DLL LSG_Quit();
+
+/**
+ * @brief Removes the card from the cards list.
+ * @param id  <cards> component ID
+ * @param row 0-based row index
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_RemoveCard(const std::string& id, int row);
 
 /**
  * @brief Removes the item from the list.
@@ -927,8 +1024,22 @@ DLLEXPORT void DLL LSG_RemoveTableRow(const std::string& id, int row);
 DLLEXPORT void DLL LSG_RemoveTile(const std::string& id, int index);
 
 /**
+ * @brief Renders the texture with rounded corners.
+ * @param renderer    The SDL rendering context
+ * @param texture     The texture to render
+ * @param destination Where the texture should be rendered
+ * @param clip        Optional source clipping, or NULL to render the entire texture.
+ * @param radius      The corner radius in pixels
+ * @param color       The backhround color used to fill the corners
+ * @param id          A unique ID (like a component ID) used for texture caching
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& color, const std::string& id);
+
+/**
  * @brief Handles events and renders the UI components.
- * @returns a list of SDL2 events available during this run
+ * @returns a list of SDL events available during this run
  * @throws runtime_error
  */
 DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
@@ -945,7 +1056,7 @@ DLLEXPORT std::string DLL LSG_SaveFile(const LSG_Strings& filters = {});
 
 /**
  * @brief Scrolls the component horizontally by the specified offset.
- * @param id     <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param id     <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
  * @param scroll Horizontal scroll offset
  * @throws invalid_argument
  * @throws runtime_error
@@ -954,7 +1065,7 @@ DLLEXPORT void DLL LSG_ScrollHorizontal(const std::string& id, int scroll);
 
 /**
  * @brief Scrolls the component vertically by the specified offset.
- * @param id     <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param id     <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
  * @param scroll Vertical scroll offset
  * @throws invalid_argument
  * @throws runtime_error
@@ -963,7 +1074,7 @@ DLLEXPORT void DLL LSG_ScrollVertical(const std::string& id, int scroll);
 
 /**
  * @brief Scrolls to the bottom of the component.
- * @param id <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param id <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
@@ -971,11 +1082,38 @@ DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
 
 /**
  * @brief Scrolls to the top of the component.
- * @param id <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param id <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
+
+/**
+ * @brief Selects the row in the cards list.
+ * @param id  <cards> component ID
+ * @param row 0-based row index (-1 for unselected)
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectCard(const std::string& id, int row);
+
+/**
+ * @brief Selects a row relative to the currently selected row in the cards list.
+ * @param id     <cards> component ID
+ * @param offset 0-based offset from current row index
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectCardRowByOffset(const std::string& id, int offset);
+
+/**
+ * @brief Selects the rows in the cards list.
+ * @param id   <cards> component ID
+ * @param rows 0-based row indices
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SelectCards(const std::string& id, const std::vector<int>& rows);
 
 /**
  * @brief Selects the row in the list or table.
@@ -1050,15 +1188,6 @@ DLLEXPORT void DLL LSG_SetAlignmentVertical(const std::string& id, LSG_VAlign al
 DLLEXPORT void DLL LSG_SetBackgroundColor(const std::string& id, const SDL_Color& color);
 
 /**
- * @brief Sets the border width of a component.
- * @param id     Component ID
- * @param border Border width in pixels
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT void DLL LSG_SetBorder(const std::string& id, int border);
-
-/**
  * @brief Sets the border color of a component.
  * @param id    Component ID
  * @param color Border color
@@ -1068,13 +1197,51 @@ DLLEXPORT void DLL LSG_SetBorder(const std::string& id, int border);
 DLLEXPORT void DLL LSG_SetBorderColor(const std::string& id, const SDL_Color& color);
 
 /**
- * @brief Highlights the button as selected.
- * @param id       <button> component ID
- * @param selected true to select or false to unselect
+ * @brief Sets the border radius of a component.
+ * @param id     Component ID
+ * @param radius Border radius in pixels
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetButtonSelected(const std::string& id, bool selected = true);
+DLLEXPORT void DLL LSG_SetBorderRadius(const std::string& id, int radius);
+
+/**
+ * @brief Sets the border width of a component.
+ * @param id    Component ID
+ * @param width Border width in pixels
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetBorderWidth(const std::string& id, int width);
+
+/**
+ * @brief Sets the text and icon of a button.
+ * @param id   <button> component ID
+ * @param text Text label
+ * @param icon Image file path
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetButton(const std::string& id, const std::string& text, const std::string& icon);
+
+/**
+ * @brief Updates and overwrites the card item in the cards list.
+ * @param id    <cards> component ID
+ * @param index 0-based card index position
+ * @param card  New card item
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card);
+
+/**
+ * @brief Sets the card items of the cards list.
+ * @param id    <cards> component ID
+ * @param cards Card items
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetCards(const std::string& id, const LSG_CardItems& cards);
 
 /**
  * @brief Tries to load and apply the color theme file.
@@ -1252,15 +1419,6 @@ DLLEXPORT void DLL LSG_SetPageListItem(const std::string& id, int row, const std
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetPageTableRow(const std::string& id, int row, const LSG_Strings& columns);
-
-/**
- * @brief Replaces all child compomonents of the panel with the provided buttons.
- * @param id    <panel> component ID
- * @param buttons Button items
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT void DLL LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons);
 
 /**
  * @brief Sets the value of the progress bar as a percent between 0 and 1.
@@ -1544,7 +1702,7 @@ DLLEXPORT void DLL LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder,
 /**
  * @brief Tries to initialize the library and open a new window based on layout from XML file.
  * @param xmlFile Window and UI component layout file. ex: "ui/main.xml"
- * @returns an SDL2 renderer
+ * @returns an SDL renderer
  * @throws runtime_error
  */
 DLLEXPORT SDL_Renderer* DLL LSG_Start(const std::string& xmlFile);

@@ -1,21 +1,23 @@
 # libsdl2gui
 
-## A free cross-platform user interface library using SDL2
+## A free cross-platform user interface library using SDL
 
 Copyright (C) 2021 Adam A. Jammary (Jammary Studio)
 
-libsdl2gui is a free cross-platform user interface library using SDL2.
+libsdl2gui is a free cross-platform user interface library using SDL (Simple DirectMedia Layer).
 
 ## 3rd Party Libraries
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://github.com/libsdl-org/SDL) | [2.32.4](https://github.com/libsdl-org/SDL/releases/download/release-2.32.4/SDL2-2.32.4.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
+[SDL2](https://github.com/libsdl-org/SDL) | [2.32.10](https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-2.32.10.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
 [SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.8](https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.8/SDL2_image-2.8.8.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_image#Zlib-1-ov-file)
 [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.24.0](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-2.24.0.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
-[libtiff](https://github.com/libsdl-org/libtiff) | [4.7.0](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.0.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
-[libwebp](https://github.com/webmproject/libwebp) | [2.14.2](https://github.com/webmproject/libwebp/archive/refs/tags/v1.5.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
-[libXML2](https://github.com/GNOME/libxml2) | [2.14.2](https://github.com/GNOME/libxml2/archive/refs/tags/v2.14.2.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[libtiff](https://github.com/libsdl-org/libtiff) | [4.7.1](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.1.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
+[libwebp](https://github.com/webmproject/libwebp) | [1.6.0](https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
+[libXML2](https://github.com/GNOME/libxml2) | [2.15.2](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.2.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[DejaVu fonts](https://dejavu-fonts.github.io/) | [2.37](https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-sans-ttf-2.37.zip) | [DejaVu Fonts license](https://dejavu-fonts.github.io/License.html)
+[Noto CJK fonts](https://github.com/notofonts/noto-cjk) | [2.004](https://github.com/notofonts/noto-cjk/blob/main/Sans/OTC/NotoSansCJK-Regular.ttc) | [SIL Open Font license](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
 
 ## Platform-dependent Include Headers
 
@@ -33,7 +35,6 @@ Linux | gtk/gtk.h | libgtk-3-dev
 macOS | AppKit/AppKit.h | AppKit Framework
 macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
 Windows | shobjidl_core.h | Win32 API
-Windows | windows.h | WinMain
 
 ## Compilers and C++20
 
@@ -69,7 +70,7 @@ Make sure the correct Android SDK path is set as either
 - an environment variable `ANDROID_HOME=/path/to/ANDROID_SDK` or
 - a local property `sdk.dir=/path/to/ANDROID_SDK` in the **android/local.properties** file
 
-> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL2 Android README](https://wiki.libsdl.org/SDL2/README/android) for more details.
+> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL Android README](https://wiki.libsdl.org/SDL2/README-android) for more details.
 
 ```bash
 cmake .. -G "Unix Makefiles" \
@@ -113,7 +114,7 @@ make
 
 You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
 
-> See [SDL2 iOS README](https://wiki.libsdl.org/SDL2/README/ios) for more details.
+> See [SDL iOS README](https://wiki.libsdl.org/SDL2/README-ios) for more details.
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
@@ -147,7 +148,6 @@ The app should now be installed on the device with the name **testsdl2gui**.
 > If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
 
 ![Screenshot of Test project on iPhone](screenshots/iphone_480p.png)
-![Screenshot of Test project on iPad](screenshots/ipad_480p.png)
 
 ### macOS
 
@@ -198,7 +198,8 @@ You must call [LSG_Start](#lsg_start) before using other *LSG_\** methods, see t
 try {
   SDL_Renderer* renderer = LSG_Start("ui/main.xml");
 
-  while (LSG_IsRunning()) {
+  while (LSG_IsRunning())
+  {
     std::vector<SDL_Event> events = LSG_Run();
 
     myapp_handleEvents(events);
@@ -245,7 +246,8 @@ You can call [LSG_IsRunning](#lsg_isrunning) to make sure the library was initia
 ```cpp
 void myapp_handleEvents(const std::vector<SDL_Event>& events)
 {
-  for (const SDL_Event& event : events) {
+  for (const SDL_Event& event : events)
+  {
     if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
       LSG_Quit();
     else if (event.type >= SDL_USEREVENT)
@@ -320,7 +322,7 @@ Make sure to call [LSG_Quit](#lsg_quit) to cleanup all resources and close the l
 
 ### \<button\>
 
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [orientation](#orientation) | [size](#size)
+[boolean](#boolean) | [color](#color) | [file_path](#file_path) | [orientation](#orientation) | [size](#size)
 
 Triggers [LSG_EVENT_BUTTON_CLICKED](#handle-events) event.
 
@@ -332,28 +334,59 @@ width="size"
 height="size"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
-margin="int"
-padding="int"
-halign="alignment_horizontal"
-valign="alignment_vertical"
-spacing="int"
+border-radius="int"
+border-width="int"
 font-size="int" # default="14"
 text-color="color"
+
+icon="file_path"
+text="string"
+```
+
+### \<cards\>
+
+[alignment](#alignment) | [boolean](#boolean) | [card_border_type](#card_border_type) | [color](#color) | [size](#size)
+
+Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
+
+```ini
+id="string"
+enabled="boolean"
+visible="boolean"
+width="size"
+height="size"
+background-color="color"
+border-color="color"
+border-radius="int"
+halign="alignment_horizontal"
+valign="alignment_vertical"
+font-size="int" # default="14"
+text-color="color"
+
+card-height="int" # default="128"
+card-border-type="card_border_type"
+```
+
+### \<card\>
+
+[file_path](#file_path)
+
+```ini
+title="string"
+description="string"
+thumbnail="file_path"
 ```
 
 ### \<image\>
 
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [file_path](#file_path) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [file_path](#file_path) | [size](#size)
 
 ```ini
 id="string"
 width="size"
 height="size"
-background-color="color"
-border="int"
-border-color="color"
+border-radius="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 
@@ -363,12 +396,10 @@ fill="boolean"
 
 ### \<line\>
 
-[color](#color) | [orientation](#orientation) | [size](#size)
+[color](#color) | [orientation](#orientation)
 
 ```ini
 id="string"
-width="size"
-height="size"
 orientation="orientation"
 
 color="color"
@@ -387,8 +418,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 show-row-border="boolean"
 halign="alignment_horizontal"
 valign="alignment_vertical"
@@ -450,20 +479,20 @@ key="string"
 
 ```ini
 id="string"
-width="size"
-height="size"
+width="size"  # default="50%"
+height="size" # default="50%"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
-padding="int"
+border-radius="int"
+border-width="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
-title="string"
 
+title="string"
 hide-close-icon="boolean"
 max-width="int"
 max-height="int"
@@ -484,8 +513,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 font-size="int" # default="14"
 text-color="color"
 
@@ -505,8 +532,9 @@ width="size"
 height="size"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
+border-width="int"
 margin="int"
 padding="int"
 halign="alignment_horizontal"
@@ -529,10 +557,9 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
 border-color="color"
-margin="int"
-padding="int"
+border-radius="int"
+border-width="int"
 
 value="percent"
 progress-color="color"
@@ -552,10 +579,9 @@ width="size"
 height="size"
 orientation="orientation"
 background-color="color"
-border="int"
 border-color="color"
-margin="int"
-padding="int"
+border-radius="int"
+border-width="int"
 
 value="percent"
 fill-progress="boolean"
@@ -563,7 +589,8 @@ progress-color="color"
 thumb-color="color"
 thumb-width="int" # minimum="10"
 thumb-border-color="color"
-thumb-border="int"
+thumb-border-radius="int"
+thumb-border-width="int"
 ```
 
 ### \<table\>
@@ -579,8 +606,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 show-column-border="boolean"
 show-row-border="boolean"
 halign="alignment_horizontal"
@@ -594,17 +619,10 @@ sort-column="int" # 0-based index
 
 ### \<text\>
 
-[alignment](#alignment) | [boolean](#boolean) | [color](#color) | [size](#size)
+[boolean](#boolean) | [color](#color)
 
 ```ini
 id="string"
-width="size"
-height="size"
-background-color="color"
-border="int"
-border-color="color"
-halign="alignment_horizontal"
-valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
 
@@ -624,8 +642,9 @@ id="string"
 width="size"
 height="size"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
+border-width="int"
 font-size="int" # default="14"
 padding="int"
 text-color="color"
@@ -647,8 +666,8 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
 border-color="color"
+border-radius="int"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
@@ -657,6 +676,15 @@ text-halign="alignment_horizontal"
 text-valign="alignment_vertical"
 tile-size="size"
 wrap="boolean" # default="true"
+```
+
+### \<tile\>
+
+[file_path](#file_path)
+
+```ini
+image="file_path"
+text="string"
 ```
 
 ### \<toggle\>
@@ -672,8 +700,6 @@ visible="boolean"
 width="size"
 height="size"
 background-color="color"
-border="int"
-border-color="color"
 halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
@@ -711,6 +737,12 @@ value="top|middle|bottom" # Vertical default="top"
 
 ```ini
 value="true|false" # default="false"
+```
+
+### card_border_type
+
+```ini
+value="full|line|none" # default="none"
 ```
 
 ### color
@@ -902,17 +934,6 @@ struct SDL_Size {
 };
 ```
 
-### LSG_ButtonItem
-
-```cpp
-struct LSG_ButtonItem
-{
-  std::string id     = "";
-  std::string text   = "";
-  LSG_HAlign  halign = LSG_HALIGN_CENTER;
-  LSG_VAlign  valign = LSG_VALIGN_MIDDLE;
-};```
-
 ### LSG_ExifData
 
 ```cpp
@@ -977,12 +998,6 @@ struct LSG_TileItem
 };
 ```
 
-### LSG_ButtonItems
-
-```cpp
-using LSG_ButtonItems = std::vector<LSG_ButtonItem>;
-```
-
 ### LSG_ExifTags
 
 ```cpp
@@ -1013,6 +1028,36 @@ using LSG_TableGroups = std::vector<LSG_TableGroup>;
 using LSG_TileItems = std::vector<LSG_TileItem>;
 ```
 
+### LSG_AddCard
+
+```cpp
+void LSG_AddCard(const std::string& id, const LSG_CardItem& card);
+```
+
+Adds a new card to the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **card** Card item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CardItem card = {
+  .title       = "Card #1",
+  .description = "The first card.",
+  .thumbnail   = "/path/to/image/file1.jpg"
+};
+
+LSG_AddCard("Cards", card);
+```
+
 ### LSG_AddListItem
 
 ```cpp
@@ -1035,37 +1080,6 @@ Example
 
 ```cpp
 LSG_AddListItem("List", "My new list item");
-```
-
-### LSG_AddPanelButton
-
-```cpp
-void LSG_AddPanelButton(const std::string& id, const LSG_ButtonItem& button);
-```
-
-Adds a new button to the panel.
-
-Parameters
-
-- **id** \<panel\> component ID
-- **button** Button item
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-Example
-
-```cpp
-LSG_ButtonItem button = {
-  .id     = "ButtonIdButton1",
-  .text   = "Button 1",
-  .halign = LSG_HALIGN_CENTER,
-  .valign = LSG_VALIGN_MIDDLE
-};
-
-LSG_AddPanelButton("PanelIdButtons", button);
 ```
 
 ### LSG_AddSubMenuItem
@@ -1201,6 +1215,29 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_CloseModal
+
+```cpp
+void LSG_CloseModal(const std::string& id);
+```
+
+Closes the modal.
+
+Parameters
+
+- **id** \<modal\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CloseModal("ModalIdAbout");
+```
+
 ### LSG_GetBackgroundColor
 
 ```cpp
@@ -1218,6 +1255,58 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetCard
+
+```cpp
+LSG_CardItem LSG_GetCard(const std::string& id, int index);
+```
+
+Returns the card item from the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **index** 0-based card index position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetCards
+
+```cpp
+LSG_CardItems LSG_GetCards(const std::string& id);
+```
+
+Returns all the card items from the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetCardsCount
+
+```cpp
+size_t LSG_GetCardsCount(const std::string& id);
+```
+
+Returns the number of card rows in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetColorTheme
 
 ```cpp
@@ -1228,6 +1317,35 @@ Returns the currently applied color theme file, ex: "ui/dark.colortheme" or "" i
 
 Exceptions
 
+- runtime_error
+
+### LSG_GetDPIScaled
+
+```cpp
+int LSG_GetDPIScaled(int value);
+```
+
+Returns a scaled value relative to the display DPI factor.
+
+Exceptions
+
+- runtime_error
+
+### LSG_GetFontStyle
+
+```cpp
+int LSG_GetFontStyle(const std::string& id);
+```
+
+Returns the font style of the component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
 - runtime_error
 
 ### LSG_GetImageExif
@@ -1279,7 +1397,7 @@ Exceptions
 
 - runtime_error
 
-### LSG_GetImageThumbnail
+### LSG_GetImageThumbnail (filePath)
 
 ```cpp
 SDL_Surface* LSG_GetImageThumbnail(const std::string& filePath, const SDL_Size& maxSize);
@@ -1290,6 +1408,24 @@ Returns a downscaled thumbnail of the original image.
 Parameters
 
 - **filePath** Image file path
+- **maxSize** Max size of thumbnail
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetImageThumbnail (surface)
+
+```cpp
+SDL_Surface* LSG_GetImageThumbnail(SDL_Surface* surface, const SDL_Size& maxSize);
+```
+
+Returns a downscaled thumbnail of the original image.
+
+Parameters
+
+- **surface** Image surface
 - **maxSize** Max size of thumbnail
 
 Exceptions
@@ -1582,7 +1718,7 @@ Returns the horizontal scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -1599,7 +1735,24 @@ Returns the vertical scroll offset of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSelectedCards
+
+```cpp
+std::vector<int> LSG_GetSelectedCards(const std::string& id);
+```
+
+Returns the selected 0-based row indices (-1 for unselected) of the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
 
 Exceptions
 
@@ -2467,6 +2620,52 @@ Exceptions
 
 See [LSG_OpenMediaFile](#lsg_openmediafile) for examples.
 
+### LSG_OpenMenu
+
+```cpp
+void LSG_OpenMenu(const std::string& id);
+```
+
+Opens the menu.
+
+Parameters
+
+- **id** \<menu\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_OpenMenu("Menu");
+```
+
+### LSG_OpenModal
+
+```cpp
+void LSG_OpenModal(const std::string& id);
+```
+
+Opens the modal.
+
+Parameters
+
+- **id** \<modal\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_OpenModal("ModalIdAbout");
+```
+
 ### LSG_OpenPhotoFile
 
 ```cpp
@@ -2518,6 +2717,29 @@ Exceptions
 
 See [LSG_OpenPhotoFile](#lsg_openphotofile) for examples.
 
+### LSG_OpenSubMenu
+
+```cpp
+void LSG_OpenSubMenu(const std::string& id);
+```
+
+Opens the sub-menu.
+
+Parameters
+
+- **id** \<menu-sub\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_OpenSubMenu("MenuIdColorTheme");
+```
+
 ### LSG_Present
 
 ```cpp
@@ -2537,6 +2759,30 @@ void LSG_Quit();
 ```
 
 Cleans up allocated resources and closes the window.
+
+### LSG_RemoveCard
+
+```cpp
+void LSG_RemoveCard(const std::string& id, int row);
+```
+
+Removes the card from the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **row** 0-based row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_RemoveCard("Cards", 0);
+```
 
 ### LSG_RemoveListItem
 
@@ -2728,6 +2974,29 @@ Example
 LSG_RemoveTile("Tiles", 0);
 ```
 
+### LSG_RenderTextureWithRoundedCorners
+
+```cpp
+void LSG_RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& color, const std::string& id);
+```
+
+Renders the texture with rounded corners.
+
+Parameters
+
+- **renderer** The SDL rendering context
+- **texture** The texture to render
+- **destination** Where the texture should be rendered
+- **clip** Optional source clipping, or NULL to render the entire texture.
+- **radius** The corner radius in pixels
+- **color** The backhround color used to fill the corners
+- **id** A unique ID (like a component ID) used for texture caching
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_Run
 
 ```cpp
@@ -2736,7 +3005,7 @@ std::vector<SDL_Event> LSG_Run();
 
 Handles events and renders the UI components.
 
-Returns a list of SDL2 events available during this run.
+Returns a list of SDL events available during this run.
 
 Exceptions
 
@@ -2774,7 +3043,7 @@ Scrolls the component horizontally by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 - **scroll** Horizontal scroll offset
 
 Exceptions
@@ -2792,7 +3061,7 @@ Scrolls the component vertically by the specified offset.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 - **scroll** Vertical scroll offset
 
 Exceptions
@@ -2810,7 +3079,7 @@ Scrolls to the bottom of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
@@ -2827,12 +3096,84 @@ Scrolls to the top of the component.
 
 Parameters
 
-- **id** \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
 
 Exceptions
 
 - invalid_argument
 - runtime_error
+
+### LSG_SelectCard
+
+```cpp
+void LSG_SelectCard(const std::string& id, int row);
+```
+
+Selects the row in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **row** 0-based row index (-1 for unselected)
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectCard("Cards", 0);
+```
+
+### LSG_SelectCardRowByOffset
+
+```cpp
+void LSG_SelectCardRowByOffset(const std::string& id, int offset);
+```
+
+Selects a row relative to the currently selected row in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **offset** 0-based offset from current row index
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectCardRowByOffset("Cards", -2);
+```
+
+### LSG_SelectCards
+
+```cpp
+void LSG_SelectCards(const std::string& id, const std::vector<int>& rows);
+```
+
+ elects the rows in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **rows** 0-based row indices
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SelectCards("Cards", { 0, 1 });
+```
 
 ### LSG_SelectRow
 
@@ -3026,30 +3367,6 @@ Example
 LSG_SetBackgroundColor("Root", SDL_Color(255, 0, 0, 255));
 ```
 
-### LSG_SetBorder
-
-```cpp
-void LSG_SetBorder(const std::string& id, int border);
-```
-
-Sets the border width of a component.
-
-Parameters
-
-- **id** Component ID
-- **border** Border width in pixels
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-Example
-
-```cpp
-LSG_SetBorder("Root", 2);
-```
-
 ### LSG_SetBorderColor
 
 ```cpp
@@ -3074,18 +3391,18 @@ Example
 LSG_SetBorderColor("Root", SDL_Color(255, 0, 0, 255));
 ```
 
-### LSG_SetButtonSelected
+### LSG_SetBorderRadius
 
 ```cpp
-void LSG_SetButtonSelected(const std::string& id, bool selected = true);
+void LSG_SetBorderRadius(const std::string& id, int border);
 ```
 
-Highlights the button as selected.
+Sets the border radius of a component.
 
 Parameters
 
-- **id** \<button\> component ID
-- **selected** true to select or false to unselect
+- **id** Component ID
+- **radius** Border radius in pixels
 
 Exceptions
 
@@ -3095,7 +3412,118 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetButtonSelected("ButtonIdColorThemeDark", true);
+LSG_SetBorderRadius("Root", 10);
+```
+
+### LSG_SetBorderWidth
+
+```cpp
+void LSG_SetBorderWidth(const std::string& id, int width);
+```
+
+Sets the border width of a component.
+
+Parameters
+
+- **id** Component ID
+- **width** Border width in pixels
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetBorderWidth("Root", 1);
+```
+
+### LSG_SetButton
+
+```cpp
+void LSG_SetButton(const std::string& id, const std::string& text, const std::string& icon);
+```
+
+Sets the text and icon of a button.
+
+Parameters
+
+- **id** \<button\> component ID
+- **text** Text label
+- **icon** Image file path
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetButton("ButtonIdColorThemeDark", "Dark", "img/dark-512.png");
+```
+
+### LSG_SetCard
+
+```cpp
+void LSG_SetCard(const std::string& id, int index, const LSG_CardItem& card);
+```
+
+Updates and overwrites the card item in the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **index** 0-based card index position
+- **card** New card item
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CardItem cardItem = {
+  .title       = "Card #1a",
+  .description = "The updated first card.",
+  .thumbnail   = "/path/to/image/file1a.jpg"
+};
+
+LSG_SetCard("Cards", 0, cardItem);
+```
+
+### LSG_SetCards
+
+```cpp
+void LSG_SetCards(const std::string& id, const LSG_CardItems& cards);
+```
+
+Sets the card items of the cards list.
+
+Parameters
+
+- **id** \<cards\> component ID
+- **cards** Card items
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_CardItems cardItems = {
+  { .title = "", .description = "", .thumbnail = "" },
+  { .title = "Card #2", .description = "", .thumbnail = "" },
+  { .title = "Card #3", .description = "", .thumbnail = "/path/to/image/file3.jpg" },
+  { .title = "Card #4", .description = "The fourth card.", .thumbnail = "/path/to/image/file4.jpg" }
+};
+
+LSG_SetCards("Cards", cardItems);
 ```
 
 ### LSG_SetColorTheme
@@ -3567,35 +3995,6 @@ LSG_Strings row = { "Updated Row", "My updated table row" };
 LSG_SetPageTableRow("Table", 6, row);
 ```
 
-### LSG_SetPanelButtons
-
-```cpp
-void LSG_SetPanelButtons(const std::string& id, const LSG_Buttons& buttons);
-```
-
-Replaces all child compomonents of the panel with the provided buttons.
-
-Parameters
-
-- **id** \<panel\> component ID
-- **buttons** Button items
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-Example
-
-```cpp
-LSG_Buttons buttons = {
-  { .id = "ButtonIdButton1", .text = "Button 1" },
-  { .id = "ButtonIdButton2", .text = "Button 2" }
-};
-
-LSG_SetPanelButtons("PanelIdButtons", buttons);
-```
-
 ### LSG_SetProgressValue
 
 ```cpp
@@ -4060,7 +4459,7 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetTitle("ModalIdAbout", "SDL2 GUI Library");
+LSG_SetTitle("ModalIdAbout", "SDL GUI Library");
 ```
 
 ### LSG_SetToggle
@@ -4376,7 +4775,7 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile);
 
 Tries to initialize the library and open a new window based on layout from XML file.
 
-Returns an SDL2 renderer.
+Returns an SDL renderer.
 
 Parameters
 

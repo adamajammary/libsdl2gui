@@ -6,6 +6,8 @@ LSG_MenuItem::LSG_MenuItem(const std::string& id, int layer, LibXml::xmlNode* xm
 	this->closed          = true;
 	this->iconOrientation = {};
 	this->selected        = false;
+
+	this->textures.resize(NR_OF_MENU_ITEM_TEXTURES);
 }
 
 void LSG_MenuItem::Close()
@@ -35,9 +37,10 @@ SDL_Texture* LSG_MenuItem::getIcon(const std::string& imageFile) const
 
 int LSG_MenuItem::getMaxHeightIcon() const
 {
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIcon);
+	auto maxHeight = LSG_Window::GetDPIScaled(LSG_MenuItem::Height);
+	auto padding   = LSG_Window::GetDPIScaled(LSG_MenuItem::PaddingIcon);
 
-	return (this->background.h - padding);
+	return (maxHeight - padding);
 }
 
 bool LSG_MenuItem::IsClosed() const
@@ -50,7 +53,7 @@ bool LSG_MenuItem::IsSelected() const
 	return this->selected;
 }
 
-bool LSG_MenuItem::OnMouseClick(const SDL_Point& mousePosition)
+bool LSG_MenuItem::OnMouseDown(const SDL_Point& mousePosition)
 {
 	if (!this->enabled || !this->visible)
 		return false;
@@ -81,7 +84,7 @@ void LSG_MenuItem::Render(SDL_Renderer* renderer) const
 		this->renderSelected(renderer);
 
 	if (this->enabled && this->highlighted)
-		this->renderHighlight(renderer, this->background);
+		this->renderHighlight(renderer);
 }
 
 void LSG_MenuItem::renderIcon(SDL_Renderer* renderer) const
@@ -125,7 +128,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 		return;
 
 	auto size    = LSG_Graphics::GetTextureSize(texture);
-	auto padding = LSG_Graphics::GetDPIScaled(LSG_MenuItem::PaddingIconSelected);
+	auto padding = LSG_Window::GetDPIScaled(LSG_MenuItem::PaddingIconSelected);
 
 	SDL_Rect destination = {
 		(this->background.x + this->background.w - size.width - padding),
@@ -135,13 +138,6 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 	};
 
 	SDL_RenderCopy(renderer, texture, nullptr, &destination);
-
-	auto border      = LSG_Graphics::GetDPIScaled(1);
-	auto borderColor = LSG_Graphics::GetThumbColor(this->backgroundColor);
-
-	this->renderBorder(renderer, border, borderColor, this->background);
-
-	this->renderHighlight(renderer, this->background);
 }
 
 void LSG_MenuItem::renderKey(SDL_Renderer* renderer) const
@@ -214,9 +210,10 @@ void LSG_MenuItem::sendEvent(LSG_EventType type) const
 	SDL_PushEvent(&menuEvent);
 }
 
-void LSG_MenuItem::SetMenuItem(const SDL_Rect& background)
+void LSG_MenuItem::Set()
 {
-	this->background = background;
+	if (!this->visible)
+		return;
 
 	this->destroyTextures();
 
@@ -242,7 +239,11 @@ void LSG_MenuItem::SetMenuItem(const SDL_Rect& background)
 		this->textures[LSG_MENU_ITEM_TEXTURE_KEY] = this->getTexture(xmlKey);
 
 	if (this->selected)
-		this->textures[LSG_MENU_ITEM_TEXTURE_SELECTED] = this->getTexture(LSG_ConstUnicodeCharacter::Checkmark);
+	{
+		auto size = LSG_Graphics::GetTextureSize(this->textures[LSG_MENU_ITEM_TEXTURE_TEXT]).height;
+
+		this->textures[LSG_MENU_ITEM_TEXTURE_SELECTED] = LSG_Graphics::GetVector(LSG_VECTOR_CHECK, this->textColor, { size, size });
+	}
 }
 
 void LSG_MenuItem::SetSelected(bool selected)
@@ -259,5 +260,5 @@ void LSG_MenuItem::SetSelected(bool selected)
 
 	this->selected = selected;
 
-	this->SetMenuItem(this->background);
+	this->Set();
 }

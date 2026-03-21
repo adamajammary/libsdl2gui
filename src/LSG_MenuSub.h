@@ -15,13 +15,15 @@ public:
 
 public:
 	void         AddItem(const std::string& item, const std::string& itemId);
+	void         Open();
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
 	virtual void Render(SDL_Renderer* renderer) const override;
-	void         SetSubMenu(const SDL_Rect& background);
+	void         Set();
 
 private:
-	int  getMaxHeightArrow() const;
-	void renderArrow(SDL_Renderer* renderer) const;
+	int       getMaxHeightArrow() const;
+	LSG_Menu* getMenu() const;
+	void      renderArrow(SDL_Renderer* renderer) const;
 };
 
 #endif

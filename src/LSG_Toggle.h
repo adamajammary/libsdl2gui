@@ -15,7 +15,7 @@ private:
 public:
 	bool         IsMouseOver(const SDL_Point& mousePosition) const;
 	bool         IsOn() const;
-	virtual bool OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
 	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
 	virtual void Render(SDL_Renderer* renderer) const override;
 	void         Set(bool on);

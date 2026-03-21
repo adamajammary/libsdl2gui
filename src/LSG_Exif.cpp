@@ -1,62 +1,41 @@
 #include "LSG_Exif.h"
 
-FILE* LSG_Exif::file             = nullptr;
-bool  LSG_Exif::isByteOrderIntel = false;
-long  LSG_Exif::offsetHeader     = 0;
-long  LSG_Exif::offsetGPSInfo    = 0;
-long  LSG_Exif::offsetSubIFD     = 0;
-
-void LSG_Exif::addTags(LSG_ExifTags& tags)
+void LSG_Exif::addTags(LSG_ExifTags& tags, LSG_ExifState& state)
 {
-	auto nrOfDirectories = LSG_Exif::getNrOfDirectories();
+	auto nrOfDirectories = LSG_Exif::getNrOfDirectories(state);
 		
 	for (uint16_t i = 0; i < nrOfDirectories; i++)
 	{
-        auto ifd = LSG_Exif::getIFD();
+        auto ifd = LSG_Exif::getIFD(state);
 
 		if (!ifd.dataValue.string.empty())
 			tags[ifd.tagID] = ifd.dataValue.string;
 
 		switch (ifd.tagID) {
-			case LSG_EXIF_TAG_ID_OFFSET_GPS_INFO: LSG_Exif::offsetGPSInfo = ifd.dataValue.uinteger; break;
-			case LSG_EXIF_TAG_ID_OFFSET_SUB_IFD:  LSG_Exif::offsetSubIFD  = ifd.dataValue.uinteger; break;
+			case LSG_EXIF_TAG_ID_OFFSET_GPS_INFO: state.offsetGPSInfo = ifd.dataValue.uinteger; break;
+			case LSG_EXIF_TAG_ID_OFFSET_SUB_IFD:  state.offsetSubIFD  = ifd.dataValue.uinteger; break;
 			default: break;
 		}
 	}
 }
 
-void LSG_Exif::close()
-{
-	if (LSG_Exif::file) {
-		std::fclose(LSG_Exif::file);
-		LSG_Exif::file = nullptr;
-	}
-
-	LSG_Exif::isByteOrderIntel = false;
-	LSG_Exif::offsetHeader     = 0;
-	LSG_Exif::offsetGPSInfo    = 0;
-	LSG_Exif::offsetSubIFD     = 0;
-}
-
 LSG_ExifData LSG_Exif::Get(const std::string& filePath)
 {
-	LSG_Exif::close();
+	LSG_ExifState state = {};
 
 	#if defined _windows
-		LSG_Exif::file = _wfopen(LSG_Text::ToWide(filePath).c_str(), L"rb");
+		state.file = _wfopen(LSG_Text::ToWide(filePath).c_str(), L"rb");
 	#else
-		LSG_Exif::file = std::fopen(filePath.c_str(), "rb");
+		state.file = std::fopen(filePath.c_str(), "rb");
 	#endif
 
-	if (!LSG_Exif::file) {
-		LSG_Exif::close();
+	if (!state.file)
 		return {};
-	}
 
-	LSG_Exif::seekToHeader();
+	LSG_Exif::seekToHeader(state.file);
 
-	if (!LSG_Exif::isValid()) {
-		LSG_Exif::close();
+	if (!LSG_Exif::isValid(state)) {
+		std::fclose(state.file);
 		return {};
 	}
 
@@ -65,45 +44,45 @@ LSG_ExifData LSG_Exif::Get(const std::string& filePath)
 	// IFD0 (main image)
 
 	long offsetIFD1 = 0;
-	auto offsetIFD0 = LSG_Exif::getOffsetIFD();
+	auto offsetIFD0 = LSG_Exif::getOffsetIFD(state);
 
 	if (offsetIFD0)
 	{
-		std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + offsetIFD0), SEEK_SET);
+		std::fseek(state.file, (state.offsetHeader + offsetIFD0), SEEK_SET);
 
-		LSG_Exif::addTags(data.tags);
+		LSG_Exif::addTags(data.tags, state);
 
-		offsetIFD1 = LSG_Exif::getOffsetIFD();
+		offsetIFD1 = LSG_Exif::getOffsetIFD(state);
 	}
 
 	// GPSInfo
 
-	if (LSG_Exif::offsetGPSInfo)
+	if (state.offsetGPSInfo)
 	{
-		std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + LSG_Exif::offsetGPSInfo), SEEK_SET);
+		std::fseek(state.file, (state.offsetHeader + state.offsetGPSInfo), SEEK_SET);
 
-		LSG_Exif::addTags(data.gps);
+		LSG_Exif::addTags(data.gps, state);
 	}
 
 	// SubIFD
 
-	if (LSG_Exif::offsetSubIFD)
+	if (state.offsetSubIFD)
 	{
-		std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + LSG_Exif::offsetSubIFD), SEEK_SET);
+		std::fseek(state.file, (state.offsetHeader + state.offsetSubIFD), SEEK_SET);
 
-		LSG_Exif::addTags(data.tags);
+		LSG_Exif::addTags(data.tags, state);
 	}
 
 	// IFD1 (thumbnail image)
 
 	if (offsetIFD1)
 	{
-		std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + offsetIFD1), SEEK_SET);
+		std::fseek(state.file, (state.offsetHeader + offsetIFD1), SEEK_SET);
 
-		data.thumbnail = LSG_Exif::getThumbnail();
+		data.thumbnail = LSG_Exif::getThumbnail(state);
 	}
 
-	LSG_Exif::close();
+	std::fclose(state.file);
 
 	return data;
 }
@@ -151,7 +130,16 @@ LSG_GPSCoordinate LSG_Exif::getGPSCoordinate(const std::string& rational, const 
 
 	LSG_Rational d, m, s;
 
-	auto result = std::sscanf(rational.c_str(), "%d/%d;%d/%d;%d/%d", &d.numerator, &d.denominator, &m.numerator, &m.denominator, &s.numerator, &s.denominator);
+	auto result = std::sscanf(
+		rational.c_str(),
+		"%d/%d;%d/%d;%d/%d",
+		&d.numerator,
+		&d.denominator,
+		&m.numerator,
+		&m.denominator,
+		&s.numerator,
+		&s.denominator
+	);
 
 	if (result < 6)
 		return {};
@@ -174,19 +162,20 @@ LSG_GPSCoordinate LSG_Exif::getGPSCoordinate(const std::string& rational, const 
 	return coordinate;
 }
 
-LSG_IFD LSG_Exif::getIFD()
+LSG_IFD LSG_Exif::getIFD(LSG_ExifState& state)
 {
 	LSG_IFD ifd = {};
 
-	std::fread(&ifd.data, 1, 12, LSG_Exif::file);
+	if (std::fread(&ifd.data, 1, 12, state.file) < 12)
+		return ifd;
 
-	ifd.tagID      = LSG_Bytes::ToUInt(ifd.data[0], ifd.data[1], LSG_Exif::isByteOrderIntel);
-	ifd.dataType   = (LSG_IFD_DataType)LSG_Bytes::ToUInt(ifd.data[2], ifd.data[3], LSG_Exif::isByteOrderIntel);
-	ifd.nrOfValues = LSG_Bytes::ToUInt(ifd.data[4], ifd.data[5], ifd.data[6], ifd.data[7],  LSG_Exif::isByteOrderIntel);
+	ifd.tagID      = LSG_Bytes::ToUInt(ifd.data[0], ifd.data[1], state.isByteOrderIntel);
+	ifd.dataType   = (LSG_IFD_DataType)LSG_Bytes::ToUInt(ifd.data[2], ifd.data[3], state.isByteOrderIntel);
+	ifd.nrOfValues = LSG_Bytes::ToUInt(ifd.data[4], ifd.data[5], ifd.data[6], ifd.data[7], state.isByteOrderIntel);
 
 	switch (ifd.dataType) {
 	case LSG_IFD_DATA_TYPE_STRING:
-		ifd.dataValue.string = LSG_Exif::getValueString(ifd);
+		ifd.dataValue.string = LSG_Exif::getValueString(ifd, state);
 		break;
 	case LSG_IFD_DATA_TYPE_UINT8:
 		for (uint32_t i = 0; i < ifd.nrOfValues; i++) {
@@ -196,16 +185,16 @@ LSG_IFD LSG_Exif::getIFD()
 		break;
 	case LSG_IFD_DATA_TYPE_UINT16:
 		for (uint32_t i = 0; i < ifd.nrOfValues; i += 2) {
-			ifd.dataValue.uinteger = LSG_Bytes::ToUInt(ifd.data[8 + i], ifd.data[9 + i], LSG_Exif::isByteOrderIntel);
+			ifd.dataValue.uinteger = LSG_Bytes::ToUInt(ifd.data[8 + i], ifd.data[9 + i], state.isByteOrderIntel);
 			ifd.dataValue.strings.push_back(std::to_string(ifd.dataValue.uinteger));
 		}
 		break;
 	case LSG_IFD_DATA_TYPE_UINT32:
-		ifd.dataValue.uinteger = LSG_Bytes::ToUInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], LSG_Exif::isByteOrderIntel);
+		ifd.dataValue.uinteger = LSG_Bytes::ToUInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], state.isByteOrderIntel);
 		ifd.dataValue.string   = std::to_string(ifd.dataValue.uinteger);
 		break;
 	case LSG_IFD_DATA_TYPE_URATIONAL64:
-		ifd.dataValue.urationals = LSG_Exif::getValueURationals(ifd);
+		ifd.dataValue.urationals = LSG_Exif::getValueURationals(ifd, state);
 		ifd.dataValue.urational  = ifd.dataValue.urationals[0];
 
 		for (const auto& urational : ifd.dataValue.urationals)
@@ -219,16 +208,16 @@ LSG_IFD LSG_Exif::getIFD()
 	break;
 	case LSG_IFD_DATA_TYPE_INT16:
 		for (uint32_t i = 0; i < ifd.nrOfValues; i += 2) {
-			ifd.dataValue.integer = LSG_Bytes::ToInt(ifd.data[8 + i], ifd.data[9 + i], LSG_Exif::isByteOrderIntel);
+			ifd.dataValue.integer = LSG_Bytes::ToInt(ifd.data[8 + i], ifd.data[9 + i], state.isByteOrderIntel);
 			ifd.dataValue.strings.push_back(std::to_string(ifd.dataValue.integer));
 		}
 	break;
 	case LSG_IFD_DATA_TYPE_INT32:
-		ifd.dataValue.integer = LSG_Bytes::ToInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], LSG_Exif::isByteOrderIntel);
+		ifd.dataValue.integer = LSG_Bytes::ToInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], state.isByteOrderIntel);
 		ifd.dataValue.string  = std::to_string(ifd.dataValue.integer);
 		break;
 	case LSG_IFD_DATA_TYPE_RATIONAL64:
-		ifd.dataValue.rationals = LSG_Exif::getValueRationals(ifd);
+		ifd.dataValue.rationals = LSG_Exif::getValueRationals(ifd, state);
 		ifd.dataValue.rational  = ifd.dataValue.rationals[0];
 
 		for (const auto& rational : ifd.dataValue.rationals)
@@ -249,13 +238,14 @@ LSG_IFD LSG_Exif::getIFD()
 	return ifd;
 }
 
-long LSG_Exif::getOffsetIFD()
+long LSG_Exif::getOffsetIFD(LSG_ExifState& state)
 {
 	uint8_t ifd[4];
 
-	std::fread(&ifd, 1, 4, LSG_Exif::file);
+	if (std::fread(&ifd, 1, 4, state.file) < 4)
+		return 0;
 
-	return LSG_Bytes::ToUInt(ifd[0], ifd[1], ifd[2], ifd[3], LSG_Exif::isByteOrderIntel);
+	return LSG_Bytes::ToUInt(ifd[0], ifd[1], ifd[2], ifd[3], state.isByteOrderIntel);
 }
 
 LSG_ImageOrientation LSG_Exif::GetOrientation(const LSG_ExifTags& tags)
@@ -303,26 +293,27 @@ LSG_ImageOrientation LSG_Exif::GetOrientation(const LSG_ExifTags& tags)
 	return orientation;
 }
 
-uint16_t LSG_Exif::getNrOfDirectories()
+uint16_t LSG_Exif::getNrOfDirectories(LSG_ExifState& state)
 {
 	uint8_t nrOfIFDs[2];
 
-	std::fread(&nrOfIFDs, 1, 2, LSG_Exif::file);
+	if (std::fread(&nrOfIFDs, 1, 2, state.file) < 2)
+		return 0;
 
-	return LSG_Bytes::ToUInt(nrOfIFDs[0], nrOfIFDs[1], LSG_Exif::isByteOrderIntel);
+	return LSG_Bytes::ToUInt(nrOfIFDs[0], nrOfIFDs[1], state.isByteOrderIntel);
 }
 
-SDL_Surface* LSG_Exif::getThumbnail()
+SDL_Surface* LSG_Exif::getThumbnail(LSG_ExifState& state)
 {
 	uint16_t compression = 0;
 	uint32_t dataOffset  = 0;
 	uint32_t dataSize    = 0;
 
-	auto nrOfDirectories = LSG_Exif::getNrOfDirectories();
+	auto nrOfDirectories = LSG_Exif::getNrOfDirectories(state);
 
 	for (uint16_t i = 0; i < nrOfDirectories; i++)
 	{
-		auto ifd = LSG_Exif::getIFD();
+		auto ifd = LSG_Exif::getIFD(state);
 
 		switch (ifd.tagID) {
 			case LSG_EXIF_TAG_ID_THUMB_COMPRESSION: compression = ifd.dataValue.uinteger; break;
@@ -335,52 +326,55 @@ SDL_Surface* LSG_Exif::getThumbnail()
 	if (!dataOffset || !dataSize || (compression != 6))
 		return nullptr;
 
-	std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + dataOffset), SEEK_SET);
+	std::fseek(state.file, (state.offsetHeader + dataOffset), SEEK_SET);
 
 	auto pixels = (uint8_t*)std::malloc(dataSize);
 
-	std::fread(pixels, 1, dataSize, LSG_Exif::file);
+	SDL_Surface* thumbnail = nullptr;
 
-	auto thumbnail = IMG_LoadJPG_RW(SDL_RWFromConstMem(pixels, dataSize));
+	if (std::fread(pixels, 1, dataSize, state.file) == dataSize)
+		thumbnail = IMG_LoadJPG_RW(SDL_RWFromConstMem(pixels, dataSize));
 
 	std::free(pixels);
 
 	return thumbnail;
 }
 
-std::string LSG_Exif::getValueString(const LSG_IFD& ifd)
+std::string LSG_Exif::getValueString(const LSG_IFD& ifd, LSG_ExifState& state)
 {
 	auto buffer = (char*)std::malloc(ifd.nrOfValues);
 
 	if (!buffer)
 		return "";
 
+	size_t bufferSize = ifd.nrOfValues;
+
 	if (ifd.nrOfValues > 4)
 	{
-		auto position = std::ftell(LSG_Exif::file);
-		auto offset   = LSG_Bytes::ToUInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], LSG_Exif::isByteOrderIntel);
+		auto position = std::ftell(state.file);
+		auto offset   = LSG_Bytes::ToUInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], state.isByteOrderIntel);
 
-		std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + offset), SEEK_SET);
+		std::fseek(state.file, (state.offsetHeader + offset), SEEK_SET);
 
-		std::fread(buffer, 1, ifd.nrOfValues, LSG_Exif::file);
+		bufferSize = std::fread(buffer, 1, ifd.nrOfValues, state.file);
 
-		std::fseek(LSG_Exif::file, position, SEEK_SET);
+		std::fseek(state.file, position, SEEK_SET);
 	} else {
 		std::memcpy(buffer, &ifd.data[8], ifd.nrOfValues);
 	}
 
-	auto value = std::string(buffer);
+	auto value = (bufferSize == ifd.nrOfValues ? std::string(buffer) : "");
 
 	std::free(buffer);
 
 	return value;
 }
 
-LSG_Rationals LSG_Exif::getValueRationals(const LSG_IFD& ifd)
+LSG_Rationals LSG_Exif::getValueRationals(const LSG_IFD& ifd, LSG_ExifState& state)
 {
 	LSG_Rationals rationals;
 
-	auto urationals = LSG_Exif::getValueURationals(ifd);
+	auto urationals = LSG_Exif::getValueURationals(ifd, state);
 
 	for (const auto& urational : urationals)
 		rationals.push_back({ (int32_t)urational.numerator, (int32_t)urational.denominator });
@@ -388,12 +382,12 @@ LSG_Rationals LSG_Exif::getValueRationals(const LSG_IFD& ifd)
 	return rationals;
 }
 
-LSG_URationals LSG_Exif::getValueURationals(const LSG_IFD& ifd)
+LSG_URationals LSG_Exif::getValueURationals(const LSG_IFD& ifd, LSG_ExifState& state)
 {
-	auto position = std::ftell(LSG_Exif::file);
-	auto offset   = LSG_Bytes::ToUInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], LSG_Exif::isByteOrderIntel);
+	auto position = std::ftell(state.file);
+	auto offset   = LSG_Bytes::ToUInt(ifd.data[8], ifd.data[9], ifd.data[10], ifd.data[11], state.isByteOrderIntel);
 
-	std::fseek(LSG_Exif::file, (LSG_Exif::offsetHeader + offset), SEEK_SET);
+	std::fseek(state.file, (state.offsetHeader + offset), SEEK_SET);
 
 	LSG_URationals values;
 
@@ -401,63 +395,77 @@ LSG_URationals LSG_Exif::getValueURationals(const LSG_IFD& ifd)
 	{
 		uint8_t bytes[8];
 
-		std::fread(&bytes, 1, 8, LSG_Exif::file);
+		if (std::fread(&bytes, 1, 8, state.file) < 8) {
+			values.clear();
+			break;
+		}
 
 		values.push_back({
-			.numerator   = LSG_Bytes::ToUInt(bytes[0], bytes[1], bytes[2], bytes[3], LSG_Exif::isByteOrderIntel),
-			.denominator = LSG_Bytes::ToUInt(bytes[4], bytes[5], bytes[6], bytes[7], LSG_Exif::isByteOrderIntel),
+			.numerator   = LSG_Bytes::ToUInt(bytes[0], bytes[1], bytes[2], bytes[3], state.isByteOrderIntel),
+			.denominator = LSG_Bytes::ToUInt(bytes[4], bytes[5], bytes[6], bytes[7], state.isByteOrderIntel),
 		});
 	}
 
-	std::fseek(LSG_Exif::file, position, SEEK_SET);
+	std::fseek(state.file, position, SEEK_SET);
 
 	return values;
 }
 
-bool LSG_Exif::isExif()
+bool LSG_Exif::isExif(LSG_ExifState& state)
 {
 	char exifString[6] = {};
 
-	std::fread(&exifString, 1, 6, LSG_Exif::file);
+	if (std::fread(&exifString, 1, 6, state.file) < 6)
+		return false;
 
 	bool isExif = (std::strncmp(exifString, "Exif\0\0", 6) == 0);
 
-	LSG_Exif::offsetHeader = std::ftell(LSG_Exif::file);
+	state.offsetHeader = std::ftell(state.file);
+
+	// "II" (Intel/Little endian) or "MM" (Motorola/Big endian)
 
 	char byteOrder[2] = {};
 
-	std::fread(&byteOrder, 1, 2, LSG_Exif::file); // "II" (Intel/Little endian) or "MM" (Motorola/Big endian)
+	if (std::fread(&byteOrder, 1, 2, state.file) < 2) {
+		state.offsetHeader = 0;
+		return false;
+	}
 
-	LSG_Exif::isByteOrderIntel = (std::strncmp(byteOrder, "II", 2) == 0);
+	state.isByteOrderIntel = (std::strncmp(byteOrder, "II", 2) == 0);
 
 	return isExif;
 }
 
-bool LSG_Exif::isMarker()
+bool LSG_Exif::isMarker(LSG_ExifState& state)
 {
 	uint8_t tiffMarker[2];
 
-	std::fread(&tiffMarker, 1, 2, LSG_Exif::file);
+	if (std::fread(&tiffMarker, 1, 2, state.file) < 2)
+		return false;
 
-	return (LSG_Bytes::ToUInt(tiffMarker[0], tiffMarker[1], LSG_Exif::isByteOrderIntel) == 0x2A);  // Exif (0x2A)
+	// Exif (0x2A)
+
+	auto marker = LSG_Bytes::ToUInt(tiffMarker[0], tiffMarker[1], state.isByteOrderIntel);
+
+	return (marker == 0x2A);
 }
 
-bool LSG_Exif::isValid()
+bool LSG_Exif::isValid(LSG_ExifState& state)
 {
-	std::fseek(LSG_Exif::file, 2, SEEK_CUR); // Skip section size
+	std::fseek(state.file, 2, SEEK_CUR); // Skip section size
 
-	return (LSG_Exif::isExif() && LSG_Exif::isMarker());
+	return (LSG_Exif::isExif(state) && LSG_Exif::isMarker(state));
 }
 
-void LSG_Exif::seekToHeader()
+void LSG_Exif::seekToHeader(FILE* file)
 {
-	std::rewind(LSG_Exif::file);
+	std::rewind(file);
 
 	int c1, c2;
 
 	do {
-		c1 = std::fgetc(LSG_Exif::file);
-		c2 = (c1 != EOF ? std::fgetc(LSG_Exif::file) : EOF);
+		c1 = std::fgetc(file);
+		c2 = (c1 != EOF ? std::fgetc(file) : EOF);
 
 		if ((c1 == 0xFF) && (c2 == 0xE1)) // EXIF header (0xFFE1)
 			break;
