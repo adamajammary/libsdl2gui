@@ -918,22 +918,28 @@ void LSG_Cards::setCardSurfaces()
 
 	this->destroySurfaces();
 
-	#pragma omp parallel for
-	for (int i = 0; i < (int)this->cards.size(); i++)
-	{
-		auto& card = this->cards[i];
+	auto threadCount = std::latch(this->cards.size());
 
-		if (!card.thumbnail.filePath.empty())
-			card.thumbnail.surface = IMG_Load(LSG_Text::GetFullPath(card.thumbnail.filePath).c_str());
+	for (auto& card : this->cards)
+		std::thread(&LSG_Cards::setCardSurfacesForCard, this, std::ref(card), std::ref(threadCount)).detach();
 
-		if (!card.title.text.empty())
-			card.title.surface = this->getSurface(card.title.text, this->getTitleFontSize());
-
-		if (!card.description.text.empty())
-			card.description.surface = this->getSurface(card.description.text);
-	}
+	threadCount.wait();
 
 	this->cardsLock.unlock();
+}
+
+void LSG_Cards::setCardSurfacesForCard(LSG_Card& card, std::latch& threadCount)
+{
+	if (!card.thumbnail.filePath.empty())
+		card.thumbnail.surface = IMG_Load(LSG_Text::GetFullPath(card.thumbnail.filePath).c_str());
+
+	if (!card.title.text.empty())
+		card.title.surface = this->getSurface(card.title.text, this->getTitleFontSize());
+
+	if (!card.description.text.empty())
+		card.description.surface = this->getSurface(card.description.text);
+
+	threadCount.count_down();
 }
 
 void LSG_Cards::setCardTextures()

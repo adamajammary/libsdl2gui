@@ -16,7 +16,6 @@ Library | Version | License
 [libtiff](https://github.com/libsdl-org/libtiff) | [4.7.1](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.1.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
 [libwebp](https://github.com/webmproject/libwebp) | [1.6.0](https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
 [libXML2](https://github.com/GNOME/libxml2) | [2.15.2](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.2.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
-[OpenMP LLVM](https://github.com/llvm/llvm-project/tree/main/openmp) | [21.1.8](https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/openmp-21.1.8.src.tar.xz) | [Apache License](https://github.com/llvm/llvm-project/blob/main/openmp/LICENSE.TXT)
 [DejaVu fonts](https://dejavu-fonts.github.io/) | [2.37](https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-sans-ttf-2.37.zip) | [DejaVu Fonts license](https://dejavu-fonts.github.io/License.html)
 [Noto CJK fonts](https://github.com/notofonts/noto-cjk) | [2.004](https://github.com/notofonts/noto-cjk/blob/main/Sans/OTC/NotoSansCJK-Regular.ttc) | [SIL Open Font license](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
 

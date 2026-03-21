@@ -1217,19 +1217,25 @@ void LSG_Tiles::setTileSurfaces()
 
 	this->destroySurfaces();
 
-	#pragma omp parallel for
-	for (int i = 0; i < (int)this->tiles.size(); i++)
-	{
-		auto& tile = this->tiles[i];
+	auto threadCount = std::latch(this->tiles.size());
 
-		if (!tile.image.filePath.empty())
-			tile.image.surface = IMG_Load(LSG_Text::GetFullPath(tile.image.filePath).c_str());
+	for (auto& tile : this->tiles)
+		std::thread(&LSG_Tiles::setTileSurfacesForTile, this, std::ref(tile), std::ref(threadCount)).detach();
 
-		if (!tile.text.text.empty())
-			tile.text.surface = this->getSurface(tile.text.text);
-	}
+	threadCount.wait();
 
 	this->tilesLock.unlock();
+}
+
+void LSG_Tiles::setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount)
+{
+	if (!tile.image.filePath.empty())
+		tile.image.surface = IMG_Load(LSG_Text::GetFullPath(tile.image.filePath).c_str());
+
+	if (!tile.text.text.empty())
+		tile.text.surface = this->getSurface(tile.text.text);
+
+	threadCount.count_down();
 }
 
 void LSG_Tiles::setTileTextures()

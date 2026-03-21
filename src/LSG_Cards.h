@@ -92,6 +92,7 @@ private:
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          setCards();
 	void          setCardSurfaces();
+	void          setCardSurfacesForCard(LSG_Card& card, std::latch& threadCount);
 	void          setCardTextures();
 
 private:

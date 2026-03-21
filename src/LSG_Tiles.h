@@ -116,6 +116,7 @@ private:
 	void          setGrid();
 	void          setTiles();
 	void          setTileSurfaces();
+	void          setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount);
 	void          setTileTextures();
 };
 
