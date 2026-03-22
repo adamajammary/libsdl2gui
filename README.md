@@ -25,16 +25,18 @@ Platform | Header | Package
 -------- | ------ | -------
 Android | android/asset_manager_jni.h | [Android NDK](https://developer.android.com/ndk/downloads)
 Android | sys/stat.h | [Android NDK](https://developer.android.com/ndk/downloads)
-iOS | MediaPlayer/MediaPlayer.h | Media Player Framework
-iOS | Photos/Photos.h | Photos Framework
-iOS | PhotosUI/PhotosUI.h | PhotosUI Kit Framework
-iOS | StoreKit/StoreKit.h | StoreKit Framework
-iOS | UIKit/UIKit.h | UIKit Framework
-iOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
-Linux | gtk/gtk.h | libgtk-3-dev
-macOS | AppKit/AppKit.h | AppKit Framework
-macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
-Windows | shobjidl_core.h | Win32 API
+iOS | MediaPlayer/MediaPlayer.h | [Media Player Framework](https://developer.apple.com/documentation/mediaplayer?language=objc)
+iOS | Photos/Photos.h | [Photos Framework](https://developer.apple.com/documentation/photos?language=objc)
+iOS | PhotosUI/PhotosUI.h | [PhotosUI Framework](https://developer.apple.com/documentation/photosui?language=objc)
+iOS | StoreKit/StoreKit.h | [StoreKit Framework](https://developer.apple.com/documentation/storekit?language=objc)
+iOS | UIKit/UIKit.h | [UIKit Framework](https://developer.apple.com/documentation/uikit?language=objc)
+iOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | [Uniform Type Identifiers framework](https://developer.apple.com/documentation/uniformtypeidentifiers?language=objc)
+Linux | gtk/gtk.h | [libgtk-3-dev](https://docs.gtk.org/gtk3/)
+macOS | AppKit/AppKit.h | [AppKit Framework](https://developer.apple.com/documentation/appkit?language=objc)
+macOS | Foundation/Foundation.h | [Foundation Framework](https://developer.apple.com/documentation/foundation?language=objc)
+macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | [Uniform Type Identifiers framework](https://developer.apple.com/documentation/uniformtypeidentifiers?language=objc)
+Windows | shobjidl_core.h | [Win32 API](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/)
+Windows | windows.h | [WinMain](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-winmain)
 
 ## Compilers and C++20
 
