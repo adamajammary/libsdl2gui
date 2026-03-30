@@ -709,22 +709,24 @@ void LSG_UI::LayoutParent(LSG_Component* component)
 	if (!component)
 		return;
 
-	LSG_UI::resetSize(component);
+	auto scrollableParent = component->GetScrollableParent();
 
-	auto parent = component->GetParent();
-
-	if (parent)
-	{
-		LSG_UI::layoutFixed(parent);
-		LSG_UI::layoutRelative(parent);
-
+	if (scrollableParent) {
+		LSG_UI::Layout();
 		return;
 	}
 
-	LSG_UI::root->background = LSG_UI::GetBackgroundArea();
+	auto parent = component->GetParent();
 
-	LSG_UI::layoutFixed(component);
-	LSG_UI::layoutRelative(component);
+	if (!parent) {
+		LSG_UI::Layout();
+		return;
+	}
+
+	LSG_UI::resetSize(component);
+
+	LSG_UI::layoutFixed(parent);
+	LSG_UI::layoutRelative(parent);
 }
 
 void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components& children)
