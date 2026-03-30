@@ -712,14 +712,14 @@ void LSG_UI::LayoutParent(LSG_Component* component)
 	auto scrollableParent = component->GetScrollableParent();
 
 	if (scrollableParent) {
-		LSG_UI::Layout();
+		LSG_UI::LayoutRoot();
 		return;
 	}
 
 	auto parent = component->GetParent();
 
 	if (!parent) {
-		LSG_UI::Layout();
+		LSG_UI::LayoutRoot();
 		return;
 	}
 
@@ -727,6 +727,8 @@ void LSG_UI::LayoutParent(LSG_Component* component)
 
 	LSG_UI::layoutFixed(parent);
 	LSG_UI::layoutRelative(parent);
+
+	LSG_Graphics::DestroyTextures();
 }
 
 void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components& children)
@@ -866,6 +868,8 @@ void LSG_UI::LayoutRoot()
 	LSG_UI::layoutRelative(LSG_UI::root);
 
 	LSG_UI::CloseMenu();
+
+	LSG_Graphics::DestroyTextures();
 }
 
 void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& children)
