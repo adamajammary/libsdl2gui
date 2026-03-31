@@ -1195,8 +1195,6 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 	this->tilesLock.unlock();
 
 	this->reset(true);
-
-	this->Select(!this->tiles.empty() ? 0 : -1);
 }
 
 void LSG_Tiles::SetTiles()

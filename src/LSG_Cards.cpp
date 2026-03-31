@@ -896,8 +896,6 @@ void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 	this->cardsLock.unlock();
 
 	this->reset(true);
-
-	this->Select(!this->cards.empty() ? 0 : -1);
 }
 
 void LSG_Cards::SetCards()
