@@ -867,6 +867,9 @@ void LSG_UI::LayoutRoot()
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
 
+	LSG_UI::layoutModals();
+	LSG_UI::setModals();
+
 	LSG_UI::CloseMenu();
 
 	LSG_Graphics::DestroyTextures();
