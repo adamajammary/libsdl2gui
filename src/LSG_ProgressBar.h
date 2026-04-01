@@ -14,7 +14,7 @@ protected:
 	static inline const SDL_Color DefaultProgressColor   = { 82, 180, 30, 255 };
 
 protected:
-	int       lastProgressValue;
+	int       lastProgressWidth;
 	SDL_Color progressColor;
 	double    value;
 
@@ -26,7 +26,7 @@ public:
 	void         SetValue(double value);
 
 protected:
-	void renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressValue, const SDL_Rect& fillArea);
+	void renderProgress(SDL_Renderer* renderer, const SDL_Rect& progressArea, int progressWidth, const SDL_Rect& fillArea);
 
 private:
 	void render(SDL_Renderer* renderer);

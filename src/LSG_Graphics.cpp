@@ -313,7 +313,7 @@ std::string LSG_Graphics::getPathCornerBottomLeft(int radius, const SDL_Size& si
 
 	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 	auto svg = std::format(
-		"<path d='M 0  {} v {} h {} A {} {} 0 0 1 0  {}' />",
+		"<path d='M 0 {} v {} h {} A {} {} 0 0 1 0 {}' />",
 		bottom, radius, radius, radius, radius, bottom
 	);
 
@@ -337,7 +337,7 @@ std::string LSG_Graphics::getPathCornerTopLeft(int radius, const SDL_Size& size)
 {
 	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 	auto svg = std::format(
-		"<path d='M 0  {} V 0  H {} A {} {} 0 0 0 0  {}' />",
+		"<path d='M 0 {} V 0 H {} A {} {} 0 0 0 0 {}' />",
 		radius, radius, radius, radius, radius
 	);
 
@@ -348,7 +348,7 @@ std::string LSG_Graphics::getPathCornerTopRight(int radius, const SDL_Size& size
 {
 	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 	auto svg = std::format(
-		"<path d='M {} {} V 0  h {} A {} {} 0 0 1 {} {}' />",
+		"<path d='M {} {} V 0 h {} A {} {} 0 0 1 {} {}' />",
 		size.width, radius, -radius, radius, radius, size.width, radius
 	);
 
@@ -569,6 +569,50 @@ std::string LSG_Graphics::getVectorPageStart(const SDL_Color& color, const SDL_S
 	return svg;
 }
 
+SDL_Texture* LSG_Graphics::getVectorRectangleFillRoundedBottom(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+{
+	auto height = (size.height - borderRadius);
+
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
+		"<path d='M {} {} A {} {} 0 0 1 {} {} H {} A {} {} 0 0 1 0 {} v {} H {} V {}' />" \
+		"</svg>",
+		size.width, size.height,
+		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
+		size.width, height,
+		borderRadius, borderRadius, (size.width - borderRadius), size.height,
+		borderRadius,
+		borderRadius, borderRadius, height,
+		-height,
+		size.width,
+		height
+	);
+
+	return LSG_Graphics::getVector(svg);
+}
+
+SDL_Texture* LSG_Graphics::getVectorRectangleFillRoundedLeft(const SDL_Color& color, int borderRadius, const SDL_Size& size)
+{
+	// A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+	auto svg = std::format(
+		"<svg width='{}px' height='{}px' style='fill: rgb({},{},{}); fill-opacity: {}'>" \
+		"<path d='M 0 {} A {} {} 0 0 1 {} 0 H {} V {} H {} A {} {} 0 0 1 0 {} V {}' />" \
+		"</svg>",
+		size.width, size.height,
+		color.r, color.g, color.b, LSG_Graphics::getOpacity(color),
+		borderRadius,
+		borderRadius, borderRadius, borderRadius,
+		size.width,
+		size.height,
+		borderRadius,
+		borderRadius, borderRadius, (size.height - borderRadius),
+		borderRadius
+	);
+
+	return LSG_Graphics::getVector(svg);
+}
+
 SDL_Texture* LSG_Graphics::getVectorRoundedCorners(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size)
 {
 	auto svg = std::format(
@@ -727,6 +771,32 @@ void LSG_Graphics::RenderFillRounded(
 ) {
 	if (!LSG_Graphics::textures.contains(id))
 		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRoundedRectangleFill(color, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
+void LSG_Graphics::RenderFillRoundedBottom(
+	SDL_Renderer*      renderer,
+	int                borderRadius,
+	const SDL_Color&   color,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRectangleFillRoundedBottom(color, borderRadius, { background.w, background.h });
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
+}
+
+void LSG_Graphics::RenderFillRoundedLeft(
+	SDL_Renderer*      renderer,
+	int                borderRadius,
+	const SDL_Color&   color,
+	const SDL_Rect&    background,
+	const std::string& id
+) {
+	if (!LSG_Graphics::textures.contains(id))
+		LSG_Graphics::textures[id] = LSG_Graphics::getVectorRectangleFillRoundedLeft(color, borderRadius, { background.w, background.h });
 
 	SDL_RenderCopy(renderer, LSG_Graphics::textures[id], nullptr, &background);
 }

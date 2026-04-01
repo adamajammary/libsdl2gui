@@ -51,12 +51,12 @@ SDL_Rect LSG_Slider::getBackground() const
 	return background;
 }
 
-int LSG_Slider::getProgressValue(const SDL_Rect& background) const
+int LSG_Slider::getProgressWidth(const SDL_Rect& background) const
 {
 	return (int)((double)(this->IsVertical() ? background.h : background.w) * this->value);
 }
 
-SDL_Rect LSG_Slider::getThumb(const SDL_Rect& background, int progressValue) const
+SDL_Rect LSG_Slider::getThumb(const SDL_Rect& background, int progressWidth) const
 {
 	SDL_Rect thumb = background;
 
@@ -64,12 +64,12 @@ SDL_Rect LSG_Slider::getThumb(const SDL_Rect& background, int progressValue) con
 	auto thumbWidthHalf = (thumbWidth / 2);
 
 	if (this->IsVertical()) {
-		thumb.y += (background.h - progressValue - thumbWidthHalf);
+		thumb.y += (background.h - progressWidth - thumbWidthHalf);
 		thumb.h = thumbWidth;
 		thumb.x = this->background.x;
 		thumb.w = this->background.w;
 	} else {
-		thumb.x += (progressValue - thumbWidthHalf);
+		thumb.x += (progressWidth - thumbWidthHalf);
 		thumb.w = thumbWidth;
 		thumb.y = this->background.y;
 		thumb.h = this->background.h;
@@ -84,7 +84,7 @@ void LSG_Slider::OnMouseClick(const SDL_Point& mousePosition)
 		return;
 
 	auto background = this->getBackground();
-	auto thumb      = this->getThumb(background, this->getProgressValue(background));
+	auto thumb      = this->getThumb(background, this->getProgressWidth(background));
 
 	if (!SDL_PointInRect(&mousePosition, &thumb)) {
 		this->setValue(mousePosition);
@@ -100,7 +100,7 @@ bool LSG_Slider::OnMouseClickThumb(const SDL_Point& mousePosition)
 		return false;
 
 	auto background = this->getBackground();
-	auto thumb      = this->getThumb(background, this->getProgressValue(background));
+	auto thumb      = this->getThumb(background, this->getProgressWidth(background));
 
 	if (SDL_PointInRect(&mousePosition, &thumb)) {
 		this->isSlideActive = true;
@@ -158,7 +158,7 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 
 	this->renderBackground(renderer, background);
 
-	auto progressValue = this->getProgressValue(background);
+	auto progressWidth = this->getProgressWidth(background);
 
 	if (this->fillProgress)
 	{
@@ -166,16 +166,16 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		auto progressArea = SDL_Rect(fillArea);
 
 		if (this->IsVertical()) {
-			progressArea.h  = progressValue;
-			progressArea.y += (background.h - progressValue);
+			progressArea.h  = progressWidth;
+			progressArea.y += (background.h - progressWidth);
 		} else {
-			progressArea.w = progressValue;
+			progressArea.w = progressWidth;
 		}
 
-		this->renderProgress(renderer, progressArea, progressValue, fillArea);
+		this->renderProgress(renderer, progressArea, progressWidth, fillArea);
 	}
 
-	this->renderThumb(renderer, background, progressValue);
+	this->renderThumb(renderer, background, progressWidth);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);
@@ -200,9 +200,9 @@ void LSG_Slider::renderBackground(SDL_Renderer* renderer, const SDL_Rect& backgr
 	}
 }
 
-void LSG_Slider::renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressValue)
+void LSG_Slider::renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressWidth)
 {
-	auto thumb = this->getThumb(background, progressValue);
+	auto thumb = this->getThumb(background, progressWidth);
 
 	if (this->thumb.borderRadius > 0)
 	{

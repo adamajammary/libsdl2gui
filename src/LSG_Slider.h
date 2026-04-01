@@ -43,11 +43,11 @@ public:
 
 private:
 	SDL_Rect     getBackground() const;
-	int          getProgressValue(const SDL_Rect& background) const;
-	SDL_Rect     getThumb(const SDL_Rect& background, int progressValue) const;
+	int          getProgressWidth(const SDL_Rect& background) const;
+	SDL_Rect     getThumb(const SDL_Rect& background, int progressWidth) const;
 	void         render(SDL_Renderer* renderer);
 	void         renderBackground(SDL_Renderer* renderer, const SDL_Rect& background);
-	void         renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressValue);
+	void         renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressWidth);
 	virtual void sendEvent(LSG_EventType type) const override;
 	void         setValue(const SDL_Point& mousePosition);
 	void         setValue(int offset);

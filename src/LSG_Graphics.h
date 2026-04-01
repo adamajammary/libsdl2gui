@@ -33,6 +33,8 @@ public:
 	static void                    RenderBorder(SDL_Renderer* renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
 	static void                    RenderFill(SDL_Renderer*   renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
 	static void                    RenderFillRounded(SDL_Renderer*       renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
+	static void                    RenderFillRoundedBottom(SDL_Renderer* renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
+	static void                    RenderFillRoundedLeft(SDL_Renderer*   renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
 	static void                    RenderFillWithRoundedBorder(SDL_Renderer* renderer, const SDL_Color& fillColor, const SDL_Color& borderColor, int borderRadius, int borderWidth, const SDL_Rect& background, const std::string& id);
 	static void                    RenderLine(SDL_Renderer* renderer, const SDL_Color& color, int x1, int y1, int x2, int y2);
 	static void                    RenderRoundedCorners(SDL_Renderer*       renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
@@ -64,6 +66,8 @@ private:
 	static std::string             getVectorPageEnd(const SDL_Color&   color, const SDL_Size& size);
 	static std::string             getVectorPageNext(const SDL_Color&  color, const SDL_Size& size);
 	static std::string             getVectorPageStart(const SDL_Color& color, const SDL_Size& size);
+	static SDL_Texture*            getVectorRectangleFillRoundedBottom(const SDL_Color& color, int borderRadius, const SDL_Size& size);
+	static SDL_Texture*            getVectorRectangleFillRoundedLeft(const SDL_Color&   color, int borderRadius, const SDL_Size& size);
 	static SDL_Texture*            getVectorRoundedCorners(const SDL_Color&       backgroundColor, int borderRadius, const SDL_Size& size);
 	static SDL_Texture*            getVectorRoundedCornersBottom(const SDL_Color& backgroundColor, int borderRadius, const SDL_Size& size);
 	static SDL_Texture*            getVectorRoundedCornersTop(const SDL_Color&    backgroundColor, int borderRadius, const SDL_Size& size);
