@@ -13,7 +13,7 @@ protected:
 	bool wrap;
 
 private:
-	std::mutex surfaceLock;
+	static std::mutex surfaceLock;
 
 public:
 	static bool                FontSupportsText(TTF_Font* font, uint16_t* text);

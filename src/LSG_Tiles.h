@@ -32,6 +32,9 @@ private:
 	static inline const SDL_Color DefaultTextBackground = { 0, 0, 0, 196 };
 
 private:
+	static std::mutex tilesLock;
+
+private:
 	SDL_Rect              fillArea;
 	SDL_Rect              grid;
 	int                   gridEnd;
@@ -46,7 +49,6 @@ private:
 	int                   textPadding;
 	int                   tileSize;
 	std::vector<LSG_Tile> tiles;
-	std::mutex            tilesLock;
 	int                   tilesPerRow;
 	int                   totalSize;
 	bool                  wrapTiles;

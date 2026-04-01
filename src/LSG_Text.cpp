@@ -1,5 +1,7 @@
 #include "LSG_Text.h"
 
+std::mutex LSG_Text::surfaceLock;
+
 LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
@@ -100,7 +102,7 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	if (text.empty())
 		return nullptr;
 
-	this->surfaceLock.lock();
+	LSG_Text::surfaceLock.lock();
 
 	auto color = (!textColor    ? this->textColor      : *textColor);
 	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
@@ -124,7 +126,7 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	if (!surface)
 		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));
 
-	this->surfaceLock.unlock();
+	LSG_Text::surfaceLock.unlock();
 
 	return surface;
 }

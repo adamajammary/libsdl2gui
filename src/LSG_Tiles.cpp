@@ -1,5 +1,7 @@
 #include "LSG_Tiles.h"
 
+std::mutex LSG_Tiles::tilesLock;
+
 LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
@@ -58,14 +60,14 @@ void LSG_Tiles::Activate(const SDL_Point& mousePosition) const
 
 void LSG_Tiles::AddTile(const LSG_TileItem& tile)
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->tiles.push_back({
 		.image = { .filePath = tile.image },
 		.text  = { .text     = tile.text  }
 	});
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
 	this->reset();
 }
@@ -278,12 +280,12 @@ void LSG_Tiles::destroyTextures(LSG_Tile& tile)
 
 void LSG_Tiles::destroyTextures()
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	for (auto& tile : this->tiles)
 		this->destroyTextures(tile);
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 }
 
 SDL_Rect LSG_Tiles::getGrid()
@@ -591,11 +593,11 @@ void LSG_Tiles::RemoveTile(int index)
 
 	this->destroyTextures(this->tiles[index]);
 
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->tiles.erase(this->tiles.begin() + (size_t)index);
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
 	this->reset();
 
@@ -1159,7 +1161,7 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 	if ((index < 0) || (index >= (int)this->tiles.size()))
 		return;
 
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->destroyTextures(this->tiles[index]);
 	this->destroySurfaces(this->tiles[index]);
@@ -1169,7 +1171,7 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 		.text  = { .text     = tile.text  }
 	};
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
 	this->reset();
 }
@@ -1178,7 +1180,7 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 {
 	this->destroyTextures();
 
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->destroySurfaces();
 
@@ -1192,7 +1194,7 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 		});
 	}
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
 	this->reset(true);
 }
@@ -1211,7 +1213,7 @@ void LSG_Tiles::setTiles()
 
 void LSG_Tiles::setTileSurfaces()
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->destroySurfaces();
 
@@ -1222,7 +1224,7 @@ void LSG_Tiles::setTileSurfaces()
 
 	threadCount.wait();
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 }
 
 void LSG_Tiles::setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount)
@@ -1238,7 +1240,7 @@ void LSG_Tiles::setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount)
 
 void LSG_Tiles::setTileTextures()
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	for (auto& tile : this->tiles)
 	{
@@ -1259,5 +1261,5 @@ void LSG_Tiles::setTileTextures()
 
 	this->destroySurfaces();
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 }

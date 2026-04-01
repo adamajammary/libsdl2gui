@@ -25,13 +25,15 @@ private:
 	static const int DefaultCardSpacing     = 10;
 
 private:
+	static std::mutex cardsLock;
+
+private:
 	LSG_CardBorder        cardBorderType;
 	int                   cardBorderWidth;
 	int                   cardHeight;
 	int                   cardPadding;
 	int                   cardSpacing;
 	std::vector<LSG_Card> cards;
-	std::mutex            cardsLock;
 	int                   highlightedRow;
 	SDL_Point             offset;
 	SDL_Texture*          renderTarget;
