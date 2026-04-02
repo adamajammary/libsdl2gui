@@ -11,6 +11,7 @@
 #include <latch>
 #include <mutex>
 #include <set>
+#include <sstream> // stringstream
 #include <thread>
 #include <unordered_map>
 

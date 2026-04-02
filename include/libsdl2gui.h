@@ -536,6 +536,14 @@ DLLEXPORT std::vector<int> DLL LSG_GetSelectedTiles(const std::string& id);
 DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
 
 /**
+ * @returns the part values of the slider as percents between 0 and 1
+ * @param id <slider> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::vector<double> DLL LSG_GetSliderParts(const std::string& id);
+
+/**
  * @returns the value of the slider as a percent between 0 and 1
  * @param id <slider> component ID
  * @throws invalid_argument
@@ -1449,6 +1457,15 @@ DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size, bool
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
+
+/**
+ * @brief Sets the part values of the slider as percents between 0 and 1.
+ * @param id      <slider> component ID
+ * @param percents { 0.25, 0.5, 0.75 }
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetSliderParts(const std::string& id, const std::vector<double>& percents);
 
 /**
  * @brief Sets the value of the slider as a percent between 0 and 1.

@@ -685,6 +685,21 @@ SDL_Size LSG_GetSize(const std::string& id)
 	return size;
 }
 
+std::vector<double> LSG_GetSliderParts(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id));
+
+	auto value = static_cast<LSG_Slider*>(component)->GetParts();
+
+	return value;
+}
+
 double LSG_GetSliderValue(const std::string& id)
 {
 	if (!isRunning)
@@ -2155,6 +2170,19 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 
 	if (layout)
 		LSG_UI::LayoutRoot();
+}
+
+void LSG_SetSliderParts(const std::string& id, const std::vector<double>& percents)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id));
+
+	static_cast<LSG_Slider*>(component)->SetParts(percents);
 }
 
 void LSG_SetSliderValue(const std::string& id, double percent)

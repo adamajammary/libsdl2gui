@@ -23,23 +23,28 @@ private:
 	static inline const SDL_Color DefaultThumbColor = { 128, 128, 128, 255 };
 
 private:
-	static const int DefaultThumbWidth = 10;
+	static const int DefaultPartSize   = 10;
+	static const int DefaultThumbWidth = 20;
 
 private:
-	bool            fillProgress;
-	bool            isSlideActive;
-	std::string     orientation;
-	LSG_SliderThumb thumb;
+	bool                fillProgress;
+	bool                isSlideActive;
+	std::string         orientation;
+	int                 partSize;
+	std::vector<double> parts;
+	LSG_SliderThumb     thumb;
 
 public:
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
-	bool         OnMouseClickThumb(const SDL_Point& mousePosition);
-	bool         OnMouseMove(const SDL_Point& mousePosition);
-	void         OnMouseScroll(int offset);
-	void         OnMouseUp();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
-	virtual void SetColors() override;
+	std::vector<double> GetParts();
+	virtual void        OnMouseClick(const SDL_Point& mousePosition) override;
+	bool                OnMouseClickThumb(const SDL_Point& mousePosition);
+	bool                OnMouseMove(const SDL_Point& mousePosition);
+	void                OnMouseScroll(int offset);
+	void                OnMouseUp();
+	virtual void        Render(SDL_Renderer* renderer, const SDL_Point& position) override;
+	void                Render(SDL_Renderer* renderer);
+	virtual void        SetColors() override;
+	void                SetParts(const std::vector<double>& parts);
 
 private:
 	SDL_Rect     getBackground() const;
@@ -47,6 +52,7 @@ private:
 	SDL_Rect     getThumb(const SDL_Rect& background, int progressWidth) const;
 	void         render(SDL_Renderer* renderer);
 	void         renderBackground(SDL_Renderer* renderer, const SDL_Rect& background);
+	void         renderParts(SDL_Renderer* renderer, const SDL_Rect& background);
 	void         renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressWidth);
 	virtual void sendEvent(LSG_EventType type) const override;
 	void         setValue(const SDL_Point& mousePosition);

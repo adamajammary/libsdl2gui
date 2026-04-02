@@ -569,7 +569,7 @@ progress-color="color"
 
 ### \<slider\>
 
-[boolean](#boolean) | [color](#color) | [orientation](#orientation) | [percent](#percent) | [size](#size)
+[boolean](#boolean) | [color](#color) | [orientation](#orientation) | [percent](#percent) | [percents](#percents) | [size](#size)
 
 Triggers [LSG_EVENT_SLIDER_VALUE_CHANGED](#handle-events) event.
 
@@ -588,6 +588,7 @@ border-width="int"
 value="percent"
 fill-progress="boolean"
 progress-color="color"
+parts="percents"
 thumb-color="color"
 thumb-width="int" # minimum="10"
 thumb-border-color="color"
@@ -771,6 +772,12 @@ value="horizontal|vertical" # default="horizontal"
 
 ```ini
 value="0.5" # 50% [0.0,1.0] default="0.0"
+```
+
+### percents
+
+```ini
+value="0.25,0.5,0.75" # Comma-separated list of percents
 ```
 
 ### size
@@ -1806,6 +1813,23 @@ Returns the component size.
 Parameters
 
 - **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSliderParts
+
+```cpp
+std::vector<double> LSG_GetSliderParts(const std::string& id);
+```
+
+Returns the part values of the slider as percents between 0 and 1.
+
+Parameters
+
+- **id** \<slider\> component ID
 
 Exceptions
 
@@ -4070,6 +4094,30 @@ Example
 
 ```cpp
 LSG_SetSize("ButtonIdColorThemeDark", 0.25, 0.75);
+```
+
+### LSG_SetSliderParts
+
+```cpp
+void LSG_SetSliderParts(const std::string& id, const std::vector<double>& percents);
+```
+
+Sets the part values of the slider as percents between 0 and 1.
+
+Parameters
+
+- **id** \<slider\> component ID
+- **percents** { 0.25, 0.5, 0.75 }
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetSliderParts("Slider", { 0.25, 0.5, 0.75 });
 ```
 
 ### LSG_SetSliderValue

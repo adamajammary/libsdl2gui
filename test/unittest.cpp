@@ -567,6 +567,78 @@ namespace LSG_UnitTest
         }
     };
 
+    TEST_CLASS(Slider)
+    {
+        TEST_METHOD(GetParts)
+        {
+            try
+            {
+                auto parts = LSG_GetSliderParts("Slider");
+
+                Assert::AreEqual(3, (int)parts.size());
+
+                Assert::AreEqual(0.25, parts[0]);
+                Assert::AreEqual(0.5,  parts[1]);
+                Assert::AreEqual(0.75, parts[2]);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(GetValue)
+        {
+            try
+            {
+                auto value = LSG_GetSliderValue("Slider");
+
+                Assert::AreEqual(0.5, value);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetParts)
+        {
+            try
+            {
+                LSG_SetSliderParts("Slider", { 0.1, 0.2, 0.6, 0.8 });
+
+                auto parts = LSG_GetSliderParts("Slider");
+
+                Assert::AreEqual(4, (int)parts.size());
+
+                Assert::AreEqual(0.1, parts[0]);
+                Assert::AreEqual(0.2, parts[1]);
+                Assert::AreEqual(0.6, parts[2]);
+                Assert::AreEqual(0.8, parts[3]);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetValue)
+        {
+            try
+            {
+                LSG_SetSliderValue("Slider", 0.1);
+
+                auto value = LSG_GetSliderValue("Slider");
+
+                Assert::AreEqual(0.1, value);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
 	TEST_CLASS(TableHeader)
 	{
         TEST_METHOD(GetHeader)

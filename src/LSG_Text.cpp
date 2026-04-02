@@ -172,6 +172,19 @@ std::string LSG_Text::replace(const std::string& text, const std::string& oldSub
 	return result;
 }
 
+LSG_Strings LSG_Text::Split(const std::string& text, char separator)
+{
+	LSG_Strings result;
+	std::string token;
+
+	auto stream = std::stringstream(text);
+	
+	while (std::getline(stream, token, separator))
+		result.push_back(token);
+
+	return result;
+}
+
 uint16_t* LSG_Text::ToUTF16(const std::string& text)
 {
 	auto formattedText = LSG_Text::replace(text, "\\n", "\n");

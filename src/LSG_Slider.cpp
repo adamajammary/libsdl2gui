@@ -5,14 +5,24 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 {
 	this->fillProgress  = false;
 	this->isSlideActive = false;
-	this->thumb         = {};
-
-	this->thumb.widthDefault = LSG_Window::GetDPIScaled(LSG_Slider::DefaultThumbWidth);
 
 	auto attributes = this->GetXmlAttributes();
 
 	if (attributes.contains("fill-progress"))
 		this->fillProgress = (attributes["fill-progress"] == "true");
+
+	this->partSize = LSG_Window::GetDPIScaled(LSG_Slider::DefaultPartSize);
+	this->parts    = {};
+
+	if (attributes.contains("parts"))
+	{
+		auto xmlParts = LSG_Text::Split(attributes["parts"], ',');
+
+		for (const auto& part : xmlParts)
+			this->parts.push_back(std::atof(part.c_str()));
+	}
+
+	this->thumb = { .widthDefault = LSG_Window::GetDPIScaled(LSG_Slider::DefaultThumbWidth) };
 
 	if (attributes.contains("thumb-border-radius"))
 		this->thumb.borderRadius = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-border-radius"].c_str()));
@@ -49,6 +59,11 @@ SDL_Rect LSG_Slider::getBackground() const
 	}
 
 	return background;
+}
+
+std::vector<double> LSG_Slider::GetParts()
+{
+	return this->parts;
 }
 
 int LSG_Slider::getProgressWidth(const SDL_Rect& background) const
@@ -175,6 +190,9 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		this->renderProgress(renderer, progressArea, progressWidth, fillArea);
 	}
 
+	if (!this->parts.empty())
+		this->renderParts(renderer, background);
+
 	this->renderThumb(renderer, background, progressWidth);
 
 	if (!this->enabled)
@@ -197,6 +215,32 @@ void LSG_Slider::renderBackground(SDL_Renderer* renderer, const SDL_Rect& backgr
 	} else {
 		LSG_Graphics::RenderFill(renderer,   this->borderWidth, this->backgroundColor, background);
 		LSG_Graphics::RenderBorder(renderer, this->borderWidth, this->borderColor,     background);
+	}
+}
+
+void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& background)
+{
+	if (this->parts.empty())
+		return;
+
+	bool isVertical     = this->IsVertical();
+	auto backgroundSize = (isVertical ? background.h : background.w);
+
+	for (auto percent : this->parts)
+	{
+		auto position = (int)((double)backgroundSize * percent);
+
+		SDL_Rect partArea = background;
+
+		if (isVertical) {
+			partArea.y += (background.h - position - this->partSize);
+			partArea.h  = this->partSize;
+		} else {
+			partArea.x += position;
+			partArea.w  = this->partSize;
+		}
+
+		LSG_Graphics::RenderFill(renderer, 0, this->parent->backgroundColor, partArea);
 	}
 }
 
@@ -245,6 +289,11 @@ void LSG_Slider::SetColors()
 
 	this->thumb.color       = (!thumbColor.empty()       ? LSG_Graphics::ToSdlColor(thumbColor)       : LSG_Slider::DefaultThumbColor);
 	this->thumb.borderColor = (!thumbBorderColor.empty() ? LSG_Graphics::ToSdlColor(thumbBorderColor) : LSG_ConstDefaultColor::Border);
+}
+
+void LSG_Slider::SetParts(const std::vector<double>& parts)
+{
+	this->parts = parts;
 }
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)

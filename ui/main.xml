@@ -244,14 +244,15 @@
           value="0.5"
           fill-progress="true"
           progress-color="rgb(20, 130, 255)"
+          parts="0.25,0.5,0.75"
           thumb-color="rgb(128, 128, 128)"
-          thumb-width="20"
+          thumb-width="30"
           thumb-border-color="#000000"
-          thumb-border-radius="10"
+          thumb-border-radius="15"
           thumb-border-width="1"
           background-color="rgb(192, 192, 192)"
           border-radius="5"
-          height="20"
+          height="30"
         />
 
         <panel width="40" halign="right" valign="middle">
