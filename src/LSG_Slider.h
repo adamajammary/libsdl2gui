@@ -21,7 +21,7 @@ private:
 	static inline const SDL_Color DefaultThumbColor = { 128, 128, 128, 255 };
 
 private:
-	static const int DefaultPartSize = 10;
+	static const int DefaultPartSize = 5;
 
 private:
 	int                 barWidth;
