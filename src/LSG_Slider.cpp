@@ -3,16 +3,20 @@
 LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_ProgressBar(id, layer, xmlNode, xmlNodeName, parent)
 {
+	this->barWidth      = 0;
 	this->fillProgress  = false;
 	this->isSlideActive = false;
+	this->partSize      = LSG_Window::GetDPIScaled(LSG_Slider::DefaultPartSize);
+	this->parts         = {};
+	this->thumb         = {};
 
 	auto attributes = this->GetXmlAttributes();
 
+	if (attributes.contains("bar-width"))
+		this->barWidth = LSG_Window::GetDPIScaled(std::atoi(attributes["bar-width"].c_str()));
+
 	if (attributes.contains("fill-progress"))
 		this->fillProgress = (attributes["fill-progress"] == "true");
-
-	this->partSize = LSG_Window::GetDPIScaled(LSG_Slider::DefaultPartSize);
-	this->parts    = {};
 
 	if (attributes.contains("parts"))
 	{
@@ -22,75 +26,106 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 			this->parts.push_back(std::atof(part.c_str()));
 	}
 
-	this->thumb = { .widthDefault = LSG_Window::GetDPIScaled(LSG_Slider::DefaultThumbWidth) };
-
-	if (attributes.contains("thumb-border-radius"))
-		this->thumb.borderRadius = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-border-radius"].c_str()));
-
 	if (attributes.contains("thumb-border-width"))
 		this->thumb.borderWidth = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-border-width"].c_str()));
 
-	if (attributes.contains("thumb-width"))
-		this->thumb.width = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-width"].c_str()));
-	else
-		this->thumb.width = this->thumb.widthDefault;
+	if (attributes.contains("thumb-size"))
+		this->thumb.size = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-size"].c_str()));
 
 	this->SetColors();
 }
 
-SDL_Rect LSG_Slider::getBackground() const
+SDL_Rect LSG_Slider::getBar() const
 {
-	auto background = SDL_Rect(this->background);
 	bool isVertical = this->IsVertical();
+	auto barWidth   = this->getBarWidth(isVertical);
+	auto thumbSize  = this->getThumbSize(isVertical);
 
-	auto thumbWidth     = std::max(this->thumb.widthDefault, this->thumb.width);
-	auto thumbWidthHalf = (thumbWidth / 2);
+	auto bar = SDL_Rect(this->background);
 
-	if (isVertical) {
-		background.y += thumbWidthHalf;
-		background.h -= thumbWidth;
-		background.x += (this->thumb.widthDefault / 2);
-		background.w -= this->thumb.widthDefault;
-	} else {
-		background.x += thumbWidthHalf;
-		background.w -= thumbWidth;
-		background.y += (this->thumb.widthDefault / 2);
-		background.h -= this->thumb.widthDefault;
+	if (isVertical)
+	{
+		bar.x += ((this->background.w - barWidth) / 2);
+		bar.w  = barWidth;
+
+		bar.y += (thumbSize / 2);
+		bar.h -= thumbSize;
+	}
+	else
+	{
+		bar.y += ((this->background.h - barWidth) / 2);
+		bar.h  = barWidth;
+
+		bar.x += (thumbSize / 2);
+		bar.w -= thumbSize;
 	}
 
-	return background;
+	return bar;
 }
 
-std::vector<double> LSG_Slider::GetParts()
+int LSG_Slider::getBarWidth(bool isVertical) const
+{
+	int barWidth;
+
+	if (isVertical)
+		barWidth = (this->barWidth > 0 ? std::min(this->barWidth, this->background.w) : this->background.w);
+	else
+		barWidth = (this->barWidth > 0 ? std::min(this->barWidth, this->background.h) : this->background.h);
+
+	return barWidth;
+}
+
+std::vector<double> LSG_Slider::GetParts() const
 {
 	return this->parts;
 }
 
-int LSG_Slider::getProgressWidth(const SDL_Rect& background) const
+int LSG_Slider::getProgressWidth() const
 {
-	return (int)((double)(this->IsVertical() ? background.h : background.w) * this->value);
+	auto bar = this->getBar();
+
+	return (int)((double)(this->IsVertical() ? bar.h : bar.w) * this->value);
 }
 
-SDL_Rect LSG_Slider::getThumb(const SDL_Rect& background, int progressWidth) const
+SDL_Rect LSG_Slider::getThumb() const
 {
-	SDL_Rect thumb = background;
+	bool isVertical = this->IsVertical();
 
-	auto thumbWidth     = std::max(this->thumb.widthDefault, this->thumb.width);
-	auto thumbWidthHalf = (thumbWidth / 2);
+	auto progress  = this->getProgressWidth();
+	auto thumbSize = this->getThumbSize(isVertical);
 
-	if (this->IsVertical()) {
-		thumb.y += (background.h - progressWidth - thumbWidthHalf);
-		thumb.h = thumbWidth;
-		thumb.x = this->background.x;
-		thumb.w = this->background.w;
-	} else {
-		thumb.x += (progressWidth - thumbWidthHalf);
-		thumb.w = thumbWidth;
-		thumb.y = this->background.y;
-		thumb.h = this->background.h;
+	auto thumb = SDL_Rect(this->background);
+
+	if (isVertical)
+	{
+		thumb.y += (this->background.h - progress - thumbSize);
+		thumb.x += ((this->background.w - thumbSize) / 2);
+
+		thumb.w = thumbSize;
+		thumb.h = thumbSize;
+	}
+	else
+	{
+		thumb.x += progress;
+		thumb.y += ((this->background.h - thumbSize) / 2);
+
+		thumb.w = thumbSize;
+		thumb.h = thumbSize;
 	}
 
 	return thumb;
+}
+
+int LSG_Slider::getThumbSize(bool isVertical) const
+{
+	int thumbSize;
+
+	if (isVertical)
+		thumbSize = (this->thumb.size > 0 ? std::min(this->thumb.size, this->background.w) : this->background.w);
+	else
+		thumbSize = (this->thumb.size > 0 ? std::min(this->thumb.size, this->background.h) : this->background.h);
+
+	return thumbSize;
 }
 
 void LSG_Slider::OnMouseClick(const SDL_Point& mousePosition)
@@ -98,8 +133,7 @@ void LSG_Slider::OnMouseClick(const SDL_Point& mousePosition)
 	if (!this->enabled || LSG_Events::IsMouseDown())
 		return;
 
-	auto background = this->getBackground();
-	auto thumb      = this->getThumb(background, this->getProgressWidth(background));
+	auto thumb = this->getThumb();
 
 	if (!SDL_PointInRect(&mousePosition, &thumb)) {
 		this->setValue(mousePosition);
@@ -114,8 +148,7 @@ bool LSG_Slider::OnMouseClickThumb(const SDL_Point& mousePosition)
 	if (!this->enabled || LSG_Events::IsMouseDown())
 		return false;
 
-	auto background = this->getBackground();
-	auto thumb      = this->getThumb(background, this->getProgressWidth(background));
+	auto thumb = this->getThumb();
 
 	if (SDL_PointInRect(&mousePosition, &thumb)) {
 		this->isSlideActive = true;
@@ -169,20 +202,19 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 	if (!this->visible)
 		return;
 
-	auto background = this->getBackground();
+	auto bar = this->getBar();
 
-	this->renderBackground(renderer, background);
-
-	auto progressWidth = this->getProgressWidth(background);
+	this->renderBar(renderer, bar);
 
 	if (this->fillProgress)
 	{
-		auto fillArea     = LSG_Graphics::GetFillArea(background, this->borderWidth);
-		auto progressArea = SDL_Rect(fillArea);
+		auto fillArea      = LSG_Graphics::GetFillArea(bar, this->borderWidth);
+		auto progressArea  = SDL_Rect(fillArea);
+		auto progressWidth = this->getProgressWidth();
 
 		if (this->IsVertical()) {
 			progressArea.h  = progressWidth;
-			progressArea.y += (background.h - progressWidth);
+			progressArea.y += (bar.h - progressWidth);
 		} else {
 			progressArea.w = progressWidth;
 		}
@@ -191,15 +223,15 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 	}
 
 	if (!this->parts.empty())
-		this->renderParts(renderer, background);
+		this->renderParts(renderer, bar);
 
-	this->renderThumb(renderer, background, progressWidth);
+	this->renderThumb(renderer);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);
 }
 
-void LSG_Slider::renderBackground(SDL_Renderer* renderer, const SDL_Rect& background)
+void LSG_Slider::renderBar(SDL_Renderer* renderer, const SDL_Rect& bar) const
 {
 	if (this->borderRadius > 0)
 	{
@@ -209,31 +241,31 @@ void LSG_Slider::renderBackground(SDL_Renderer* renderer, const SDL_Rect& backgr
 			this->borderColor,
 			this->borderRadius,
 			this->borderWidth,
-			background,
-			std::format("{}_background", this->id)
+			bar,
+			std::format("{}_bar", this->id)
 		);
 	} else {
-		LSG_Graphics::RenderFill(renderer,   this->borderWidth, this->backgroundColor, background);
-		LSG_Graphics::RenderBorder(renderer, this->borderWidth, this->borderColor,     background);
+		LSG_Graphics::RenderFill(renderer,   this->borderWidth, this->backgroundColor, bar);
+		LSG_Graphics::RenderBorder(renderer, this->borderWidth, this->borderColor,     bar);
 	}
 }
 
-void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& background)
+void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& bar) const
 {
 	if (this->parts.empty())
 		return;
 
 	bool isVertical     = this->IsVertical();
-	auto backgroundSize = (isVertical ? background.h : background.w);
+	auto backgroundSize = (isVertical ? bar.h : bar.w);
 
 	for (auto percent : this->parts)
 	{
 		auto position = (int)((double)backgroundSize * percent);
 
-		SDL_Rect partArea = background;
+		SDL_Rect partArea = bar;
 
 		if (isVertical) {
-			partArea.y += (background.h - position - this->partSize);
+			partArea.y += (bar.h - position - this->partSize);
 			partArea.h  = this->partSize;
 		} else {
 			partArea.x += position;
@@ -244,25 +276,24 @@ void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& background)
 	}
 }
 
-void LSG_Slider::renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressWidth)
+void LSG_Slider::renderThumb(SDL_Renderer* renderer) const
 {
-	auto thumb = this->getThumb(background, progressWidth);
+	auto id    = std::format("{}_thumb", this->id);
+	auto thumb = this->getThumb();
 
-	if (this->thumb.borderRadius > 0)
-	{
-		LSG_Graphics::RenderFillWithRoundedBorder(
-			renderer,
-			this->thumb.color,
-			this->thumb.borderColor,
-			this->thumb.borderRadius,
-			this->thumb.borderWidth,
-			thumb,
-			std::format("{}_thumb", this->id)
-		);
-	} else {
-		LSG_Graphics::RenderFill(renderer,   this->thumb.borderWidth, this->thumb.color,       thumb);
-		LSG_Graphics::RenderBorder(renderer, this->thumb.borderWidth, this->thumb.borderColor, thumb);
+	if (this->thumb.borderWidth <= 0) {
+		LSG_Graphics::RenderFillCircle(renderer, this->thumb.color, thumb, id);
+		return;
 	}
+
+	LSG_Graphics::RenderFillCircleWithBorder(
+		renderer,
+		this->thumb.color,
+		thumb,
+		this->thumb.borderColor,
+		this->thumb.borderWidth,
+		id
+	);
 }
 
 void LSG_Slider::sendEvent(LSG_EventType type) const
@@ -298,12 +329,14 @@ void LSG_Slider::SetParts(const std::vector<double>& parts)
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)
 {
+	auto bar = this->getBar();
+
 	double value;
 
 	if (this->IsVertical())
-		value = (double)((double)(this->background.y + this->background.h - mousePosition.y) / (double)this->background.h);
+		value = (double)((double)(bar.y + bar.h - mousePosition.y) / (double)bar.h);
 	else
-		value = (double)((double)(mousePosition.x - this->background.x) / (double)this->background.w);
+		value = (double)((double)(mousePosition.x - bar.x) / (double)bar.w);
 
 	this->SetValue(value);
 
@@ -312,12 +345,14 @@ void LSG_Slider::setValue(const SDL_Point& mousePosition)
 
 void LSG_Slider::setValue(int offset)
 {
+	auto bar = this->getBar();
+
 	double value;
 
 	if (this->IsVertical())
-		value = (double)((double)((int)((double)this->background.h * this->value) - offset) / (double)this->background.h);
+		value = (double)((double)((int)((double)bar.h * this->value) - offset) / (double)bar.h);
 	else
-		value = (double)((double)((int)((double)this->background.w * this->value) - offset) / (double)this->background.w);
+		value = (double)((double)((int)((double)bar.w * this->value) - offset) / (double)bar.w);
 
 	this->SetValue(value);
 

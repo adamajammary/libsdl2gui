@@ -586,14 +586,14 @@ border-radius="int"
 border-width="int"
 
 value="percent"
+parts="percents"
 fill-progress="boolean"
 progress-color="color"
-parts="percents"
-thumb-color="color"
-thumb-width="int" # minimum="10"
+bar-width="int"
 thumb-border-color="color"
-thumb-border-radius="int"
 thumb-border-width="int"
+thumb-color="color"
+thumb-size="int"
 ```
 
 ### \<table\>

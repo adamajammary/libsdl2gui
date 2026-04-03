@@ -32,6 +32,8 @@ public:
 	static bool                    IsColorEquals(const SDL_Color& a, const SDL_Color& b);
 	static void                    RenderBorder(SDL_Renderer* renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
 	static void                    RenderFill(SDL_Renderer*   renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
+	static void                    RenderFillCircle(SDL_Renderer* renderer, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
+	static void                    RenderFillCircleWithBorder(SDL_Renderer* renderer, const SDL_Color& fillColor, const SDL_Rect& background, const SDL_Color& borderColor, int borderWidth, const std::string& id);
 	static void                    RenderFillRounded(SDL_Renderer*       renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
 	static void                    RenderFillRoundedBottom(SDL_Renderer* renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
 	static void                    RenderFillRoundedLeft(SDL_Renderer*   renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
@@ -59,9 +61,11 @@ private:
 	static SDL_Texture*            getVector(const std::string& svg);
 	static std::string             getVectorBack(const SDL_Color&  color, const SDL_Size& size);
 	static std::string             getVectorCheck(const SDL_Color& color, const SDL_Size& size);
-	static std::string             getVectorClose(const SDL_Color& color, const SDL_Size& size);
-	static std::string             getVectorMenu(const SDL_Color&  color, const SDL_Size& size);
-	static std::string             getVectorNext(const SDL_Color&  color, const SDL_Size& size);
+	static SDL_Texture*            getVectorCircle(const SDL_Color& color, int radius);
+	static SDL_Texture*            getVectorCircleWithBorder(const SDL_Color& fillColor, const SDL_Color& borderColor, int borderWidth, int radius);
+	static std::string             getVectorClose(const SDL_Color&     color, const SDL_Size& size);
+	static std::string             getVectorMenu(const SDL_Color&      color, const SDL_Size& size);
+	static std::string             getVectorNext(const SDL_Color&      color, const SDL_Size& size);
 	static std::string             getVectorPageBack(const SDL_Color&  color, const SDL_Size& size);
 	static std::string             getVectorPageEnd(const SDL_Color&   color, const SDL_Size& size);
 	static std::string             getVectorPageNext(const SDL_Color&  color, const SDL_Size& size);

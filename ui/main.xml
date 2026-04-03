@@ -242,17 +242,16 @@
         <slider
           id="Slider"
           value="0.5"
+          parts="0.25,0.5,0.75"
+          background-color="rgb(192, 192, 192)"
           fill-progress="true"
           progress-color="rgb(20, 130, 255)"
-          parts="0.25,0.5,0.75"
-          thumb-color="rgb(128, 128, 128)"
-          thumb-width="30"
-          thumb-border-color="#000000"
-          thumb-border-radius="15"
-          thumb-border-width="1"
-          background-color="rgb(192, 192, 192)"
+          bar-width="10"
           border-radius="5"
-          height="30"
+          thumb-color="rgb(128, 128, 128)"
+          thumb-size="30"
+          thumb-border-color="#000000"
+          thumb-border-width="1"
         />
 
         <panel width="40" halign="right" valign="middle">
