@@ -261,10 +261,15 @@ void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& bar) const
 	for (auto percent : this->parts)
 	{
 		auto position    = (int)((double)backgroundSize * percent);
-		auto maxPosition = (backgroundSize - this->borderRadius - this->partSize);
+		auto minPosition = (this->borderRadius + this->partSize);
 
-		if ((position < this->borderRadius) || (position > maxPosition))
+		if (position < minPosition)
 			continue;
+
+		auto maxPosition = (backgroundSize - (minPosition + this->partSize));
+
+		if (position > maxPosition)
+			position = maxPosition;
 
 		SDL_Rect partArea = bar;
 
