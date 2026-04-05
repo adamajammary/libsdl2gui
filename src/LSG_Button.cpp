@@ -154,20 +154,6 @@ bool LSG_Button::scaleUp(const SDL_Size& textureSize, int maxSize) const
 	);
 }
 
-void LSG_Button::sendEvent(LSG_EventType type) const
-{
-	if (!this->enabled)
-		return;
-
-	SDL_Event clickEvent = {};
-
-	clickEvent.type       = SDL_RegisterEvents(1);
-	clickEvent.user.code  = (int)type;
-	clickEvent.user.data1 = (void*)strdup(this->id.c_str());
-
-	SDL_PushEvent(&clickEvent);
-}
-
 void LSG_Button::Set(const std::string& text, const std::string& iconPath)
 {
 	if ((text == this->text) && (iconPath == this->iconPath))

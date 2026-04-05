@@ -11,8 +11,8 @@ public:
 
 public:
 	SDL_Size     GetSize();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         Set(const std::string& text);
 	void         Set();
 	void         setTexture();

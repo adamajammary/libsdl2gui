@@ -1006,6 +1006,71 @@ void LSG_Graphics::RenderTextureWithRoundedCorners(
 	);
 }
 
+void LSG_Graphics::RenderTooltip(SDL_Renderer* renderer, const std::string& text, const SDL_Point& position, const std::string& id)
+{
+	if (text.empty())
+		return;
+
+	// TEXT TEXTURE
+
+	auto fontSize  = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipFontSize);
+	auto textId    = std::format("{}_tooltip_text", id);
+	auto textColor = LSG_ConstDefaultColor::White;
+
+	if (!LSG_Graphics::textures.contains(textId))
+		LSG_Graphics::textures[textId] = LSG_Text::GetTexture(text, fontSize, TTF_STYLE_NORMAL, textColor, false);
+
+	auto textSize = LSG_Graphics::GetTextureSize(LSG_Graphics::textures[textId]);
+
+	// BACKGROUND
+
+	auto offsetCursor = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipOffsetCursor);
+
+	auto padding   = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipPadding);
+	auto padding2x = (padding + padding);
+
+	SDL_Rect backgroundDestination = {
+		position.x,
+		(position.y + offsetCursor),
+		(textSize.width  + padding2x),
+		(textSize.height + padding2x)
+	};
+
+	auto windowSize   = LSG_UI::GetBackgroundArea();
+	auto windowBottom = (windowSize.y + windowSize.h);
+	auto windowRight  = (windowSize.x + windowSize.w);
+
+	if ((backgroundDestination.x + backgroundDestination.w) > windowRight)
+		backgroundDestination.x = (windowRight - backgroundDestination.w);
+
+	if ((backgroundDestination.y + backgroundDestination.h) > windowBottom)
+		backgroundDestination.y = (windowBottom - backgroundDestination.h);
+
+	auto borderRadius = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipBorderRadius);
+	auto borderWidth  = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipBorderWidth);
+
+	LSG_Graphics::RenderFillWithRoundedBorder(
+		renderer,
+		LSG_ConstDefaultColor::Black,
+		LSG_ConstDefaultColor::White,
+		borderRadius,
+		borderWidth,
+		backgroundDestination,
+		std::format("{}_tooltip_background", id)
+	);
+
+	// TEXT
+
+	SDL_Rect textDestination = {
+		(backgroundDestination.x + padding),
+		(backgroundDestination.y + padding),
+		textSize.width,
+		textSize.height
+	};
+
+	SDL_RenderCopy(renderer, LSG_Graphics::textures[textId], nullptr, &textDestination);
+}
+
 void LSG_Graphics::Rotate(LSG_ItemImage& image)
 {
 	auto exif        = LSG_Exif::Get(LSG_Text::GetFullPath(image.filePath));

@@ -32,8 +32,7 @@ public:
 	void           OnMouseScroll(const SDL_MouseWheelEvent& event, const SDL_Point& mousePosition) const;
 	void           OnMouseUp(const SDL_Event& event, const SDL_Point& mousePosition) const;
 	void           Open();
-	virtual void   Render(SDL_Renderer* renderer, const SDL_Point& position) override {}
-	void           Render(SDL_Renderer* renderer);
+	virtual void   Render(SDL_Renderer* renderer) override;
 	void           Set();
 	void           SetBackground();
 

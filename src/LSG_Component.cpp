@@ -15,6 +15,7 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	this->parent          = parent;
 	this->textColor       = {};
 	this->texture         = nullptr;
+	this->tooltip         = "";
 	this->xmlNode         = xmlNode;
 	this->xmlNodeName     = xmlNodeName;
 
@@ -23,6 +24,7 @@ LSG_Component::LSG_Component(const std::string& id, int layer, LibXml::xmlNode* 
 	auto xmlAttributes = LSG_XML::GetAttributes(this->xmlNode);
 
 	this->orientation = (xmlAttributes.contains("orientation") ? xmlAttributes["orientation"] : "");
+	this->tooltip     = (xmlAttributes.contains("tooltip")     ? xmlAttributes["tooltip"] : "");
 
 	this->enabled = (!xmlAttributes.contains("enabled") || xmlAttributes["enabled"] == "true");
 	this->visible = (!xmlAttributes.contains("visible") || xmlAttributes["visible"] == "true");
@@ -413,7 +415,7 @@ void LSG_Component::RemoveChild(LSG_Component* child)
 	}
 }
 
-void LSG_Component::Render(SDL_Renderer* renderer) const
+void LSG_Component::Render(SDL_Renderer* renderer)
 {
 	if (!this->visible)
 		return;
@@ -426,36 +428,7 @@ void LSG_Component::Render(SDL_Renderer* renderer) const
 	}
 
 	for (auto child : this->children)
-	{
-		if (child->IsButton())
-			static_cast<LSG_Button*>(child)->Render(renderer);
-		else if (child->IsCards())
-			static_cast<LSG_Cards*>(child)->Render(renderer);
-		else if (child->IsImage())
-			static_cast<LSG_Image*>(child)->Render(renderer);
-		else if (child->IsLine())
-			static_cast<LSG_Line*>(child)->Render(renderer);
-		else if (child->IsList())
-			static_cast<LSG_List*>(child)->Render(renderer);
-		else if (child->IsNavigation())
-			static_cast<LSG_Navigation*>(child)->Render(renderer);
-		else if (child->IsPanel())
-			static_cast<LSG_Panel*>(child)->Render(renderer);
-		else if (child->IsProgressBar())
-			static_cast<LSG_ProgressBar*>(child)->Render(renderer);
-		else if (child->IsSlider())
-			static_cast<LSG_Slider*>(child)->Render(renderer);
-		else if (child->IsTable())
-			static_cast<LSG_Table*>(child)->Render(renderer);
-		else if (child->IsTextInput())
-			static_cast<LSG_TextInput*>(child)->Render(renderer);
-		else if (child->IsTextLabel())
-			static_cast<LSG_TextLabel*>(child)->Render(renderer);
-		else if (child->IsTiles())
-			static_cast<LSG_Tiles*>(child)->Render(renderer);
-		else if (child->IsToggle())
-			static_cast<LSG_Toggle*>(child)->Render(renderer);
-	}
+		child->Render(renderer);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);
@@ -519,6 +492,31 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& back
 
 		SDL_RenderFillRect(renderer, &fillArea);
 	}
+}
+
+void LSG_Component::RenderTooltip(SDL_Renderer* renderer) const
+{
+	if (!this->highlighted) {
+		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_background", this->id));
+		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_text",       this->id));
+		return;
+	}
+
+	LSG_Graphics::RenderTooltip(renderer, this->tooltip, LSG_Window::GetMousePosition(), this->id);
+}
+
+void LSG_Component::sendEvent(LSG_EventType type) const
+{
+	if (!this->enabled)
+		return;
+
+	SDL_Event clickEvent = {};
+
+	clickEvent.type       = SDL_RegisterEvents(1);
+	clickEvent.user.code  = (int)type;
+	clickEvent.user.data1 = (void*)strdup(this->id.c_str());
+
+	SDL_PushEvent(&clickEvent);
 }
 
 void LSG_Component::SetAlignmentHorizontal(LSG_HAlign alignment)

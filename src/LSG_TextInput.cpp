@@ -632,20 +632,6 @@ void LSG_TextInput::SelectWord(const SDL_Point& mousePosition)
 	this->setCursor();
 }
 
-void LSG_TextInput::sendEvent(LSG_EventType type) const
-{
-	if (!this->enabled)
-		return;
-
-	SDL_Event textInputEvent = {};
-
-	textInputEvent.type       = SDL_RegisterEvents(1);
-	textInputEvent.user.code  = (int)type;
-	textInputEvent.user.data1 = (void*)strdup(this->id.c_str());
-
-	SDL_PushEvent(&textInputEvent);
-}
-
 void LSG_TextInput::setCursor()
 {
 	if (this->value.empty()) {
@@ -715,7 +701,7 @@ void LSG_TextInput::setPlaceholder()
 	auto textColor = SDL_Color(this->textColor);
 	textColor.a    = (uint8_t)((double)textColor.a * 0.8);
 
-	this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = this->getTexture(this->placeholder, 0, -1, &textColor);
+	this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = LSG_Text::GetTexture(this->placeholder, this->getFontSize(), this->getFontStyle(), textColor, this->wrap);
 }
 
 void LSG_TextInput::SetText()

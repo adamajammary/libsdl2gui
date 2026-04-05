@@ -536,7 +536,7 @@ namespace LSG_UnitTest
 
                 Assert::AreEqual(0, position);
 
-                LSG_NavigateForward("Navigation");
+                LSG_NavigateNext("Navigation");
 
                 position = LSG_GetNavigationPosition("Navigation");
 
@@ -575,11 +575,17 @@ namespace LSG_UnitTest
             {
                 auto parts = LSG_GetSliderParts("Slider");
 
-                Assert::AreEqual(3, (int)parts.size());
+                Assert::AreEqual(4, (int)parts.size());
 
-                Assert::AreEqual(0.25, parts[0]);
-                Assert::AreEqual(0.5,  parts[1]);
-                Assert::AreEqual(0.75, parts[2]);
+                Assert::AreEqual(0.0,  parts[0].value);
+                Assert::AreEqual(0.25, parts[1].value);
+                Assert::AreEqual(0.5,  parts[2].value);
+                Assert::AreEqual(0.75, parts[3].value);
+
+                Assert::AreEqual("Part 1", parts[0].tooltip.c_str());
+                Assert::AreEqual("Part 2", parts[1].tooltip.c_str());
+                Assert::AreEqual("Part 3", parts[2].tooltip.c_str());
+                Assert::AreEqual("Part 4", parts[3].tooltip.c_str());
             }
             catch (const std::exception& e)
             {
@@ -605,16 +611,26 @@ namespace LSG_UnitTest
         {
             try
             {
-                LSG_SetSliderParts("Slider", { 0.1, 0.2, 0.6, 0.8 });
+                LSG_SliderParts newParts = {
+                    { .value = 0,   .tooltip = "New Part 1" },
+                    { .value = 0.1, .tooltip = "New Part 2" },
+                    { .value = 0.3, .tooltip = "New Part 3" },
+                    { .value = 0.6, .tooltip = "New Part 4" },
+                    { .value = 0.9, .tooltip = "New Part 5" }
+                };
+
+                LSG_SetSliderParts("Slider", newParts);
 
                 auto parts = LSG_GetSliderParts("Slider");
 
-                Assert::AreEqual(4, (int)parts.size());
+                Assert::AreEqual((int)newParts.size(), (int)parts.size());
 
-                Assert::AreEqual(0.1, parts[0]);
-                Assert::AreEqual(0.2, parts[1]);
-                Assert::AreEqual(0.6, parts[2]);
-                Assert::AreEqual(0.8, parts[3]);
+                for (size_t i = 0; i < parts.size(); i++)
+                {
+                    Assert::AreEqual(newParts[i].value, parts[i].value);
+
+                    Assert::AreEqual(newParts[i].tooltip.c_str(), parts[i].tooltip.c_str());
+                }
             }
             catch (const std::exception& e)
             {

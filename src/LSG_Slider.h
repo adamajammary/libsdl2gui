@@ -3,6 +3,15 @@
 #ifndef LSG_SLIDER_H
 #define LSG_SLIDER_H
 
+struct LSG_SliderPartItem : LSG_SliderPart
+{
+	SDL_Rect destination = {};
+
+	LSG_SliderPartItem(const LSG_SliderPart& part) : LSG_SliderPart(part.value, part.tooltip) {}
+};
+
+using LSG_SliderPartItems = std::vector<LSG_SliderPartItem>;
+
 struct LSG_SliderThumb
 {
 	SDL_Color   borderColor = {};
@@ -11,7 +20,7 @@ struct LSG_SliderThumb
 	int         size        = 0;
 };
 
-class LSG_Slider : public LSG_ProgressBar, public LSG_IEvent
+class LSG_Slider : public LSG_ProgressBar
 {
 public:
 	LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -29,20 +38,22 @@ private:
 	bool                isSlideActive;
 	std::string         orientation;
 	int                 partSize;
-	std::vector<double> parts;
+	LSG_SliderPartItems parts;
 	LSG_SliderThumb     thumb;
 
 public:
-	std::vector<double> GetParts() const;
-	virtual void        OnMouseClick(const SDL_Point& mousePosition) override;
-	bool                OnMouseClickThumb(const SDL_Point& mousePosition);
-	bool                OnMouseMove(const SDL_Point& mousePosition);
-	void                OnMouseScroll(int offset);
-	void                OnMouseUp();
-	virtual void        Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void                Render(SDL_Renderer* renderer);
-	virtual void        SetColors() override;
-	void                SetParts(const std::vector<double>& parts);
+	void            AddPart(LibXml::xmlNode* node);
+	LSG_SliderParts GetParts() const;
+	void            OnMouseClick(const SDL_Point& mousePosition);
+	bool            OnMouseClickThumb(const SDL_Point& mousePosition);
+	bool            OnMouseMove(const SDL_Point& mousePosition);
+	void            OnMouseScroll(int offset);
+	void            OnMouseUp();
+	void            Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void    Render(SDL_Renderer* renderer) override;
+	virtual void    RenderTooltip(SDL_Renderer* renderer) const override;
+	virtual void    SetColors() override;
+	void            SetParts(const LSG_SliderParts& parts);
 
 private:
 	SDL_Rect     getBar() const;
@@ -52,7 +63,7 @@ private:
 	int          getThumbSize(bool isVertical) const;
 	void         render(SDL_Renderer*      renderer);
 	void         renderBar(SDL_Renderer*   renderer, const SDL_Rect& bar) const;
-	void         renderParts(SDL_Renderer* renderer, const SDL_Rect& bar) const;
+	void         renderParts(SDL_Renderer* renderer, const SDL_Rect& bar);
 	void         renderThumb(SDL_Renderer* renderer) const;
 	virtual void sendEvent(LSG_EventType type) const override;
 	void         setValue(const SDL_Point& mousePosition);

@@ -48,39 +48,40 @@ public:
     static LSG_UMapStrStr  OpenWindow(const std::string& xmlFile);
     static void            Present(SDL_Renderer* renderer);
     static void            RemoveXmlChildNodes(LSG_Component* component);
-    static void            RemoveXmlNode(LSG_Component* component);
+    static void            RemoveXmlNode(LSG_Component*       component);
     static void            Render(SDL_Renderer* renderer);
     static void            SetColorTheme(const std::string& colorThemeFile, bool sort = false);
-    static void            SetEnabled(LSG_Component* component, bool enabled = true);
-    static void            SetFontSize(LSG_Component* component, int size);
+    static void            SetEnabled(LSG_Component*   component, bool enabled = true);
+    static void            SetFontSize(LSG_Component*  component, int size);
     static void            SetFontStyle(LSG_Component* component, int style);
     static void            SetModal(LSG_Modal* modal);
-    static void            SetText(LSG_Component* component, bool sort = false);
+    static void            SetText(LSG_Component*      component, bool sort = false);
     static void            SetTextColor(LSG_Component* component, const SDL_Color& color);
     static void            UnhighlightComponents();
 
 private:
     static void layoutFixed(LSG_Component* component);
     static void layoutModals();
-    static void layoutRelative(LSG_Component* component);
+    static void layoutRelative(LSG_Component*      component);
     static void layoutPositionAlign(LSG_Component* component, const LSG_Components& children);
-    static void layoutSizeBlank(LSG_Component* component, const LSG_Components& children);
+    static void layoutSizeBlank(LSG_Component*     component, const LSG_Components& children);
     static void loadXmlNodes(LibXml::xmlNode* parentNode, LSG_Component* parent);
-    static void renderMenu(SDL_Renderer* renderer);
-    static void renderModal(SDL_Renderer* renderer);
-    static void resetSize(LSG_Component* component);
+    static void renderMenu(SDL_Renderer*    renderer);
+    static void renderModal(SDL_Renderer*   renderer);
+    static void renderTooltip(SDL_Renderer* renderer);
+    static void resetSize(LSG_Component*  component);
     static void setButtons(LSG_Component* component);
-    static void setCards(LSG_Component* component);
+    static void setCards(LSG_Component*   component);
     static void setColors();
-    static void setImages(LSG_Component* component);
+    static void setImages(LSG_Component*    component);
     static void setListItems(LSG_Component* component, bool sort = true);
-    static void setMenu(LSG_Component* component);
+    static void setMenu(LSG_Component*      component);
     static void setModals();
     static void setNavigation(LSG_Component* component);
-    static void setTableRows(LSG_Component* component, bool sort = true);
+    static void setTableRows(LSG_Component*  component, bool sort = true);
     static void setTextLabels(LSG_Component* component);
-    static void setTiles(LSG_Component* component);
-    static void setToggle(LSG_Component* component);
+    static void setTiles(LSG_Component*      component);
+    static void setToggle(LSG_Component*     component);
 };
 
 #endif

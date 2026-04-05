@@ -110,11 +110,11 @@ static void handleUserEvent(const SDL_UserEvent& event)
     case LSG_EVENT_NAVIGATE_END:
         LSG_NavigateEnd(id);
         break;
-    case LSG_EVENT_NAVIGATE_FORWARD:
-        LSG_NavigateForward(id);
-        break;
     case LSG_EVENT_NAVIGATE_HOME:
         LSG_NavigateHome(id);
+        break;
+    case LSG_EVENT_NAVIGATE_NEXT:
+        LSG_NavigateNext(id);
         break;
     case LSG_EVENT_ROW_SELECTED:
     case LSG_EVENT_ROW_UNSELECTED:

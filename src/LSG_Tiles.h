@@ -17,7 +17,7 @@ struct LSG_Tile
 	LSG_ItemText  text        = {};
 };
 
-class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -65,11 +65,11 @@ public:
 	LSG_TileItems    GetTiles() const;
 	size_t           GetTilesCount() const;
 	void             OffsetBackgroundY(int headerHeight);
-	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OnMouseClick(const SDL_Point& mousePosition);
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveTile(int index);
-	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void             Render(SDL_Renderer* renderer);
+	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void     Render(SDL_Renderer* renderer) override;
 	bool             Select(int index);
 	bool             Select(const std::vector<int>& indices);
 	void             SelectAll();

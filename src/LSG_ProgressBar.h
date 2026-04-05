@@ -20,8 +20,8 @@ protected:
 
 public:
 	double       GetValue() const;
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void Render(SDL_Renderer* renderer) override;
 	virtual void SetColors() override;
 	void         SetValue(double value);
 

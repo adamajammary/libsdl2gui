@@ -170,6 +170,7 @@ struct LSG_Cursor
 struct LSG_ConstDefaultColor
 {
 	static inline const SDL_Color Black = { 0, 0, 0, 255 };
+	static inline const SDL_Color White = { 255, 255, 255, 255 };
 
 	static inline const SDL_Color Background = { 245, 245, 245, 255 };
 	static inline const SDL_Color Border     = Black;
@@ -251,9 +252,6 @@ const char* LSG_GetBasePath();
 #if defined _android
 	#include "LSG_AndroidJNI.h"
 #endif
-
-#include "LSG_IEvent.h"
-#include "LSG_IRenderable.h"
 
 #include "LSG_Graphics.h"
 #include "LSG_Pagination.h"

@@ -3,7 +3,7 @@
 #ifndef LSG_BUTTON_H
 #define LSG_BUTTON_H
 
-class LSG_Button : public LSG_IEvent, public LSG_Text
+class LSG_Button : public LSG_Text
 {
 public:
 	LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -18,9 +18,9 @@ private:
 	SDL_Size    iconSize;
 
 public:
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
+	void         OnMouseClick(const SDL_Point& mousePosition);
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         Set(const std::string& text, const std::string& iconPath);
 	void         Set();
 
@@ -32,7 +32,6 @@ private:
 	void         render(SDL_Renderer* renderer);
 	bool         scaleDown(const SDL_Point& downscaleFactor) const;
 	bool         scaleUp(const SDL_Size& textureSize, int maxSize) const;
-	virtual void sendEvent(LSG_EventType type) const override;
 	void         setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination);
 	void         setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination);
 };

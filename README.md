@@ -341,6 +341,7 @@ border-radius="int"
 border-width="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 icon="file_path"
 text="string"
@@ -365,6 +366,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 card-height="int" # default="128"
 card-border-type="card_border_type"
@@ -391,6 +393,7 @@ height="size"
 border-radius="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
+tooltip="string"
 
 file="file_path"
 fill="boolean"
@@ -403,6 +406,7 @@ fill="boolean"
 ```ini
 id="string"
 orientation="orientation"
+tooltip="string"
 
 color="color"
 ```
@@ -425,6 +429,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 sort="sort_order"
 ```
@@ -445,6 +450,7 @@ valign="alignment_vertical"
 padding="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 title="string"
 width="size"
@@ -517,6 +523,7 @@ height="size"
 background-color="color"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 items-total="size_t"          # Number of total items that can be navigated, default is 0.
 items-per-navigation="size_t" # Number of items to navigate by, default is 1.
@@ -544,6 +551,7 @@ valign="alignment_vertical"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 scrollable="boolean"
 ```
@@ -562,6 +570,7 @@ background-color="color"
 border-color="color"
 border-radius="int"
 border-width="int"
+tooltip="string"
 
 value="percent"
 progress-color="color"
@@ -584,9 +593,9 @@ background-color="color"
 border-color="color"
 border-radius="int"
 border-width="int"
+tooltip="string"
 
 value="percent"
-parts="percents"
 fill-progress="boolean"
 progress-color="color"
 bar-width="int"
@@ -594,6 +603,15 @@ thumb-border-color="color"
 thumb-border-width="int"
 thumb-color="color"
 thumb-size="int"
+```
+
+### \<slider-part\>
+
+[percent](#percent)
+
+```ini
+value="percent"
+tooltip="string"
 ```
 
 ### \<table\>
@@ -615,6 +633,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 sort="sort_order"
 sort-column="int" # 0-based index
@@ -628,6 +647,7 @@ sort-column="int" # 0-based index
 id="string"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 bold="boolean"
 italic="boolean"
@@ -651,6 +671,7 @@ border-width="int"
 font-size="int" # default="14"
 padding="int"
 text-color="color"
+tooltip="string"
 
 placeholder="string"
 value="string"
@@ -674,6 +695,7 @@ border-radius="int"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 text-halign="alignment_horizontal"
 text-valign="alignment_vertical"
@@ -707,6 +729,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 on="boolean"
 ```
@@ -987,6 +1010,16 @@ struct LSG_GPS
 };
 ```
 
+### LSG_SliderPart
+
+```cpp
+struct LSG_SliderPart
+{
+  double      value   = 0.0;
+  std::string tooltip = "";
+};
+```
+
 ### LSG_TableGroup
 
 ```cpp
@@ -1011,6 +1044,12 @@ struct LSG_TileItem
 
 ```cpp
 using LSG_ExifTags = std::map<uint16_t, std::string>;
+```
+
+### LSG_SliderParts
+
+```cpp
+using LSG_SliderParts = std::vector<LSG_SliderPart>;
 ```
 
 ### LSG_Strings
@@ -1822,10 +1861,10 @@ Exceptions
 ### LSG_GetSliderParts
 
 ```cpp
-std::vector<double> LSG_GetSliderParts(const std::string& id);
+LSG_SliderParts LSG_GetSliderParts(const std::string& id);
 ```
 
-Returns the part values of the slider as percents between 0 and 1.
+Returns the slider parts as percentage values with an optional tooltip.
 
 Parameters
 
@@ -2312,7 +2351,7 @@ Exceptions
 void LSG_NavigateBack(const std::string& id, const std::string& text = "");
 ```
 
-Navigates backwards, and displays an updated text label.
+Navigates back to the previous item, and displays an updated text label.
 
 Parameters
 
@@ -2324,31 +2363,13 @@ Exceptions
 - invalid_argument
 - runtime_error
 
-### LSG_NavigateEnd
+### LSG_NavigateNext
 
 ```cpp
-void LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+void LSG_NavigateNext(const std::string& id, const std::string& text = "");
 ```
 
-Navigates to the last item, and displays an updated text label.
-
-Parameters
-
-- **id** \<navigation\> component ID
-- **text** Optional text label, shows "[last_position] / [total_items]" by default.
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-### LSG_NavigateForward
-
-```cpp
-void LSG_NavigateForward(const std::string& id, const std::string& text = "");
-```
-
-Navigates forwards, and displays an updated text label.
+Navigates to the next item, and displays an updated text label.
 
 Parameters
 
@@ -2372,6 +2393,24 @@ Parameters
 
 - **id** \<navigation\> component ID
 - **text** Optional text label, shows "1 / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateEnd
+
+```cpp
+void LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+```
+
+Navigates to the last item, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[last_position] / [total_items]" by default.
 
 Exceptions
 
@@ -4099,15 +4138,15 @@ LSG_SetSize("ButtonIdColorThemeDark", 0.25, 0.75);
 ### LSG_SetSliderParts
 
 ```cpp
-void LSG_SetSliderParts(const std::string& id, const std::vector<double>& percents);
+void LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts);
 ```
 
-Sets the part values of the slider as percents between 0 and 1.
+Sets the slider parts as percentage values with an optional tooltip.
 
 Parameters
 
 - **id** \<slider\> component ID
-- **percents** { 0.25, 0.5, 0.75 }
+- **parts** Slider parts
 
 Exceptions
 
@@ -4117,7 +4156,14 @@ Exceptions
 Example
 
 ```cpp
-LSG_SetSliderParts("Slider", { 0.25, 0.5, 0.75 });
+LSG_SliderParts parts = {
+  { .value = 0,    .tooltip = "Part 1" },
+  { .value = 0.25, .tooltip = "Part 2" },
+  { .value = 0.5,  .tooltip = "Part 3" },
+  { .value = 0.75, .tooltip = "Part 4" }
+};
+
+LSG_SetSliderParts("Slider", parts);
 ```
 
 ### LSG_SetSliderValue
@@ -4217,8 +4263,8 @@ Example
 LSG_TableGroup tableGroup = {
     "Quis Hendrerit", {
       { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
-      { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
-      { "Consequat", "Ac felis donec et odio pellentesque diam volutpat commodo" }
+      { "Congue",     "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
+      { "Consequat",  "Ac felis donec et odio pellentesque diam volutpat commodo" }
     }
 };
 
@@ -4250,15 +4296,15 @@ LSG_TableGroups tableGroups = {
   {
     "Quis Hendrerit", {
       { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
-      { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
-      { "Consequat", "Ac felis donec et odio pellentesque diam volutpat commodo" }
+      { "Congue",     "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
+      { "Consequat",  "Ac felis donec et odio pellentesque diam volutpat commodo" }
     }
   },
   {
     "Vestibulum", {
       { "Blandit", "Imperdiet nulla malesuada" },
-      { "Cursus", "Pellentesque elit eget gravida" },
-      { "Risus", "Sociis natoque penatibus" }
+      { "Cursus",  "Pellentesque elit eget gravida" },
+      { "Risus",   "Sociis natoque penatibus" }
     }
   }
 };

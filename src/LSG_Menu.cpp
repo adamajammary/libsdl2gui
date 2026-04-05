@@ -535,7 +535,7 @@ void LSG_Menu::setMenuOpened()
 	}
 
 	if (!navTitle.empty())
-		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle, 0, TTF_STYLE_BOLD, nullptr);
+		this->textures[LSG_MENU_TEXTURE_TITLE] = LSG_Text::GetTexture(navTitle, this->getFontSize(), TTF_STYLE_BOLD, this->textColor, this->wrap);
 
 	SDL_Size maxIconSize = {
 		std::min(this->background.h, iconSize),

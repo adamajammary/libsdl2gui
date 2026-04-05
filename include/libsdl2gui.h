@@ -55,8 +55,8 @@ enum LSG_EventType
 	LSG_EVENT_MENU_ITEM_SELECTED,
 	LSG_EVENT_NAVIGATE_BACK,
 	LSG_EVENT_NAVIGATE_END,
-	LSG_EVENT_NAVIGATE_FORWARD,
 	LSG_EVENT_NAVIGATE_HOME,
+	LSG_EVENT_NAVIGATE_NEXT,
 	LSG_EVENT_PAGE_NAVIGATED,
 	LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_ROW_SELECTED,
@@ -170,11 +170,18 @@ struct LSG_GPS
 {
 	LSG_GPSCoordinate latitude  = {};
 	LSG_GPSCoordinate longitude = {};
-	double            altitude  = {};
+	double            altitude  = 0.0;
 };
 
-using LSG_Strings   = std::vector<std::string>;
-using LSG_TableRows = std::vector<LSG_Strings>;
+struct LSG_SliderPart
+{
+	double      value   = 0.0;
+	std::string tooltip = "";
+};
+
+using LSG_SliderParts = std::vector<LSG_SliderPart>;
+using LSG_Strings     = std::vector<std::string>;
+using LSG_TableRows   = std::vector<LSG_Strings>;
 
 struct LSG_TableGroup
 {
@@ -536,12 +543,12 @@ DLLEXPORT std::vector<int> DLL LSG_GetSelectedTiles(const std::string& id);
 DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
 
 /**
- * @returns the part values of the slider as percents between 0 and 1
+ * @returns the slider parts as percentage values with an optional tooltip
  * @param id <slider> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT std::vector<double> DLL LSG_GetSliderParts(const std::string& id);
+DLLEXPORT LSG_SliderParts DLL LSG_GetSliderParts(const std::string& id);
 
 /**
  * @returns the value of the slider as a percent between 0 and 1
@@ -771,7 +778,7 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
 DLLEXPORT void DLL LSG_Layout();
 
 /**
- * @brief Navigates backwards, and displays an updated text label.
+ * @brief Navigates back to the previous item, and displays an updated text label.
  * @param id   <navigation> component ID
  * @param text Optional text label, shows "[new_position] / [total_items]" by default.
  * @throws invalid_argument
@@ -780,22 +787,13 @@ DLLEXPORT void DLL LSG_Layout();
 DLLEXPORT void DLL LSG_NavigateBack(const std::string& id, const std::string& text = "");
 
 /**
- * @brief Navigates to the last item, and displays an updated text label.
- * @param id   <navigation> component ID
- * @param text Optional text label, shows "[last_position] / [total_items]" by default.
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT void DLL LSG_NavigateEnd(const std::string& id, const std::string& text = "");
-
-/**
- * @brief Navigates forwards, and displays an updated text label.
+ * @brief Navigates to the next item, and displays an updated text label.
  * @param id   <navigation> component ID
  * @param text Optional text label, shows "[new_position] / [total_items]" by default.
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_NavigateForward(const std::string& id, const std::string& text = "");
+DLLEXPORT void DLL LSG_NavigateNext(const std::string& id, const std::string& text = "");
 
 /**
  * @brief Navigates to the first item, and displays an updated text label.
@@ -805,6 +803,15 @@ DLLEXPORT void DLL LSG_NavigateForward(const std::string& id, const std::string&
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_NavigateHome(const std::string& id, const std::string& text = "");
+
+/**
+ * @brief Navigates to the last item, and displays an updated text label.
+ * @param id   <navigation> component ID
+ * @param text Optional text label, shows "[last_position] / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateEnd(const std::string& id, const std::string& text = "");
 
 /**
  * @brief Navigates to the position, and displays an updated text label.
@@ -1459,13 +1466,13 @@ DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size, bool
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
 
 /**
- * @brief Sets the part values of the slider as percents between 0 and 1.
- * @param id      <slider> component ID
- * @param percents { 0.25, 0.5, 0.75 }
+ * @brief Sets the slider parts as percentage values with an optional tooltip.
+ * @param id    <slider> component ID
+ * @param parts Slider parts
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_SetSliderParts(const std::string& id, const std::vector<double>& percents);
+DLLEXPORT void DLL LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts);
 
 /**
  * @brief Sets the value of the slider as a percent between 0 and 1.

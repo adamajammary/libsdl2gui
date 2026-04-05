@@ -27,15 +27,15 @@ public:
 	int          GetSortColumn() const;
 	SDL_Size     GetSize() const;
 	bool         IsMouseOverColumnBorder(const SDL_Point& mousePosition);
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
+	void         OnMouseClick(const SDL_Point& mousePosition);
 	bool         OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& lastEventPosition);
 	void         OnMouseUp(bool resetWidth);
 	void         RemoveGroup(const std::string& group);
 	void         RemoveHeader();
 	void         RemoveRow(int row);
 	void         RemovePageRow(int row);
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetColumnWidth(int column, int width);
 	void         SetGroup(const LSG_TableGroup& group);
 	void         SetGroups(const LSG_TableGroups& groups);

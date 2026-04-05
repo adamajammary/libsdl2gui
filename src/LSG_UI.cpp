@@ -168,8 +168,8 @@ SDL_Rect LSG_UI::GetBackgroundArea()
 		SDL_Rect background = {
 			left,
 			top,
-			(windowSize.width - left - right),
-			(windowSize.height - top - bottom)
+			(windowSize.width  - left - right),
+			(windowSize.height - top  - bottom)
 		};
 	#else
 		SDL_Rect background = { 0, 0, windowSize.width, windowSize.height };
@@ -228,6 +228,8 @@ LSG_Component* LSG_UI::GetComponent(const std::string& id, int layer, LibXml::xm
 		component = new LSG_ProgressBar(id, layer, xmlNode, xmlNodeName, parent);
 	else if (xmlNodeName == "slider")
 		component = new LSG_Slider(id, layer, xmlNode, xmlNodeName, parent);
+	else if (xmlNodeName == "slider-part")
+		static_cast<LSG_Slider*>(parent)->AddPart(xmlNode);
 	else if (xmlNodeName == "table")
 		component = new LSG_Table(id, layer, xmlNode, xmlNodeName, parent);
 	else if (xmlNodeName == "table-group")
@@ -1092,6 +1094,7 @@ void LSG_UI::Present(SDL_Renderer* renderer)
 {
 	LSG_UI::renderMenu(renderer);
 	LSG_UI::renderModal(renderer);
+	LSG_UI::renderTooltip(renderer);
 
 	SDL_RenderPresent(renderer);
 }
@@ -1158,6 +1161,12 @@ void LSG_UI::renderModal(SDL_Renderer* renderer)
 		if (component.second->IsModal())
 			static_cast<LSG_Modal*>(component.second)->Render(renderer);
 	}
+}
+
+void LSG_UI::renderTooltip(SDL_Renderer* renderer)
+{
+	for (const auto& component : LSG_UI::componentsByLayer)
+		component.second->RenderTooltip(renderer);
 }
 
 void LSG_UI::resetSize(LSG_Component* component)

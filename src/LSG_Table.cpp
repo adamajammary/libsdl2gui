@@ -739,7 +739,7 @@ void LSG_Table::setRows(bool sort)
 				columns[i].append(!this->header[i].empty() ? this->header[i] : " ");
 			}
 
-			this->headerTextures.push_back(this->getTexture(columns[i], 0, TTF_STYLE_BOLD));
+			this->headerTextures.push_back(LSG_Text::GetTexture(columns[i], this->getFontSize(), TTF_STYLE_BOLD, this->textColor, this->wrap));
 
 			columns[i].append("\n");
 		}

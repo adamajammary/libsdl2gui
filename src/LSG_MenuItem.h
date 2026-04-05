@@ -3,7 +3,7 @@
 #ifndef LSG_MENU_ITEM_H
 #define LSG_MENU_ITEM_H
 
-class LSG_MenuItem : public LSG_Text, public LSG_IEvent
+class LSG_MenuItem : public LSG_Text
 {
 public:
 	LSG_MenuItem(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -25,11 +25,9 @@ public:
 	void         Close();
 	bool         IsClosed() const;
 	bool         IsSelected() const;
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override {}
 	bool         OnMouseDown(const SDL_Point& mousePosition);
 	void         Open();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
-	virtual void Render(SDL_Renderer* renderer) const override;
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         Set();
 	void         SetSelected(bool selected = true);
 

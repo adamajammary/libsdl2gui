@@ -18,14 +18,6 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 	if (attributes.contains("fill-progress"))
 		this->fillProgress = (attributes["fill-progress"] == "true");
 
-	if (attributes.contains("parts"))
-	{
-		auto xmlParts = LSG_Text::Split(attributes["parts"], ',');
-
-		for (const auto& part : xmlParts)
-			this->parts.push_back(std::atof(part.c_str()));
-	}
-
 	if (attributes.contains("thumb-border-width"))
 		this->thumb.borderWidth = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-border-width"].c_str()));
 
@@ -33,6 +25,18 @@ LSG_Slider::LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 		this->thumb.size = LSG_Window::GetDPIScaled(std::atoi(attributes["thumb-size"].c_str()));
 
 	this->SetColors();
+}
+
+void LSG_Slider::AddPart(LibXml::xmlNode* node)
+{
+	auto xmlAttributes = LSG_XML::GetAttributes(node);
+
+	LSG_SliderPart part = {
+		.value   = (xmlAttributes.contains("value") ? std::atof(xmlAttributes["value"].c_str()) : 0.0),
+		.tooltip = (xmlAttributes.contains("tooltip") ? xmlAttributes["tooltip"] : "")
+	};
+
+	this->parts.push_back(LSG_SliderPartItem(part));
 }
 
 SDL_Rect LSG_Slider::getBar() const
@@ -75,9 +79,14 @@ int LSG_Slider::getBarWidth(bool isVertical) const
 	return barWidth;
 }
 
-std::vector<double> LSG_Slider::GetParts() const
+LSG_SliderParts LSG_Slider::GetParts() const
 {
-	return this->parts;
+	LSG_SliderParts parts;
+
+	for (auto const& part : this->parts)
+		parts.push_back({ .value = part.value, .tooltip = part.tooltip });
+
+	return parts;
 }
 
 int LSG_Slider::getProgressWidth() const
@@ -222,9 +231,7 @@ void LSG_Slider::render(SDL_Renderer* renderer)
 		this->renderProgress(renderer, progressArea, progressWidth, fillArea);
 	}
 
-	if (!this->parts.empty())
-		this->renderParts(renderer, bar);
-
+	this->renderParts(renderer, bar);
 	this->renderThumb(renderer);
 
 	if (!this->enabled)
@@ -250,7 +257,7 @@ void LSG_Slider::renderBar(SDL_Renderer* renderer, const SDL_Rect& bar) const
 	}
 }
 
-void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& bar) const
+void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& bar)
 {
 	if (this->parts.empty())
 		return;
@@ -258,30 +265,27 @@ void LSG_Slider::renderParts(SDL_Renderer* renderer, const SDL_Rect& bar) const
 	bool isVertical     = this->IsVertical();
 	auto backgroundSize = (isVertical ? bar.h : bar.w);
 
-	for (auto percent : this->parts)
+	for (auto& part : this->parts)
 	{
-		auto position    = (int)((double)backgroundSize * percent);
+		auto position    = (int)((double)backgroundSize * part.value);
 		auto minPosition = (this->borderRadius + this->partSize);
-
-		if (position < minPosition)
-			continue;
-
 		auto maxPosition = (backgroundSize - (minPosition + this->partSize));
 
 		if (position > maxPosition)
 			position = maxPosition;
 
-		SDL_Rect partArea = bar;
+		part.destination = SDL_Rect(bar);
 
 		if (isVertical) {
-			partArea.y += (bar.h - position - this->partSize);
-			partArea.h  = this->partSize;
+			part.destination.y = (bar.y + bar.h - position - this->partSize);
+			part.destination.h = this->partSize;
 		} else {
-			partArea.x += position;
-			partArea.w  = this->partSize;
+			part.destination.x += position;
+			part.destination.w  = this->partSize;
 		}
 
-		LSG_Graphics::RenderFill(renderer, 0, this->parent->backgroundColor, partArea);
+		if (position >= minPosition)
+			LSG_Graphics::RenderFill(renderer, 0, this->parent->backgroundColor, part.destination);
 	}
 }
 
@@ -303,6 +307,54 @@ void LSG_Slider::renderThumb(SDL_Renderer* renderer) const
 		this->thumb.borderWidth,
 		id
 	);
+}
+
+void LSG_Slider::RenderTooltip(SDL_Renderer* renderer) const
+{
+	if (!this->highlighted)
+	{
+		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_background", this->id));
+		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_text",       this->id));
+
+		for (size_t i = 0; i < this->parts.size(); i++) {
+			LSG_Graphics::DestroyTexture(std::format("{}_part{}_tooltip_background", this->id, i));
+			LSG_Graphics::DestroyTexture(std::format("{}_part{}_tooltip_text",       this->id, i));
+		}
+
+		return;
+	}
+
+	auto bar           = this->getBar();
+	bool isVertical    = this->IsVertical();
+	auto mousePosition = LSG_Window::GetMousePosition();
+
+	for (size_t i = 0; i < this->parts.size(); i++)
+	{
+		bool isLastPart = (i == (this->parts.size() - 1));
+
+		auto partDest = SDL_Rect(this->parts[i].destination);
+
+		if (isVertical)
+		{
+			auto nextPartY = (!isLastPart ? this->parts[i + 1].destination.y : bar.y);
+
+			partDest.h = (partDest.y - nextPartY);
+			partDest.y = nextPartY;
+		}
+		else
+		{
+			auto nextPartX = (!isLastPart ? this->parts[i + 1].destination.x : (bar.x + bar.w));
+
+			partDest.w = (nextPartX - partDest.x);
+		}
+
+		if (SDL_PointInRect(&mousePosition, &partDest)) {
+			LSG_Graphics::RenderTooltip(renderer, this->parts[i].tooltip, mousePosition, std::format("{}_part{}", this->id, i));
+			return;
+		}
+	}
+
+	LSG_Graphics::RenderTooltip(renderer, this->tooltip, mousePosition, this->id);
 }
 
 void LSG_Slider::sendEvent(LSG_EventType type) const
@@ -331,9 +383,14 @@ void LSG_Slider::SetColors()
 	this->thumb.borderColor = (!thumbBorderColor.empty() ? LSG_Graphics::ToSdlColor(thumbBorderColor) : LSG_ConstDefaultColor::Border);
 }
 
-void LSG_Slider::SetParts(const std::vector<double>& parts)
+void LSG_Slider::SetParts(const LSG_SliderParts& parts)
 {
-	this->parts = parts;
+	LSG_SliderPartItems partItems;
+
+	for (auto const& part : parts)
+		partItems.push_back(LSG_SliderPartItem(part));
+
+	this->parts = partItems;
 }
 
 void LSG_Slider::setValue(const SDL_Point& mousePosition)

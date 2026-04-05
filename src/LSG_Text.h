@@ -21,17 +21,21 @@ public:
 	static TTF_Font*           GetFontCJK(int size);
 	static std::string         GetFullPath(const std::string& path);
 	static LSG_TableRowCompare GetTableRowCompare(int column);
+	static SDL_Surface*        GetSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
+	static SDL_Texture*        GetTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
 	static std::string         Join(const LSG_Strings& strings, const std::string& separator);
 	static LSG_Strings         Split(const std::string& text, char separator);
 	static uint16_t*           ToUTF16(const std::string& text);
 	static std::wstring        ToWide(const std::string& text);
 
 protected:
-	SDL_Surface* getSurface(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
-	SDL_Texture* getTexture(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
+	SDL_Surface* getSurface(const std::string& text);
+	SDL_Texture* getTexture(const std::string& text);
 
 private:
-	static std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+	static SDL_Surface* getSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
+	static SDL_Texture* getTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
+	static std::string  replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
 };
 
 #endif

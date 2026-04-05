@@ -16,8 +16,7 @@ public:
 public:
 	void         AddItem(const std::string& item, const std::string& itemId);
 	void         Open();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
-	virtual void Render(SDL_Renderer* renderer) const override;
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         Set();
 
 private:

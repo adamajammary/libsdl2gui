@@ -11,7 +11,7 @@ struct LSG_Card
 	LSG_ItemText  title       = {};
 };
 
-class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -50,11 +50,11 @@ public:
 	size_t           GetCardsCount() const;
 	std::vector<int> GetSelectedCards() const;
 	SDL_Size         GetSize() const;
-	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OnMouseClick(const SDL_Point& mousePosition);
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveCard(int row);
-	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void             Render(SDL_Renderer* renderer);
+	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void     Render(SDL_Renderer* renderer) override;
 	bool             Select(int row);
 	bool             Select(const std::vector<int>& rows);
 	void             SelectAll();

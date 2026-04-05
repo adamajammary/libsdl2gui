@@ -3,7 +3,7 @@
 #ifndef LSG_MENU_H
 #define LSG_MENU_H
 
-class LSG_Menu : public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_Menu : public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_Menu(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -31,10 +31,9 @@ public:
 	bool         IsMouseOverIconOpen(const SDL_Point& mousePosition) const;
 	bool         IsOpen() const;
 	void         Navigate(LSG_Component* component);
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
+	void         OnMouseClick(const SDL_Point& mousePosition);
 	void         Open();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override {};
-	void         Render(SDL_Renderer* renderer);
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         SetMenu();
 
 private:
@@ -56,7 +55,6 @@ private:
 	void                  renderMenuItems(SDL_Renderer* renderer) const;
 	void                  renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu) const;
 	void                  renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu) const;
-	virtual void          sendEvent(LSG_EventType type) const override {};
 	void                  setMenuOpened();
 	void                  setMenuClosed();
 };

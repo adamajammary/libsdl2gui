@@ -3,7 +3,7 @@
 #ifndef LSG_TEXT_INPUT_H
 #define LSG_TEXT_INPUT_H
 
-class LSG_TextInput : public LSG_Text, public LSG_IEvent
+class LSG_TextInput : public LSG_Text
 {
 public:
 	LSG_TextInput(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -34,13 +34,12 @@ public:
 	void         MoveCursorHome();
 	void         MoveCursorLeft();
 	void         MoveCursorRight();
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override {}
 	bool         OnMouseDown(const SDL_Point& mousePosition);
 	bool         OnMouseMove(const SDL_Point& mousePosition);
 	void         Paste();
 	void         Remove();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
+	void         Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void Render(SDL_Renderer* renderer) override;
 	void         SelectAll();
 	void         SelectEnd();
 	void         SelectHome();
@@ -61,7 +60,6 @@ private:
 	void         renderHighlightedText(SDL_Renderer* renderer, const SDL_Rect& background);
 	void         renderIconClear(SDL_Renderer* renderer, const SDL_Rect& icon);
 	void         renderText(SDL_Renderer* renderer, const SDL_Rect& background);
-	virtual void sendEvent(LSG_EventType type) const override;
 	void         setCursor();
 	void         setIconClear();
 	void         setPlaceholder();

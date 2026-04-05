@@ -5,7 +5,7 @@
 
 class LSG_Button;
 
-class LSG_Component : public LSG_IRenderable
+class LSG_Component
 {
 public:
 	LSG_Component(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -36,6 +36,7 @@ protected:
 	LSG_Component*   parent;
 	SDL_Texture*     texture;
 	LSG_Textures     textures;
+	std::string      tooltip;
 	LibXml::xmlNode* xmlNode;
 	std::string      xmlNodeName;
 
@@ -74,7 +75,8 @@ public:
 	bool             IsToggle() const;
 	bool             IsVertical() const;
 	void             RemoveChild(LSG_Component* child);
-	virtual void     Render(SDL_Renderer* renderer) const override;
+	virtual void     Render(SDL_Renderer* renderer);
+	virtual void     RenderTooltip(SDL_Renderer* renderer) const;
 	void             SetAlignmentHorizontal(LSG_HAlign alignment);
 	void             SetAlignmentVertical(LSG_VAlign alignment);
 	void             SetBackgroundColor(const SDL_Color& color);
@@ -108,6 +110,7 @@ protected:
 	void          renderFillWithRoundedBorder(SDL_Renderer* renderer, const std::string& id) const;
 	void          renderHighlight(SDL_Renderer* renderer) const;
 	void          renderHighlight(SDL_Renderer* renderer, const SDL_Rect& background, int borderRadius) const;
+	virtual void  sendEvent(LSG_EventType type) const;
 
 private:
 	void setSizePercent(const SDL_Rect& parentBackground);

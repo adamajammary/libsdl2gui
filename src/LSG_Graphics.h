@@ -10,6 +10,13 @@ private:
 	~LSG_Graphics() {}
 
 private:
+	static const int DefaultTooltipBorderRadius = 5;
+	static const int DefaultTooltipBorderWidth  = 1;
+	static const int DefaultTooltipFontSize     = 14;
+	static const int DefaultTooltipOffsetCursor = 25;
+	static const int DefaultTooltipPadding      = 5;
+
+private:
 	static LSG_UmapTextures textures;
 
 public:
@@ -44,6 +51,7 @@ public:
 	static void                    RenderRoundedCornersTop(SDL_Renderer*    renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
 	static void                    RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
 	static void                    RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& backgroundColor, const std::string& id);
+	static void                    RenderTooltip(SDL_Renderer* renderer, const std::string& text, const SDL_Point& position, const std::string& id);
 	static void                    Rotate(LSG_ItemImage& image);
 	static SDL_Color               ToSdlColor(const std::string& color);
 	static std::string             ToXmlAttribute(const SDL_Color& color);

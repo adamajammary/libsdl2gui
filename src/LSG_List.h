@@ -3,7 +3,7 @@
 #ifndef LSG_LIST_H
 #define LSG_LIST_H
 
-class LSG_List : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_List : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_List(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -22,11 +22,11 @@ public:
 	std::vector<int> GetSelectedRows() const;
 	LSG_SortOrder    GetSortOrder() const;
 	SDL_Size         GetSize() const;
-	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OnMouseClick(const SDL_Point& mousePosition);
 	void             RemoveItem(int row);
 	void             RemovePageItem(int row);
-	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void             Render(SDL_Renderer* renderer);
+	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void     Render(SDL_Renderer* renderer) override;
 	bool             Select(int row);
 	bool             Select(int start, int end);
 	bool             Select(const std::vector<int>& rows);

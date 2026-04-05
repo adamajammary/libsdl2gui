@@ -685,7 +685,7 @@ SDL_Size LSG_GetSize(const std::string& id)
 	return size;
 }
 
-std::vector<double> LSG_GetSliderParts(const std::string& id)
+LSG_SliderParts LSG_GetSliderParts(const std::string& id)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -695,9 +695,9 @@ std::vector<double> LSG_GetSliderParts(const std::string& id)
 	if (!component || !component->IsSlider())
 		throw std::invalid_argument(getErrorNoID("<slider>", id));
 
-	auto value = static_cast<LSG_Slider*>(component)->GetParts();
+	auto parts = static_cast<LSG_Slider*>(component)->GetParts();
 
-	return value;
+	return parts;
 }
 
 double LSG_GetSliderValue(const std::string& id)
@@ -1075,19 +1075,6 @@ void LSG_NavigateEnd(const std::string& id, const std::string& text)
 	static_cast<LSG_Navigation*>(component)->NavigateEnd(text);
 }
 
-void LSG_NavigateForward(const std::string& id, const std::string& text)
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	auto component = getComponent(id);
-
-	if (!component || !component->IsNavigation())
-		throw std::invalid_argument(getErrorNoID("<navigation>", id));
-
-	static_cast<LSG_Navigation*>(component)->NavigateForward(text);
-}
-
 void LSG_NavigateHome(const std::string& id, const std::string& text)
 {
 	if (!isRunning)
@@ -1099,6 +1086,19 @@ void LSG_NavigateHome(const std::string& id, const std::string& text)
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
 
 	static_cast<LSG_Navigation*>(component)->NavigateHome(text);
+}
+
+void LSG_NavigateNext(const std::string& id, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateNext(text);
 }
 
 void LSG_NavigateTo(const std::string& id, int position, const std::string& text)
@@ -2172,7 +2172,7 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 		LSG_UI::LayoutRoot();
 }
 
-void LSG_SetSliderParts(const std::string& id, const std::vector<double>& percents)
+void LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -2182,7 +2182,7 @@ void LSG_SetSliderParts(const std::string& id, const std::vector<double>& percen
 	if (!component || !component->IsSlider())
 		throw std::invalid_argument(getErrorNoID("<slider>", id));
 
-	static_cast<LSG_Slider*>(component)->SetParts(percents);
+	static_cast<LSG_Slider*>(component)->SetParts(parts);
 }
 
 void LSG_SetSliderValue(const std::string& id, double percent)

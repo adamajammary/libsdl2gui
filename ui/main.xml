@@ -21,7 +21,7 @@
   <panel id="Root" orientation="vertical" padding="10" spacing="10" font-size="16">
     <panel height="40">
       <panel width="50" valign="middle">
-        <menu id="Menu" title="Menu">
+        <menu id="Menu" title="Menu" tooltip="Menu">
           <menu-sub id="MenuIdColorTheme" title="Color Theme">
             <menu-item id="MenuIdColorThemeDark"  icon="img/dark-white-512.png"  key="Ctrl+D">Dark</menu-item>
             <menu-item id="MenuIdColorThemeLight" icon="img/light-white-512.png" key="Ctrl+L">Light</menu-item>
@@ -62,9 +62,10 @@
         border-color="#FFFFFF"
         border-radius="25"
         border-width="1"
+        tooltip="Dark color theme"
       />
 
-      <toggle id="Toggle" width="50" />
+      <toggle id="Toggle" width="50" tooltip="Toggle dark/light color theme" />
 
       <button
         id="ButtonIdColorThemeLight"
@@ -76,6 +77,7 @@
         border-color="#000000"
         border-radius="25"
         border-width="1"
+        tooltip="Light color theme"
       />
     </panel>
 
@@ -205,6 +207,7 @@
                 <table-column>Risus</table-column>
                 <table-column>Sociis natoque penatibus</table-column>
               </table-row>
+
               <table-row>
                 <table-column>Blandit</table-column>
                 <table-column>Imperdiet nulla malesuada</table-column>
@@ -216,6 +219,7 @@
                 <table-column>Congue</table-column>
                 <table-column>Sed egestas egestas fringilla phasellus faucibus scelerisque</table-column>
               </table-row>
+
               <table-row>
                 <table-column>Adipiscing</table-column>
                 <table-column>Elit pellentesque habitant morbi tristique senectus et</table-column>
@@ -226,6 +230,7 @@
               <table-column>Cursus</table-column>
               <table-column>Pellentesque elit eget gravida</table-column>
             </table-row>
+
             <table-row>
               <table-column>Consequat</table-column>
               <table-column>Ac felis donec et odio pellentesque diam volutpat commodo</table-column>
@@ -242,7 +247,6 @@
         <slider
           id="Slider"
           value="0.5"
-          parts="0.25,0.5,0.75"
           background-color="rgb(192, 192, 192)"
           fill-progress="true"
           progress-color="rgb(20, 130, 255)"
@@ -252,7 +256,12 @@
           thumb-size="30"
           thumb-border-color="#000000"
           thumb-border-width="1"
-        />
+        >
+          <slider-part value="0"    tooltip="Part 1" />
+          <slider-part value="0.25" tooltip="Part 2" />
+          <slider-part value="0.5"  tooltip="Part 3" />
+          <slider-part value="0.75" tooltip="Part 4" />
+        </slider>>
 
         <panel width="40" halign="right" valign="middle">
           <text id="SliderValue">0.50</text>

@@ -97,28 +97,24 @@ LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 //	return xmlText;
 //}
 
-SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
 {
 	if (text.empty())
 		return nullptr;
 
 	LSG_Text::surfaceLock.lock();
 
-	auto color = (!textColor    ? this->textColor      : *textColor);
-	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
-	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
-
 	auto text16 = LSG_Text::ToUTF16(text);
-	auto font   = LSG_Text::GetFont(size, text16);
+	auto font   = LSG_Text::GetFont(fontSize, text16);
 
-	TTF_SetFontStyle(font, style);
+	TTF_SetFontStyle(font, fontStyle);
 
 	SDL_Surface* surface = nullptr;
 
-	if (this->wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, color, 0);
+	if (wrap)
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, textColor, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, text16, color);
+		surface = TTF_RenderUNICODE_Blended(font, text16, textColor);
 
 	TTF_CloseFont(font);
 	SDL_free(text16);
@@ -131,17 +127,37 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	return surface;
 }
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
 {
 	if (text.empty())
 		return nullptr;
 
-	auto surface = this->getSurface(text, fontSize, fontStyle, textColor);
+	auto surface = LSG_Text::getSurface(text, fontSize, fontStyle, textColor, wrap);
 	auto texture = LSG_Window::ToTexture(surface);
 
 	SDL_FreeSurface(surface);
 
 	return texture;
+}
+
+SDL_Surface* LSG_Text::getSurface(const std::string& text)
+{
+	return this->getSurface(text, this->getFontSize(), this->getFontStyle(), this->textColor, this->wrap);
+}
+
+SDL_Texture* LSG_Text::getTexture(const std::string& text)
+{
+	return this->getTexture(text, this->getFontSize(), this->getFontStyle(), this->textColor, this->wrap);
+}
+
+SDL_Surface* LSG_Text::GetSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
+{
+	return LSG_Text::getSurface(text, fontSize, fontStyle, textColor, wrap);
+}
+
+SDL_Texture* LSG_Text::GetTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
+{
+	return LSG_Text::getTexture(text, fontSize, fontStyle, textColor, wrap);
 }
 
 std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separator)
