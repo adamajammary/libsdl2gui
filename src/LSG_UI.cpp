@@ -1147,8 +1147,7 @@ void LSG_UI::Render(SDL_Renderer* renderer)
 
 void LSG_UI::renderMenu(SDL_Renderer* renderer)
 {
-	for (const auto& component : LSG_UI::componentsByLayer)
-	{
+	for (const auto& component : LSG_UI::componentsByLayer) {
 		if (component.second->IsMenu())
 			static_cast<LSG_Menu*>(component.second)->Render(renderer);
 	}
@@ -1156,8 +1155,7 @@ void LSG_UI::renderMenu(SDL_Renderer* renderer)
 
 void LSG_UI::renderModal(SDL_Renderer* renderer)
 {
-	for (const auto& component : LSG_UI::componentsByLayer)
-	{
+	for (const auto& component : LSG_UI::componentsByLayer) {
 		if (component.second->IsModal())
 			static_cast<LSG_Modal*>(component.second)->Render(renderer);
 	}

@@ -507,7 +507,8 @@ void LSG_Component::RenderTooltip(SDL_Renderer* renderer) const
 		return;
 	}
 
-	LSG_Graphics::RenderTooltip(renderer, this->tooltip, LSG_Window::GetMousePosition(), this->id);
+	if (!this->tooltip.empty())
+		LSG_Graphics::RenderTooltip(renderer, this->tooltip, LSG_Window::GetMousePosition(), this->id);
 }
 
 void LSG_Component::sendEvent(LSG_EventType type) const

@@ -8,6 +8,9 @@ LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 	this->iconPath = (xmlAttributes.contains("icon") ? xmlAttributes["icon"] : "");
 	this->text     = (xmlAttributes.contains("text") ? xmlAttributes["text"] : "");
 
+	if (this->text.empty())
+		this->text = LSG_XML::GetValue(this->xmlNode);
+
 	this->textures.resize(NR_OF_BUTTON_TEXTURES);
 }
 

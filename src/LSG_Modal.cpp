@@ -398,39 +398,14 @@ void LSG_Modal::Render(SDL_Renderer* renderer)
 	{
 		child->background.y += headerHeight;
 
-		if (child->IsPanel())
+		bool isPanel = child->IsPanel();
+
+		if (isPanel)
 			static_cast<LSG_Panel*>(child)->OffsetBackgroundY(headerHeight);
 
-		if (child->IsButton())
-			static_cast<LSG_Button*>(child)->Render(renderer);
-		else if (child->IsCards())
-			static_cast<LSG_Cards*>(child)->Render(renderer);
-		else if (child->IsImage())
-			static_cast<LSG_Image*>(child)->Render(renderer);
-		else if (child->IsLine())
-			static_cast<LSG_Line*>(child)->Render(renderer);
-		else if (child->IsList())
-			static_cast<LSG_List*>(child)->Render(renderer);
-		else if (child->IsNavigation())
-			static_cast<LSG_Navigation*>(child)->Render(renderer);
-		else if (child->IsPanel())
-			static_cast<LSG_Panel*>(child)->Render(renderer);
-		else if (child->IsProgressBar())
-			static_cast<LSG_ProgressBar*>(child)->Render(renderer);
-		else if (child->IsSlider())
-			static_cast<LSG_Slider*>(child)->Render(renderer);
-		else if (child->IsTable())
-			static_cast<LSG_Table*>(child)->Render(renderer);
-		else if (child->IsTextInput())
-			static_cast<LSG_TextInput*>(child)->Render(renderer);
-		else if (child->IsTextLabel())
-			static_cast<LSG_TextLabel*>(child)->Render(renderer);
-		else if (child->IsTiles())
-			static_cast<LSG_Tiles*>(child)->Render(renderer);
-		else if (child->IsToggle())
-			static_cast<LSG_Toggle*>(child)->Render(renderer);
+		child->Render(renderer);
 
-		if (child->IsPanel())
+		if (isPanel)
 			static_cast<LSG_Panel*>(child)->OffsetBackgroundY(-headerHeight);
 
 		child->background.y -= headerHeight;
@@ -512,6 +487,14 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) cons
 	};
 
 	SDL_RenderCopy(renderer, texture, &clip, &destination);
+}
+
+void LSG_Modal::RenderTooltip(SDL_Renderer* renderer) const
+{
+	for (const auto& component : this->componentsByLayer) {
+		if (!component.second->IsModal())
+			component.second->RenderTooltip(renderer);
+	}
 }
 
 void LSG_Modal::Set()

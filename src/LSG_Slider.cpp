@@ -348,13 +348,17 @@ void LSG_Slider::RenderTooltip(SDL_Renderer* renderer) const
 			partDest.w = (nextPartX - partDest.x);
 		}
 
-		if (SDL_PointInRect(&mousePosition, &partDest)) {
-			LSG_Graphics::RenderTooltip(renderer, this->parts[i].tooltip, mousePosition, std::format("{}_part{}", this->id, i));
+		if (SDL_PointInRect(&mousePosition, &partDest))
+		{
+			if (!this->parts[i].tooltip.empty())
+				LSG_Graphics::RenderTooltip(renderer, this->parts[i].tooltip, mousePosition, std::format("{}_part{}", this->id, i));
+
 			return;
 		}
 	}
 
-	LSG_Graphics::RenderTooltip(renderer, this->tooltip, mousePosition, this->id);
+	if (!this->tooltip.empty())
+		LSG_Graphics::RenderTooltip(renderer, this->tooltip, mousePosition, this->id);
 }
 
 void LSG_Slider::sendEvent(LSG_EventType type) const

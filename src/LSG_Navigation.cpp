@@ -359,7 +359,7 @@ void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const
 
 	if (!id.empty() && !tooltip.empty())
 		LSG_Graphics::RenderTooltip(renderer, tooltip, mousePosition, id);
-	else
+	else if (!this->tooltip.empty())
 		LSG_Graphics::RenderTooltip(renderer, this->tooltip, mousePosition, this->id);
 }
 

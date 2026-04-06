@@ -33,6 +33,7 @@ public:
 	void           OnMouseUp(const SDL_Event& event, const SDL_Point& mousePosition) const;
 	void           Open();
 	virtual void   Render(SDL_Renderer* renderer) override;
+	virtual void   RenderTooltip(SDL_Renderer* renderer) const override;
 	void           Set();
 	void           SetBackground();
 
