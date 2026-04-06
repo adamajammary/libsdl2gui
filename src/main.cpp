@@ -923,6 +923,19 @@ std::string LSG_GetTitle(const std::string& id)
 	return LSG_XML::GetAttribute(component->GetXmlNode(), "title");
 }
 
+std::string LSG_GetTooltip(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetTooltip();
+}
+
 SDL_Size LSG_GetWindowMinimumSize()
 {
 	if (!isRunning)
@@ -2390,6 +2403,19 @@ void LSG_SetToggle(const std::string& id, bool on)
 		throw std::invalid_argument(getErrorNoID("<toggle>", id));
 
 	static_cast<LSG_Toggle*>(component)->Set(on);
+}
+
+void LSG_SetTooltip(const std::string& id, const std::string& tooltip)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	component->SetTooltip(tooltip);
 }
 
 void LSG_SetVisible(const std::string& id, bool visible, bool layout)

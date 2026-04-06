@@ -691,6 +691,14 @@ DLLEXPORT size_t DLL LSG_GetTilesCount(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetTitle(const std::string& id);
 
 /**
+ * @returns the tooltip text of the component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetTooltip(const std::string& id);
+
+/**
  * @returns the minimum window size
  * @throws runtime_error
  */
@@ -1611,6 +1619,15 @@ DLLEXPORT void DLL LSG_SetTitle(const std::string& id, const std::string& title)
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SetToggle(const std::string& id, bool on);
+
+/**
+ * @brief Sets the tooltip text of the component.
+ * @param id      Component ID
+ * @param tooltip Tooltip text
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTooltip(const std::string& id, const std::string& tooltip);
 
 /**
  * @brief Shows or hides the component.

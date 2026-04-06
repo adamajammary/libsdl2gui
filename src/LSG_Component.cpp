@@ -249,6 +249,11 @@ SDL_Size LSG_Component::getTextureSize() const
 	return LSG_Graphics::GetTextureSize(this->texture);
 }
 
+std::string LSG_Component::GetTooltip() const
+{
+	return this->tooltip;
+}
+
 std::string LSG_Component::GetXmlAttribute(const std::string& attribute) const
 {
 	return LSG_XML::GetAttribute(this->xmlNode, attribute);
@@ -725,6 +730,11 @@ void LSG_Component::setSizePercent(const SDL_Rect& parentBackground)
 void LSG_Component::SetSpacing(int spacing)
 {
 	LSG_XML::SetAttribute(this->xmlNode, "spacing", std::to_string(spacing));
+}
+
+void LSG_Component::SetTooltip(const std::string& tooltip)
+{
+	this->tooltip = tooltip;
 }
 
 void LSG_Component::SetVisible(bool visible)

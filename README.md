@@ -2168,6 +2168,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetTooltip
+
+```cpp
+std::string LSG_GetTooltip(const std::string& id);
+```
+
+Returns the tooltip text of the component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetWindowMinimumSize
 
 ```cpp
@@ -4575,6 +4592,30 @@ Exceptions
 
 - invalid_argument
 - runtime_error
+
+### LSG_SetTooltip
+
+```cpp
+void LSG_SetTooltip(const std::string& id, const std::string& tooltip);
+```
+
+Sets the tooltip text of the component.
+
+Parameters
+
+- **id** Component ID
+- **tooltip** Tooltip text
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTooltip("ButtonIdColorThemeDark", "Dark color theme");
+```
 
 ### LSG_SetVisible
 

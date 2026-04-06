@@ -1444,6 +1444,39 @@ namespace LSG_UnitTest
             }
         }
 	};
+
+    TEST_CLASS(Tooltip)
+    {
+        TEST_METHOD(GetTooltip)
+        {
+            try
+            {
+                auto tooltip = LSG_GetTooltip("ButtonIdColorThemeDark");
+
+                Assert::AreEqual("Dark color theme", tooltip.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetTooltip)
+        {
+            try
+            {
+                LSG_SetTooltip("ButtonIdColorThemeDark", "New tooltip text");
+
+                auto tooltip = LSG_GetTooltip("ButtonIdColorThemeDark");
+
+                Assert::AreEqual("New tooltip text", tooltip.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
 }
 
 #endif

@@ -50,6 +50,7 @@ public:
 	LSG_Component*   GetParent() const;
 	LSG_Component*   GetScrollableParent();
 	int              GetSpacing() const;
+	std::string      GetTooltip() const;
 	std::string      GetXmlAttribute(const std::string& attribute) const;
 	LSG_UMapStrStr   GetXmlAttributes() const;
 	LibXml::xmlNode* GetXmlNode() const;
@@ -92,6 +93,7 @@ public:
 	void             SetSizeFixed();
 	void             SetSizePercent(LSG_Component* parent);
 	void             SetSpacing(int spacing);
+	void             SetTooltip(const std::string& tooltip);
 	void             SetVisible(bool visible);
 
 protected:
