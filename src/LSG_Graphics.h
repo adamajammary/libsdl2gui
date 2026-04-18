@@ -26,7 +26,6 @@ public:
 	static SDL_Point               GetDownscaleFactor(const SDL_Size& fullSize, const SDL_Size& maxSize);
 	static SDL_Texture*            GetDownScaledTexture(const std::string& imageFile, const SDL_Point& downscaleFactor);
 	static SDL_Rect                GetFillArea(const SDL_Rect& background, int borderWidth, int padding = 0);
-	static SDL_Color               GetFillColor(const SDL_Color& backgroundColor);
 	static std::vector<SDL_Vertex> GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static std::vector<SDL_Vertex> GetGeometryTriangleVertical(const SDL_Rect& background,   const SDL_Color& color, LSG_TriangleOrientation orientation);
 	static SDL_Color               GetInverseColor(const SDL_Color& color);

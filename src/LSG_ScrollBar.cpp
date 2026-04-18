@@ -437,10 +437,8 @@ void LSG_ScrollBar::renderScrollArrowsVertical(SDL_Renderer* renderer, const SDL
 
 void LSG_ScrollBar::renderScrollBar(SDL_Renderer* renderer, const SDL_Rect& bar, const SDL_Color& backgroundColor) const
 {
-	auto fillColor = LSG_Graphics::GetFillColor(backgroundColor);
-
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 255);
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
 
 	SDL_RenderFillRect(renderer, &bar);
 }

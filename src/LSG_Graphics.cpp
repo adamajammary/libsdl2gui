@@ -192,21 +192,6 @@ SDL_Rect LSG_Graphics::GetFillArea(const SDL_Rect& background, int borderWidth, 
 	return fillArea;
 }
 
-SDL_Color LSG_Graphics::GetFillColor(const SDL_Color& backgroundColor)
-{
-	const int OFFSET  = 20;
-	const int DEFAULT = (255 - OFFSET);
-	const int MAX     = (DEFAULT - OFFSET);
-
-	auto r = (uint8_t)(backgroundColor.r < MAX ? (backgroundColor.r + OFFSET) : DEFAULT);
-	auto g = (uint8_t)(backgroundColor.g < MAX ? (backgroundColor.g + OFFSET) : DEFAULT);
-	auto b = (uint8_t)(backgroundColor.b < MAX ? (backgroundColor.b + OFFSET) : DEFAULT);
-
-	SDL_Color fillColor = { r, g, b, 255 };
-
-	return fillColor;
-}
-
 std::vector<SDL_Vertex> LSG_Graphics::GetGeometryTriangleHorizontal(const SDL_Rect& background, const SDL_Color& color, LSG_TriangleOrientation orientation)
 {
 	return LSG_Graphics::getGeometryTriangle(
