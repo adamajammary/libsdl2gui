@@ -1505,7 +1505,15 @@ void LSG_RenderTextureWithRoundedCorners(
 	if (!texture)
 		throw std::invalid_argument("'texture' cannot be NULL");
 
-	LSG_Graphics::RenderTextureWithRoundedCorners(renderer, texture, destination, clip, radius, color, id);
+	LSG_Graphics::RenderTextureWithRoundedCorners(
+		renderer,
+		texture,
+		destination,
+		clip,
+		LSG_Window::GetDPIScaled(radius),
+		color,
+		id
+	);
 }
 
 std::vector<SDL_Event> LSG_Run()

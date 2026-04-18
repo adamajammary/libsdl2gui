@@ -567,14 +567,14 @@ void LSG_Component::SetBorderColor(const SDL_Color& color)
 
 void LSG_Component::SetBorderRadius(int radius)
 {
-	this->borderRadius = radius;
+	this->borderRadius = LSG_Window::GetDPIScaled(radius);
 
 	LSG_XML::SetAttribute(this->GetXmlNode(), "border-radius", std::to_string(radius));
 }
 
 void LSG_Component::SetBorderWidth(int width)
 {
-	this->borderWidth = width;
+	this->borderWidth = LSG_Window::GetDPIScaled(width);
 
 	LSG_XML::SetAttribute(this->GetXmlNode(), "border-width", std::to_string(width));
 }
@@ -595,7 +595,7 @@ void LSG_Component::SetColors()
 
 void LSG_Component::SetMargin(int margin)
 {
-	this->margin = margin;
+	this->margin = LSG_Window::GetDPIScaled(margin);
 
 	LSG_XML::SetAttribute(this->GetXmlNode(), "margin", std::to_string(margin));
 }
@@ -609,7 +609,7 @@ void LSG_Component::SetOrientation(LSG_Orientation orientation)
 
 void LSG_Component::SetPadding(int padding)
 {
-	this->padding = padding;
+	this->padding = LSG_Window::GetDPIScaled(padding);
 
 	LSG_XML::SetAttribute(this->GetXmlNode(), "padding", std::to_string(padding));
 }
