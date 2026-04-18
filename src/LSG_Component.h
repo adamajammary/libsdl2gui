@@ -47,6 +47,7 @@ public:
 	int              GetFontStyle() const;
 	std::string      GetID() const;
 	int              GetLayer() const;
+	LSG_Orientation  GetOrientation() const;
 	LSG_Component*   GetParent() const;
 	LSG_Component*   GetScrollableParent();
 	int              GetSpacing() const;

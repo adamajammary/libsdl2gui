@@ -1601,6 +1601,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetOrientation
+
+```cpp
+LSG_Orientation LSG_GetOrientation(const std::string& id);
+```
+
+Returns the layout orientation of the children of a component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetPadding
 
 ```cpp

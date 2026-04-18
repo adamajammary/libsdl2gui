@@ -421,6 +421,14 @@ DLLEXPORT size_t DLL LSG_GetNavigationItemCount(const std::string& id);
 DLLEXPORT int DLL LSG_GetNavigationPosition(const std::string& id);
 
 /**
+ * @returns the layout orientation of the children of a component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_Orientation DLL LSG_GetOrientation(const std::string& id);
+
+/**
  * @returns the padding inside a component
  * @param id Component ID
  * @throws invalid_argument

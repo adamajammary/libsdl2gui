@@ -188,6 +188,11 @@ struct LSG_ConstOrientation
 	static inline const std::string Horizontal = "horizontal";
 	static inline const std::string Vertical   = "vertical";
 
+	static inline const LSG_Orientation ToEnum(const std::string& orientationString)
+	{
+		return (orientationString == Vertical ? LSG_ORIENTATION_VERTICAL : LSG_ORIENTATION_HORIZONTAL);
+	}
+
 	static inline const std::string ToString(LSG_Orientation orientationEnum)
 	{
 		return (orientationEnum == LSG_ORIENTATION_VERTICAL ? Vertical : Horizontal);

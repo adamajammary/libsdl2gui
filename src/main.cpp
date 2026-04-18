@@ -458,6 +458,19 @@ int LSG_GetNavigationPosition(const std::string& id)
 	return static_cast<LSG_Navigation*>(component)->GetPosition();
 }
 
+LSG_Orientation LSG_GetOrientation(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetOrientation();
+}
+
 int LSG_GetPadding(const std::string& id)
 {
 	if (!isRunning)

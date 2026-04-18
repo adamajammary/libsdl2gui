@@ -210,6 +210,11 @@ int LSG_Component::GetLayer() const
 	return this->layer;
 }
 
+LSG_Orientation LSG_Component::GetOrientation() const
+{
+	return LSG_ConstOrientation::ToEnum(this->orientation);
+}
+
 LSG_Component* LSG_Component::GetParent() const
 {
 	return this->parent;
