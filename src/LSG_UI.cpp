@@ -1163,6 +1163,9 @@ void LSG_UI::renderModal(SDL_Renderer* renderer)
 
 void LSG_UI::renderTooltip(SDL_Renderer* renderer)
 {
+	if (!SDL_GetCursor())
+		return;
+
 	for (const auto& component : LSG_UI::componentsByLayer)
 		component.second->RenderTooltip(renderer);
 }
