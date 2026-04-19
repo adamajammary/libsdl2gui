@@ -1864,7 +1864,7 @@ Exceptions
 SDL_Size LSG_GetSize(const std::string& id);
 ```
 
-Returns the component size.
+Returns the DPI-scaled component size.
 
 Parameters
 
