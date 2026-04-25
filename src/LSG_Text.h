@@ -10,7 +10,9 @@ public:
 	~LSG_Text() {}
 
 protected:
-	bool wrap;
+	SDL_Texture*     ellipsisTexture;
+	LSG_TextOverflow textOverflow;
+	bool             wrap;
 
 private:
 	static std::mutex surfaceLock;
@@ -29,8 +31,9 @@ public:
 	static std::wstring        ToWide(const std::string& text);
 
 protected:
-	SDL_Surface* getSurface(const std::string& text);
-	SDL_Texture* getTexture(const std::string& text);
+	SDL_Surface* getSurface(const std::string& text) const;
+	SDL_Texture* getTexture(const std::string& text) const;
+	void         renderTextWithEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const;
 
 private:
 	static SDL_Surface* getSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);

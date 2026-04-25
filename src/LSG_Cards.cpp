@@ -134,6 +134,11 @@ void LSG_Cards::destroyTextures()
 	for (auto& card : this->cards)
 		this->destroyTextures(card);
 
+	if (this->ellipsisTexture) {
+		SDL_DestroyTexture(this->ellipsisTexture);
+		this->ellipsisTexture = nullptr;
+	}
+
 	LSG_Cards::cardsLock.unlock();
 }
 
@@ -202,6 +207,9 @@ SDL_Size LSG_Cards::GetSize() const
 
 	if (textureHeight > maxSize.height)
 		maxSize.height = textureHeight;
+
+	if (this->textOverflow != LSG_TEXT_OVERFLOW_NONE)
+		maxSize.width = this->background.w;
 
 	return maxSize;
 }
@@ -470,7 +478,7 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 
 	auto border2x  = (this->cardBorderWidth + this->cardBorderWidth);
 	auto padding2x = (this->cardPadding + this->cardPadding);
-	auto offsetY   = LSG_Window::GetDPIScaled(this->getTitleFontSize() * 2);
+	auto offsetY   = (LSG_Window::GetDPIScaled(this->getTitleFontSize()) + this->cardPadding);
 
 	SDL_Rect clip = {
 		0,
@@ -486,7 +494,23 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 		clip.h
 	};
 
-	SDL_RenderCopy(renderer, card.description.texture.texture, &clip, &destination);
+	auto maxWidth = (this->background.w - this->cardHeight);
+
+	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.description.texture.size.width <= maxWidth)) {
+		SDL_RenderCopy(renderer, card.description.texture.texture, &clip, &destination);
+		return;
+	}
+
+	if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
+	{
+		SDL_Rect clip = { 0, 0, maxWidth, destination.h };
+		destination.w = clip.w;
+
+		SDL_RenderCopy(renderer, card.description.texture.texture, &clip, &destination);
+		return;
+	}
+
+	this->renderTextWithEllipse(renderer, card.description.texture.texture, destination, maxWidth);
 }
 
 void LSG_Cards::renderScrollBar(SDL_Renderer* renderer, const SDL_Size& textureSize)
@@ -513,7 +537,23 @@ void LSG_Cards::renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const
 		card.title.texture.size.height
 	};
 
-	SDL_RenderCopy(renderer, card.title.texture.texture, nullptr, &destination);
+	auto maxWidth = (this->background.w - this->cardHeight);
+
+	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.title.texture.size.width <= maxWidth)) {
+		SDL_RenderCopy(renderer, card.title.texture.texture, nullptr, &destination);
+		return;
+	}
+
+	if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
+	{
+		SDL_Rect clip = { 0, 0, maxWidth, destination.h };
+		destination.w = clip.w;
+
+		SDL_RenderCopy(renderer, card.title.texture.texture, &clip, &destination);
+		return;
+	}
+
+	this->renderTextWithEllipse(renderer, card.title.texture.texture, destination, maxWidth);
 }
 
 void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) const
@@ -970,6 +1010,9 @@ void LSG_Cards::setCardTextures()
 	}
 
 	this->destroySurfaces();
+
+	if (this->textOverflow == LSG_TEXT_OVERFLOW_ELLIPSIS)
+		this->ellipsisTexture = this->getTexture("...");
 
 	LSG_Cards::cardsLock.unlock();
 }

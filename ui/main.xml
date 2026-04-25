@@ -96,7 +96,7 @@
 
       <panel spacing="10">
         <panel id="PanelIdCards" padding="10" border-width="1" border-radius="10">
-          <cards id="Cards" card-height="128" card-border-type="line" border-radius="10">
+          <cards id="Cards" card-height="90" card-border-type="line" border-radius="10">
             <card
               title="Card #1 - Risus sed vulputate odio ut"
               description="Nibh tortor id aliquet lectus proin nibh nisl condimentum id.\nVitae semper quis lectus nulla at volutpat diam."
@@ -109,7 +109,7 @@
             />
             <card
               title="Card #3 - Pretium lectus quam id leo in."
-              description="Dignissim diam quis enim lobortis scelerisque fermentum.\n\nAliquam faucibus purus in massa tempor nec feugiat."
+              description="Dignissim diam quis enim lobortis scelerisque fermentum.\nAliquam faucibus purus in massa tempor nec feugiat."
               thumbnail="img/tile-3.jpg"
             />
             <card

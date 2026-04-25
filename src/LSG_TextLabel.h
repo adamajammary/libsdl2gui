@@ -9,10 +9,6 @@ public:
 	LSG_TextLabel(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_TextLabel() {}
 
-private:
-	SDL_Texture*     ellipsisTexture;
-	LSG_TextOverflow overflow;
-
 public:
 	SDL_Size     GetSize();
 	void         Render(SDL_Renderer* renderer, const SDL_Point& position);

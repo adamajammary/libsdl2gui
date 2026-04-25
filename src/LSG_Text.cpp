@@ -5,7 +5,15 @@ std::mutex LSG_Text::surfaceLock;
 LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
+	this->ellipsisTexture = nullptr;
+	this->textOverflow    = LSG_TEXT_OVERFLOW_NONE;
+
+	auto xmlAttributes = LSG_XML::GetAttributes(xmlNode);
+
+	this->wrap = (xmlAttributes.contains("wrap") && (xmlAttributes["wrap"] == "true"));
+
+	if (xmlAttributes.contains("text-overflow"))
+		this->textOverflow = (xmlAttributes["text-overflow"] == "ellipsis" ? LSG_TEXT_OVERFLOW_ELLIPSIS : LSG_TEXT_OVERFLOW_CLIP);
 }
 
 bool LSG_Text::FontSupportsText(TTF_Font* font, uint16_t* text)
@@ -140,12 +148,12 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	return texture;
 }
 
-SDL_Surface* LSG_Text::getSurface(const std::string& text)
+SDL_Surface* LSG_Text::getSurface(const std::string& text) const
 {
 	return this->getSurface(text, this->getFontSize(), this->getFontStyle(), this->textColor, this->wrap);
 }
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text)
+SDL_Texture* LSG_Text::getTexture(const std::string& text) const
 {
 	return this->getTexture(text, this->getFontSize(), this->getFontStyle(), this->textColor, this->wrap);
 }
@@ -173,6 +181,27 @@ std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separa
 	}
 
 	return result;
+}
+
+void LSG_Text::renderTextWithEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
+{
+	auto ellipsisSize = LSG_Graphics::GetTextureSize(this->ellipsisTexture);
+
+	SDL_Rect textClip        = { 0, 0, (maxWidth - ellipsisSize.width), destination.h };
+	SDL_Rect textDestination = destination;
+
+	textDestination.w = textClip.w;
+
+	SDL_RenderCopy(renderer, texture, &textClip, &textDestination);
+
+	SDL_Rect ellipsisDestination = {
+		(destination.x + maxWidth - ellipsisSize.width),
+		(destination.y + destination.h - ellipsisSize.height),
+		ellipsisSize.width,
+		ellipsisSize.height
+	};
+
+	SDL_RenderCopy(renderer, this->ellipsisTexture, nullptr, &ellipsisDestination);
 }
 
 std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)

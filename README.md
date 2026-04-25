@@ -349,7 +349,7 @@ text="string"
 
 ### \<cards\>
 
-[alignment](#alignment) | [boolean](#boolean) | [card_border_type](#card_border_type) | [color](#color) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [card_border_type](#card_border_type) | [color](#color) | [size](#size) | [text_overflow](#text_overflow)
 
 Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
 
@@ -370,6 +370,7 @@ tooltip="string"
 
 card-height="int" # default="128"
 card-border-type="card_border_type"
+text-overflow="text_overflow"
 ```
 
 ### \<card\>
@@ -651,9 +652,9 @@ tooltip="string"
 
 bold="boolean"
 italic="boolean"
-overflow="text_overflow"
 strike-through="boolean"
 underline="boolean"
+text-overflow="text_overflow"
 wrap="boolean"
 ```
 
