@@ -68,11 +68,11 @@ endif()
 if (NOT EXISTS "${SRC_DIR}/fonts")
     file(MAKE_DIRECTORY "${SRC_DIR}/fonts")
 
-    set(DEJAVU_SANS_TTF "dejavu-sans-ttf-2.37")
+    set(DEJAVU_SANS_TTF "dejavu-fonts-ttf-2.37")
 
-    file(DOWNLOAD "http://sourceforge.net/projects/dejavu/files/dejavu/2.37/${DEJAVU_SANS_TTF}.zip"            "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}.zip")
-    file(DOWNLOAD "https://github.com/notofonts/noto-cjk/raw/refs/heads/main/Sans/OTC/NotoSansCJK-Regular.ttc" "${SRC_DIR}/fonts/NotoSansCJK-Regular.ttc")
-    file(DOWNLOAD "https://raw.githubusercontent.com/notofonts/noto-cjk/refs/heads/main/Sans/LICENSE"          "${SRC_DIR}/fonts/LICENSE-Noto.txt")
+    file(DOWNLOAD "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/${DEJAVU_SANS_TTF}.zip" "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}.zip")
+    file(DOWNLOAD "https://github.com/notofonts/noto-cjk/raw/refs/heads/main/Sans/OTC/NotoSansCJK-Regular.ttc"         "${SRC_DIR}/fonts/NotoSansCJK-Regular.ttc")
+    file(DOWNLOAD "https://raw.githubusercontent.com/notofonts/noto-cjk/refs/heads/main/Sans/LICENSE"                  "${SRC_DIR}/fonts/LICENSE-Noto.txt")
 
     file(ARCHIVE_EXTRACT INPUT "${SRC_DIR}/fonts/${DEJAVU_SANS_TTF}.zip" DESTINATION "${SRC_DIR}/fonts/")
 
