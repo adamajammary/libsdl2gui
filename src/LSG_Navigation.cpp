@@ -117,7 +117,9 @@ bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
 	if (this->canNavigate.back && SDL_PointInRect(&mousePosition, &arrow))
 		return true;
 
-	destination.x += (this->arrow.size + padding);
+	auto arrowWidth = (this->arrow.size + padding);
+
+	destination.x += arrowWidth;
 
 	arrow = this->getArrow(destination, padding);
 
@@ -131,7 +133,7 @@ bool LSG_Navigation::IsMouseOverArrow(const SDL_Point& mousePosition) const
 	if (this->canNavigate.next && SDL_PointInRect(&mousePosition, &arrow))
 		return true;
 
-	destination.x -= (this->arrow.size + padding);
+	destination.x -= arrowWidth;
 
 	arrow = this->getArrow(destination, padding);
 
@@ -203,7 +205,9 @@ void LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 	if (this->canNavigate.back && SDL_PointInRect(&mousePosition, &arrow))
 		this->sendEvent(LSG_EVENT_NAVIGATE_HOME);
 
-	destination.x += (this->arrow.size + padding);
+	auto arrowWidth = (this->arrow.size + padding);
+
+	destination.x += arrowWidth;
 
 	arrow = this->getArrow(destination, padding);
 
@@ -217,7 +221,7 @@ void LSG_Navigation::OnMouseClick(const SDL_Point& mousePosition)
 	if (this->canNavigate.next && SDL_PointInRect(&mousePosition, &arrow))
 		this->sendEvent(LSG_EVENT_NAVIGATE_END);
 
-	destination.x -= (this->arrow.size + padding);
+	destination.x -= arrowWidth;
 
 	arrow = this->getArrow(destination, padding);
 
@@ -262,7 +266,9 @@ void LSG_Navigation::renderArrows(SDL_Renderer* renderer, const SDL_Rect& fillAr
 
 	SDL_RenderCopy(renderer, this->arrow.home, nullptr, &destination);
 
-	destination.x += (this->arrow.size + padding);
+	auto arrowWidth = (this->arrow.size + padding);
+
+	destination.x += arrowWidth;
 
 	SDL_RenderCopy(renderer, this->arrow.back, nullptr, &destination);
 
@@ -270,7 +276,7 @@ void LSG_Navigation::renderArrows(SDL_Renderer* renderer, const SDL_Rect& fillAr
 
 	SDL_RenderCopy(renderer, this->arrow.end, nullptr, &destination);
 
-	destination.x -= (this->arrow.size + padding);
+	destination.x -= arrowWidth;
 
 	SDL_RenderCopy(renderer, this->arrow.next, nullptr, &destination);
 }
@@ -282,10 +288,12 @@ void LSG_Navigation::renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea
 		LSG_VALIGN_MIDDLE
 	};
 
+	auto arrowWidth = (this->arrow.size + padding);
+
 	SDL_Rect background = {
-		(fillArea.x + padding + ((this->arrow.size + padding) * 2)),
+		(fillArea.x + (arrowWidth * 2)),
 		fillArea.y,
-		(fillArea.w - ((this->arrow.size + padding) * 4)),
+		(fillArea.w - (arrowWidth * 4)),
 		fillArea.h
 	};
 
@@ -328,6 +336,8 @@ void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const
 	auto destination   = this->getArrowDestination(fillArea, padding);
 	auto mousePosition = LSG_Window::GetMousePosition();
 
+	auto arrowWidth = (this->arrow.size + padding);
+
 	std::string id      = "";
 	std::string tooltip = "";
 
@@ -336,7 +346,7 @@ void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const
 		tooltip = "Home";
 	}
 	
-	destination.x += (this->arrow.size + padding);
+	destination.x += arrowWidth;
 
 	if (SDL_PointInRect(&mousePosition, &destination)) {
 		id      = std::format("{}_back", this->id);
@@ -350,7 +360,7 @@ void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const
 		tooltip = "End";
 	}
 
-	destination.x -= (this->arrow.size + padding);
+	destination.x -= arrowWidth;
 
 	if (SDL_PointInRect(&mousePosition, &destination)) {
 		id      = std::format("{}_next", this->id);
