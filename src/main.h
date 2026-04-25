@@ -124,6 +124,12 @@ enum LSG_ModalTexture
 	NR_OF_MODAL_TEXTURES
 };
 
+enum LSG_TextOverflow
+{
+	LSG_TEXT_OVERFLOW_CLIP,
+	LSG_TEXT_OVERFLOW_ELLIPSIS
+};
+
 enum LSG_TextInputTexture
 {
 	LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR,

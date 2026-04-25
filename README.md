@@ -641,7 +641,7 @@ sort-column="int" # 0-based index
 
 ### \<text\>
 
-[boolean](#boolean) | [color](#color)
+[boolean](#boolean) | [color](#color) | [text_overflow](#text_overflow)
 
 ```ini
 id="string"
@@ -651,6 +651,7 @@ tooltip="string"
 
 bold="boolean"
 italic="boolean"
+overflow="text_overflow"
 strike-through="boolean"
 underline="boolean"
 wrap="boolean"
@@ -815,6 +816,11 @@ value="10%" # Relative
 ```ini
 value="ascending|descending" # default="ascending"
 ```
+
+### text_overflow
+
+```ini
+value="ellipsis|clip" # default="clip"
 
 ## Color Theme File
 
