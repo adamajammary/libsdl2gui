@@ -4439,7 +4439,7 @@ LSG_TableRows rows = {
   { "Risus",      "Sociis natoque penatibus" }
 };
 
-LSG_SetTableRows("Table", rows);
+LSG_SetTableRows("TableWithGroups", rows);
 ```
 
 ### LSG_SetText

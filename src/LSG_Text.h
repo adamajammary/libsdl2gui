@@ -33,7 +33,8 @@ public:
 protected:
 	SDL_Surface* getSurface(const std::string& text) const;
 	SDL_Texture* getTexture(const std::string& text) const;
-	void         renderTextWithEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const;
+	void         renderTextOverflowClip(SDL_Renderer*    renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const;
+	void         renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const;
 
 private:
 	static SDL_Surface* getSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);

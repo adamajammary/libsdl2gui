@@ -60,7 +60,6 @@ private:
 	void         renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& clip, SDL_Rect& destination, int spacing, int& offsetX, int& width, bool header);
 	void         renderHeader(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, const SDL_Size& size, int spacing, int rowHeight);
 	void         renderRows(SDL_Renderer* renderer, const SDL_Rect& fillArea, const LSG_Alignment& alignment, const SDL_Size& size, int spacing);
-	virtual void reset() override;
 	void         setRow(int row, int start, int end, const LSG_Strings& columns);
 	void         setRows(bool sort = true);
 	void         sort();

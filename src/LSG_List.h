@@ -48,7 +48,6 @@ protected:
 	int          getRowHeight() const;
 	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const;
 	void         renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const;
-	virtual void reset();
 	virtual void sendEvent(LSG_EventType type) const override;
 
 private:

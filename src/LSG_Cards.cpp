@@ -484,7 +484,7 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 		0,
 		0,
 		card.description.texture.size.width,
-		std::min(card.description.texture.size.height, (this->cardHeight - offsetY - padding2x - border2x)),
+		std::min(card.description.texture.size.height, (this->cardHeight - offsetY - padding2x - border2x))
 	};
 
 	SDL_Rect destination = {
@@ -496,21 +496,12 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 
 	auto maxWidth = (this->background.w - this->cardHeight);
 
-	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.description.texture.size.width <= maxWidth)) {
+	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.description.texture.size.width <= maxWidth))
 		SDL_RenderCopy(renderer, card.description.texture.texture, &clip, &destination);
-		return;
-	}
-
-	if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
-	{
-		SDL_Rect clip = { 0, 0, maxWidth, destination.h };
-		destination.w = clip.w;
-
-		SDL_RenderCopy(renderer, card.description.texture.texture, &clip, &destination);
-		return;
-	}
-
-	this->renderTextWithEllipse(renderer, card.description.texture.texture, destination, maxWidth);
+	else if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
+		this->renderTextOverflowClip(renderer, card.description.texture.texture, destination, maxWidth);
+	else
+		this->renderTextOverflowEllipse(renderer, card.description.texture.texture, destination, maxWidth);
 }
 
 void LSG_Cards::renderScrollBar(SDL_Renderer* renderer, const SDL_Size& textureSize)
@@ -539,21 +530,12 @@ void LSG_Cards::renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const
 
 	auto maxWidth = (this->background.w - this->cardHeight);
 
-	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.title.texture.size.width <= maxWidth)) {
+	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.title.texture.size.width <= maxWidth))
 		SDL_RenderCopy(renderer, card.title.texture.texture, nullptr, &destination);
-		return;
-	}
-
-	if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
-	{
-		SDL_Rect clip = { 0, 0, maxWidth, destination.h };
-		destination.w = clip.w;
-
-		SDL_RenderCopy(renderer, card.title.texture.texture, &clip, &destination);
-		return;
-	}
-
-	this->renderTextWithEllipse(renderer, card.title.texture.texture, destination, maxWidth);
+	else if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
+		this->renderTextOverflowClip(renderer, card.title.texture.texture, destination, maxWidth);
+	else
+		this->renderTextOverflowEllipse(renderer, card.title.texture.texture, destination, maxWidth);
 }
 
 void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) const

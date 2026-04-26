@@ -183,11 +183,23 @@ std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separa
 	return result;
 }
 
-void LSG_Text::renderTextWithEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
+void LSG_Text::renderTextOverflowClip(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
+{
+	SDL_Rect textClip = { 0, 0, maxWidth, destination.h };
+
+	SDL_Rect textDestination = destination;
+
+	textDestination.w = textClip.w;
+
+	SDL_RenderCopy(renderer, texture, &textClip, &textDestination);
+}
+
+void LSG_Text::renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
 {
 	auto ellipsisSize = LSG_Graphics::GetTextureSize(this->ellipsisTexture);
 
-	SDL_Rect textClip        = { 0, 0, (maxWidth - ellipsisSize.width), destination.h };
+	SDL_Rect textClip = { 0, 0, (maxWidth - ellipsisSize.width), destination.h };
+
 	SDL_Rect textDestination = destination;
 
 	textDestination.w = textClip.w;

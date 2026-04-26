@@ -13,7 +13,7 @@ void LSG_Table::AddGroup(const LSG_TableGroup& group)
 {
 	this->groups.push_back(group);
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::AddGroup(LibXml::xmlNode* node)
@@ -47,7 +47,7 @@ void LSG_Table::AddRow(const LSG_Strings& row)
 {
 	this->rows.push_back(row);
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::AddRow(LibXml::xmlNode* node)
@@ -577,13 +577,6 @@ void LSG_Table::renderRows(SDL_Renderer* renderer, const SDL_Rect& fillArea, con
 		this->renderColumn(renderer, i, clip, destination, spacing, offsetX, remainingWidth, false);
 }
 
-void LSG_Table::reset()
-{
-	this->destroyTextures();
-
-	this->SetRows();
-}
-
 void LSG_Table::SetColumnWidth(int column, int width)
 {
 	if ((column < 0) || (column >= (int)this->columnWidths.size()))
@@ -604,7 +597,7 @@ void LSG_Table::SetGroup(const LSG_TableGroup& group)
 
 		pageGroup.rows = group.rows;
 
-		this->reset();
+		this->SetRows();
 
 		break;
 	}
@@ -614,7 +607,7 @@ void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 {
 	this->groups = groups;
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::SetHeader(const LSG_Strings& header)
@@ -677,8 +670,6 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 
 		pageRow = columns;
 
-		this->destroyTextures();
-
 		this->setRows(false);
 
 		return;
@@ -693,19 +684,19 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 
 	this->rows = rows;
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::SetRows()
 {
-	this->destroyTextures();
-
 	this->setRows();
 }
 
 void LSG_Table::setRows(bool sort)
 {
 	LSG_Graphics::DestroyTextures();
+
+	this->destroyTextures();
 
 	if (this->showPagination())
 		this->initPagination(this->getFillArea(), this->backgroundColor);
@@ -801,7 +792,7 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 
 	this->resetScroll();
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::sort()
@@ -827,7 +818,5 @@ void LSG_Table::sort()
 
 void LSG_Table::Update()
 {
-	this->destroyTextures();
-
 	this->setRows(false);
 }

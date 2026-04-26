@@ -61,7 +61,7 @@ void LSG_TextLabel::renderEllipsis(SDL_Renderer* renderer)
 		return;
 	}
 
-	this->renderTextWithEllipse(renderer, this->texture, this->background, this->background.w);
+	this->renderTextOverflowEllipse(renderer, this->texture, this->background, this->background.w);
 }
 
 void LSG_TextLabel::Set(const std::string &text)

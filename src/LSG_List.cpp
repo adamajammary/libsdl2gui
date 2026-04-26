@@ -29,7 +29,7 @@ void LSG_List::AddItem(const std::string& item)
 
 	this->items.push_back(item);
 
-	this->reset();
+	this->SetItems();
 }
 
 int LSG_List::getRowHeight() const
@@ -308,13 +308,6 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroun
 	}
 }
 
-void LSG_List::reset()
-{
-	this->destroyTextures();
-
-	this->SetItems();
-}
-
 bool LSG_List::Select(int row)
 {
 	if (!this->enabled || (row > this->getLastRow()))
@@ -479,7 +472,6 @@ void LSG_List::setItem(int row, int lastRow, const std::string& item)
 
 	this->items[row] = item;
 
-	this->destroyTextures();
 	this->setItems(false);
 }
 
@@ -489,8 +481,6 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 	this->resetScroll();
 
-	this->destroyTextures();
-
 	this->items = items;
 
 	this->setItems();
@@ -498,14 +488,14 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 void LSG_List::SetItems()
 {
-	this->destroyTextures();
-
 	this->setItems();
 }
 
 void LSG_List::setItems(bool sort)
 {
 	LSG_Graphics::DestroyTextures();
+
+	this->destroyTextures();
 
 	if (this->showPagination())
 		this->initPagination(this->getFillArea(), this->backgroundColor);
@@ -530,7 +520,7 @@ void LSG_List::SetPage(int page)
 	if (!this->navigate(page, this->id))
 		return;
 
-	this->reset();
+	this->SetItems();
 
 	this->SelectFirstRow();
 }
@@ -551,7 +541,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 
 	this->resetScroll();
 
-	this->reset();
+	this->SetItems();
 }
 
 void LSG_List::sort()
@@ -564,7 +554,5 @@ void LSG_List::sort()
 
 void LSG_List::Update()
 {
-	this->destroyTextures();
-
 	this->setItems(false);
 }
