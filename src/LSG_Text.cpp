@@ -216,7 +216,7 @@ void LSG_Text::renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* te
 	SDL_RenderCopy(renderer, this->ellipsisTexture, nullptr, &ellipsisDestination);
 }
 
-std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
+std::string LSG_Text::Replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
 {
 	auto result        = std::string(text);
 	auto matchPosition = result.find(oldSubstring);
@@ -242,9 +242,39 @@ LSG_Strings LSG_Text::Split(const std::string& text, char separator)
 	return result;
 }
 
+std::string LSG_Text::ToLower(const std::string& text)
+{
+	auto lower = std::string(text);
+
+	for (size_t i = 0; i < text.size(); i++)
+		lower[i] = std::tolower(text[i]);
+
+	return lower;
+}
+
+std::string LSG_Text::ToUpper(const std::string& text)
+{
+	auto upper = std::string(text);
+
+	for (size_t i = 0; i < text.size(); i++)
+		upper[i] = std::toupper(text[i]);
+
+	return upper;
+}
+
+std::string LSG_Text::ToUTF8(const std::wstring& wide)
+{
+    auto buffer = SDL_iconv_wchar_utf8(wide.c_str());
+    auto utf8   = std::string(buffer);
+
+	SDL_free(buffer);
+
+    return utf8;
+}
+
 uint16_t* LSG_Text::ToUTF16(const std::string& text)
 {
-	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
+	auto formattedText = LSG_Text::Replace(text, "\\n", "\n");
 
 	#if defined _linux
 		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);

@@ -4962,6 +4962,94 @@ LSG_SortTable("Table", LSG_SORT_ORDER_ASCENDING, 0);
 LSG_SortTable("TableWithGroups", LSG_SORT_ORDER_DESCENDING, 1);
 ```
 
+### LSG_TextJoin
+
+```cpp
+std::string LSG_TextJoin(const LSG_Strings& strings, const std::string& separator);
+```
+
+Joins text strings together by separator.
+
+Parameters
+
+- **strings** Strings to join
+- **separator** String to use as a separator
+
+### LSG_TextReplace
+
+```cpp
+std::string LSG_TextReplace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+```
+
+Replaces all occurrences of oldSubstring in text with newSubstring.
+
+Parameters
+
+- **text** Text string
+- **oldSubstring** String to be replaced
+- **newSubstring** String to use as replacement
+
+### LSG_TextSplit
+
+```cpp
+LSG_Strings LSG_TextSplit(const std::string& text, char separator);
+```
+
+Splits text by separator.
+
+Parameters
+
+- **text** String to split
+- **separator** Character to use as a separator
+
+### LSG_TextToLower
+
+```cpp
+std::string LSG_TextToLower(const std::string& text);
+```
+
+Converts text to lowercase.
+
+Parameters
+
+- **text** Text string
+
+### LSG_TextToUpper
+
+```cpp
+std::string LSG_TextToUpper(const std::string& text);
+```
+
+Converts text to uppercase.
+
+Parameters
+
+- **text** Text string
+
+### LSG_TextToUTF8
+
+```cpp
+std::string LSG_TextToUTF8(const std::wstring& wide);
+```
+
+Converts wide string to standard string with UTF-8 character encoding.
+
+Parameters
+
+- **wide** Wide text string
+
+### LSG_TextToWide
+
+```cpp
+std::wstring LSG_TextToWide(const std::string& text);
+```
+
+Converts standard string to wide string.
+
+Parameters
+
+- **text** Text string
+
 ### LSG_Start
 
 ```cpp

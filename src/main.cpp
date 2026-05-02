@@ -2619,6 +2619,41 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 	static_cast<LSG_Table*>(component)->Sort(sortOrder, sortColumn);
 }
 
+std::string LSG_TextJoin(const LSG_Strings& strings, const std::string& separator)
+{
+	return LSG_Text::Join(strings, separator);
+}
+
+std::string LSG_TextReplace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
+{
+	return LSG_Text::Replace(text, oldSubstring, newSubstring);
+}
+
+LSG_Strings LSG_TextSplit(const std::string& text, char separator)
+{
+	return LSG_Text::Split(text, separator);
+}
+
+std::string LSG_TextToLower(const std::string& text)
+{
+	return LSG_Text::ToLower(text);
+}
+
+std::string LSG_TextToUpper(const std::string& text)
+{
+	return LSG_Text::ToUpper(text);
+}
+
+std::string LSG_TextToUTF8(const std::wstring& wide)
+{
+	return LSG_Text::ToUTF8(wide);
+}
+
+std::wstring LSG_TextToWide(const std::string& text)
+{
+	return LSG_Text::ToWide(text);
+}
+
 SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
 	LibXml::xmlInitParser();

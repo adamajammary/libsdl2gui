@@ -1765,6 +1765,52 @@ DLLEXPORT void DLL LSG_SortList(const std::string& id, LSG_SortOrder sortOrder);
 DLLEXPORT void DLL LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColumn);
 
 /**
+ * @brief Joins text strings together by separator.
+ * @param strings   Strings to join
+ * @param separator String to use as a separator
+ */
+DLLEXPORT std::string DLL LSG_TextJoin(const LSG_Strings& strings, const std::string& separator);
+
+/**
+ * @brief Replaces all occurrences of oldSubstring in text with newSubstring.
+ * @param text         Text string
+ * @param oldSubstring String to be replaced
+ * @param newSubstring String to use as replacement
+ */
+DLLEXPORT std::string DLL LSG_TextReplace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+
+/**
+ * @brief Splits text by separator.
+ * @param text      String to split
+ * @param separator Character to use as a separator
+ */
+DLLEXPORT LSG_Strings DLL LSG_TextSplit(const std::string& text, char separator);
+
+/**
+ * @brief Converts text to lowercase.
+ * @param text Text string
+ */
+DLLEXPORT std::string DLL LSG_TextToLower(const std::string& text);
+
+/**
+ * @brief Converts text to uppercase.
+ * @param text Text string
+ */
+DLLEXPORT std::string DLL LSG_TextToUpper(const std::string& text);
+
+/**
+ * @brief Converts wide string to standard string with UTF-8 character encoding.
+ * @param wide Wide text string
+ */
+DLLEXPORT std::string DLL LSG_TextToUTF8(const std::wstring& wide);
+
+/**
+ * @brief Converts standard string to wide string.
+ * @param text Text string
+ */
+DLLEXPORT std::wstring DLL LSG_TextToWide(const std::string& text);
+
+/**
  * @brief Tries to initialize the library and open a new window based on layout from XML file.
  * @param xmlFile Window and UI component layout file. ex: "ui/main.xml"
  * @returns an SDL renderer
