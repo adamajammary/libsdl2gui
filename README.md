@@ -1310,6 +1310,40 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetButtonIconPath
+
+```cpp
+std::string LSG_GetButtonIconPath(const std::string& id);
+```
+
+Returns the icon file path of the button.
+
+Parameters
+
+- **id** \<button\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetButtonText
+
+```cpp
+std::string LSG_GetButtonText(const std::string& id);
+```
+
+Returns the text label of the button.
+
+Parameters
+
+- **id** \<button\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetCard
 
 ```cpp

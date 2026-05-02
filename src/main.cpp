@@ -250,6 +250,32 @@ SDL_Color LSG_GetBackgroundColor(const std::string& id)
 	return component->backgroundColor;
 }
 
+std::string LSG_GetButtonIconPath(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsButton())
+		throw std::invalid_argument(getErrorNoID("<button>", id));
+
+	return static_cast<LSG_Button*>(component)->GetIconPath();
+}
+
+std::string LSG_GetButtonText(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsButton())
+		throw std::invalid_argument(getErrorNoID("<button>", id));
+
+	return static_cast<LSG_Button*>(component)->GetText();
+}
+
 LSG_CardItem LSG_GetCard(const std::string& id, int index)
 {
 	if (!isRunning)

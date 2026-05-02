@@ -279,6 +279,22 @@ DLLEXPORT void DLL LSG_CloseModal(const std::string& id);
 DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
 
 /**
+ * @returns the icon file path of the button
+ * @param id  <button> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetButtonIconPath(const std::string& id);
+
+/**
+ * @returns the text label of the button
+ * @param id  <button> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetButtonText(const std::string& id);
+
+/**
  * @returns the card item from the cards list
  * @param id    <cards> component ID
  * @param index 0-based card index position

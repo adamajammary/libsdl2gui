@@ -40,6 +40,35 @@ namespace LSG_UnitTest
         LSG_Quit();
     }
 
+    TEST_CLASS(Button)
+    {
+        TEST_METHOD(SetButton)
+        {
+            try
+            {
+                auto id = "ButtonIdColorThemeDark";
+
+                auto icon = LSG_GetButtonIconPath(id);
+                auto text = LSG_GetButtonText(id);
+
+                Assert::AreEqual("img/dark-512.png", icon.c_str());
+                Assert::AreEqual("Dark",             text.c_str());
+
+                LSG_SetButton(id, "Light", "img/light-512.png");
+
+                auto newIcon = LSG_GetButtonIconPath(id);
+                auto newText = LSG_GetButtonText(id);
+
+                Assert::AreEqual("img/light-512.png", newIcon.c_str());
+                Assert::AreEqual("Light",             newText.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
     TEST_CLASS(Cards)
     {
         TEST_METHOD(AddCard)
