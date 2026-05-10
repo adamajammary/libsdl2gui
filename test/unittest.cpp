@@ -274,6 +274,47 @@ namespace LSG_UnitTest
         }
     };
 
+    TEST_CLASS(File)
+    {
+        TEST_METHOD(GetFile)
+        {
+            try
+            {
+                auto file = LSG_GetFile("/path/file.ext");
+
+                Assert::AreEqual("ext",            file.ext.c_str());
+                Assert::AreEqual("file.ext",       file.file.c_str());
+                Assert::AreEqual("/path/file.ext", file.filePath.c_str());
+                Assert::AreEqual("file",           file.name.c_str());
+                Assert::AreEqual("/path",          file.path.c_str());
+                Assert::AreEqual('/',              file.pathSep);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(GetFile_Windows)
+        {
+            try
+            {
+                auto file = LSG_GetFile("C:\\path\\file.ext");
+
+                Assert::AreEqual("ext",                file.ext.c_str());
+                Assert::AreEqual("file.ext",           file.file.c_str());
+                Assert::AreEqual("C:\\path\\file.ext", file.filePath.c_str());
+                Assert::AreEqual("file",               file.name.c_str());
+                Assert::AreEqual("C:\\path",           file.path.c_str());
+                Assert::AreEqual('\\',                 file.pathSep);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
 	TEST_CLASS(List)
 	{
         TEST_METHOD(AddItem)

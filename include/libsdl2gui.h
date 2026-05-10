@@ -128,6 +128,16 @@ enum LSG_SortOrder
 const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 
+struct LSG_File
+{
+	std::string ext      = "";  // ext
+	std::string file     = "";  // file.ext
+    std::string filePath = "";  // /path/file.ext
+    std::string name     = "";  // file
+	std::string path     = "";  // /path
+	char        pathSep  = '/'; // /
+};
+
 struct SDL_Size
 {
 	int width  = 0;
@@ -330,6 +340,11 @@ DLLEXPORT std::string DLL LSG_GetColorTheme();
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetDPIScaled(int value);
+
+/**
+ * @returns a file structure based on filePath
+ */
+DLLEXPORT LSG_File DLL LSG_GetFile(const std::string& filePath);
 
 /**
  * @returns the font style of the component

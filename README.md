@@ -964,10 +964,25 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
+### LSG_File
+
+```cpp
+struct LSG_File
+{
+  std::string ext      = "";  // ext
+  std::string file     = "";  // file.ext
+  std::string filePath = "";  // /path/file.ext
+  std::string name     = "";  // file
+  std::string path     = "";  // /path
+  char        pathSep  = '/'; // /
+};
+```
+
 ### SDL_Size
 
 ```cpp
-struct SDL_Size {
+struct SDL_Size
+{
   int width  = 0;
   int height = 0;
 };
@@ -1419,6 +1434,14 @@ Returns a scaled value relative to the display DPI factor.
 Exceptions
 
 - runtime_error
+
+### LSG_GetFile
+
+```cpp
+LSG_File LSG_GetFile(const std::string& filePath);
+```
+
+Returns a file structure based on filePath.
 
 ### LSG_GetFontStyle
 
@@ -2580,7 +2603,7 @@ See [LSG_OpenFile](#lsg_openfile) for examples.
 ### LSG_OpenFolder
 
 ```cpp
-std::string LSG_OpenFolder();
+std::string LSG_OpenFolder(); // Android, Linux, macOS and Windows
 ```
 
 > Only supported on Android, Linux, macOS and Windows.
@@ -2596,7 +2619,7 @@ Exceptions
 ### LSG_OpenFolders
 
 ```cpp
-LSG_Strings LSG_OpenFolders();
+LSG_Strings LSG_OpenFolders(); // Linux, macOS and Windows
 ```
 
 > Only supported on Linux, macOS and Windows.
