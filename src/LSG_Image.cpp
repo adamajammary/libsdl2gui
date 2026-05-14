@@ -118,9 +118,9 @@ void LSG_Image::render(SDL_Renderer* renderer)
 	this->downscaleTextureIcon(maxSize);
 
 	if (this->aspectRatio.x < this->aspectRatio.y)
-		maxSize.width = (int)(this->aspectRatio.x * (float)maxSize.width);
+		maxSize.width = (int)(this->aspectRatio.x * (float)maxSize.height);
 	else if (this->aspectRatio.y < this->aspectRatio.x)
-		maxSize.height = (int)(this->aspectRatio.y * (float)maxSize.height);
+		maxSize.height = (int)(this->aspectRatio.y * (float)maxSize.width);
 
 	auto destination = LSG_Graphics::GetDestinationAligned(fillArea, maxSize, this->getAlignment());
 
