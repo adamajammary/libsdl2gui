@@ -83,6 +83,11 @@ void LSG_Modal::Close()
 	this->componentsByLayer.clear();
 
 	this->destroyTextures();
+
+	if (this->ellipsisTexture) {
+		SDL_DestroyTexture(this->ellipsisTexture);
+		this->ellipsisTexture = nullptr;
+	}
 }
 
 SDL_Rect LSG_Modal::getCloseIcon() const
@@ -473,7 +478,7 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) cons
 	auto textureSize = LSG_Graphics::GetTextureSize(texture);
 
 	auto iconSize = (!this->hideCloseIcon ? headerHeight : 0);
-	auto maxWidth = (this->background.w - iconSize);
+	auto maxWidth = (this->background.w - this->padding - iconSize);
 
 	SDL_Rect clip = {
 		0,
@@ -483,13 +488,17 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) cons
 	};
 
 	SDL_Rect destination = {
-		(this->background.x + ((maxWidth - clip.w) / 2)),
+		(this->background.x + this->padding + ((maxWidth - clip.w) / 2)),
 		(this->background.y + ((headerHeight - clip.h) / 2)),
 		clip.w,
 		clip.h
 	};
 
-	SDL_RenderCopy(renderer, texture, &clip, &destination);
+
+	if (textureSize.width <= maxWidth)
+		SDL_RenderCopy(renderer, texture, &clip, &destination);
+	else
+		this->renderTextOverflowEllipse(renderer, texture, destination, maxWidth);
 }
 
 void LSG_Modal::RenderTooltip(SDL_Renderer* renderer) const
@@ -503,6 +512,11 @@ void LSG_Modal::RenderTooltip(SDL_Renderer* renderer) const
 void LSG_Modal::Set()
 {
 	this->destroyTextures();
+
+	if (this->ellipsisTexture) {
+		SDL_DestroyTexture(this->ellipsisTexture);
+		this->ellipsisTexture = nullptr;
+	}
 
 	this->textures.resize(NR_OF_MODAL_TEXTURES);
 
@@ -524,6 +538,8 @@ void LSG_Modal::Set()
 
 	if (!title.empty())
 		this->textures[LSG_MODAL_TEXTURE_TITLE] = LSG_Text::GetTexture(title, LSG_Modal::TitleFontSize, this->getFontStyle(), this->textColor, this->wrap);
+
+	this->ellipsisTexture = this->getTexture("...");
 }
 
 void LSG_Modal::SetBackground()
