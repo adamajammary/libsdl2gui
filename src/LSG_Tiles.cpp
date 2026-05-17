@@ -1122,9 +1122,9 @@ void LSG_Tiles::setGrid()
 	}
 	else if (this->scrollVertical.show)
 	{
-		this->fillArea.w -= LSG_ScrollBar::GetSize();
-
 		this->calculateGridDimensions();
+
+		this->fillArea.w -= LSG_ScrollBar::GetSize();
 	}
 
 	if (!this->wrapTiles)
