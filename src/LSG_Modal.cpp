@@ -73,6 +73,9 @@ void LSG_Modal::addNodes(LibXml::xmlNode* parentNode, LSG_Component* parent)
 
 void LSG_Modal::Close()
 {
+	if (!this->visible)
+		return;
+
 	this->visible = false;
 
 	for (auto child : this->children)
@@ -88,6 +91,8 @@ void LSG_Modal::Close()
 		SDL_DestroyTexture(this->ellipsisTexture);
 		this->ellipsisTexture = nullptr;
 	}
+
+	this->sendEvent(LSG_EVENT_MODAL_CLOSED);
 }
 
 SDL_Rect LSG_Modal::getCloseIcon() const
@@ -380,6 +385,8 @@ void LSG_Modal::Open()
 
 	LSG_UI::LayoutModal(this);
 	LSG_UI::SetModal(this);
+
+	this->sendEvent(LSG_EVENT_MODAL_OPENED);
 }
 
 void LSG_Modal::Render(SDL_Renderer* renderer)
