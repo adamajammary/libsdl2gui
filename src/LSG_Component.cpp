@@ -408,6 +408,14 @@ bool LSG_Component::IsVertical() const
 	return (this->orientation == LSG_ConstOrientation::Vertical);
 }
 
+bool LSG_Component::IsVisible(bool includeParents) const
+{
+	if (!this->visible)
+		return false;
+
+	return (includeParents && this->parent ? this->parent->IsVisible(true) : true);
+}
+
 void LSG_Component::RemoveChild(LSG_Component* child)
 {
 	if (!child)
@@ -506,6 +514,9 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& back
 
 void LSG_Component::RenderTooltip(SDL_Renderer* renderer) const
 {
+	if (!this->visible)
+		return;
+
 	if (!this->highlighted) {
 		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_background", this->id));
 		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_text",       this->id));

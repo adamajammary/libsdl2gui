@@ -76,6 +76,7 @@ public:
 	bool             IsTiles() const;
 	bool             IsToggle() const;
 	bool             IsVertical() const;
+	bool             IsVisible(bool includeParents = false) const;
 	void             RemoveChild(LSG_Component* child);
 	virtual void     Render(SDL_Renderer* renderer);
 	virtual void     RenderTooltip(SDL_Renderer* renderer) const;
