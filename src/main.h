@@ -187,7 +187,7 @@ struct LSG_ConstDefaultColor
 struct LSG_ConstClickTime
 {
 	static inline const int DoubleClick = 500;
-	static inline const int RightClick  = 1000;
+	static inline const int LongPress   = 1000;
 };
 
 struct LSG_ConstOrientation

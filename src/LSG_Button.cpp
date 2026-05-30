@@ -78,12 +78,10 @@ SDL_Rect LSG_Button::getTextDestination(const SDL_Rect& clip) const
 	return destination;
 }
 
-void LSG_Button::OnMouseClick(const SDL_Point& mousePosition) const
+void LSG_Button::OnMouseClick() const
 {
-	if (!this->enabled)
-		return;
-
-	this->sendEvent(LSG_EVENT_BUTTON_CLICKED);
+	if (this->enabled)
+		this->sendEvent(LSG_EVENT_BUTTON_CLICKED);
 }
 
 void LSG_Button::Render(SDL_Renderer* renderer, const SDL_Point& position)

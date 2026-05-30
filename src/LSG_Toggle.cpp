@@ -98,5 +98,5 @@ void LSG_Toggle::toggle()
 
 	this->Set();
 
-	this->sendEvent(this->on ? LSG_EVENT_TOGGLED_ON : LSG_EVENT_TOGGLED_OFF);
+	this->sendEvent(this->on ? LSG_EVENT_TOGGLE_ON : LSG_EVENT_TOGGLE_OFF);
 }
