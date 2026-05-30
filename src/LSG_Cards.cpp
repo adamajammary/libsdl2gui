@@ -641,7 +641,7 @@ bool LSG_Cards::Select(int row)
 		this->select(LSG_EVENT_ROW_UNSELECTED);
 	} else {
 		this->selectedRows = { row };
-		this->select(LSG_EVENT_ROW_SELECTED);
+		this->select(SDL_GetCursor() ? LSG_EVENT_ROW_SELECTED : LSG_EVENT_ROW_ACTIVATED);
 	}
 
 	return true;

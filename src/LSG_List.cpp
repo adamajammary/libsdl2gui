@@ -318,7 +318,7 @@ bool LSG_List::Select(int row)
 		this->sendEvent(LSG_EVENT_ROW_UNSELECTED);
 	} else {
 		this->selectedRows = { row };
-		this->sendEvent(LSG_EVENT_ROW_SELECTED);
+		this->sendEvent(SDL_GetCursor() ? LSG_EVENT_ROW_SELECTED : LSG_EVENT_ROW_ACTIVATED);
 	}
 
 	return true;

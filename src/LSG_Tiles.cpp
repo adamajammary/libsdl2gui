@@ -803,7 +803,7 @@ bool LSG_Tiles::Select(int index)
 		this->sendEvent(LSG_EVENT_TILE_UNSELECTED);
 	} else {
 		this->selectedTiles = { index };
-		this->sendEvent(LSG_EVENT_TILE_SELECTED);
+		this->sendEvent(SDL_GetCursor() ? LSG_EVENT_TILE_SELECTED : LSG_EVENT_TILE_ACTIVATED);
 	}
 
 	return true;
