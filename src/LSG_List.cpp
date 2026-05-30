@@ -313,9 +313,13 @@ bool LSG_List::Select(int row)
 	if (!this->enabled || (row > this->getLastRow()))
 		return false;
 
-	this->selectedRows = { row };
-
-	this->sendEvent(row < 0 ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
+	if ((row < 0) || ((this->selectedRows.size() == 1) && (this->selectedRows[0] == row))) {
+		this->selectedRows.clear();
+		this->sendEvent(LSG_EVENT_ROW_UNSELECTED);
+	} else {
+		this->selectedRows = { row };
+		this->sendEvent(LSG_EVENT_ROW_SELECTED);
+	}
 
 	return true;
 }

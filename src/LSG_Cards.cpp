@@ -636,7 +636,7 @@ bool LSG_Cards::Select(int row)
 	if (!this->enabled || (row >= (int)this->cards.size()))
 		return false;
 
-	if (row < 0) {
+	if ((row < 0) || ((this->selectedRows.size() == 1) && (this->selectedRows[0] == row))) {
 		this->selectedRows.clear();
 		this->select(LSG_EVENT_ROW_UNSELECTED);
 	} else {

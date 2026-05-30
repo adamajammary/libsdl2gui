@@ -798,7 +798,7 @@ bool LSG_Tiles::Select(int index)
 	if (!this->enabled || (index >= (int)this->tiles.size()))
 		return false;
 
-	if (index < 0) {
+	if ((index < 0) || ((this->selectedTiles.size() == 1) && (this->selectedTiles[0] == index))) {
 		this->selectedTiles.clear();
 		this->sendEvent(LSG_EVENT_TILE_UNSELECTED);
 	} else {
