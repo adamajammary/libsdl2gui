@@ -924,7 +924,7 @@ void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 
 void LSG_Cards::SetCards()
 {
-	this->reset();
+	this->reset(true);
 }
 
 void LSG_Cards::setCards()
