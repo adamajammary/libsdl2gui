@@ -682,6 +682,8 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 
 	this->resetScroll();
 
+	this->selectedRows.clear();
+
 	this->rows = rows;
 
 	this->SetRows();

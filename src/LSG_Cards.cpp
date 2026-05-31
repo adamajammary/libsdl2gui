@@ -912,6 +912,7 @@ void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 
 	this->destroySurfaces();
 
+	this->selectedRows.clear();
 	this->cards.clear();
 
 	for (const auto& cardItem : cardItems)

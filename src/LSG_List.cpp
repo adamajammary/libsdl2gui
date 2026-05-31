@@ -485,6 +485,8 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 	this->resetScroll();
 
+	this->selectedRows.clear();
+
 	this->items = items;
 
 	this->setItems();

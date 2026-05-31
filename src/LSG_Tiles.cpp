@@ -1184,6 +1184,7 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 
 	this->destroySurfaces();
 
+	this->selectedTiles.clear();
 	this->tiles.clear();
 
 	for (const auto& tile : tiles)
