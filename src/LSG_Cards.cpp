@@ -834,7 +834,7 @@ void LSG_Cards::SelectRow(int offset)
 
 	this->Select(nextRow);
 
-	if (this->selectedRows[0] < 0)
+	if (this->selectedRows.empty())
 		return;
 
 	auto areaBottom = (this->background.y + this->background.h);

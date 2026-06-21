@@ -433,7 +433,7 @@ void LSG_List::SelectRow(int offset, bool multiSelect)
 	else
 		this->Select(this->selectedRows[0], nextRow);
 
-	if (this->selectedRows[0] < 0)
+	if (this->selectedRows.empty())
 		return;
 
 	auto list       = this->getFillArea();
