@@ -10,7 +10,7 @@ public:
 	~LSG_List() {}
 
 public:
-	static const int UnitPage = 5;
+	static const int DefaultPageRows = 5;
 
 protected:
 	std::vector<int> selectedRows;
@@ -27,7 +27,7 @@ public:
 	void             RemovePageItem(int row);
 	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void     Render(SDL_Renderer* renderer) override;
-	bool             Select(int row);
+	bool             Select(int row, bool toggle = false);
 	bool             Select(int start, int end);
 	bool             Select(const std::vector<int>& rows);
 	void             SelectAll();
@@ -35,7 +35,7 @@ public:
 	void             SelectFirstRowShift();
 	void             SelectLastRow();
 	void             SelectLastRowShift();
-	void             SelectRow(int offset, bool multiSelect = false);
+	void             SelectRow(int offset, bool keyShift = false);
 	void             SetItem(int row, const std::string& item);
 	void             SetItems(const LSG_Strings& items);
 	void             SetItems();

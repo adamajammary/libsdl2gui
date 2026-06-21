@@ -70,7 +70,7 @@ public:
 	void             RemoveTile(int index);
 	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void     Render(SDL_Renderer* renderer) override;
-	bool             Select(int index);
+	bool             Select(int index, bool toggle = false);
 	bool             Select(const std::vector<int>& indices);
 	void             SelectAll();
 	void             SelectFirst(bool keyShift = false);

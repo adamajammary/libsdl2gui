@@ -17,11 +17,13 @@ public:
 	LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Cards();
 
+public:
+	static const int DefaultCardPageRows = 3;
+
 private:
 	static const int DefaultCardBorderWidth = 1;
 	static const int DefaultCardHeight      = 128;
 	static const int DefaultCardPadding     = 10;
-	static const int DefaultCardPageRows    = 3;
 	static const int DefaultCardSpacing     = 10;
 
 private:
@@ -55,16 +57,12 @@ public:
 	void             RemoveCard(int row);
 	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
 	virtual void     Render(SDL_Renderer* renderer) override;
-	bool             Select(int row);
+	bool             Select(int row, bool toggle = false);
 	bool             Select(const std::vector<int>& rows);
 	void             SelectAll();
 	void             SelectFirst(bool keyShift = false);
 	void             SelectLast(bool keyShift = false);
-	void             SelectNextPage(bool keyShift = false);
-	void             SelectNextRow(bool keyShift = false);
-	void             SelectPreviousPage(bool keyShift = false);
-	void             SelectPreviousRow(bool keyShift = false);
-	void             SelectRow(int offset);
+	void             SelectRow(int offset, bool keyShift = false);
 	void             SetCard(int row, const LSG_CardItem& cardItem);
 	void             SetCards(const LSG_CardItems& cardItems);
 	void             SetCards();

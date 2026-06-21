@@ -278,7 +278,7 @@ void LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 		if (!this->selectedRows.empty())
 			this->Select(this->selectedRows[0], clickedRow);
 	} else {
-		this->Select(clickedRow);
+		this->Select(clickedRow, true);
 	}
 }
 
@@ -376,18 +376,9 @@ void LSG_Table::removeRow()
 {
 	this->Update();
 
-	auto lastRow = this->getLastRow();
+	this->resetScroll();
 
-	if (lastRow < 0)
-	{
-		this->page = 0;
-
-		this->resetScroll();
-
-		this->Select(-1);
-	} else if (!this->selectedRows.empty() && this->selectedRows[0] > lastRow) {
-		this->SelectLastRow();
-	}
+	this->Select(-1);
 }
 
 void LSG_Table::Render(SDL_Renderer* renderer, const SDL_Point& position)

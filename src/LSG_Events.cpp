@@ -127,10 +127,10 @@ void LSG_Events::handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Car
 		switch (event.keysym.sym) {
 			case SDLK_HOME:     cards->SelectFirst(true); break;
 			case SDLK_END:      cards->SelectLast(true); break;
-			case SDLK_UP:       cards->SelectPreviousRow(true); break;
-			case SDLK_DOWN:     cards->SelectNextRow(true); break;
-			case SDLK_PAGEUP:   cards->SelectPreviousPage(true); break;
-			case SDLK_PAGEDOWN: cards->SelectNextPage(true); break;
+			case SDLK_UP:       cards->SelectRow(-1, true); break;
+			case SDLK_DOWN:     cards->SelectRow(1,  true); break;
+			case SDLK_PAGEUP:   cards->SelectRow(-LSG_Cards::DefaultCardPageRows, true); break;
+			case SDLK_PAGEDOWN: cards->SelectRow(LSG_Cards::DefaultCardPageRows,  true); break;
 			default: break;
 		}
 
@@ -142,10 +142,10 @@ void LSG_Events::handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Car
 		case SDLK_RIGHT:    cards->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
 		case SDLK_HOME:     cards->SelectFirst(); break;
 		case SDLK_END:      cards->SelectLast(); break;
-		case SDLK_UP:       cards->SelectPreviousRow(); break;
-		case SDLK_DOWN:     cards->SelectNextRow(); break;
-		case SDLK_PAGEUP:   cards->SelectPreviousPage(); break;
-		case SDLK_PAGEDOWN: cards->SelectNextPage(); break;
+		case SDLK_UP:       cards->SelectRow(-1); break;
+		case SDLK_DOWN:     cards->SelectRow(1); break;
+		case SDLK_PAGEUP:   cards->SelectRow(-LSG_Cards::DefaultCardPageRows); break;
+		case SDLK_PAGEDOWN: cards->SelectRow(LSG_Cards::DefaultCardPageRows); break;
 		case SDLK_RETURN: case SDLK_KP_ENTER: cards->Activate(); break;
 		default: break;
 	}
@@ -181,8 +181,8 @@ void LSG_Events::handleKeyDownEventList(const SDL_KeyboardEvent& event, LSG_List
 			case SDLK_END:      list->SelectLastRowShift(); break;
 			case SDLK_UP:       list->SelectRow(-1, true); break;
 			case SDLK_DOWN:     list->SelectRow(1,  true); break;
-			case SDLK_PAGEUP:   list->SelectRow(-LSG_List::UnitPage, true); break;
-			case SDLK_PAGEDOWN: list->SelectRow(LSG_List::UnitPage,  true); break;
+			case SDLK_PAGEUP:   list->SelectRow(-LSG_List::DefaultPageRows, true); break;
+			case SDLK_PAGEDOWN: list->SelectRow(LSG_List::DefaultPageRows,  true); break;
 			default: break;
 		}
 
@@ -196,8 +196,8 @@ void LSG_Events::handleKeyDownEventList(const SDL_KeyboardEvent& event, LSG_List
 		case SDLK_END:      list->SelectLastRow(); break;
 		case SDLK_UP:       list->SelectRow(-1); break;
 		case SDLK_DOWN:     list->SelectRow(1); break;
-		case SDLK_PAGEUP:   list->SelectRow(-LSG_List::UnitPage); break;
-		case SDLK_PAGEDOWN: list->SelectRow(LSG_List::UnitPage); break;
+		case SDLK_PAGEUP:   list->SelectRow(-LSG_List::DefaultPageRows); break;
+		case SDLK_PAGEDOWN: list->SelectRow(LSG_List::DefaultPageRows); break;
 		case SDLK_RETURN: case SDLK_KP_ENTER: list->Activate(); break;
 		default: break;
 	}

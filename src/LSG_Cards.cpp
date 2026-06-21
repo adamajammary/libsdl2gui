@@ -232,7 +232,7 @@ void LSG_Cards::OnMouseClick(const SDL_Point& mousePosition)
 	else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
 		this->selectShift(row);
 	else
-		this->Select(row);
+		this->Select(row, true);
 }
 
 void LSG_Cards::OnMouseOver(const SDL_Point& mousePosition)
@@ -261,9 +261,9 @@ void LSG_Cards::RemoveCard(int row)
 
 	LSG_Cards::cardsLock.unlock();
 
-	this->reset();
+	this->reset(true);
 
-	this->Select(!this->cards.empty() && !this->selectedRows.empty() ? this->selectedRows[0] : -1);
+	this->Select(-1);
 }
 
 void LSG_Cards::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -631,12 +631,12 @@ void LSG_Cards::select(LSG_EventType eventType)
 	this->sendEvent(eventType);
 }
 
-bool LSG_Cards::Select(int row)
+bool LSG_Cards::Select(int row, bool toggle)
 {
 	if (!this->enabled || (row >= (int)this->cards.size()))
 		return false;
 
-	if ((row < 0) || ((this->selectedRows.size() == 1) && (this->selectedRows[0] == row))) {
+	if ((row < 0) || (toggle && (this->selectedRows.size() == 1) && (this->selectedRows[0] == row))) {
 		this->selectedRows.clear();
 		this->select(LSG_EVENT_ROW_UNSELECTED);
 	} else {
@@ -723,128 +723,41 @@ void LSG_Cards::SelectLast(bool keyShift)
 		this->Select(last);
 }
 
-void LSG_Cards::SelectNextPage(bool keyShift)
-{
-	if (!this->enabled || this->cards.empty())
-		return;
-
-	if (this->selectedRows.empty()) {
-		this->SelectFirst();
-		return;
-	}
-
-	auto selectedRow   = this->selectedRows[this->selectedRows.size() - 1];
-	auto maxRows       = (int)this->cards.size();
-	auto remainingRows = (maxRows - 1 - selectedRow);
-	auto pageRows      = std::min(LSG_Cards::DefaultCardPageRows, remainingRows);
-	auto nextRow       = (selectedRow + pageRows);
-
-	if ((remainingRows < 1) || (nextRow >= maxRows))
-		return;
-
-	this->scrollVertical.offset += ((this->cardHeight + this->cardSpacing) * pageRows);
-
-	if (keyShift)
-		this->selectShift(nextRow);
-	else
-		this->Select(nextRow);
-}
-
-void LSG_Cards::SelectNextRow(bool keyShift)
-{
-	if (!this->enabled || this->cards.empty())
-		return;
-
-	if (this->selectedRows.empty()) {
-		this->SelectFirst();
-		return;
-	}
-
-	auto selectedRow = this->selectedRows[this->selectedRows.size() - 1];
-	auto nextRow     = (selectedRow + 1);
-	auto maxRows     = (int)this->cards.size();
-
-	if (nextRow >= maxRows)
-		return;
-
-	this->scrollVertical.offset += (this->cardHeight + this->cardSpacing);
-
-	if (keyShift)
-		this->selectShift(nextRow);
-	else
-		this->Select(nextRow);
-}
-
-void LSG_Cards::SelectPreviousPage(bool keyShift)
-{
-	if (!this->enabled || this->cards.empty())
-		return;
-
-	if (this->selectedRows.empty()) {
-		this->SelectFirst();
-		return;
-	}
-
-	auto selectedRow = this->selectedRows[this->selectedRows.size() - 1];
-	auto pageRows    = std::min(LSG_Cards::DefaultCardPageRows, selectedRow);
-	auto previousRow = (selectedRow - pageRows);
-
-	if ((selectedRow < 1) || (previousRow < 0))
-		return;
-
-	this->scrollVertical.offset = std::max((this->scrollVertical.offset - ((this->cardHeight + this->cardSpacing) * pageRows)), 0);
-
-	if (keyShift)
-		this->selectShift(previousRow);
-	else
-		this->Select(previousRow);
-}
-
-void LSG_Cards::SelectPreviousRow(bool keyShift)
-{
-	if (!this->enabled || this->cards.empty())
-		return;
-
-	if (this->selectedRows.empty()) {
-		this->SelectFirst();
-		return;
-	}
-
-	auto selectedRow = this->selectedRows[this->selectedRows.size() - 1];
-	auto previousRow = (selectedRow - 1);
-
-	if (previousRow < 0)
-		return;
-
-	this->scrollVertical.offset = std::max((this->scrollVertical.offset - (this->cardHeight + this->cardSpacing)), 0);
-
-	if (keyShift)
-		this->selectShift(previousRow);
-	else
-		this->Select(previousRow);
-}
-
-void LSG_Cards::SelectRow(int offset)
+void LSG_Cards::SelectRow(int offset, bool keyShift)
 {
 	if (!this->enabled || this->selectedRows.empty() || this->cards.empty())
 		return;
 
-	auto currentRow = this->selectedRows[0];
-	auto nextRow    = std::max(0, std::min((int)(this->cards.size() - 1), (currentRow + offset)));
+	auto currentRow = (keyShift ? this->selectedRows[this->selectedRows.size() - 1] : this->selectedRows[0]);
+	auto nextRow    = (currentRow + offset);
+	auto lastRow    = (int)(this->cards.size() - 1);
 
-	this->Select(nextRow);
+	if (nextRow < 0)
+		nextRow = 0;
+	else if (nextRow > lastRow)
+		nextRow = lastRow;
+
+	if ((nextRow < 0) || (nextRow > lastRow))
+		return;
+
+	if (keyShift)
+		this->selectShift(nextRow);
+	else
+		this->Select(nextRow);
 
 	if (this->selectedRows.empty())
 		return;
 
-	auto areaBottom = (this->background.y + this->background.h);
-	auto areaTop    = this->background.y;
+	auto fillArea       = this->getFillArea();
+	auto fillAreaTop    = (fillArea.y + this->scrollVertical.offset);
+	auto fillAreaBottom = (fillAreaTop + fillArea.h);
 
-	auto rowTop    = (areaTop + (this->selectedRows[0] * this->cardHeight));
+	auto rowOffset = (this->selectedRows[0] * (this->cardHeight + this->cardSpacing));
+	auto rowTop    = (fillArea.y + rowOffset);
 	auto rowBottom = (rowTop + this->cardHeight);
 
-	if ((rowBottom > areaBottom) || (rowTop < areaTop))
-		this->scrollVertical.offset = (this->selectedRows[0] * this->cardHeight);
+	if ((rowBottom > fillAreaBottom) || (rowTop < fillAreaTop))
+		this->scrollVertical.offset = rowOffset;
 }
 
 void LSG_Cards::selectShift(int row)

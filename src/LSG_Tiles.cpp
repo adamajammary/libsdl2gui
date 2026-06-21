@@ -561,7 +561,7 @@ void LSG_Tiles::OnMouseClick(const SDL_Point& mousePosition)
 		else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
 			this->selectShift(i);
 		else
-			this->Select(i);
+			this->Select(i, true);
 
 		break;
 	}
@@ -599,9 +599,9 @@ void LSG_Tiles::RemoveTile(int index)
 
 	LSG_Tiles::tilesLock.unlock();
 
-	this->reset();
+	this->reset(true);
 
-	this->Select(!this->tiles.empty() && !this->selectedTiles.empty() ? this->selectedTiles[0] : -1);
+	this->Select(-1);
 }
 
 void LSG_Tiles::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -793,12 +793,12 @@ void LSG_Tiles::resetScroll()
 		this->scrollVertical.offset = 0;
 }
 
-bool LSG_Tiles::Select(int index)
+bool LSG_Tiles::Select(int index, bool toggle)
 {
 	if (!this->enabled || (index >= (int)this->tiles.size()))
 		return false;
 
-	if ((index < 0) || ((this->selectedTiles.size() == 1) && (this->selectedTiles[0] == index))) {
+	if ((index < 0) || (toggle && (this->selectedTiles.size() == 1) && (this->selectedTiles[0] == index))) {
 		this->selectedTiles.clear();
 		this->sendEvent(LSG_EVENT_TILE_UNSELECTED);
 	} else {
