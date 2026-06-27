@@ -266,6 +266,8 @@ void LSG_Cards::RemoveCard(int row)
 
 	LSG_Cards::cardsLock.unlock();
 
+	this->resetScroll();
+
 	this->setCards();
 
 	this->Select(-1);
@@ -829,6 +831,8 @@ void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 		this->cards.push_back(LSG_Cards::ToCard(cardItem));
 
 	LSG_Cards::cardsLock.unlock();
+
+	this->resetScroll();
 
 	this->setCards();
 }

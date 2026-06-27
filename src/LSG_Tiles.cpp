@@ -604,6 +604,8 @@ void LSG_Tiles::RemoveTile(int index)
 
 	LSG_Tiles::tilesLock.unlock();
 
+	this->resetScroll();
+
 	this->setTiles();
 
 	this->Select(-1);
@@ -1186,6 +1188,8 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 	}
 
 	LSG_Tiles::tilesLock.unlock();
+
+	this->resetScroll();
 
 	this->setTiles();
 }
