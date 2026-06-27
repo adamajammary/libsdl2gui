@@ -110,8 +110,6 @@ private:
 	void          renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const;
 	void          renderScrollBar(SDL_Renderer* renderer);
 	void          renderText(SDL_Renderer* renderer, const LSG_ItemText& text);
-	void          reset(bool resetScroll = false);
-	void          resetScroll();
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          selectCtrl(int index);
 	void          selectShift(int index);

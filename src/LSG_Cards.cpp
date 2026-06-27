@@ -69,7 +69,7 @@ void LSG_Cards::AddCard(const LSG_CardItem& cardItem)
 
 	LSG_Cards::cardsLock.unlock();
 
-	this->reset();
+	this->setCards();
 }
 
 void LSG_Cards::AddCard(LibXml::xmlNode* node)
@@ -261,7 +261,7 @@ void LSG_Cards::RemoveCard(int row)
 
 	LSG_Cards::cardsLock.unlock();
 
-	this->reset(true);
+	this->setCards();
 
 	this->Select(-1);
 }
@@ -592,16 +592,6 @@ void LSG_Cards::renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSi
 	SDL_SetRenderTarget(renderer, renderTarget);
 }
 
-void LSG_Cards::reset(bool resetScroll)
-{
-	if (resetScroll)
-		this->resetScroll();
-
-	this->destroyTextures();
-
-	this->setCards();
-}
-
 void LSG_Cards::resetHighlight()
 {
 	if (this->highlightedRow == -1)
@@ -814,7 +804,7 @@ void LSG_Cards::SetCard(int row, const LSG_CardItem& cardItem)
 
 	LSG_Cards::cardsLock.unlock();
 
-	this->reset();
+	this->setCards();
 }
 
 void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
@@ -833,17 +823,19 @@ void LSG_Cards::SetCards(const LSG_CardItems& cardItems)
 
 	LSG_Cards::cardsLock.unlock();
 
-	this->reset(true);
+	this->setCards();
 }
 
 void LSG_Cards::SetCards()
 {
-	this->reset(true);
+	this->setCards();
 }
 
 void LSG_Cards::setCards()
 {
 	LSG_Graphics::DestroyTextures();
+
+	this->destroyTextures();
 
 	std::thread(&LSG_Cards::setCardSurfaces, this).detach();
 }

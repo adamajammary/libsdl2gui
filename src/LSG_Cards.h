@@ -83,7 +83,6 @@ private:
 	void          renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const;
 	void          renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) const;
 	void          renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize);
-	void          reset(bool resetScroll = false);
 	void          resetHighlight();
 	void          resetRenderTarget();
 	void          select(LSG_EventType eventType);

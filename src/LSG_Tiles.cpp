@@ -69,7 +69,7 @@ void LSG_Tiles::AddTile(const LSG_TileItem& tile)
 
 	LSG_Tiles::tilesLock.unlock();
 
-	this->reset();
+	this->setTiles();
 }
 
 void LSG_Tiles::AddTile(LibXml::xmlNode* node)
@@ -599,7 +599,7 @@ void LSG_Tiles::RemoveTile(int index)
 
 	LSG_Tiles::tilesLock.unlock();
 
-	this->reset(true);
+	this->setTiles();
 
 	this->Select(-1);
 }
@@ -773,24 +773,6 @@ void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)
 
 		this->renderScrollBarVertical(renderer, this->grid, this->totalSize, this->backgroundColor, this->highlighted, this);
 	}
-}
-
-void LSG_Tiles::reset(bool resetScroll)
-{
-	if (resetScroll)
-		this->resetScroll();
-
-	this->destroyTextures();
-
-	this->setTiles();
-}
-
-void LSG_Tiles::resetScroll()
-{
-	if (!this->wrapTiles)
-		this->scrollHorizontal.offset = 0;
-	else
-		this->scrollVertical.offset = 0;
 }
 
 bool LSG_Tiles::Select(int index, bool toggle)
@@ -1173,7 +1155,7 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 
 	LSG_Tiles::tilesLock.unlock();
 
-	this->reset();
+	this->setTiles();
 }
 
 void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
@@ -1197,17 +1179,19 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 
 	LSG_Tiles::tilesLock.unlock();
 
-	this->reset(true);
+	this->setTiles();
 }
 
 void LSG_Tiles::SetTiles()
 {
-	this->reset(true);
+	this->setTiles();
 }
 
 void LSG_Tiles::setTiles()
 {
 	LSG_Graphics::DestroyTextures();
+
+	this->destroyTextures();
 
 	std::thread(&LSG_Tiles::setTileSurfaces, this).detach();
 }
