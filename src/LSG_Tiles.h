@@ -56,7 +56,7 @@ private:
 
 public:
 	void             Activate() const;
-	void             Activate(const SDL_Point& mousePosition) const;
+	void             Activate(const SDL_Point& mousePosition);
 	void             AddTile(const LSG_TileItem& tile);
 	void             AddTile(LibXml::xmlNode* node);
 	std::vector<int> GetSelectedTiles() const;

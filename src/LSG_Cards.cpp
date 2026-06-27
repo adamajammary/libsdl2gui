@@ -47,18 +47,18 @@ void LSG_Cards::Activate()
 
 void LSG_Cards::Activate(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->cards.empty() || this->selectedRows.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown() || this->cards.empty())
 		return;
 
-	auto positionY = (mousePosition.y - this->background.y + this->scrollVertical.offset);
+	auto row = this->getRow(mousePosition);
 
-	for (const auto& card : this->cards)
-	{
-		if ((positionY >= card.background.y) && (positionY <= (card.background.y + card.background.h))) {
-			this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
-			break;
-		}
-	}
+	if (row < 0)
+		return;
+
+	if (this->selectedRows.empty())
+		this->Select(row);
+
+	this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
 void LSG_Cards::AddCard(const LSG_CardItem& cardItem)

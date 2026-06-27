@@ -44,17 +44,21 @@ void LSG_Tiles::Activate() const
 		this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
 }
 
-void LSG_Tiles::Activate(const SDL_Point& mousePosition) const
+void LSG_Tiles::Activate(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->tiles.empty() || this->selectedTiles.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown() || this->tiles.empty())
 		return;
 
-	for (auto& tile : this->tiles)
+	for (int i = 0; i < (int)this->tiles.size(); i++)
 	{
-		if (SDL_PointInRect(&mousePosition, &tile.background)) {
-			this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
-			break;
-		}
+		if (!SDL_PointInRect(&mousePosition, &this->tiles[i].background))
+			continue;
+
+		if (this->selectedTiles.empty())
+			this->Select(i);
+
+		this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
+		break;
 	}
 }
 

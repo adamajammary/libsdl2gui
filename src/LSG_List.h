@@ -17,12 +17,12 @@ protected:
 
 public:
 	void             Activate() const;
-	void             Activate(const SDL_Point& mousePosition) const;
+	void             Activate(const SDL_Point& mousePosition);
 	void             AddItem(const std::string& item);
 	std::vector<int> GetSelectedRows() const;
 	LSG_SortOrder    GetSortOrder() const;
 	SDL_Size         GetSize() const;
-	void             OnMouseClick(const SDL_Point& mousePosition);
+	virtual void     OnMouseClick(const SDL_Point& mousePosition);
 	void             RemoveItem(int row);
 	void             RemovePageItem(int row);
 	void             Render(SDL_Renderer* renderer, const SDL_Point& position);

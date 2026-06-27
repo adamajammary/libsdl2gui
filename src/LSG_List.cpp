@@ -16,10 +16,15 @@ void LSG_List::Activate() const
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
-void LSG_List::Activate(const SDL_Point& mousePosition) const
+void LSG_List::Activate(const SDL_Point& mousePosition)
 {
-	if (!this->isPaginationClicked(mousePosition))
-		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
+	if (this->isPaginationClicked(mousePosition))
+		return;
+
+	if (this->selectedRows.empty())
+		this->OnMouseClick(mousePosition);
+
+	this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
 void LSG_List::AddItem(const std::string& item)
