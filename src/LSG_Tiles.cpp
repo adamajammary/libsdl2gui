@@ -480,6 +480,11 @@ int LSG_Tiles::getTileSize(int maxWidth) const
 	return LSG_Window::GetDPIScaled(tileSize);
 }
 
+std::string LSG_Tiles::getTileTextureId(const std::string& type, int index, const SDL_Rect& clip) const
+{
+	return std::format("{}_tile_{}_{}_{},{}_{}x{}", this->id, index, type, clip.x, clip.y, clip.w, clip.h);
+}
+
 LSG_TileItems LSG_Tiles::GetTiles() const
 {
 	LSG_TileItems tiles;
@@ -661,9 +666,8 @@ void LSG_Tiles::render(SDL_Renderer* renderer)
 
 		if (this->isTileVisible())
 		{
-			this->renderImage(renderer, this->tiles[i].image);
-			this->renderText(renderer,  this->tiles[i].text);
-
+			this->renderImage(renderer, i);
+			this->renderText(renderer,  i);
 			this->renderHighlightSelection(renderer, i);
 		}
 
@@ -673,7 +677,7 @@ void LSG_Tiles::render(SDL_Renderer* renderer)
 	this->renderScrollBar(renderer);
 }
 
-void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
+void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index) const
 {
 	if (!this->enabled || (index < 0) || (index >= (int)this->tiles.size()))
 		return;
@@ -700,32 +704,34 @@ void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
 				this->borderRadius,
 				this->selectedBorderWidth,
 				this->image.destination,
-				std::format("{}_tile_selected", this->id)
+				this->getTileTextureId("selected", index, this->image.clip)
 			);
 		} else {
 			LSG_Graphics::RenderBorder(renderer, this->selectedBorderWidth, this->borderColor, this->image.destination);
 		}
 	}
 
-	if (isHighlighted)
+	if (!isHighlighted)
+		return;
+
+	if (this->borderRadius > 0)
 	{
-		if (this->borderRadius > 0)
-		{
-			LSG_Graphics::RenderFillRounded(
-				renderer,
-				this->borderRadius,
-				highlightColor,
-				this->image.destination,
-				std::format("{}_tile_highlighted", this->id)
-			);
-		} else {
-			LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->image.destination);
-		}
+		LSG_Graphics::RenderFillRounded(
+			renderer,
+			this->borderRadius,
+			highlightColor,
+			this->image.destination,
+			this->getTileTextureId("highlighted", index, this->image.clip)
+		);
+	} else {
+		LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->image.destination);
 	}
 }
 
-void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const
+void LSG_Tiles::renderImage(SDL_Renderer* renderer, int index) const
 {
+	const auto& image = this->tiles[index].image;
+
 	if (!image.texture.texture)
 		return;
 
@@ -736,16 +742,18 @@ void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) 
 		&this->image.clip,
 		this->borderRadius,
 		this->backgroundColor,
-		std::format("{}_tile_image", this->id)
+		this->getTileTextureId("image", index, this->image.clip)
 	);
 }
 
-void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)
+void LSG_Tiles::renderText(SDL_Renderer* renderer, int index)
 {
+	const auto& text = this->tiles[index].text;
+
 	if (text.text.empty() || !this->isTextVisible() || !text.texture.texture)
 		return;
 
-	auto id = std::format("{}_tile_text", this->id);
+	auto id = this->getTileTextureId("text", index, this->text.clip);
 
 	LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::DefaultTextBackground, this->text.destination);
 

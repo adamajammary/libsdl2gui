@@ -150,6 +150,11 @@ LSG_CardItem LSG_Cards::GetCard(int row) const
 	return LSG_Cards::ToCardItem(this->cards[row]);
 }
 
+std::string LSG_Cards::getCardTextureId(const std::string& type, int row) const
+{
+	return std::format("{}_card_{}_{}", this->id, row, type);
+}
+
 LSG_CardItems LSG_Cards::GetCards() const
 {
 	LSG_CardItems cards;
@@ -359,7 +364,7 @@ void LSG_Cards::renderCardBorder(SDL_Renderer* renderer, int row, const SDL_Rect
 				this->borderRadius,
 				this->cardBorderWidth,
 				this->cards[row].background,
-				std::format("{}_card_border", this->id)
+				this->getCardTextureId("border", row)
 			);
 		} else {
 			LSG_Graphics::RenderBorder(renderer, this->cardBorderWidth, this->borderColor, this->cards[row].background);
@@ -415,7 +420,7 @@ void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSiz
 			this->cardHeight
 		};
 
-		this->renderThumbnail(renderer,   this->cards[i]);
+		this->renderThumbnail(renderer,   i);
 		this->renderTitle(renderer,       this->cards[i]);
 		this->renderDescription(renderer, this->cards[i]);
 
@@ -444,7 +449,7 @@ void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSiz
 				this->borderRadius,
 				(this->cardBorderWidth * 2),
 				this->cards[row].background,
-				std::format("{}_card_selected", this->id)
+				this->getCardTextureId("selected", row)
 			);
 		} else {
 			LSG_Graphics::RenderBorder(renderer, (this->cardBorderWidth * 2), this->borderColor, this->cards[row].background);
@@ -463,7 +468,7 @@ void LSG_Cards::renderContent(SDL_Renderer* renderer, const SDL_Size& textureSiz
 				this->borderRadius,
 				highlightColor,
 				this->cards[this->highlightedRow].background,
-				std::format("{}_card_highlighted", this->id)
+				this->getCardTextureId("highlighted", highlightedRow)
 			);
 		} else {
 			LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->cards[this->highlightedRow].background);
@@ -538,8 +543,10 @@ void LSG_Cards::renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const
 		this->renderTextOverflowEllipse(renderer, card.title.texture.texture, destination, maxWidth);
 }
 
-void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) const
+void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, int row) const
 {
+	const auto& card = this->cards[row];
+
 	if (!card.thumbnail.texture.texture)
 		return;
 
@@ -570,7 +577,7 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) co
 		&clip,
 		borderRadius,
 		this->backgroundColor,
-		std::format("{}_card_image", this->id)
+		this->getCardTextureId("image", row)
 	);
 }
 

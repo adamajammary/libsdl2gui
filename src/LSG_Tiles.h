@@ -102,14 +102,15 @@ private:
 	LSG_Alignment getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const;
 	SDL_Rect      getTextDestination();
 	int           getTileSize(int maxWidth) const;
+	std::string   getTileTextureId(const std::string& type, int index, const SDL_Rect& clip) const;
 	int           getTilesPerRow() const;
 	bool          isTextVisible() const;
 	bool          isTileVisible() const;
 	void          render(SDL_Renderer* renderer);
-	void          renderHighlightSelection(SDL_Renderer* renderer, int index);
-	void          renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const;
+	void          renderHighlightSelection(SDL_Renderer* renderer, int index) const;
+	void          renderImage(SDL_Renderer* renderer, int index) const;
 	void          renderScrollBar(SDL_Renderer* renderer);
-	void          renderText(SDL_Renderer* renderer, const LSG_ItemText& text);
+	void          renderText(SDL_Renderer* renderer, int index);
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          selectCtrl(int index);
 	void          selectShift(int index);

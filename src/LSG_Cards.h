@@ -72,6 +72,7 @@ private:
 	void          destroySurfaces();
 	void          destroyTextures(LSG_Card& card);
 	virtual void  destroyTextures() override;
+	std::string   getCardTextureId(const std::string& type, int row) const;
 	int           getRow(const SDL_Point& mousePosition) const;
 	int           getTitleFontSize() const;
 	void          render(SDL_Renderer* renderer);
@@ -81,7 +82,7 @@ private:
 	void          renderDescription(SDL_Renderer* renderer, const LSG_Card& card) const;
 	void          renderScrollBar(SDL_Renderer* renderer, const SDL_Size& textureSize);
 	void          renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const;
-	void          renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) const;
+	void          renderThumbnail(SDL_Renderer* renderer, int row) const;
 	void          renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize);
 	void          resetHighlight();
 	void          resetRenderTarget();
