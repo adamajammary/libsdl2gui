@@ -3198,10 +3198,10 @@ Exceptions
 
 See [LSG_OpenFile](#lsg_openfile) for examples.
 
-### LSG_ScrollHorizontal
+### LSG_ScrollByHorizontal
 
 ```cpp
-void LSG_ScrollHorizontal(const std::string& id, int scroll);
+void LSG_ScrollByHorizontal(const std::string& id, int offset);
 ```
 
 Scrolls the component horizontally by the specified offset.
@@ -3209,17 +3209,17 @@ Scrolls the component horizontally by the specified offset.
 Parameters
 
 - **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
-- **scroll** Horizontal scroll offset
+- **offset** Horizontal scroll offset
 
 Exceptions
 
 - invalid_argument
 - runtime_error
 
-### LSG_ScrollVertical
+### LSG_ScrollByVertical
 
 ```cpp
-void LSG_ScrollVertical(const std::string& id, int scroll);
+void LSG_ScrollByVertical(const std::string& id, int offset);
 ```
 
 Scrolls the component vertically by the specified offset.
@@ -3227,7 +3227,7 @@ Scrolls the component vertically by the specified offset.
 Parameters
 
 - **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
-- **scroll** Vertical scroll offset
+- **offset** Vertical scroll offset
 
 Exceptions
 
@@ -3262,6 +3262,42 @@ Scrolls to the top of the component.
 Parameters
 
 - **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToHorizontal
+
+```cpp
+void LSG_ScrollToHorizontal(const std::string& id, int position);
+```
+
+Scrolls the component horizontally to the specified position.
+
+Parameters
+
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **position** Horizontal scroll position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToVertical
+
+```cpp
+void LSG_ScrollToVertical(const std::string& id, int position);
+```
+
+Scrolls the component vertically to the specified position.
+
+Parameters
+
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **position** Vertical scroll position
 
 Exceptions
 

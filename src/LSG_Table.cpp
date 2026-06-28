@@ -291,7 +291,7 @@ bool LSG_Table::OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& las
 	auto minWidth = this->getMinColumnWidth();
 	auto newWidth = (this->resizeColumnWidth + (mousePosition.x - lastEventPosition.x));
 
-	this->columnWidths[this->resizeColumn] = std::max(std::min(newWidth, maxWidth), minWidth);
+	this->columnWidths[this->resizeColumn] = std::max(minWidth, std::min(newWidth, maxWidth));
 
 	return true;
 }
@@ -474,10 +474,10 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 		clip.x         = 0;
 		destination.x -= offsetX;
 	} else if (column == 0) {
-		clip.x         = std::max((offsetX - spacingHalf), 0);
+		clip.x         = std::max(0, (offsetX - spacingHalf));
 		destination.x -= spacingHalf;
 	} else {
-		clip.x = std::max((offsetX - spacingHalf), 0);
+		clip.x = std::max(0, (offsetX - spacingHalf));
 	}
 
 	auto maxSizeWidth   = std::max(columnSize.width, headerSize.width);
@@ -485,21 +485,21 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 	auto spacingOffset  = (this->scrollHorizontal.offset < spacingHalf ? (spacingHalf - this->scrollHorizontal.offset) : 0);
 
 	if (header)
-		clip.w = std::max(std::min((std::min(headerSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
+		clip.w = std::max(0, std::min((std::min(headerSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)));
 	else
-		clip.w = std::max(std::min((std::min(columnSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
+		clip.w = std::max(0, std::min((std::min(columnSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)));
 
 	destination.w = clip.w;
 
 	auto sizeWidth   = std::min(maxSizeWidth, maxColumnWidth);
-	auto columnWidth = std::max(std::min((sizeWidth - clip.x), width), 0);
+	auto columnWidth = std::max(0, std::min((sizeWidth - clip.x), width));
 	auto clipWidth   = (columnWidth + spacing);
 	auto texture     = (header ? this->headerTextures[column] : this->textures[column]);
 
 	if (columnWidth > 0) {
 		SDL_RenderCopy(renderer, texture, &clip, &destination);
 	} else {
-		clipWidth  = std::max((spacing - (clip.x - sizeWidth)), 0);
+		clipWidth  = std::max(0, (spacing - (clip.x - sizeWidth)));
 		sizeWidth += (spacing - clipWidth);
 	}
 

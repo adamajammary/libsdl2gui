@@ -177,7 +177,7 @@ void LSG_Navigation::NavigateTo(int position, const std::string& text)
 
 void LSG_Navigation::navigate(int position, const std::string& text)
 {
-	this->position = std::max(std::min(position, ((int)this->items.total - 1)), 0);
+	this->position = std::max(0, std::min(position, ((int)this->items.total - 1)));
 
 	this->canNavigate = this->getCanNavigate();
 

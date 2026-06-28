@@ -258,7 +258,7 @@ void LSG_TextInput::MoveCursorLeft()
 		auto character      = this->value[this->cursorPosition - 1];
 		int  characterWidth = (character < 0 ? 2 : 1);
 
-		this->cursorPosition = (size_t)std::max(((int)this->cursorPosition - characterWidth), 0);
+		this->cursorPosition = (size_t)std::max(0, ((int)this->cursorPosition - characterWidth));
 	} else if (this->highlightedTextLength < 0) {
 		this->cursorPosition += this->highlightedTextLength;
 	}
@@ -466,7 +466,7 @@ void LSG_TextInput::renderHighlightedText(SDL_Renderer* renderer, const SDL_Rect
 					start = 0;
 					width = ((startWidth % background.w) + lastPageOffset);
 				} else if (this->highlightedTextLength > 0) {
-					start = std::max((start - (this->textSize.width % background.w)), 0);
+					start = std::max(0, (start - (this->textSize.width % background.w)));
 					width = ((startWidth % background.w) + lastPageOffset - start);
 				} else if (this->highlightedTextLength < 0) {
 					width = (background.w - start);

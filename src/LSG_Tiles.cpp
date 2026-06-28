@@ -126,8 +126,8 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 	auto imageSize = std::min(tile.image.texture.size.width, tile.image.texture.size.height);
 
 	this->image.clip = {
-		std::max(((tile.image.texture.size.width  - tile.image.texture.size.height) / 2), 0),
-		std::max(((tile.image.texture.size.height - tile.image.texture.size.width)  / 2), 0),
+		std::max(0, ((tile.image.texture.size.width  - tile.image.texture.size.height) / 2)),
+		std::max(0, ((tile.image.texture.size.height - tile.image.texture.size.width)  / 2)),
 		imageSize,
 		imageSize
 	};
@@ -150,7 +150,7 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 	}
 
 	auto tileRight     = (this->image.destination.x + this->image.destination.w);
-	auto overflowRight = std::max((tileRight - this->gridEnd), 0);
+	auto overflowRight = std::max(0, (tileRight - this->gridEnd));
 
 	if (overflowRight)
 	{
@@ -162,7 +162,7 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 		this->text.destination.w = this->image.destination.w;
 	}
 	
-	auto overflowLeft = std::max((this->grid.x - this->image.destination.x), 0);
+	auto overflowLeft = std::max(0, (this->grid.x - this->image.destination.x));
 
 	if (overflowLeft)
 	{
@@ -184,8 +184,8 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 	auto imageSize = std::min(tile.image.texture.size.width, tile.image.texture.size.height);
 
 	this->image.clip = {
-		std::max(((tile.image.texture.size.width  - tile.image.texture.size.height) / 2), 0),
-		std::max(((tile.image.texture.size.height - tile.image.texture.size.width)  / 2), 0),
+		std::max(0, ((tile.image.texture.size.width  - tile.image.texture.size.height) / 2)),
+		std::max(0, ((tile.image.texture.size.height - tile.image.texture.size.width)  / 2)),
 		imageSize,
 		imageSize
 	};
@@ -210,8 +210,8 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 	auto tileBottom = (this->image.destination.y + this->image.destination.h);
 	auto textBottom = (this->text.destination.y  + this->text.destination.h);
 
-	auto overflowBottom     = std::max((tileBottom - this->gridEnd), 0);
-	auto overflowTextBottom = std::max((textBottom - this->gridEnd), 0);
+	auto overflowBottom     = std::max(0, (tileBottom - this->gridEnd));
+	auto overflowTextBottom = std::max(0, (textBottom - this->gridEnd));
 
 	if (overflowBottom)
 	{
@@ -226,8 +226,8 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 		this->text.destination.h -= overflowTextBottom;
 	}
 	
-	auto overflowTop     = std::max((this->grid.y - this->image.destination.y), 0);
-	auto overflowTextTop = std::max((this->grid.y - this->text.destination.y),  0);
+	auto overflowTop     = std::max(0, (this->grid.y - this->image.destination.y));
+	auto overflowTextTop = std::max(0, (this->grid.y - this->text.destination.y));
 
 	if (overflowTop)
 	{
@@ -327,12 +327,12 @@ int LSG_Tiles::getRowCount() const
 
 int LSG_Tiles::getScrollOffsetX() const
 {
-	return (this->scrollHorizontal.show ? std::max(std::min(this->scrollHorizontal.offset, (this->totalSize - this->fillArea.w)), 0) : 0);
+	return (this->scrollHorizontal.show ? std::max(0, std::min(this->scrollHorizontal.offset, (this->totalSize - this->fillArea.w))) : 0);
 }
 
 int LSG_Tiles::getScrollOffsetY() const
 {
-	return (this->scrollVertical.show ? std::max(std::min(this->scrollVertical.offset, (this->totalSize - this->fillArea.h)), 0) : 0);
+	return (this->scrollVertical.show ? std::max(0, std::min(this->scrollVertical.offset, (this->totalSize - this->fillArea.h))) : 0);
 }
 
 int LSG_Tiles::getSelectedTile() const
@@ -366,7 +366,7 @@ SDL_Size LSG_Tiles::GetSize() const
 	}
 	else
 	{
-		auto tilesPerRow = std::max(std::min((maxWidth / (tileSize + this->spacing)), tileCount), 1);
+		auto tilesPerRow = std::max(1, std::min((maxWidth / (tileSize + this->spacing)), tileCount));
 		auto rowCount    = ((tileCount / tilesPerRow) + ((tileCount % tilesPerRow != 0) ? 1 : 0));
 
 		size.width  = maxWidth;
@@ -428,19 +428,19 @@ SDL_Rect LSG_Tiles::getTextDestination()
 	}
 
 	auto textRight     = (textDestination.x + textDestination.w);
-	auto overflowRight = std::max((textRight - this->gridEnd), 0);
+	auto overflowRight = std::max(0, (textRight - this->gridEnd));
 
 	if (overflowRight) {
 		this->text.clip.w -= overflowRight;
 		textDestination.w  = this->text.clip.w;
 	}
 
-	auto overflowLeft = std::max((this->grid.x - this->offset),  0);
+	auto overflowLeft = std::max(0, (this->grid.x - this->offset));
 
 	if (overflowLeft)
 		textDestination.x -= overflowLeft;
 
-	auto overflowTextLeft = std::max((this->grid.x - textDestination.x), 0);
+	auto overflowTextLeft = std::max(0, (this->grid.x - textDestination.x));
 
 	if (overflowTextLeft)
 	{
@@ -513,7 +513,7 @@ int LSG_Tiles::getTilesPerRow() const
 	else
 		tilesPerRow = std::min((this->fillArea.w / (this->tileSize + this->spacing)), (int)this->tiles.size());
 
-	return std::max(tilesPerRow, 1);
+	return std::max(1, tilesPerRow);
 }
 
 bool LSG_Tiles::isTextVisible() const
@@ -988,9 +988,9 @@ void LSG_Tiles::SelectPrevious(bool keyShift)
 		auto maxTilesInView = std::min((this->fillArea.w / tileSizeSpaced), (int)this->tiles.size());
 
 		if ((previous % maxTilesInView) == (maxTilesInView - 1))
-			this->scrollHorizontal.offset = std::max((tileSizeSpaced * (current - maxTilesInView)), 0);
+			this->scrollHorizontal.offset = std::max(0, (tileSizeSpaced * (current - maxTilesInView)));
 	} else if ((previous % this->tilesPerRow) == (this->tilesPerRow - 1)) {
-		this->scrollVertical.offset = std::max((this->scrollVertical.offset - tileSizeSpaced), 0);
+		this->scrollVertical.offset = std::max(0, (this->scrollVertical.offset - tileSizeSpaced));
 	}
 
 	if (keyShift)
@@ -1021,7 +1021,7 @@ void LSG_Tiles::SelectPreviousPage(bool keyShift)
 	if (previous < 0)
 		return;
 
-	this->scrollVertical.offset = std::max((this->scrollVertical.offset - ((this->tileSize + this->spacing) * 2)), 0);
+	this->scrollVertical.offset = std::max(0, (this->scrollVertical.offset - ((this->tileSize + this->spacing) * 2)));
 
 	if (keyShift)
 		this->selectShift(previous);
@@ -1044,7 +1044,7 @@ void LSG_Tiles::SelectPreviousRow(bool keyShift)
 	if (previous < 0)
 		return;
 
-	this->scrollVertical.offset = std::max((this->scrollVertical.offset - (this->tileSize + this->spacing)), 0);
+	this->scrollVertical.offset = std::max(0, (this->scrollVertical.offset - (this->tileSize + this->spacing)));
 
 	if (keyShift)
 		this->selectShift(previous);

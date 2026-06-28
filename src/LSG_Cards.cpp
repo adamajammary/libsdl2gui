@@ -564,8 +564,8 @@ void LSG_Cards::renderThumbnail(SDL_Renderer* renderer, int row) const
 	auto imageSize = std::min(card.thumbnail.texture.size.width, card.thumbnail.texture.size.height);
 
 	SDL_Rect clip = {
-		std::max(((card.thumbnail.texture.size.width  - card.thumbnail.texture.size.height) / 2), 0),
-		std::max(((card.thumbnail.texture.size.height - card.thumbnail.texture.size.width)  / 2), 0),
+		std::max(0, ((card.thumbnail.texture.size.width  - card.thumbnail.texture.size.height) / 2)),
+		std::max(0, ((card.thumbnail.texture.size.height - card.thumbnail.texture.size.width)  / 2)),
 		imageSize,
 		imageSize
 	};

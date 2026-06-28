@@ -58,6 +58,8 @@ public:
 	void OnScrollMouseUp();
 	bool OnScrollHorizontal(int offset, bool forceScroll = false);
 	bool OnScrollVertical(int   offset, bool forceScroll = false);
+	void ScrollToHorizontal(int position);
+	void ScrollToVertical(int   position);
 
 protected:
 	SDL_Rect getClipWithOffset(const SDL_Rect& clip, const SDL_Size& textureSize);

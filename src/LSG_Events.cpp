@@ -548,7 +548,7 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 
 void LSG_Events::HandleMouseScrollEvent(const SDL_MouseWheelEvent& event, LSG_Component* component)
 {
-	int       scroll        = -(event.y * LSG_ScrollBar::UnitWheel);
+	int       scrollOffset  = -(event.y * LSG_ScrollBar::UnitWheel);
 	SDL_Point mousePosition = { event.mouseX, event.mouseY };
 
 	if (!component)
@@ -561,7 +561,7 @@ void LSG_Events::HandleMouseScrollEvent(const SDL_MouseWheelEvent& event, LSG_Co
 		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_SCROLLED, component->GetID());
 
 	if (component->IsMenu()) {
-		static_cast<LSG_Menu*>(component)->OnScrollVertical(scroll);
+		static_cast<LSG_Menu*>(component)->OnScrollVertical(scrollOffset);
 		return;
 	}
 
@@ -571,22 +571,22 @@ void LSG_Events::HandleMouseScrollEvent(const SDL_MouseWheelEvent& event, LSG_Co
 	}
 
 	if (component->IsSlider()) {
-		static_cast<LSG_Slider*>(component)->OnMouseScroll(scroll);
+		static_cast<LSG_Slider*>(component)->OnMouseScroll(scrollOffset);
 		return;
 	}
 
 	bool isHandled = false;
 
 	if (component->IsList())
-		isHandled = static_cast<LSG_List*>(component)->OnScrollVertical(scroll);
+		isHandled = static_cast<LSG_List*>(component)->OnScrollVertical(scrollOffset);
 	else if (component->IsTable())
-		isHandled = static_cast<LSG_Table*>(component)->OnScrollVertical(scroll);
+		isHandled = static_cast<LSG_Table*>(component)->OnScrollVertical(scrollOffset);
 	else if (component->IsTextLabel())
-		isHandled = static_cast<LSG_TextLabel*>(component)->OnScrollVertical(scroll);
+		isHandled = static_cast<LSG_TextLabel*>(component)->OnScrollVertical(scrollOffset);
 	else if (component->IsCards())
-		isHandled = static_cast<LSG_Cards*>(component)->OnScrollVertical(scroll);
+		isHandled = static_cast<LSG_Cards*>(component)->OnScrollVertical(scrollOffset);
 	else if (component->IsTiles())
-		isHandled = static_cast<LSG_Tiles*>(component)->OnScrollVertical(scroll);
+		isHandled = static_cast<LSG_Tiles*>(component)->OnScrollVertical(scrollOffset);
 
 	if (isHandled)
 		return;
@@ -594,7 +594,7 @@ void LSG_Events::HandleMouseScrollEvent(const SDL_MouseWheelEvent& event, LSG_Co
 	auto scrollableParent = component->GetScrollableParent();
 
 	if (scrollableParent)
-		static_cast<LSG_Panel*>(scrollableParent)->OnScrollVertical(scroll);
+		static_cast<LSG_Panel*>(scrollableParent)->OnScrollVertical(scrollOffset);
 }
 
 void LSG_Events::HandleMouseUpEvent(const SDL_Event& event, LSG_Component* component)

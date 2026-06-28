@@ -111,14 +111,14 @@ SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& offsetPosition, int conten
 
 	if (panel->IsVertical())
 	{
-		auto remainingHeight = std::max((maxSize.height - contentSize - contentSpacing - padding2x - border2x - childMargin4x), 0);
+		auto remainingHeight = std::max(0, (maxSize.height - contentSize - contentSpacing - padding2x - border2x - childMargin4x));
 
 		if (valign == "middle")
 			alignedPosition.y += (remainingHeight / 2);
 		else if (valign == "bottom")
 			alignedPosition.y += remainingHeight;
 
-		auto remainingWidth = std::max((maxSize.width - component->background.w - padding2x - border2x), 0);
+		auto remainingWidth = std::max(0, (maxSize.width - component->background.w - padding2x - border2x));
 
 		if (halign == "center")
 			alignedPosition.x += (remainingWidth / 2);
@@ -129,14 +129,14 @@ SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& offsetPosition, int conten
 	}
 	else
 	{
-		auto remainingWidth = std::max((maxSize.width - contentSize - contentSpacing - padding2x - border2x - childMargin4x), 0);
+		auto remainingWidth = std::max(0, (maxSize.width - contentSize - contentSpacing - padding2x - border2x - childMargin4x));
 
 		if (halign == "center")
 			alignedPosition.x += (remainingWidth / 2);
 		else if (halign == "right")
 			alignedPosition.x += remainingWidth;
 
-		auto remainingHeight = std::max((maxSize.height - component->background.h - padding2x - border2x), 0);
+		auto remainingHeight = std::max(0, (maxSize.height - component->background.h - padding2x - border2x));
 
 		if (valign == "middle")
 			alignedPosition.y += (remainingHeight / 2);

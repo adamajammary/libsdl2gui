@@ -1121,20 +1121,20 @@ DLLEXPORT std::string DLL LSG_SaveFile(const LSG_Strings& filters = {});
 /**
  * @brief Scrolls the component horizontally by the specified offset.
  * @param id     <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
- * @param scroll Horizontal scroll offset
+ * @param offset Horizontal scroll offset
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_ScrollHorizontal(const std::string& id, int scroll);
+DLLEXPORT void DLL LSG_ScrollByHorizontal(const std::string& id, int offset);
 
 /**
  * @brief Scrolls the component vertically by the specified offset.
  * @param id     <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
- * @param scroll Vertical scroll offset
+ * @param offset Vertical scroll offset
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_ScrollVertical(const std::string& id, int scroll);
+DLLEXPORT void DLL LSG_ScrollByVertical(const std::string& id, int offset);
 
 /**
  * @brief Scrolls to the bottom of the component.
@@ -1151,6 +1151,24 @@ DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
+
+/**
+ * @brief Scrolls the component horizontally to the specified position.
+ * @param id       <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param position Horizontal scroll position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ScrollToHorizontal(const std::string& id, int position);
+
+/**
+ * @brief Scrolls the component vertically to the specified position.
+ * @param id       <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param position Vertical scroll position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ScrollToVertical(const std::string& id, int position);
 
 /**
  * @brief Selects the row in the cards list.

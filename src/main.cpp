@@ -1620,7 +1620,7 @@ std::string LSG_SaveFile(const LSG_Strings& filters)
 }
 #endif
 
-void LSG_ScrollHorizontal(const std::string& id, int scroll)
+void LSG_ScrollByHorizontal(const std::string& id, int offset)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1631,20 +1631,20 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
 	if (component->IsCards())
-		static_cast<LSG_Cards*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Cards*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsList())
-		static_cast<LSG_List*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_List*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsPanel())
-		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Table*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsTextLabel())
-		static_cast<LSG_TextLabel*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_TextLabel*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsTiles())
-		static_cast<LSG_Tiles*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Tiles*>(component)->OnScrollHorizontal(offset, true);
 }
 
-void LSG_ScrollVertical(const std::string& id, int scroll)
+void LSG_ScrollByVertical(const std::string& id, int offset)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1655,17 +1655,17 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
 	if (component->IsCards())
-		static_cast<LSG_Cards*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Cards*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsList())
-		static_cast<LSG_List*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_List*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsPanel())
-		static_cast<LSG_Panel*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Panel*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Table*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsTextLabel())
-		static_cast<LSG_TextLabel*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_TextLabel*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsTiles())
-		static_cast<LSG_Tiles*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Tiles*>(component)->OnScrollVertical(offset, true);
 }
 
 void LSG_ScrollToBottom(const std::string& id)
@@ -1714,6 +1714,54 @@ void LSG_ScrollToTop(const std::string& id)
 		static_cast<LSG_TextLabel*>(component)->OnScrollHome();
 	else if (component->IsTiles())
 		static_cast<LSG_Tiles*>(component)->OnScrollHome();
+}
+
+void LSG_ScrollToHorizontal(const std::string& id, int position)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || (!component->IsScrollable()))
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
+
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->ScrollToHorizontal(position);
+	else if (component->IsList())
+		static_cast<LSG_List*>(component)->ScrollToHorizontal(position);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->ScrollToHorizontal(position);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->ScrollToHorizontal(position);
+	else if (component->IsTextLabel())
+		static_cast<LSG_TextLabel*>(component)->ScrollToHorizontal(position);
+	else if (component->IsTiles())
+		static_cast<LSG_Tiles*>(component)->ScrollToHorizontal(position);
+}
+
+void LSG_ScrollToVertical(const std::string& id, int position)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsScrollable())
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
+
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->ScrollToVertical(position);
+	else if (component->IsList())
+		static_cast<LSG_List*>(component)->ScrollToVertical(position);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->ScrollToVertical(position);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->ScrollToVertical(position);
+	else if (component->IsTextLabel())
+		static_cast<LSG_TextLabel*>(component)->ScrollToVertical(position);
+	else if (component->IsTiles())
+		static_cast<LSG_Tiles*>(component)->ScrollToVertical(position);
 }
 
 void LSG_SelectCard(const std::string& id, int row)

@@ -520,3 +520,13 @@ void LSG_ScrollBar::resetScroll()
 	this->scrollHorizontal.offset = 0;
 	this->scrollVertical.offset   = 0;
 }
+
+void LSG_ScrollBar::ScrollToHorizontal(int position)
+{
+	this->scrollHorizontal.offset = std::max(0, position);
+}
+
+void LSG_ScrollBar::ScrollToVertical(int position)
+{
+	this->scrollVertical.offset = std::max(0, position);
+}
