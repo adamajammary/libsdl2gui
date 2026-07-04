@@ -222,15 +222,15 @@ struct LSG_ConstSortOrder
 	}
 };
 
+struct LSG_ConstSymbol
+{
+	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x86, (char)0x91, 0 };
+	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x86, (char)0x93, 0 };
+};
+
 struct LSG_ConstTexture
 {
 	static inline const int MaxSize = 8192;
-};
-
-struct LSG_ConstUnicodeCharacter
-{
-	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x96, (char)0xB2, 0 };
-	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x96, (char)0xBC, 0 };
 };
 
 struct LSG_Alignment
