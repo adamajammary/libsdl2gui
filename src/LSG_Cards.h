@@ -11,18 +11,23 @@ struct LSG_Card
 	LSG_ItemText  title       = {};
 };
 
-class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_Cards : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_Cards(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_Cards();
 
+public:
+	static const int DefaultCardPageRows = 3;
+
 private:
 	static const int DefaultCardBorderWidth = 1;
 	static const int DefaultCardHeight      = 128;
 	static const int DefaultCardPadding     = 10;
-	static const int DefaultCardPageRows    = 3;
 	static const int DefaultCardSpacing     = 10;
+
+private:
+	static std::mutex cardsLock;
 
 private:
 	LSG_CardBorder        cardBorderType;
@@ -31,7 +36,6 @@ private:
 	int                   cardPadding;
 	int                   cardSpacing;
 	std::vector<LSG_Card> cards;
-	std::mutex            cardsLock;
 	int                   highlightedRow;
 	SDL_Point             offset;
 	SDL_Texture*          renderTarget;
@@ -48,21 +52,17 @@ public:
 	size_t           GetCardsCount() const;
 	std::vector<int> GetSelectedCards() const;
 	SDL_Size         GetSize() const;
-	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OnMouseClick(const SDL_Point& mousePosition);
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveCard(int row);
-	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void             Render(SDL_Renderer* renderer);
-	bool             Select(int row);
+	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void     Render(SDL_Renderer* renderer) override;
+	bool             Select(int row, bool toggle = false);
 	bool             Select(const std::vector<int>& rows);
 	void             SelectAll();
 	void             SelectFirst(bool keyShift = false);
 	void             SelectLast(bool keyShift = false);
-	void             SelectNextPage(bool keyShift = false);
-	void             SelectNextRow(bool keyShift = false);
-	void             SelectPreviousPage(bool keyShift = false);
-	void             SelectPreviousRow(bool keyShift = false);
-	void             SelectRow(int offset);
+	void             SelectRow(int offset, bool keyShift = false);
 	void             SetCard(int row, const LSG_CardItem& cardItem);
 	void             SetCards(const LSG_CardItems& cardItems);
 	void             SetCards();
@@ -72,6 +72,7 @@ private:
 	void          destroySurfaces();
 	void          destroyTextures(LSG_Card& card);
 	virtual void  destroyTextures() override;
+	std::string   getCardTextureId(const std::string& type, int row) const;
 	int           getRow(const SDL_Point& mousePosition) const;
 	int           getTitleFontSize() const;
 	void          render(SDL_Renderer* renderer);
@@ -81,9 +82,8 @@ private:
 	void          renderDescription(SDL_Renderer* renderer, const LSG_Card& card) const;
 	void          renderScrollBar(SDL_Renderer* renderer, const SDL_Size& textureSize);
 	void          renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const;
-	void          renderThumbnail(SDL_Renderer* renderer, const LSG_Card& card) const;
+	void          renderThumbnail(SDL_Renderer* renderer, int row) const;
 	void          renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSize);
-	void          reset(bool resetScroll = false);
 	void          resetHighlight();
 	void          resetRenderTarget();
 	void          select(LSG_EventType eventType);

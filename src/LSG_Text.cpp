@@ -1,9 +1,19 @@
 #include "LSG_Text.h"
 
+std::mutex LSG_Text::surfaceLock;
+
 LSG_Text::LSG_Text(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Component(id, layer, xmlNode, xmlNodeName, parent)
 {
-	this->wrap = (LSG_XML::GetAttribute(this->xmlNode, "wrap") == "true");
+	this->ellipsisTexture = nullptr;
+	this->textOverflow    = LSG_TEXT_OVERFLOW_NONE;
+
+	auto xmlAttributes = LSG_XML::GetAttributes(xmlNode);
+
+	this->wrap = (xmlAttributes.contains("wrap") && (xmlAttributes["wrap"] == "true"));
+
+	if (xmlAttributes.contains("text-overflow"))
+		this->textOverflow = (xmlAttributes["text-overflow"] == "ellipsis" ? LSG_TEXT_OVERFLOW_ELLIPSIS : LSG_TEXT_OVERFLOW_CLIP);
 }
 
 bool LSG_Text::FontSupportsText(TTF_Font* font, uint16_t* text)
@@ -95,28 +105,24 @@ LSG_TableRowCompare LSG_Text::GetTableRowCompare(int column)
 //	return xmlText;
 //}
 
-SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
 {
 	if (text.empty())
 		return nullptr;
 
-	this->surfaceLock.lock();
-
-	auto color = (!textColor    ? this->textColor      : *textColor);
-	auto size  = (fontSize == 0 ? this->getFontSize()  : fontSize);
-	auto style = (fontStyle < 0 ? this->getFontStyle() : fontStyle);
+	LSG_Text::surfaceLock.lock();
 
 	auto text16 = LSG_Text::ToUTF16(text);
-	auto font   = LSG_Text::GetFont(size, text16);
+	auto font   = LSG_Text::GetFont(fontSize, text16);
 
-	TTF_SetFontStyle(font, style);
+	TTF_SetFontStyle(font, fontStyle);
 
 	SDL_Surface* surface = nullptr;
 
-	if (this->wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, color, 0);
+	if (wrap)
+		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, textColor, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, text16, color);
+		surface = TTF_RenderUNICODE_Blended(font, text16, textColor);
 
 	TTF_CloseFont(font);
 	SDL_free(text16);
@@ -124,22 +130,42 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	if (!surface)
 		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));
 
-	this->surfaceLock.unlock();
+	LSG_Text::surfaceLock.unlock();
 
 	return surface;
 }
 
-SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, SDL_Color* textColor)
+SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
 {
 	if (text.empty())
 		return nullptr;
 
-	auto surface = this->getSurface(text, fontSize, fontStyle, textColor);
+	auto surface = LSG_Text::getSurface(text, fontSize, fontStyle, textColor, wrap);
 	auto texture = LSG_Window::ToTexture(surface);
 
 	SDL_FreeSurface(surface);
 
 	return texture;
+}
+
+SDL_Surface* LSG_Text::getSurface(const std::string& text) const
+{
+	return this->getSurface(text, this->getFontSize(), this->getFontStyle(), this->textColor, this->wrap);
+}
+
+SDL_Texture* LSG_Text::getTexture(const std::string& text) const
+{
+	return this->getTexture(text, this->getFontSize(), this->getFontStyle(), this->textColor, this->wrap);
+}
+
+SDL_Surface* LSG_Text::GetSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
+{
+	return LSG_Text::getSurface(text, fontSize, fontStyle, textColor, wrap);
+}
+
+SDL_Texture* LSG_Text::GetTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap)
+{
+	return LSG_Text::getTexture(text, fontSize, fontStyle, textColor, wrap);
 }
 
 std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separator)
@@ -157,7 +183,40 @@ std::string LSG_Text::Join(const LSG_Strings& strings, const std::string& separa
 	return result;
 }
 
-std::string LSG_Text::replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
+void LSG_Text::renderTextOverflowClip(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
+{
+	SDL_Rect textClip = { 0, 0, maxWidth, destination.h };
+
+	SDL_Rect textDestination = destination;
+
+	textDestination.w = textClip.w;
+
+	SDL_RenderCopy(renderer, texture, &textClip, &textDestination);
+}
+
+void LSG_Text::renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
+{
+	auto ellipsisSize = LSG_Graphics::GetTextureSize(this->ellipsisTexture);
+
+	SDL_Rect textClip = { 0, 0, (maxWidth - ellipsisSize.width), destination.h };
+
+	SDL_Rect textDestination = destination;
+
+	textDestination.w = textClip.w;
+
+	SDL_RenderCopy(renderer, texture, &textClip, &textDestination);
+
+	SDL_Rect ellipsisDestination = {
+		(destination.x + maxWidth - ellipsisSize.width),
+		(destination.y + destination.h - ellipsisSize.height),
+		ellipsisSize.width,
+		ellipsisSize.height
+	};
+
+	SDL_RenderCopy(renderer, this->ellipsisTexture, nullptr, &ellipsisDestination);
+}
+
+std::string LSG_Text::Replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
 {
 	auto result        = std::string(text);
 	auto matchPosition = result.find(oldSubstring);
@@ -170,9 +229,52 @@ std::string LSG_Text::replace(const std::string& text, const std::string& oldSub
 	return result;
 }
 
+LSG_Strings LSG_Text::Split(const std::string& text, char separator)
+{
+	LSG_Strings result;
+	std::string token;
+
+	auto stream = std::stringstream(text);
+	
+	while (std::getline(stream, token, separator))
+		result.push_back(token);
+
+	return result;
+}
+
+std::string LSG_Text::ToLower(const std::string& text)
+{
+	auto lower = std::string(text);
+
+	for (size_t i = 0; i < text.size(); i++)
+		lower[i] = std::tolower(text[i]);
+
+	return lower;
+}
+
+std::string LSG_Text::ToUpper(const std::string& text)
+{
+	auto upper = std::string(text);
+
+	for (size_t i = 0; i < text.size(); i++)
+		upper[i] = std::toupper(text[i]);
+
+	return upper;
+}
+
+std::string LSG_Text::ToUTF8(const std::wstring& wide)
+{
+    auto buffer = SDL_iconv_wchar_utf8(wide.c_str());
+    auto utf8   = std::string(buffer);
+
+	SDL_free(buffer);
+
+    return utf8;
+}
+
 uint16_t* LSG_Text::ToUTF16(const std::string& text)
 {
-	auto formattedText = LSG_Text::replace(text, "\\n", "\n");
+	auto formattedText = LSG_Text::Replace(text, "\\n", "\n");
 
 	#if defined _linux
 		auto textUTF16 = (uint16_t*)SDL_iconv_string("UCS-2", "UTF-8", formattedText.c_str(), formattedText.size() + 1);

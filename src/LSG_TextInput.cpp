@@ -258,7 +258,7 @@ void LSG_TextInput::MoveCursorLeft()
 		auto character      = this->value[this->cursorPosition - 1];
 		int  characterWidth = (character < 0 ? 2 : 1);
 
-		this->cursorPosition = (size_t)std::max(((int)this->cursorPosition - characterWidth), 0);
+		this->cursorPosition = (size_t)std::max(0, ((int)this->cursorPosition - characterWidth));
 	} else if (this->highlightedTextLength < 0) {
 		this->cursorPosition += this->highlightedTextLength;
 	}
@@ -466,7 +466,7 @@ void LSG_TextInput::renderHighlightedText(SDL_Renderer* renderer, const SDL_Rect
 					start = 0;
 					width = ((startWidth % background.w) + lastPageOffset);
 				} else if (this->highlightedTextLength > 0) {
-					start = std::max((start - (this->textSize.width % background.w)), 0);
+					start = std::max(0, (start - (this->textSize.width % background.w)));
 					width = ((startWidth % background.w) + lastPageOffset - start);
 				} else if (this->highlightedTextLength < 0) {
 					width = (background.w - start);
@@ -632,20 +632,6 @@ void LSG_TextInput::SelectWord(const SDL_Point& mousePosition)
 	this->setCursor();
 }
 
-void LSG_TextInput::sendEvent(LSG_EventType type) const
-{
-	if (!this->enabled)
-		return;
-
-	SDL_Event textInputEvent = {};
-
-	textInputEvent.type       = SDL_RegisterEvents(1);
-	textInputEvent.user.code  = (int)type;
-	textInputEvent.user.data1 = (void*)strdup(this->id.c_str());
-
-	SDL_PushEvent(&textInputEvent);
-}
-
 void LSG_TextInput::setCursor()
 {
 	if (this->value.empty()) {
@@ -715,7 +701,7 @@ void LSG_TextInput::setPlaceholder()
 	auto textColor = SDL_Color(this->textColor);
 	textColor.a    = (uint8_t)((double)textColor.a * 0.8);
 
-	this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = this->getTexture(this->placeholder, 0, -1, &textColor);
+	this->textures[LSG_TEXT_INPUT_TEXTURE_PLACEHOLDER] = LSG_Text::GetTexture(this->placeholder, this->getFontSize(), this->getFontStyle(), textColor, this->wrap);
 }
 
 void LSG_TextInput::SetText()

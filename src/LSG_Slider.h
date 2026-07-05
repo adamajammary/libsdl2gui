@@ -3,17 +3,24 @@
 #ifndef LSG_SLIDER_H
 #define LSG_SLIDER_H
 
-struct LSG_SliderThumb
+struct LSG_SliderPartItem : LSG_SliderPart
 {
-	SDL_Color   borderColor  = {};
-	int         borderRadius = 0;
-	int         borderWidth  = 0;
-	SDL_Color   color        = {};
-	int         width        = 0;
-	int         widthDefault = 0;
+	SDL_Rect destination = {};
+
+	LSG_SliderPartItem(const LSG_SliderPart& part) : LSG_SliderPart(part.value, part.tooltip) {}
 };
 
-class LSG_Slider : public LSG_ProgressBar, public LSG_IEvent
+using LSG_SliderPartItems = std::vector<LSG_SliderPartItem>;
+
+struct LSG_SliderThumb
+{
+	SDL_Color   borderColor = {};
+	int         borderWidth = 0;
+	SDL_Color   color       = {};
+	int         size        = 0;
+};
+
+class LSG_Slider : public LSG_ProgressBar
 {
 public:
 	LSG_Slider(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -23,31 +30,41 @@ private:
 	static inline const SDL_Color DefaultThumbColor = { 128, 128, 128, 255 };
 
 private:
-	static const int DefaultThumbWidth = 10;
+	static const int DefaultPartSize = 5;
 
 private:
-	bool            fillProgress;
-	bool            isSlideActive;
-	std::string     orientation;
-	LSG_SliderThumb thumb;
+	int                 barWidth;
+	bool                fillProgress;
+	bool                isSlideActive;
+	std::string         orientation;
+	int                 partSize;
+	LSG_SliderPartItems parts;
+	LSG_SliderThumb     thumb;
 
 public:
-	virtual void OnMouseClick(const SDL_Point& mousePosition) override;
-	bool         OnMouseClickThumb(const SDL_Point& mousePosition);
-	bool         OnMouseMove(const SDL_Point& mousePosition);
-	void         OnMouseScroll(int offset);
-	void         OnMouseUp();
-	virtual void Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void         Render(SDL_Renderer* renderer);
-	virtual void SetColors() override;
+	void            AddPart(LibXml::xmlNode* node);
+	LSG_SliderParts GetParts() const;
+	void            OnMouseClick(const SDL_Point& mousePosition);
+	bool            OnMouseClickThumb(const SDL_Point& mousePosition);
+	bool            OnMouseMove(const SDL_Point& mousePosition);
+	void            OnMouseScroll(int offset);
+	void            OnMouseUp();
+	void            Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void    Render(SDL_Renderer* renderer) override;
+	virtual void    RenderTooltip(SDL_Renderer* renderer) const override;
+	virtual void    SetColors() override;
+	void            SetParts(const LSG_SliderParts& parts);
 
 private:
-	SDL_Rect     getBackground() const;
-	int          getProgressValue(const SDL_Rect& background) const;
-	SDL_Rect     getThumb(const SDL_Rect& background, int progressValue) const;
-	void         render(SDL_Renderer* renderer);
-	void         renderBackground(SDL_Renderer* renderer, const SDL_Rect& background);
-	void         renderThumb(SDL_Renderer* renderer, const SDL_Rect& background, int progressValue);
+	SDL_Rect     getBar() const;
+	int          getBarWidth(bool isVertical) const;
+	int          getProgressWidth() const;
+	SDL_Rect     getThumb() const;
+	int          getThumbSize(bool isVertical) const;
+	void         render(SDL_Renderer*      renderer);
+	void         renderBar(SDL_Renderer*   renderer, const SDL_Rect& bar) const;
+	void         renderParts(SDL_Renderer* renderer, const SDL_Rect& bar);
+	void         renderThumb(SDL_Renderer* renderer) const;
 	virtual void sendEvent(LSG_EventType type) const override;
 	void         setValue(const SDL_Point& mousePosition);
 	void         setValue(int offset);

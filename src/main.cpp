@@ -1,6 +1,6 @@
 #include "main.h"
 
-const char ERROR_NOT_STARTED[] = "libsdl2gui has not been started, call LSG_Start.";
+const char ERROR_NOT_STARTED[] = "libsdlui has not been started, call LSG_Start.";
 
 char* basePath  = nullptr;
 bool  isRunning = false;
@@ -250,6 +250,32 @@ SDL_Color LSG_GetBackgroundColor(const std::string& id)
 	return component->backgroundColor;
 }
 
+std::string LSG_GetButtonIconPath(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsButton())
+		throw std::invalid_argument(getErrorNoID("<button>", id));
+
+	return static_cast<LSG_Button*>(component)->GetIconPath();
+}
+
+std::string LSG_GetButtonText(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsButton())
+		throw std::invalid_argument(getErrorNoID("<button>", id));
+
+	return static_cast<LSG_Button*>(component)->GetText();
+}
+
 LSG_CardItem LSG_GetCard(const std::string& id, int index)
 {
 	if (!isRunning)
@@ -303,6 +329,35 @@ int LSG_GetDPIScaled(int value)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
 	return LSG_Window::GetDPIScaled(value);
+}
+
+LSG_File LSG_GetFile(const std::string& filePath)
+{
+    LSG_File file = { .filePath = filePath };
+
+	auto lastSeparator = file.filePath.rfind('/');
+
+    if (lastSeparator == std::string::npos)
+        lastSeparator = file.filePath.rfind('\\');
+
+    if (lastSeparator != std::string::npos) {
+	    file.pathSep = file.filePath[lastSeparator];
+	    file.path    = file.filePath.substr(0, lastSeparator);
+        file.file    = file.filePath.substr(lastSeparator + 1);
+    } else {
+        file.file = file.filePath;
+    }
+
+    auto extension = file.file.rfind('.');
+
+    if (extension != std::string::npos) {
+        file.name = file.file.substr(0, extension);
+        file.ext  = LSG_TextToLower(file.file.substr(extension + 1));
+    } else {
+        file.name = file.file;
+    }
+
+    return file;
 }
 
 int LSG_GetFontStyle(const std::string& id)
@@ -456,6 +511,19 @@ int LSG_GetNavigationPosition(const std::string& id)
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
 
 	return static_cast<LSG_Navigation*>(component)->GetPosition();
+}
+
+LSG_Orientation LSG_GetOrientation(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetOrientation();
 }
 
 int LSG_GetPadding(const std::string& id)
@@ -685,6 +753,21 @@ SDL_Size LSG_GetSize(const std::string& id)
 	return size;
 }
 
+LSG_SliderParts LSG_GetSliderParts(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id));
+
+	auto parts = static_cast<LSG_Slider*>(component)->GetParts();
+
+	return parts;
+}
+
 double LSG_GetSliderValue(const std::string& id)
 {
 	if (!isRunning)
@@ -908,6 +991,19 @@ std::string LSG_GetTitle(const std::string& id)
 	return LSG_XML::GetAttribute(component->GetXmlNode(), "title");
 }
 
+std::string LSG_GetTooltip(const std::string& id)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	return component->GetTooltip();
+}
+
 SDL_Size LSG_GetWindowMinimumSize()
 {
 	if (!isRunning)
@@ -1060,19 +1156,6 @@ void LSG_NavigateEnd(const std::string& id, const std::string& text)
 	static_cast<LSG_Navigation*>(component)->NavigateEnd(text);
 }
 
-void LSG_NavigateForward(const std::string& id, const std::string& text)
-{
-	if (!isRunning)
-		throw std::runtime_error(ERROR_NOT_STARTED);
-
-	auto component = getComponent(id);
-
-	if (!component || !component->IsNavigation())
-		throw std::invalid_argument(getErrorNoID("<navigation>", id));
-
-	static_cast<LSG_Navigation*>(component)->NavigateForward(text);
-}
-
 void LSG_NavigateHome(const std::string& id, const std::string& text)
 {
 	if (!isRunning)
@@ -1084,6 +1167,19 @@ void LSG_NavigateHome(const std::string& id, const std::string& text)
 		throw std::invalid_argument(getErrorNoID("<navigation>", id));
 
 	static_cast<LSG_Navigation*>(component)->NavigateHome(text);
+}
+
+void LSG_NavigateNext(const std::string& id, const std::string& text)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsNavigation())
+		throw std::invalid_argument(getErrorNoID("<navigation>", id));
+
+	static_cast<LSG_Navigation*>(component)->NavigateNext(text);
 }
 
 void LSG_NavigateTo(const std::string& id, int position, const std::string& text)
@@ -1477,7 +1573,15 @@ void LSG_RenderTextureWithRoundedCorners(
 	if (!texture)
 		throw std::invalid_argument("'texture' cannot be NULL");
 
-	LSG_Graphics::RenderTextureWithRoundedCorners(renderer, texture, destination, clip, radius, color, id);
+	LSG_Graphics::RenderTextureWithRoundedCorners(
+		renderer,
+		texture,
+		destination,
+		clip,
+		LSG_Window::GetDPIScaled(radius),
+		color,
+		id
+	);
 }
 
 std::vector<SDL_Event> LSG_Run()
@@ -1516,7 +1620,7 @@ std::string LSG_SaveFile(const LSG_Strings& filters)
 }
 #endif
 
-void LSG_ScrollHorizontal(const std::string& id, int scroll)
+void LSG_ScrollByHorizontal(const std::string& id, int offset)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1527,20 +1631,20 @@ void LSG_ScrollHorizontal(const std::string& id, int scroll)
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
 	if (component->IsCards())
-		static_cast<LSG_Cards*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Cards*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsList())
-		static_cast<LSG_List*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_List*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsPanel())
-		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Panel*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Table*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsTextLabel())
-		static_cast<LSG_TextLabel*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_TextLabel*>(component)->OnScrollHorizontal(offset, true);
 	else if (component->IsTiles())
-		static_cast<LSG_Tiles*>(component)->OnScrollHorizontal(scroll, true);
+		static_cast<LSG_Tiles*>(component)->OnScrollHorizontal(offset, true);
 }
 
-void LSG_ScrollVertical(const std::string& id, int scroll)
+void LSG_ScrollByVertical(const std::string& id, int offset)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
@@ -1551,17 +1655,17 @@ void LSG_ScrollVertical(const std::string& id, int scroll)
 		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
 
 	if (component->IsCards())
-		static_cast<LSG_Cards*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Cards*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsList())
-		static_cast<LSG_List*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_List*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsPanel())
-		static_cast<LSG_Panel*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Panel*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsTable())
-		static_cast<LSG_Table*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Table*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsTextLabel())
-		static_cast<LSG_TextLabel*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_TextLabel*>(component)->OnScrollVertical(offset, true);
 	else if (component->IsTiles())
-		static_cast<LSG_Tiles*>(component)->OnScrollVertical(scroll, true);
+		static_cast<LSG_Tiles*>(component)->OnScrollVertical(offset, true);
 }
 
 void LSG_ScrollToBottom(const std::string& id)
@@ -1610,6 +1714,54 @@ void LSG_ScrollToTop(const std::string& id)
 		static_cast<LSG_TextLabel*>(component)->OnScrollHome();
 	else if (component->IsTiles())
 		static_cast<LSG_Tiles*>(component)->OnScrollHome();
+}
+
+void LSG_ScrollToHorizontal(const std::string& id, int position)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || (!component->IsScrollable()))
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
+
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->ScrollToHorizontal(position);
+	else if (component->IsList())
+		static_cast<LSG_List*>(component)->ScrollToHorizontal(position);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->ScrollToHorizontal(position);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->ScrollToHorizontal(position);
+	else if (component->IsTextLabel())
+		static_cast<LSG_TextLabel*>(component)->ScrollToHorizontal(position);
+	else if (component->IsTiles())
+		static_cast<LSG_Tiles*>(component)->ScrollToHorizontal(position);
+}
+
+void LSG_ScrollToVertical(const std::string& id, int position)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsScrollable())
+		throw std::invalid_argument(getErrorNoID("<cards>, <list>, <panel>, <table>, <text> or <tiles>", id));
+
+	if (component->IsCards())
+		static_cast<LSG_Cards*>(component)->ScrollToVertical(position);
+	else if (component->IsList())
+		static_cast<LSG_List*>(component)->ScrollToVertical(position);
+	else if (component->IsPanel())
+		static_cast<LSG_Panel*>(component)->ScrollToVertical(position);
+	else if (component->IsTable())
+		static_cast<LSG_Table*>(component)->ScrollToVertical(position);
+	else if (component->IsTextLabel())
+		static_cast<LSG_TextLabel*>(component)->ScrollToVertical(position);
+	else if (component->IsTiles())
+		static_cast<LSG_Tiles*>(component)->ScrollToVertical(position);
 }
 
 void LSG_SelectCard(const std::string& id, int row)
@@ -2157,6 +2309,19 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 		LSG_UI::LayoutRoot();
 }
 
+void LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id));
+
+	static_cast<LSG_Slider*>(component)->SetParts(parts);
+}
+
 void LSG_SetSliderValue(const std::string& id, double percent)
 {
 	if (!isRunning)
@@ -2364,6 +2529,19 @@ void LSG_SetToggle(const std::string& id, bool on)
 	static_cast<LSG_Toggle*>(component)->Set(on);
 }
 
+void LSG_SetTooltip(const std::string& id, const std::string& tooltip)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component)
+		throw std::invalid_argument(getErrorNoID("", id));
+
+	component->SetTooltip(tooltip);
+}
+
 void LSG_SetVisible(const std::string& id, bool visible, bool layout)
 {
 	if (!isRunning)
@@ -2516,6 +2694,41 @@ void LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColum
 		throw std::invalid_argument(getErrorNoID("<table>", id));
 
 	static_cast<LSG_Table*>(component)->Sort(sortOrder, sortColumn);
+}
+
+std::string LSG_TextJoin(const LSG_Strings& strings, const std::string& separator)
+{
+	return LSG_Text::Join(strings, separator);
+}
+
+std::string LSG_TextReplace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
+{
+	return LSG_Text::Replace(text, oldSubstring, newSubstring);
+}
+
+LSG_Strings LSG_TextSplit(const std::string& text, char separator)
+{
+	return LSG_Text::Split(text, separator);
+}
+
+std::string LSG_TextToLower(const std::string& text)
+{
+	return LSG_Text::ToLower(text);
+}
+
+std::string LSG_TextToUpper(const std::string& text)
+{
+	return LSG_Text::ToUpper(text);
+}
+
+std::string LSG_TextToUTF8(const std::wstring& wide)
+{
+	return LSG_Text::ToUTF8(wide);
+}
+
+std::wstring LSG_TextToWide(const std::string& text)
+{
+	return LSG_Text::ToWide(text);
 }
 
 SDL_Renderer* LSG_Start(const std::string& xmlFile)

@@ -1,1 +1,1 @@
-include ':testsdl2gui'
+include ':testsdlui'

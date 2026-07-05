@@ -47,7 +47,8 @@ LSG_UMapStrStr LSG_XML::GetAttributes(LibXml::xmlNode* xmlNode)
 		auto value = reinterpret_cast<const char*>(xmlAttribute->xmlChildrenNode->content);
 
 		attributes[key] = value;
-		xmlAttribute    = xmlAttribute->next;
+
+		xmlAttribute = xmlAttribute->next;
 	}
 
 	return attributes;
@@ -62,8 +63,10 @@ LSG_XmlNodes LSG_XML::GetChildNodes(LibXml::xmlNode* xmlNode)
 
 	auto xmlChildNode = xmlNode->xmlChildrenNode;
 
-	while (xmlChildNode) {
+	while (xmlChildNode)
+	{
 		nodes.push_back(xmlChildNode);
+
 		xmlChildNode = xmlChildNode->next;
 	}
 

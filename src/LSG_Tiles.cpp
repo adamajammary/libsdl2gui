@@ -1,5 +1,7 @@
 #include "LSG_Tiles.h"
 
+std::mutex LSG_Tiles::tilesLock;
+
 LSG_Tiles::LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent)
 	: LSG_Text(id, layer, xmlNode, xmlNodeName, parent)
 {
@@ -42,32 +44,36 @@ void LSG_Tiles::Activate() const
 		this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
 }
 
-void LSG_Tiles::Activate(const SDL_Point& mousePosition) const
+void LSG_Tiles::Activate(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || LSG_Events::IsMouseDown() || this->tiles.empty() || this->selectedTiles.empty())
+	if (!this->enabled || LSG_Events::IsMouseDown() || this->tiles.empty())
 		return;
 
-	for (auto& tile : this->tiles)
+	for (int i = 0; i < (int)this->tiles.size(); i++)
 	{
-		if (SDL_PointInRect(&mousePosition, &tile.background)) {
-			this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
-			break;
-		}
+		if (!SDL_PointInRect(&mousePosition, &this->tiles[i].background))
+			continue;
+
+		if (this->selectedTiles.empty())
+			this->Select(i);
+
+		this->sendEvent(LSG_EVENT_TILE_ACTIVATED);
+		break;
 	}
 }
 
 void LSG_Tiles::AddTile(const LSG_TileItem& tile)
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->tiles.push_back({
 		.image = { .filePath = tile.image },
 		.text  = { .text     = tile.text  }
 	});
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
-	this->reset();
+	this->setTiles();
 }
 
 void LSG_Tiles::AddTile(LibXml::xmlNode* node)
@@ -120,8 +126,8 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 	auto imageSize = std::min(tile.image.texture.size.width, tile.image.texture.size.height);
 
 	this->image.clip = {
-		std::max(((tile.image.texture.size.width  - tile.image.texture.size.height) / 2), 0),
-		std::max(((tile.image.texture.size.height - tile.image.texture.size.width)  / 2), 0),
+		std::max(0, ((tile.image.texture.size.width  - tile.image.texture.size.height) / 2)),
+		std::max(0, ((tile.image.texture.size.height - tile.image.texture.size.width)  / 2)),
 		imageSize,
 		imageSize
 	};
@@ -144,7 +150,7 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 	}
 
 	auto tileRight     = (this->image.destination.x + this->image.destination.w);
-	auto overflowRight = std::max((tileRight - this->gridEnd), 0);
+	auto overflowRight = std::max(0, (tileRight - this->gridEnd));
 
 	if (overflowRight)
 	{
@@ -156,7 +162,7 @@ void LSG_Tiles::clipTileX(const LSG_Tile& tile)
 		this->text.destination.w = this->image.destination.w;
 	}
 	
-	auto overflowLeft = std::max((this->grid.x - this->image.destination.x), 0);
+	auto overflowLeft = std::max(0, (this->grid.x - this->image.destination.x));
 
 	if (overflowLeft)
 	{
@@ -178,8 +184,8 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 	auto imageSize = std::min(tile.image.texture.size.width, tile.image.texture.size.height);
 
 	this->image.clip = {
-		std::max(((tile.image.texture.size.width  - tile.image.texture.size.height) / 2), 0),
-		std::max(((tile.image.texture.size.height - tile.image.texture.size.width)  / 2), 0),
+		std::max(0, ((tile.image.texture.size.width  - tile.image.texture.size.height) / 2)),
+		std::max(0, ((tile.image.texture.size.height - tile.image.texture.size.width)  / 2)),
 		imageSize,
 		imageSize
 	};
@@ -204,8 +210,8 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 	auto tileBottom = (this->image.destination.y + this->image.destination.h);
 	auto textBottom = (this->text.destination.y  + this->text.destination.h);
 
-	auto overflowBottom     = std::max((tileBottom - this->gridEnd), 0);
-	auto overflowTextBottom = std::max((textBottom - this->gridEnd), 0);
+	auto overflowBottom     = std::max(0, (tileBottom - this->gridEnd));
+	auto overflowTextBottom = std::max(0, (textBottom - this->gridEnd));
 
 	if (overflowBottom)
 	{
@@ -220,8 +226,8 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 		this->text.destination.h -= overflowTextBottom;
 	}
 	
-	auto overflowTop     = std::max((this->grid.y - this->image.destination.y), 0);
-	auto overflowTextTop = std::max((this->grid.y - this->text.destination.y),  0);
+	auto overflowTop     = std::max(0, (this->grid.y - this->image.destination.y));
+	auto overflowTextTop = std::max(0, (this->grid.y - this->text.destination.y));
 
 	if (overflowTop)
 	{
@@ -278,12 +284,12 @@ void LSG_Tiles::destroyTextures(LSG_Tile& tile)
 
 void LSG_Tiles::destroyTextures()
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	for (auto& tile : this->tiles)
 		this->destroyTextures(tile);
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 }
 
 SDL_Rect LSG_Tiles::getGrid()
@@ -321,12 +327,12 @@ int LSG_Tiles::getRowCount() const
 
 int LSG_Tiles::getScrollOffsetX() const
 {
-	return (this->scrollHorizontal.show ? std::max(std::min(this->scrollHorizontal.offset, (this->totalSize - this->fillArea.w)), 0) : 0);
+	return (this->scrollHorizontal.show ? std::max(0, std::min(this->scrollHorizontal.offset, (this->totalSize - this->fillArea.w))) : 0);
 }
 
 int LSG_Tiles::getScrollOffsetY() const
 {
-	return (this->scrollVertical.show ? std::max(std::min(this->scrollVertical.offset, (this->totalSize - this->fillArea.h)), 0) : 0);
+	return (this->scrollVertical.show ? std::max(0, std::min(this->scrollVertical.offset, (this->totalSize - this->fillArea.h))) : 0);
 }
 
 int LSG_Tiles::getSelectedTile() const
@@ -360,7 +366,7 @@ SDL_Size LSG_Tiles::GetSize() const
 	}
 	else
 	{
-		auto tilesPerRow = std::max(std::min((maxWidth / (tileSize + this->spacing)), tileCount), 1);
+		auto tilesPerRow = std::max(1, std::min((maxWidth / (tileSize + this->spacing)), tileCount));
 		auto rowCount    = ((tileCount / tilesPerRow) + ((tileCount % tilesPerRow != 0) ? 1 : 0));
 
 		size.width  = maxWidth;
@@ -422,19 +428,19 @@ SDL_Rect LSG_Tiles::getTextDestination()
 	}
 
 	auto textRight     = (textDestination.x + textDestination.w);
-	auto overflowRight = std::max((textRight - this->gridEnd), 0);
+	auto overflowRight = std::max(0, (textRight - this->gridEnd));
 
 	if (overflowRight) {
 		this->text.clip.w -= overflowRight;
 		textDestination.w  = this->text.clip.w;
 	}
 
-	auto overflowLeft = std::max((this->grid.x - this->offset),  0);
+	auto overflowLeft = std::max(0, (this->grid.x - this->offset));
 
 	if (overflowLeft)
 		textDestination.x -= overflowLeft;
 
-	auto overflowTextLeft = std::max((this->grid.x - textDestination.x), 0);
+	auto overflowTextLeft = std::max(0, (this->grid.x - textDestination.x));
 
 	if (overflowTextLeft)
 	{
@@ -478,6 +484,11 @@ int LSG_Tiles::getTileSize(int maxWidth) const
 	return LSG_Window::GetDPIScaled(tileSize);
 }
 
+std::string LSG_Tiles::getTileTextureId(const std::string& type, int index, const SDL_Rect& clip) const
+{
+	return std::format("{}_tile_{}_{}_{},{}_{}x{}", this->id, index, type, clip.x, clip.y, clip.w, clip.h);
+}
+
 LSG_TileItems LSG_Tiles::GetTiles() const
 {
 	LSG_TileItems tiles;
@@ -502,7 +513,7 @@ int LSG_Tiles::getTilesPerRow() const
 	else
 		tilesPerRow = std::min((this->fillArea.w / (this->tileSize + this->spacing)), (int)this->tiles.size());
 
-	return std::max(tilesPerRow, 1);
+	return std::max(1, tilesPerRow);
 }
 
 bool LSG_Tiles::isTextVisible() const
@@ -559,7 +570,7 @@ void LSG_Tiles::OnMouseClick(const SDL_Point& mousePosition)
 		else if (keyState[SDL_SCANCODE_LSHIFT] || keyState[SDL_SCANCODE_RSHIFT])
 			this->selectShift(i);
 		else
-			this->Select(i);
+			this->Select(i, true);
 
 		break;
 	}
@@ -591,15 +602,17 @@ void LSG_Tiles::RemoveTile(int index)
 
 	this->destroyTextures(this->tiles[index]);
 
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->tiles.erase(this->tiles.begin() + (size_t)index);
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
-	this->reset();
+	this->resetScroll();
 
-	this->Select(!this->tiles.empty() && !this->selectedTiles.empty() ? this->selectedTiles[0] : -1);
+	this->setTiles();
+
+	this->Select(-1);
 }
 
 void LSG_Tiles::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -659,9 +672,8 @@ void LSG_Tiles::render(SDL_Renderer* renderer)
 
 		if (this->isTileVisible())
 		{
-			this->renderImage(renderer, this->tiles[i].image);
-			this->renderText(renderer,  this->tiles[i].text);
-
+			this->renderImage(renderer, i);
+			this->renderText(renderer,  i);
 			this->renderHighlightSelection(renderer, i);
 		}
 
@@ -671,7 +683,7 @@ void LSG_Tiles::render(SDL_Renderer* renderer)
 	this->renderScrollBar(renderer);
 }
 
-void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
+void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index) const
 {
 	if (!this->enabled || (index < 0) || (index >= (int)this->tiles.size()))
 		return;
@@ -698,32 +710,34 @@ void LSG_Tiles::renderHighlightSelection(SDL_Renderer* renderer, int index)
 				this->borderRadius,
 				this->selectedBorderWidth,
 				this->image.destination,
-				std::format("{}_tile_selected", this->id)
+				this->getTileTextureId("selected", index, this->image.clip)
 			);
 		} else {
 			LSG_Graphics::RenderBorder(renderer, this->selectedBorderWidth, this->borderColor, this->image.destination);
 		}
 	}
 
-	if (isHighlighted)
+	if (!isHighlighted)
+		return;
+
+	if (this->borderRadius > 0)
 	{
-		if (this->borderRadius > 0)
-		{
-			LSG_Graphics::RenderFillRounded(
-				renderer,
-				this->borderRadius,
-				highlightColor,
-				this->image.destination,
-				std::format("{}_tile_highlighted", this->id)
-			);
-		} else {
-			LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->image.destination);
-		}
+		LSG_Graphics::RenderFillRounded(
+			renderer,
+			this->borderRadius,
+			highlightColor,
+			this->image.destination,
+			this->getTileTextureId("highlighted", index, this->image.clip)
+		);
+	} else {
+		LSG_Graphics::RenderFill(renderer, 0, highlightColor, this->image.destination);
 	}
 }
 
-void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const
+void LSG_Tiles::renderImage(SDL_Renderer* renderer, int index) const
 {
+	const auto& image = this->tiles[index].image;
+
 	if (!image.texture.texture)
 		return;
 
@@ -734,16 +748,18 @@ void LSG_Tiles::renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) 
 		&this->image.clip,
 		this->borderRadius,
 		this->backgroundColor,
-		std::format("{}_tile_image", this->id)
+		this->getTileTextureId("image", index, this->image.clip)
 	);
 }
 
-void LSG_Tiles::renderText(SDL_Renderer* renderer, const LSG_ItemText& text)
+void LSG_Tiles::renderText(SDL_Renderer* renderer, int index)
 {
+	const auto& text = this->tiles[index].text;
+
 	if (text.text.empty() || !this->isTextVisible() || !text.texture.texture)
 		return;
 
-	auto id = std::format("{}_tile_text", this->id);
+	auto id = this->getTileTextureId("text", index, this->text.clip);
 
 	LSG_Graphics::RenderFill(renderer, 0, LSG_Tiles::DefaultTextBackground, this->text.destination);
 
@@ -773,35 +789,17 @@ void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)
 	}
 }
 
-void LSG_Tiles::reset(bool resetScroll)
-{
-	if (resetScroll)
-		this->resetScroll();
-
-	this->destroyTextures();
-
-	this->setTiles();
-}
-
-void LSG_Tiles::resetScroll()
-{
-	if (!this->wrapTiles)
-		this->scrollHorizontal.offset = 0;
-	else
-		this->scrollVertical.offset = 0;
-}
-
-bool LSG_Tiles::Select(int index)
+bool LSG_Tiles::Select(int index, bool toggle)
 {
 	if (!this->enabled || (index >= (int)this->tiles.size()))
 		return false;
 
-	if (index < 0) {
+	if ((index < 0) || (toggle && (this->selectedTiles.size() == 1) && (this->selectedTiles[0] == index))) {
 		this->selectedTiles.clear();
 		this->sendEvent(LSG_EVENT_TILE_UNSELECTED);
 	} else {
 		this->selectedTiles = { index };
-		this->sendEvent(LSG_EVENT_TILE_SELECTED);
+		this->sendEvent(SDL_GetCursor() ? LSG_EVENT_TILE_SELECTED : LSG_EVENT_TILE_ACTIVATED);
 	}
 
 	return true;
@@ -990,9 +988,9 @@ void LSG_Tiles::SelectPrevious(bool keyShift)
 		auto maxTilesInView = std::min((this->fillArea.w / tileSizeSpaced), (int)this->tiles.size());
 
 		if ((previous % maxTilesInView) == (maxTilesInView - 1))
-			this->scrollHorizontal.offset = std::max((tileSizeSpaced * (current - maxTilesInView)), 0);
+			this->scrollHorizontal.offset = std::max(0, (tileSizeSpaced * (current - maxTilesInView)));
 	} else if ((previous % this->tilesPerRow) == (this->tilesPerRow - 1)) {
-		this->scrollVertical.offset = std::max((this->scrollVertical.offset - tileSizeSpaced), 0);
+		this->scrollVertical.offset = std::max(0, (this->scrollVertical.offset - tileSizeSpaced));
 	}
 
 	if (keyShift)
@@ -1023,7 +1021,7 @@ void LSG_Tiles::SelectPreviousPage(bool keyShift)
 	if (previous < 0)
 		return;
 
-	this->scrollVertical.offset = std::max((this->scrollVertical.offset - ((this->tileSize + this->spacing) * 2)), 0);
+	this->scrollVertical.offset = std::max(0, (this->scrollVertical.offset - ((this->tileSize + this->spacing) * 2)));
 
 	if (keyShift)
 		this->selectShift(previous);
@@ -1046,7 +1044,7 @@ void LSG_Tiles::SelectPreviousRow(bool keyShift)
 	if (previous < 0)
 		return;
 
-	this->scrollVertical.offset = std::max((this->scrollVertical.offset - (this->tileSize + this->spacing)), 0);
+	this->scrollVertical.offset = std::max(0, (this->scrollVertical.offset - (this->tileSize + this->spacing)));
 
 	if (keyShift)
 		this->selectShift(previous);
@@ -1120,9 +1118,9 @@ void LSG_Tiles::setGrid()
 	}
 	else if (this->scrollVertical.show)
 	{
-		this->fillArea.w -= LSG_ScrollBar::GetSize();
-
 		this->calculateGridDimensions();
+
+		this->fillArea.w -= LSG_ScrollBar::GetSize();
 	}
 
 	if (!this->wrapTiles)
@@ -1159,7 +1157,7 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 	if ((index < 0) || (index >= (int)this->tiles.size()))
 		return;
 
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->destroyTextures(this->tiles[index]);
 	this->destroySurfaces(this->tiles[index]);
@@ -1169,19 +1167,20 @@ void LSG_Tiles::SetTile(int index, const LSG_TileItem& tile)
 		.text  = { .text     = tile.text  }
 	};
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
-	this->reset();
+	this->setTiles();
 }
 
 void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 {
 	this->destroyTextures();
 
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->destroySurfaces();
 
+	this->selectedTiles.clear();
 	this->tiles.clear();
 
 	for (const auto& tile : tiles)
@@ -1192,28 +1191,30 @@ void LSG_Tiles::SetTiles(const LSG_TileItems& tiles)
 		});
 	}
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 
-	this->reset(true);
+	this->resetScroll();
 
-	this->Select(!this->tiles.empty() ? 0 : -1);
+	this->setTiles();
 }
 
 void LSG_Tiles::SetTiles()
 {
-	this->reset(true);
+	this->setTiles();
 }
 
 void LSG_Tiles::setTiles()
 {
 	LSG_Graphics::DestroyTextures();
 
+	this->destroyTextures();
+
 	std::thread(&LSG_Tiles::setTileSurfaces, this).detach();
 }
 
 void LSG_Tiles::setTileSurfaces()
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	this->destroySurfaces();
 
@@ -1224,7 +1225,7 @@ void LSG_Tiles::setTileSurfaces()
 
 	threadCount.wait();
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 }
 
 void LSG_Tiles::setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount)
@@ -1240,7 +1241,7 @@ void LSG_Tiles::setTileSurfacesForTile(LSG_Tile& tile, std::latch& threadCount)
 
 void LSG_Tiles::setTileTextures()
 {
-	this->tilesLock.lock();
+	LSG_Tiles::tilesLock.lock();
 
 	for (auto& tile : this->tiles)
 	{
@@ -1261,5 +1262,5 @@ void LSG_Tiles::setTileTextures()
 
 	this->destroySurfaces();
 
-	this->tilesLock.unlock();
+	LSG_Tiles::tilesLock.unlock();
 }

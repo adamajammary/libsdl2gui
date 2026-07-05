@@ -68,7 +68,7 @@ void LSG_MenuItem::Open()
 	this->closed = false;
 }
 
-void LSG_MenuItem::Render(SDL_Renderer* renderer) const
+void LSG_MenuItem::Render(SDL_Renderer* renderer)
 {
 	if (!this->visible || (this->textures.size() < NR_OF_MENU_ITEM_TEXTURES))
 		return;

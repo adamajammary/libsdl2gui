@@ -437,10 +437,8 @@ void LSG_ScrollBar::renderScrollArrowsVertical(SDL_Renderer* renderer, const SDL
 
 void LSG_ScrollBar::renderScrollBar(SDL_Renderer* renderer, const SDL_Rect& bar, const SDL_Color& backgroundColor) const
 {
-	auto fillColor = LSG_Graphics::GetFillColor(backgroundColor);
-
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, fillColor.r, fillColor.g, fillColor.b, 255);
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
 
 	SDL_RenderFillRect(renderer, &bar);
 }
@@ -521,4 +519,14 @@ void LSG_ScrollBar::resetScroll()
 {
 	this->scrollHorizontal.offset = 0;
 	this->scrollVertical.offset   = 0;
+}
+
+void LSG_ScrollBar::ScrollToHorizontal(int position)
+{
+	this->scrollHorizontal.offset = std::max(0, position);
+}
+
+void LSG_ScrollBar::ScrollToVertical(int position)
+{
+	this->scrollVertical.offset = std::max(0, position);
 }

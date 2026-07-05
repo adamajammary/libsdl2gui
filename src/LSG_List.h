@@ -3,31 +3,31 @@
 #ifndef LSG_LIST_H
 #define LSG_LIST_H
 
-class LSG_List : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_List : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_List(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
 	~LSG_List() {}
 
 public:
-	static const int UnitPage = 5;
+	static const int DefaultPageRows = 5;
 
 protected:
 	std::vector<int> selectedRows;
 
 public:
 	void             Activate() const;
-	void             Activate(const SDL_Point& mousePosition) const;
+	void             Activate(const SDL_Point& mousePosition);
 	void             AddItem(const std::string& item);
 	std::vector<int> GetSelectedRows() const;
 	LSG_SortOrder    GetSortOrder() const;
 	SDL_Size         GetSize() const;
-	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
+	virtual void     OnMouseClick(const SDL_Point& mousePosition);
 	void             RemoveItem(int row);
 	void             RemovePageItem(int row);
-	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void             Render(SDL_Renderer* renderer);
-	bool             Select(int row);
+	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void     Render(SDL_Renderer* renderer) override;
+	bool             Select(int row, bool toggle = false);
 	bool             Select(int start, int end);
 	bool             Select(const std::vector<int>& rows);
 	void             SelectAll();
@@ -35,7 +35,7 @@ public:
 	void             SelectFirstRowShift();
 	void             SelectLastRow();
 	void             SelectLastRowShift();
-	void             SelectRow(int offset, bool multiSelect = false);
+	void             SelectRow(int offset, bool keyShift = false);
 	void             SetItem(int row, const std::string& item);
 	void             SetItems(const LSG_Strings& items);
 	void             SetItems();
@@ -48,7 +48,6 @@ protected:
 	int          getRowHeight() const;
 	void         renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const;
 	void         renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& background, int rowHeight) const;
-	virtual void reset();
 	virtual void sendEvent(LSG_EventType type) const override;
 
 private:

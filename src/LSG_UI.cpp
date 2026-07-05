@@ -111,14 +111,14 @@ SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& offsetPosition, int conten
 
 	if (panel->IsVertical())
 	{
-		auto remainingHeight = std::max((maxSize.height - contentSize - contentSpacing - padding2x - border2x - childMargin4x), 0);
+		auto remainingHeight = std::max(0, (maxSize.height - contentSize - contentSpacing - padding2x - border2x - childMargin4x));
 
 		if (valign == "middle")
 			alignedPosition.y += (remainingHeight / 2);
 		else if (valign == "bottom")
 			alignedPosition.y += remainingHeight;
 
-		auto remainingWidth = std::max((maxSize.width - component->background.w - padding2x - border2x), 0);
+		auto remainingWidth = std::max(0, (maxSize.width - component->background.w - padding2x - border2x));
 
 		if (halign == "center")
 			alignedPosition.x += (remainingWidth / 2);
@@ -129,14 +129,14 @@ SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& offsetPosition, int conten
 	}
 	else
 	{
-		auto remainingWidth = std::max((maxSize.width - contentSize - contentSpacing - padding2x - border2x - childMargin4x), 0);
+		auto remainingWidth = std::max(0, (maxSize.width - contentSize - contentSpacing - padding2x - border2x - childMargin4x));
 
 		if (halign == "center")
 			alignedPosition.x += (remainingWidth / 2);
 		else if (halign == "right")
 			alignedPosition.x += remainingWidth;
 
-		auto remainingHeight = std::max((maxSize.height - component->background.h - padding2x - border2x), 0);
+		auto remainingHeight = std::max(0, (maxSize.height - component->background.h - padding2x - border2x));
 
 		if (valign == "middle")
 			alignedPosition.y += (remainingHeight / 2);
@@ -168,8 +168,8 @@ SDL_Rect LSG_UI::GetBackgroundArea()
 		SDL_Rect background = {
 			left,
 			top,
-			(windowSize.width - left - right),
-			(windowSize.height - top - bottom)
+			(windowSize.width  - left - right),
+			(windowSize.height - top  - bottom)
 		};
 	#else
 		SDL_Rect background = { 0, 0, windowSize.width, windowSize.height };
@@ -228,6 +228,8 @@ LSG_Component* LSG_UI::GetComponent(const std::string& id, int layer, LibXml::xm
 		component = new LSG_ProgressBar(id, layer, xmlNode, xmlNodeName, parent);
 	else if (xmlNodeName == "slider")
 		component = new LSG_Slider(id, layer, xmlNode, xmlNodeName, parent);
+	else if (xmlNodeName == "slider-part")
+		static_cast<LSG_Slider*>(parent)->AddPart(xmlNode);
 	else if (xmlNodeName == "table")
 		component = new LSG_Table(id, layer, xmlNode, xmlNodeName, parent);
 	else if (xmlNodeName == "table-group")
@@ -709,22 +711,26 @@ void LSG_UI::LayoutParent(LSG_Component* component)
 	if (!component)
 		return;
 
-	LSG_UI::resetSize(component);
+	auto scrollableParent = component->GetScrollableParent();
 
-	auto parent = component->GetParent();
-
-	if (parent)
-	{
-		LSG_UI::layoutFixed(parent);
-		LSG_UI::layoutRelative(parent);
-
+	if (scrollableParent) {
+		LSG_UI::LayoutRoot();
 		return;
 	}
 
-	LSG_UI::root->background = LSG_UI::GetBackgroundArea();
+	auto parent = component->GetParent();
 
-	LSG_UI::layoutFixed(component);
-	LSG_UI::layoutRelative(component);
+	if (!parent) {
+		LSG_UI::LayoutRoot();
+		return;
+	}
+
+	LSG_UI::resetSize(component);
+
+	LSG_UI::layoutFixed(parent);
+	LSG_UI::layoutRelative(parent);
+
+	LSG_Graphics::DestroyTextures();
 }
 
 void LSG_UI::layoutPositionAlign(LSG_Component* component, const LSG_Components& children)
@@ -863,7 +869,12 @@ void LSG_UI::LayoutRoot()
 	LSG_UI::layoutFixed(LSG_UI::root);
 	LSG_UI::layoutRelative(LSG_UI::root);
 
+	LSG_UI::layoutModals();
+	LSG_UI::setModals();
+
 	LSG_UI::CloseMenu();
+
+	LSG_Graphics::DestroyTextures();
 }
 
 void LSG_UI::layoutSizeBlank(LSG_Component* component, const LSG_Components& children)
@@ -1083,6 +1094,7 @@ void LSG_UI::Present(SDL_Renderer* renderer)
 {
 	LSG_UI::renderMenu(renderer);
 	LSG_UI::renderModal(renderer);
+	LSG_UI::renderTooltip(renderer);
 
 	SDL_RenderPresent(renderer);
 }
@@ -1135,8 +1147,7 @@ void LSG_UI::Render(SDL_Renderer* renderer)
 
 void LSG_UI::renderMenu(SDL_Renderer* renderer)
 {
-	for (const auto& component : LSG_UI::componentsByLayer)
-	{
+	for (const auto& component : LSG_UI::componentsByLayer) {
 		if (component.second->IsMenu())
 			static_cast<LSG_Menu*>(component.second)->Render(renderer);
 	}
@@ -1144,11 +1155,19 @@ void LSG_UI::renderMenu(SDL_Renderer* renderer)
 
 void LSG_UI::renderModal(SDL_Renderer* renderer)
 {
-	for (const auto& component : LSG_UI::componentsByLayer)
-	{
+	for (const auto& component : LSG_UI::componentsByLayer) {
 		if (component.second->IsModal())
 			static_cast<LSG_Modal*>(component.second)->Render(renderer);
 	}
+}
+
+void LSG_UI::renderTooltip(SDL_Renderer* renderer)
+{
+	if (!SDL_GetCursor())
+		return;
+
+	for (const auto& component : LSG_UI::componentsByLayer)
+		component.second->RenderTooltip(renderer);
 }
 
 void LSG_UI::resetSize(LSG_Component* component)

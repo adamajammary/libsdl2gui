@@ -16,10 +16,15 @@ void LSG_List::Activate() const
 		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
-void LSG_List::Activate(const SDL_Point& mousePosition) const
+void LSG_List::Activate(const SDL_Point& mousePosition)
 {
-	if (!this->isPaginationClicked(mousePosition))
-		this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
+	if (this->isPaginationClicked(mousePosition))
+		return;
+
+	if (this->selectedRows.empty())
+		this->OnMouseClick(mousePosition);
+
+	this->sendEvent(LSG_EVENT_ROW_ACTIVATED);
 }
 
 void LSG_List::AddItem(const std::string& item)
@@ -29,7 +34,7 @@ void LSG_List::AddItem(const std::string& item)
 
 	this->items.push_back(item);
 
-	this->reset();
+	this->SetItems();
 }
 
 int LSG_List::getRowHeight() const
@@ -115,7 +120,7 @@ void LSG_List::OnMouseClick(const SDL_Point& mousePosition)
 		if (!this->selectedRows.empty())
 			this->Select(this->selectedRows[0], clickedRow);
 	} else {
-		this->Select(clickedRow);
+		this->Select(clickedRow, true);
 	}
 
 	return;
@@ -135,18 +140,9 @@ void LSG_List::removeItem(int row, int lastRow)
 
 	this->Update();
 
-	lastRow = this->getLastRow();
+	this->resetScroll();
 
-	if (lastRow < 0)
-	{
-		this->page = 0;
-
-		this->resetScroll();
-
-		this->Select(-1);
-	} else if (!this->selectedRows.empty() && this->selectedRows[0] > lastRow) {
-		this->SelectLastRow();
-	}
+	this->Select(-1);
 }
 
 void LSG_List::RemoveItem(int row)
@@ -308,21 +304,18 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroun
 	}
 }
 
-void LSG_List::reset()
-{
-	this->destroyTextures();
-
-	this->SetItems();
-}
-
-bool LSG_List::Select(int row)
+bool LSG_List::Select(int row, bool toggle)
 {
 	if (!this->enabled || (row > this->getLastRow()))
 		return false;
 
-	this->selectedRows = { row };
-
-	this->sendEvent(row < 0 ? LSG_EVENT_ROW_UNSELECTED : LSG_EVENT_ROW_SELECTED);
+	if ((row < 0) || (toggle && (this->selectedRows.size() == 1) && (this->selectedRows[0] == row))) {
+		this->selectedRows.clear();
+		this->sendEvent(LSG_EVENT_ROW_UNSELECTED);
+	} else {
+		this->selectedRows = { row };
+		this->sendEvent(SDL_GetCursor() ? LSG_EVENT_ROW_SELECTED : LSG_EVENT_ROW_ACTIVATED);
+	}
 
 	return true;
 }
@@ -422,32 +415,42 @@ void LSG_List::SelectLastRowShift()
 	this->OnScrollEnd();
 }
 
-void LSG_List::SelectRow(int offset, bool multiSelect)
+void LSG_List::SelectRow(int offset, bool keyShift)
 {
 	if (!this->enabled || this->selectedRows.empty() || this->isEmpty())
 		return;
 
-	auto selectedRow = (!multiSelect ? this->selectedRows[0] : this->selectedRows[this->selectedRows.size() - 1]);
+	auto currentRow = (keyShift ? this->selectedRows[this->selectedRows.size() - 1] : this->selectedRows[0]);
+	auto nextRow    = (currentRow + offset);
+	auto lastRow    = this->getLastRow();
 
-	auto nextRow = std::max(0, std::min(this->getLastRow(), (selectedRow + offset)));
+	if (nextRow < 0)
+		nextRow = 0;
+	else if (nextRow > lastRow)
+		nextRow = lastRow;
 
-	if (!multiSelect)
-		this->Select(nextRow);
-	else
-		this->Select(this->selectedRows[0], nextRow);
-
-	if (this->selectedRows[0] < 0)
+	if ((nextRow < 0) || (nextRow > lastRow))
 		return;
 
-	auto list       = this->getFillArea();
-	auto listBottom = (list.y + list.h);
+	if (keyShift)
+		this->Select(this->selectedRows[0], nextRow);
+	else
+		this->Select(nextRow);
+
+	if (this->selectedRows.empty())
+		return;
+
+	auto fillArea       = this->getFillArea();
+	auto fillAreaTop    = (fillArea.y + this->scrollVertical.offset);
+	auto fillAreaBottom = (fillAreaTop + fillArea.h);
 
 	auto rowHeight = this->getRowHeight();
-	auto rowTop    = (list.y + (this->selectedRows[0] * rowHeight));
+	auto rowOffset = (this->selectedRows[0] * rowHeight);
+	auto rowTop    = (fillArea.y + rowOffset);
 	auto rowBottom = (rowTop + rowHeight);
 
-	if ((rowBottom > listBottom) || (rowTop < list.y))
-		this->scrollVertical.offset = (this->selectedRows[0] * rowHeight);
+	if ((rowBottom > fillAreaBottom) || (rowTop < fillAreaTop))
+		this->scrollVertical.offset = rowOffset;
 }
 
 void LSG_List::sendEvent(LSG_EventType type) const
@@ -479,7 +482,6 @@ void LSG_List::setItem(int row, int lastRow, const std::string& item)
 
 	this->items[row] = item;
 
-	this->destroyTextures();
 	this->setItems(false);
 }
 
@@ -489,7 +491,7 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 	this->resetScroll();
 
-	this->destroyTextures();
+	this->selectedRows.clear();
 
 	this->items = items;
 
@@ -498,14 +500,14 @@ void LSG_List::SetItems(const LSG_Strings& items)
 
 void LSG_List::SetItems()
 {
-	this->destroyTextures();
-
 	this->setItems();
 }
 
 void LSG_List::setItems(bool sort)
 {
 	LSG_Graphics::DestroyTextures();
+
+	this->destroyTextures();
 
 	if (this->showPagination())
 		this->initPagination(this->getFillArea(), this->backgroundColor);
@@ -530,7 +532,7 @@ void LSG_List::SetPage(int page)
 	if (!this->navigate(page, this->id))
 		return;
 
-	this->reset();
+	this->SetItems();
 
 	this->SelectFirstRow();
 }
@@ -551,7 +553,7 @@ void LSG_List::Sort(LSG_SortOrder sortOrder)
 
 	this->resetScroll();
 
-	this->reset();
+	this->SetItems();
 }
 
 void LSG_List::sort()
@@ -564,7 +566,5 @@ void LSG_List::sort()
 
 void LSG_List::Update()
 {
-	this->destroyTextures();
-
 	this->setItems(false);
 }

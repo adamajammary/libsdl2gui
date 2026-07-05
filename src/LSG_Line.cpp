@@ -15,7 +15,7 @@ void LSG_Line::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_Line::Render(SDL_Renderer* renderer) const
+void LSG_Line::Render(SDL_Renderer* renderer)
 {
 	if (this->visible)
 		this->render(renderer);

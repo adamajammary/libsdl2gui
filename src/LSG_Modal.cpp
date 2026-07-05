@@ -73,6 +73,9 @@ void LSG_Modal::addNodes(LibXml::xmlNode* parentNode, LSG_Component* parent)
 
 void LSG_Modal::Close()
 {
+	if (!this->visible)
+		return;
+
 	this->visible = false;
 
 	for (auto child : this->children)
@@ -83,6 +86,13 @@ void LSG_Modal::Close()
 	this->componentsByLayer.clear();
 
 	this->destroyTextures();
+
+	if (this->ellipsisTexture) {
+		SDL_DestroyTexture(this->ellipsisTexture);
+		this->ellipsisTexture = nullptr;
+	}
+
+	this->sendEvent(LSG_EVENT_MODAL_CLOSED);
 }
 
 SDL_Rect LSG_Modal::getCloseIcon() const
@@ -206,6 +216,9 @@ int LSG_Modal::getSizeFromXmlAttribute(const std::string& maxSize, const std::st
 
 SDL_Cursor* LSG_Modal::Highlight(const SDL_Point& mousePosition)
 {
+	if (!SDL_GetCursor())
+		return nullptr;
+
 	this->highlighted = this->isMouseOverCloseIcon(mousePosition);
 
 	for (const auto& component : this->componentsByLayer)
@@ -372,6 +385,8 @@ void LSG_Modal::Open()
 
 	LSG_UI::LayoutModal(this);
 	LSG_UI::SetModal(this);
+
+	this->sendEvent(LSG_EVENT_MODAL_OPENED);
 }
 
 void LSG_Modal::Render(SDL_Renderer* renderer)
@@ -398,39 +413,14 @@ void LSG_Modal::Render(SDL_Renderer* renderer)
 	{
 		child->background.y += headerHeight;
 
-		if (child->IsPanel())
+		bool isPanel = child->IsPanel();
+
+		if (isPanel)
 			static_cast<LSG_Panel*>(child)->OffsetBackgroundY(headerHeight);
 
-		if (child->IsButton())
-			static_cast<LSG_Button*>(child)->Render(renderer);
-		else if (child->IsCards())
-			static_cast<LSG_Cards*>(child)->Render(renderer);
-		else if (child->IsImage())
-			static_cast<LSG_Image*>(child)->Render(renderer);
-		else if (child->IsLine())
-			static_cast<LSG_Line*>(child)->Render(renderer);
-		else if (child->IsList())
-			static_cast<LSG_List*>(child)->Render(renderer);
-		else if (child->IsNavigation())
-			static_cast<LSG_Navigation*>(child)->Render(renderer);
-		else if (child->IsPanel())
-			static_cast<LSG_Panel*>(child)->Render(renderer);
-		else if (child->IsProgressBar())
-			static_cast<LSG_ProgressBar*>(child)->Render(renderer);
-		else if (child->IsSlider())
-			static_cast<LSG_Slider*>(child)->Render(renderer);
-		else if (child->IsTable())
-			static_cast<LSG_Table*>(child)->Render(renderer);
-		else if (child->IsTextInput())
-			static_cast<LSG_TextInput*>(child)->Render(renderer);
-		else if (child->IsTextLabel())
-			static_cast<LSG_TextLabel*>(child)->Render(renderer);
-		else if (child->IsTiles())
-			static_cast<LSG_Tiles*>(child)->Render(renderer);
-		else if (child->IsToggle())
-			static_cast<LSG_Toggle*>(child)->Render(renderer);
+		child->Render(renderer);
 
-		if (child->IsPanel())
+		if (isPanel)
 			static_cast<LSG_Panel*>(child)->OffsetBackgroundY(-headerHeight);
 
 		child->background.y -= headerHeight;
@@ -495,7 +485,7 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) cons
 	auto textureSize = LSG_Graphics::GetTextureSize(texture);
 
 	auto iconSize = (!this->hideCloseIcon ? headerHeight : 0);
-	auto maxWidth = (this->background.w - iconSize);
+	auto maxWidth = (this->background.w - this->padding - iconSize);
 
 	SDL_Rect clip = {
 		0,
@@ -505,18 +495,35 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) cons
 	};
 
 	SDL_Rect destination = {
-		(this->background.x + ((maxWidth - clip.w) / 2)),
+		(this->background.x + this->padding + ((maxWidth - clip.w) / 2)),
 		(this->background.y + ((headerHeight - clip.h) / 2)),
 		clip.w,
 		clip.h
 	};
 
-	SDL_RenderCopy(renderer, texture, &clip, &destination);
+
+	if (textureSize.width <= maxWidth)
+		SDL_RenderCopy(renderer, texture, &clip, &destination);
+	else
+		this->renderTextOverflowEllipse(renderer, texture, destination, maxWidth);
+}
+
+void LSG_Modal::RenderTooltip(SDL_Renderer* renderer) const
+{
+	for (const auto& component : this->componentsByLayer) {
+		if (!component.second->IsModal())
+			component.second->RenderTooltip(renderer);
+	}
 }
 
 void LSG_Modal::Set()
 {
 	this->destroyTextures();
+
+	if (this->ellipsisTexture) {
+		SDL_DestroyTexture(this->ellipsisTexture);
+		this->ellipsisTexture = nullptr;
+	}
 
 	this->textures.resize(NR_OF_MODAL_TEXTURES);
 
@@ -537,7 +544,9 @@ void LSG_Modal::Set()
 	auto title = LSG_XML::GetAttribute(this->xmlNode, "title");
 
 	if (!title.empty())
-		this->textures[LSG_MODAL_TEXTURE_TITLE] = this->getTexture(title, LSG_Modal::TitleFontSize);
+		this->textures[LSG_MODAL_TEXTURE_TITLE] = LSG_Text::GetTexture(title, LSG_Modal::TitleFontSize, this->getFontStyle(), this->textColor, this->wrap);
+
+	this->ellipsisTexture = this->getTexture("...");
 }
 
 void LSG_Modal::SetBackground()

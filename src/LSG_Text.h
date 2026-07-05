@@ -10,10 +10,12 @@ public:
 	~LSG_Text() {}
 
 protected:
-	bool wrap;
+	SDL_Texture*     ellipsisTexture;
+	LSG_TextOverflow textOverflow;
+	bool             wrap;
 
 private:
-	std::mutex surfaceLock;
+	static std::mutex surfaceLock;
 
 public:
 	static bool                FontSupportsText(TTF_Font* font, uint16_t* text);
@@ -21,16 +23,26 @@ public:
 	static TTF_Font*           GetFontCJK(int size);
 	static std::string         GetFullPath(const std::string& path);
 	static LSG_TableRowCompare GetTableRowCompare(int column);
+	static SDL_Surface*        GetSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
+	static SDL_Texture*        GetTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
 	static std::string         Join(const LSG_Strings& strings, const std::string& separator);
+	static std::string         Replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+	static LSG_Strings         Split(const std::string& text, char separator);
+	static std::string         ToLower(const std::string& text);
+	static std::string         ToUpper(const std::string& text);
+	static std::string         ToUTF8(const  std::wstring& wide);
 	static uint16_t*           ToUTF16(const std::string& text);
-	static std::wstring        ToWide(const std::string& text);
+	static std::wstring        ToWide(const  std::string& text);
 
 protected:
-	SDL_Surface* getSurface(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
-	SDL_Texture* getTexture(const std::string& text, int fontSize = 0, int fontStyle = -1, SDL_Color* textColor = nullptr);
+	SDL_Surface* getSurface(const std::string& text) const;
+	SDL_Texture* getTexture(const std::string& text) const;
+	void         renderTextOverflowClip(SDL_Renderer*    renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const;
+	void         renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const;
 
 private:
-	static std::string replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+	static SDL_Surface* getSurface(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
+	static SDL_Texture* getTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
 };
 
 #endif

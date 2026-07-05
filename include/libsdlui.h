@@ -1,10 +1,10 @@
-#ifndef LIBSDL2GUI_H
-#define LIBSDL2GUI_H
+#ifndef LIBSDLUI_H
+#define LIBSDLUI_H
 
 #if defined _windows
     #define DLL __cdecl
 
-    #ifdef sdl2gui_EXPORTS
+    #ifdef sdlui_EXPORTS
 	    #define DLLEXPORT __declspec(dllexport)
     #else
 	    #define DLLEXPORT __declspec(dllimport)
@@ -46,17 +46,19 @@ extern "C" {
 enum LSG_EventType
 {
 	LSG_EVENT_BUTTON_CLICKED,
-	LSG_EVENT_BUTTON_PRESSED,
 	LSG_EVENT_COMPONENT_CLICKED,
 	LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
 	LSG_EVENT_COMPONENT_RIGHT_CLICKED,
 	LSG_EVENT_COMPONENT_KEY_ENTERED,
+	LSG_EVENT_COMPONENT_LONG_PRESSED,
 	LSG_EVENT_COMPONENT_SCROLLED,
 	LSG_EVENT_MENU_ITEM_SELECTED,
+	LSG_EVENT_MODAL_CLOSED,
+	LSG_EVENT_MODAL_OPENED,
 	LSG_EVENT_NAVIGATE_BACK,
 	LSG_EVENT_NAVIGATE_END,
-	LSG_EVENT_NAVIGATE_FORWARD,
 	LSG_EVENT_NAVIGATE_HOME,
+	LSG_EVENT_NAVIGATE_NEXT,
 	LSG_EVENT_PAGE_NAVIGATED,
 	LSG_EVENT_ROW_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_ROW_SELECTED,
@@ -68,8 +70,8 @@ enum LSG_EventType
 	LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
 	LSG_EVENT_TILE_SELECTED,
 	LSG_EVENT_TILE_UNSELECTED,
-	LSG_EVENT_TOGGLED_OFF,
-	LSG_EVENT_TOGGLED_ON
+	LSG_EVENT_TOGGLE_OFF,
+	LSG_EVENT_TOGGLE_ON
 };
 
 // https://www.media.mit.edu/pia/Research/deepview/exif.html
@@ -128,6 +130,16 @@ enum LSG_SortOrder
 const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 
+struct LSG_File
+{
+	std::string ext      = "";  // ext
+	std::string file     = "";  // file.ext
+    std::string filePath = "";  // /path/file.ext
+    std::string name     = "";  // file
+	std::string path     = "";  // /path
+	char        pathSep  = '/'; // /
+};
+
 struct SDL_Size
 {
 	int width  = 0;
@@ -170,11 +182,18 @@ struct LSG_GPS
 {
 	LSG_GPSCoordinate latitude  = {};
 	LSG_GPSCoordinate longitude = {};
-	double            altitude  = {};
+	double            altitude  = 0.0;
 };
 
-using LSG_Strings   = std::vector<std::string>;
-using LSG_TableRows = std::vector<LSG_Strings>;
+struct LSG_SliderPart
+{
+	double      value   = 0.0;
+	std::string tooltip = "";
+};
+
+using LSG_SliderParts = std::vector<LSG_SliderPart>;
+using LSG_Strings     = std::vector<std::string>;
+using LSG_TableRows   = std::vector<LSG_Strings>;
 
 struct LSG_TableGroup
 {
@@ -272,6 +291,22 @@ DLLEXPORT void DLL LSG_CloseModal(const std::string& id);
 DLLEXPORT SDL_Color DLL LSG_GetBackgroundColor(const std::string& id);
 
 /**
+ * @returns the icon file path of the button
+ * @param id  <button> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetButtonIconPath(const std::string& id);
+
+/**
+ * @returns the text label of the button
+ * @param id  <button> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetButtonText(const std::string& id);
+
+/**
  * @returns the card item from the cards list
  * @param id    <cards> component ID
  * @param index 0-based card index position
@@ -307,6 +342,11 @@ DLLEXPORT std::string DLL LSG_GetColorTheme();
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetDPIScaled(int value);
+
+/**
+ * @returns a file structure based on filePath
+ */
+DLLEXPORT LSG_File DLL LSG_GetFile(const std::string& filePath);
 
 /**
  * @returns the font style of the component
@@ -412,6 +452,14 @@ DLLEXPORT size_t DLL LSG_GetNavigationItemCount(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT int DLL LSG_GetNavigationPosition(const std::string& id);
+
+/**
+ * @returns the layout orientation of the children of a component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_Orientation DLL LSG_GetOrientation(const std::string& id);
 
 /**
  * @returns the padding inside a component
@@ -534,6 +582,14 @@ DLLEXPORT std::vector<int> DLL LSG_GetSelectedTiles(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
+
+/**
+ * @returns the slider parts as percentage values with an optional tooltip
+ * @param id <slider> component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT LSG_SliderParts DLL LSG_GetSliderParts(const std::string& id);
 
 /**
  * @returns the value of the slider as a percent between 0 and 1
@@ -676,6 +732,14 @@ DLLEXPORT size_t DLL LSG_GetTilesCount(const std::string& id);
 DLLEXPORT std::string DLL LSG_GetTitle(const std::string& id);
 
 /**
+ * @returns the tooltip text of the component
+ * @param id Component ID
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT std::string DLL LSG_GetTooltip(const std::string& id);
+
+/**
  * @returns the minimum window size
  * @throws runtime_error
  */
@@ -763,7 +827,7 @@ DLLEXPORT bool DLL LSG_IsWindowMaximized();
 DLLEXPORT void DLL LSG_Layout();
 
 /**
- * @brief Navigates backwards, and displays an updated text label.
+ * @brief Navigates back to the previous item, and displays an updated text label.
  * @param id   <navigation> component ID
  * @param text Optional text label, shows "[new_position] / [total_items]" by default.
  * @throws invalid_argument
@@ -772,22 +836,13 @@ DLLEXPORT void DLL LSG_Layout();
 DLLEXPORT void DLL LSG_NavigateBack(const std::string& id, const std::string& text = "");
 
 /**
- * @brief Navigates to the last item, and displays an updated text label.
- * @param id   <navigation> component ID
- * @param text Optional text label, shows "[last_position] / [total_items]" by default.
- * @throws invalid_argument
- * @throws runtime_error
- */
-DLLEXPORT void DLL LSG_NavigateEnd(const std::string& id, const std::string& text = "");
-
-/**
- * @brief Navigates forwards, and displays an updated text label.
+ * @brief Navigates to the next item, and displays an updated text label.
  * @param id   <navigation> component ID
  * @param text Optional text label, shows "[new_position] / [total_items]" by default.
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_NavigateForward(const std::string& id, const std::string& text = "");
+DLLEXPORT void DLL LSG_NavigateNext(const std::string& id, const std::string& text = "");
 
 /**
  * @brief Navigates to the first item, and displays an updated text label.
@@ -797,6 +852,15 @@ DLLEXPORT void DLL LSG_NavigateForward(const std::string& id, const std::string&
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_NavigateHome(const std::string& id, const std::string& text = "");
+
+/**
+ * @brief Navigates to the last item, and displays an updated text label.
+ * @param id   <navigation> component ID
+ * @param text Optional text label, shows "[last_position] / [total_items]" by default.
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_NavigateEnd(const std::string& id, const std::string& text = "");
 
 /**
  * @brief Navigates to the position, and displays an updated text label.
@@ -1057,20 +1121,20 @@ DLLEXPORT std::string DLL LSG_SaveFile(const LSG_Strings& filters = {});
 /**
  * @brief Scrolls the component horizontally by the specified offset.
  * @param id     <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
- * @param scroll Horizontal scroll offset
+ * @param offset Horizontal scroll offset
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_ScrollHorizontal(const std::string& id, int scroll);
+DLLEXPORT void DLL LSG_ScrollByHorizontal(const std::string& id, int offset);
 
 /**
  * @brief Scrolls the component vertically by the specified offset.
  * @param id     <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
- * @param scroll Vertical scroll offset
+ * @param offset Vertical scroll offset
  * @throws invalid_argument
  * @throws runtime_error
  */
-DLLEXPORT void DLL LSG_ScrollVertical(const std::string& id, int scroll);
+DLLEXPORT void DLL LSG_ScrollByVertical(const std::string& id, int offset);
 
 /**
  * @brief Scrolls to the bottom of the component.
@@ -1087,6 +1151,24 @@ DLLEXPORT void DLL LSG_ScrollToBottom(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_ScrollToTop(const std::string& id);
+
+/**
+ * @brief Scrolls the component horizontally to the specified position.
+ * @param id       <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param position Horizontal scroll position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ScrollToHorizontal(const std::string& id, int position);
+
+/**
+ * @brief Scrolls the component vertically to the specified position.
+ * @param id       <cards>, <list>, <panel>, <table>, <text> or <tiles> component ID
+ * @param position Vertical scroll position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_ScrollToVertical(const std::string& id, int position);
 
 /**
  * @brief Selects the row in the cards list.
@@ -1451,6 +1533,15 @@ DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size, bool
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
 
 /**
+ * @brief Sets the slider parts as percentage values with an optional tooltip.
+ * @param id    <slider> component ID
+ * @param parts Slider parts
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts);
+
+/**
  * @brief Sets the value of the slider as a percent between 0 and 1.
  * @param id      <slider> component ID
  * @param percent [0.0-1.0]
@@ -1589,6 +1680,15 @@ DLLEXPORT void DLL LSG_SetTitle(const std::string& id, const std::string& title)
 DLLEXPORT void DLL LSG_SetToggle(const std::string& id, bool on);
 
 /**
+ * @brief Sets the tooltip text of the component.
+ * @param id      Component ID
+ * @param tooltip Tooltip text
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetTooltip(const std::string& id, const std::string& tooltip);
+
+/**
  * @brief Shows or hides the component.
  * @param id      Component ID
  * @param visible true to show or false to hide
@@ -1698,6 +1798,52 @@ DLLEXPORT void DLL LSG_SortList(const std::string& id, LSG_SortOrder sortOrder);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_SortTable(const std::string& id, LSG_SortOrder sortOrder, int sortColumn);
+
+/**
+ * @brief Joins text strings together by separator.
+ * @param strings   Strings to join
+ * @param separator String to use as a separator
+ */
+DLLEXPORT std::string DLL LSG_TextJoin(const LSG_Strings& strings, const std::string& separator);
+
+/**
+ * @brief Replaces all occurrences of oldSubstring in text with newSubstring.
+ * @param text         Text string
+ * @param oldSubstring String to be replaced
+ * @param newSubstring String to use as replacement
+ */
+DLLEXPORT std::string DLL LSG_TextReplace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+
+/**
+ * @brief Splits text by separator.
+ * @param text      String to split
+ * @param separator Character to use as a separator
+ */
+DLLEXPORT LSG_Strings DLL LSG_TextSplit(const std::string& text, char separator);
+
+/**
+ * @brief Converts text to lowercase.
+ * @param text Text string
+ */
+DLLEXPORT std::string DLL LSG_TextToLower(const std::string& text);
+
+/**
+ * @brief Converts text to uppercase.
+ * @param text Text string
+ */
+DLLEXPORT std::string DLL LSG_TextToUpper(const std::string& text);
+
+/**
+ * @brief Converts wide string to standard string with UTF-8 character encoding.
+ * @param wide Wide text string
+ */
+DLLEXPORT std::string DLL LSG_TextToUTF8(const std::wstring& wide);
+
+/**
+ * @brief Converts standard string to wide string.
+ * @param text Text string
+ */
+DLLEXPORT std::wstring DLL LSG_TextToWide(const std::string& text);
 
 /**
  * @brief Tries to initialize the library and open a new window based on layout from XML file.

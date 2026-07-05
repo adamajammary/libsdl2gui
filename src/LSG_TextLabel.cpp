@@ -39,9 +39,29 @@ void LSG_TextLabel::render(SDL_Renderer* renderer)
 		return;
 	}
 
+	if (this->textOverflow == LSG_TEXT_OVERFLOW_ELLIPSIS)
+		this->renderEllipsis(renderer);
+	else
+		this->renderClip(renderer);
+}
+
+void LSG_TextLabel::renderClip(SDL_Renderer* renderer)
+{
 	SDL_Rect clip = { 0, 0, this->background.w, this->background.h };
 
 	SDL_RenderCopy(renderer, this->texture, &clip, &this->background);
+}
+
+void LSG_TextLabel::renderEllipsis(SDL_Renderer* renderer)
+{
+	auto textSize = this->getTextureSize();
+
+	if (textSize.width <= this->background.w) {
+		this->renderClip(renderer);
+		return;
+	}
+
+	this->renderTextOverflowEllipse(renderer, this->texture, this->background, this->background.w);
 }
 
 void LSG_TextLabel::Set(const std::string &text)
@@ -58,6 +78,11 @@ void LSG_TextLabel::Set()
 {
 	this->destroyTextures();
 
+	if (this->ellipsisTexture) {
+		SDL_DestroyTexture(this->ellipsisTexture);
+		this->ellipsisTexture = nullptr;
+	}
+
 	this->setTexture();
 }
 
@@ -67,4 +92,7 @@ void LSG_TextLabel::setTexture()
 		return;
 
 	this->texture = this->getTexture(this->text);
+
+	if (this->textOverflow == LSG_TEXT_OVERFLOW_ELLIPSIS)
+		this->ellipsisTexture = this->getTexture("...");
 }

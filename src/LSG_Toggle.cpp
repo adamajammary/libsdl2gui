@@ -57,7 +57,7 @@ void LSG_Toggle::Render(SDL_Renderer* renderer, const SDL_Point& position)
 	this->render(renderer);
 }
 
-void LSG_Toggle::Render(SDL_Renderer* renderer) const
+void LSG_Toggle::Render(SDL_Renderer* renderer)
 {
 	if (this->visible)
 		this->render(renderer);
@@ -73,20 +73,6 @@ void LSG_Toggle::render(SDL_Renderer* renderer) const
 	auto destination = this->getDestination();
 
 	SDL_RenderCopy(renderer, this->texture, nullptr, &destination);
-}
-
-void LSG_Toggle::sendEvent(LSG_EventType type) const
-{
-	if (!this->enabled)
-		return;
-
-	SDL_Event listEvent = {};
-
-	listEvent.type       = SDL_RegisterEvents(1);
-	listEvent.user.code  = (int)type;
-	listEvent.user.data1 = (void*)strdup(this->id.c_str());
-
-	SDL_PushEvent(&listEvent);
 }
 
 void LSG_Toggle::Set(bool on)
@@ -112,5 +98,5 @@ void LSG_Toggle::toggle()
 
 	this->Set();
 
-	this->sendEvent(this->on ? LSG_EVENT_TOGGLED_ON : LSG_EVENT_TOGGLED_OFF);
+	this->sendEvent(this->on ? LSG_EVENT_TOGGLE_ON : LSG_EVENT_TOGGLE_OFF);
 }

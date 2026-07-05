@@ -156,7 +156,7 @@ bool LSG_Menu::IsHighlightedNavBack() const
 
 bool LSG_Menu::isMouseOverIconClose(const SDL_Point& mousePosition) const
 {
-	if (!this->visible || !this->isOpen)
+	if (!this->IsVisible(true) || !this->isOpen)
 		return false;
 
 	auto window = LSG_UI::GetBackgroundArea();
@@ -168,7 +168,7 @@ bool LSG_Menu::isMouseOverIconClose(const SDL_Point& mousePosition) const
 
 bool LSG_Menu::IsMouseOverIconOpen(const SDL_Point& mousePosition) const
 {
-	if (!this->visible || this->isOpen)
+	if (!this->IsVisible(true) || this->isOpen)
 		return false;
 
 	auto icon = this->getIconOpen();
@@ -178,7 +178,7 @@ bool LSG_Menu::IsMouseOverIconOpen(const SDL_Point& mousePosition) const
 
 bool LSG_Menu::isMouseOverMenu(const SDL_Point& mousePosition) const
 {
-	if (!this->visible || !this->isOpen)
+	if (!this->IsVisible(true) || !this->isOpen)
 		return false;
 
 	auto window = LSG_UI::GetBackgroundArea();
@@ -189,7 +189,7 @@ bool LSG_Menu::isMouseOverMenu(const SDL_Point& mousePosition) const
 
 bool LSG_Menu::isMouseOverNavBack(const SDL_Point& mousePosition) const
 {
-	if (!this->visible || !this->subMenu->IsSubMenu())
+	if (!this->IsVisible(true) || !this->subMenu->IsSubMenu())
 		return false;
 
 	auto window  = LSG_UI::GetBackgroundArea();
@@ -218,7 +218,7 @@ void LSG_Menu::Navigate(LSG_Component* component)
 
 void LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 {
-	if (!this->enabled || !this->visible)
+	if (!this->enabled || !this->IsVisible(true))
 		return;
 
 	if (!this->isOpen && this->IsMouseOverIconOpen(mousePosition)) {
@@ -260,7 +260,7 @@ void LSG_Menu::OnMouseClick(const SDL_Point& mousePosition)
 
 void LSG_Menu::Open()
 {
-	if (!this->enabled || !this->visible)
+	if (!this->enabled || !this->IsVisible(true))
 		return;
 
 	this->scrollVertical.offset = 0;
@@ -282,7 +282,7 @@ void LSG_Menu::Render(SDL_Renderer* renderer)
 	this->scrollHorizontal.show = false;
 	this->scrollVertical.show   = false;
 
-	if (!this->visible)
+	if (!this->IsVisible(true))
 		return;
 
 	if (!this->isOpen)
@@ -535,7 +535,7 @@ void LSG_Menu::setMenuOpened()
 	}
 
 	if (!navTitle.empty())
-		this->textures[LSG_MENU_TEXTURE_TITLE] = this->getTexture(navTitle, 0, TTF_STYLE_BOLD, nullptr);
+		this->textures[LSG_MENU_TEXTURE_TITLE] = LSG_Text::GetTexture(navTitle, this->getFontSize(), TTF_STYLE_BOLD, this->textColor, this->wrap);
 
 	SDL_Size maxIconSize = {
 		std::min(this->background.h, iconSize),

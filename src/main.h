@@ -11,6 +11,7 @@
 #include <latch>
 #include <mutex>
 #include <set>
+#include <sstream> // stringstream
 #include <thread>
 #include <unordered_map>
 
@@ -55,7 +56,7 @@ namespace LibXml {
 }
 #endif
 
-#include <libsdl2gui.h>
+#include <libsdlui.h>
 
 #if defined _windows
 	#define strdup _strdup
@@ -123,6 +124,13 @@ enum LSG_ModalTexture
 	NR_OF_MODAL_TEXTURES
 };
 
+enum LSG_TextOverflow
+{
+	LSG_TEXT_OVERFLOW_NONE,
+	LSG_TEXT_OVERFLOW_CLIP,
+	LSG_TEXT_OVERFLOW_ELLIPSIS
+};
+
 enum LSG_TextInputTexture
 {
 	LSG_TEXT_INPUT_TEXTURE_ICON_CLEAR,
@@ -157,7 +165,7 @@ enum LSG_Vector
 #if defined _android
 struct LSG_ConstAndroid
 {
-	static inline const std::string ActivityClassPath = "com/libsdl2gui/app/Sdl2GuiActivity";
+	static inline const std::string ActivityClassPath = "com/libsdlui/app/SDLUIActivity";
 };
 #endif
 
@@ -169,6 +177,7 @@ struct LSG_Cursor
 struct LSG_ConstDefaultColor
 {
 	static inline const SDL_Color Black = { 0, 0, 0, 255 };
+	static inline const SDL_Color White = { 255, 255, 255, 255 };
 
 	static inline const SDL_Color Background = { 245, 245, 245, 255 };
 	static inline const SDL_Color Border     = Black;
@@ -178,13 +187,18 @@ struct LSG_ConstDefaultColor
 struct LSG_ConstClickTime
 {
 	static inline const int DoubleClick = 500;
-	static inline const int RightClick  = 1000;
+	static inline const int LongPress   = 1000;
 };
 
 struct LSG_ConstOrientation
 {
 	static inline const std::string Horizontal = "horizontal";
 	static inline const std::string Vertical   = "vertical";
+
+	static inline const LSG_Orientation ToEnum(const std::string& orientationString)
+	{
+		return (orientationString == Vertical ? LSG_ORIENTATION_VERTICAL : LSG_ORIENTATION_HORIZONTAL);
+	}
 
 	static inline const std::string ToString(LSG_Orientation orientationEnum)
 	{
@@ -208,15 +222,15 @@ struct LSG_ConstSortOrder
 	}
 };
 
+struct LSG_ConstSymbol
+{
+	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x86, (char)0x91, 0 };
+	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x86, (char)0x93, 0 };
+};
+
 struct LSG_ConstTexture
 {
 	static inline const int MaxSize = 8192;
-};
-
-struct LSG_ConstUnicodeCharacter
-{
-	static inline const char ArrowUp[4]   = { (char)0xE2, (char)0x96, (char)0xB2, 0 };
-	static inline const char ArrowDown[4] = { (char)0xE2, (char)0x96, (char)0xBC, 0 };
 };
 
 struct LSG_Alignment
@@ -250,9 +264,6 @@ const char* LSG_GetBasePath();
 #if defined _android
 	#include "LSG_AndroidJNI.h"
 #endif
-
-#include "LSG_IEvent.h"
-#include "LSG_IRenderable.h"
 
 #include "LSG_Graphics.h"
 #include "LSG_Pagination.h"

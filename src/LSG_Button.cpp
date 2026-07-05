@@ -8,6 +8,9 @@ LSG_Button::LSG_Button(const std::string& id, int layer, LibXml::xmlNode* xmlNod
 	this->iconPath = (xmlAttributes.contains("icon") ? xmlAttributes["icon"] : "");
 	this->text     = (xmlAttributes.contains("text") ? xmlAttributes["text"] : "");
 
+	if (this->text.empty())
+		this->text = LSG_XML::GetValue(this->xmlNode);
+
 	this->textures.resize(NR_OF_BUTTON_TEXTURES);
 }
 
@@ -25,7 +28,14 @@ void LSG_Button::downscaleTextureIcon(int maxSize)
 	this->textures[LSG_BUTTON_TEXTURE_ICON] = LSG_Graphics::GetDownScaledTexture(this->iconPath, downscaleFactor);
 }
 
-SDL_Rect LSG_Button::getIconDestination(int iconSize)
+
+std::string LSG_Button::GetIconPath() const
+{
+	return this->iconPath;
+}
+
+
+SDL_Rect LSG_Button::getIconDestination(int iconSize) const
 {
 	SDL_Rect destination = this->background;
 
@@ -38,7 +48,12 @@ SDL_Rect LSG_Button::getIconDestination(int iconSize)
 	return destination;
 }
 
-SDL_Rect LSG_Button::getTextClip()
+std::string LSG_Button::GetText() const
+{
+	return this->text;
+}
+
+SDL_Rect LSG_Button::getTextClip() const
 {
 	SDL_Rect clip = {};
 
@@ -50,7 +65,7 @@ SDL_Rect LSG_Button::getTextClip()
 	return clip;
 }
 
-SDL_Rect LSG_Button::getTextDestination(const SDL_Rect& clip)
+SDL_Rect LSG_Button::getTextDestination(const SDL_Rect& clip) const
 {
 	SDL_Rect destination = this->background;
 
@@ -63,12 +78,10 @@ SDL_Rect LSG_Button::getTextDestination(const SDL_Rect& clip)
 	return destination;
 }
 
-void LSG_Button::OnMouseClick(const SDL_Point& mousePosition)
+void LSG_Button::OnMouseClick() const
 {
-	if (!this->enabled)
-		return;
-
-	this->sendEvent(LSG_EVENT_BUTTON_CLICKED);
+	if (this->enabled)
+		this->sendEvent(LSG_EVENT_BUTTON_CLICKED);
 }
 
 void LSG_Button::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -154,20 +167,6 @@ bool LSG_Button::scaleUp(const SDL_Size& textureSize, int maxSize) const
 	);
 }
 
-void LSG_Button::sendEvent(LSG_EventType type) const
-{
-	if (!this->enabled)
-		return;
-
-	SDL_Event clickEvent = {};
-
-	clickEvent.type       = SDL_RegisterEvents(1);
-	clickEvent.user.code  = (int)type;
-	clickEvent.user.data1 = (void*)strdup(this->id.c_str());
-
-	SDL_PushEvent(&clickEvent);
-}
-
 void LSG_Button::Set(const std::string& text, const std::string& iconPath)
 {
 	if ((text == this->text) && (iconPath == this->iconPath))
@@ -197,7 +196,7 @@ void LSG_Button::Set()
 		this->textures[LSG_BUTTON_TEXTURE_TEXT] = this->getTexture(this->text);
 }
 
-void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
+void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination) const
 {
 	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingX);
 
@@ -219,7 +218,7 @@ void LSG_Button::setLayoutHorizontal(SDL_Rect& iconDestination, SDL_Rect& textCl
 	}
 }
 
-void LSG_Button::setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination)
+void LSG_Button::setLayoutVertical(SDL_Rect& iconDestination, SDL_Rect& textClip, SDL_Rect& textDestination) const
 {
 	auto spacing = LSG_Window::GetDPIScaled(LSG_Button::DefaultSpacingY);
 

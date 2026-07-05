@@ -60,7 +60,7 @@ void LSG_MenuSub::Open()
 		menu->Navigate(this);
 }
 
-void LSG_MenuSub::Render(SDL_Renderer* renderer) const
+void LSG_MenuSub::Render(SDL_Renderer* renderer)
 {
 	if (!this->visible || (this->textures.size() < NR_OF_SUB_MENU_TEXTURES))
 		return;

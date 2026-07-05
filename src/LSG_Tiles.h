@@ -17,7 +17,7 @@ struct LSG_Tile
 	LSG_ItemText  text        = {};
 };
 
-class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text, public LSG_IEvent
+class LSG_Tiles : public LSG_Pagination, public LSG_ScrollBar, public LSG_Text
 {
 public:
 	LSG_Tiles(const std::string& id, int layer, LibXml::xmlNode* xmlNode, const std::string& xmlNodeName, LSG_Component* parent);
@@ -30,6 +30,9 @@ private:
 
 private:
 	static inline const SDL_Color DefaultTextBackground = { 0, 0, 0, 196 };
+
+private:
+	static std::mutex tilesLock;
 
 private:
 	SDL_Rect              fillArea;
@@ -46,7 +49,6 @@ private:
 	int                   textPadding;
 	int                   tileSize;
 	std::vector<LSG_Tile> tiles;
-	std::mutex            tilesLock;
 	int                   tilesPerRow;
 	int                   totalSize;
 	bool                  wrapTiles;
@@ -54,7 +56,7 @@ private:
 
 public:
 	void             Activate() const;
-	void             Activate(const SDL_Point& mousePosition) const;
+	void             Activate(const SDL_Point& mousePosition);
 	void             AddTile(const LSG_TileItem& tile);
 	void             AddTile(LibXml::xmlNode* node);
 	std::vector<int> GetSelectedTiles() const;
@@ -63,12 +65,12 @@ public:
 	LSG_TileItems    GetTiles() const;
 	size_t           GetTilesCount() const;
 	void             OffsetBackgroundY(int headerHeight);
-	virtual void     OnMouseClick(const SDL_Point& mousePosition) override;
+	void             OnMouseClick(const SDL_Point& mousePosition);
 	void             OnMouseOver(const SDL_Point& mousePosition);
 	void             RemoveTile(int index);
-	virtual void     Render(SDL_Renderer* renderer, const SDL_Point& position) override;
-	void             Render(SDL_Renderer* renderer);
-	bool             Select(int index);
+	void             Render(SDL_Renderer* renderer, const SDL_Point& position);
+	virtual void     Render(SDL_Renderer* renderer) override;
+	bool             Select(int index, bool toggle = false);
 	bool             Select(const std::vector<int>& indices);
 	void             SelectAll();
 	void             SelectFirst(bool keyShift = false);
@@ -100,16 +102,15 @@ private:
 	LSG_Alignment getTextAlignment(const LSG_UMapStrStr& xmlAttributes) const;
 	SDL_Rect      getTextDestination();
 	int           getTileSize(int maxWidth) const;
+	std::string   getTileTextureId(const std::string& type, int index, const SDL_Rect& clip) const;
 	int           getTilesPerRow() const;
 	bool          isTextVisible() const;
 	bool          isTileVisible() const;
 	void          render(SDL_Renderer* renderer);
-	void          renderHighlightSelection(SDL_Renderer* renderer, int index);
-	void          renderImage(SDL_Renderer* renderer, const LSG_ItemImage& image) const;
+	void          renderHighlightSelection(SDL_Renderer* renderer, int index) const;
+	void          renderImage(SDL_Renderer* renderer, int index) const;
 	void          renderScrollBar(SDL_Renderer* renderer);
-	void          renderText(SDL_Renderer* renderer, const LSG_ItemText& text);
-	void          reset(bool resetScroll = false);
-	void          resetScroll();
+	void          renderText(SDL_Renderer* renderer, int index);
 	virtual void  sendEvent(LSG_EventType type) const override;
 	void          selectCtrl(int index);
 	void          selectShift(int index);

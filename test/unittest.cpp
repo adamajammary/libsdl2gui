@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include <CppUnitTest.h>
-#include <libsdl2gui.h>
+#include <libsdlui.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -39,6 +39,35 @@ namespace LSG_UnitTest
     {
         LSG_Quit();
     }
+
+    TEST_CLASS(Button)
+    {
+        TEST_METHOD(SetButton)
+        {
+            try
+            {
+                auto id = "ButtonIdColorThemeDark";
+
+                auto icon = LSG_GetButtonIconPath(id);
+                auto text = LSG_GetButtonText(id);
+
+                Assert::AreEqual("img/dark-512.png", icon.c_str());
+                Assert::AreEqual("Dark",             text.c_str());
+
+                LSG_SetButton(id, "Light", "img/light-512.png");
+
+                auto newIcon = LSG_GetButtonIconPath(id);
+                auto newText = LSG_GetButtonText(id);
+
+                Assert::AreEqual("img/light-512.png", newIcon.c_str());
+                Assert::AreEqual("Light",             newText.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
 
     TEST_CLASS(Cards)
     {
@@ -237,6 +266,47 @@ namespace LSG_UnitTest
                     Assert::AreEqual(cardItems[i].description, cards[i].description);
                     Assert::AreEqual(cardItems[i].thumbnail,   cards[i].thumbnail);
                 }
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
+    TEST_CLASS(File)
+    {
+        TEST_METHOD(GetFile)
+        {
+            try
+            {
+                auto file = LSG_GetFile("/path/file.ext");
+
+                Assert::AreEqual("ext",            file.ext.c_str());
+                Assert::AreEqual("file.ext",       file.file.c_str());
+                Assert::AreEqual("/path/file.ext", file.filePath.c_str());
+                Assert::AreEqual("file",           file.name.c_str());
+                Assert::AreEqual("/path",          file.path.c_str());
+                Assert::AreEqual('/',              file.pathSep);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(GetFile_Windows)
+        {
+            try
+            {
+                auto file = LSG_GetFile("C:\\path\\file.ext");
+
+                Assert::AreEqual("ext",                file.ext.c_str());
+                Assert::AreEqual("file.ext",           file.file.c_str());
+                Assert::AreEqual("C:\\path\\file.ext", file.filePath.c_str());
+                Assert::AreEqual("file",               file.name.c_str());
+                Assert::AreEqual("C:\\path",           file.path.c_str());
+                Assert::AreEqual('\\',                 file.pathSep);
             }
             catch (const std::exception& e)
             {
@@ -536,7 +606,7 @@ namespace LSG_UnitTest
 
                 Assert::AreEqual(0, position);
 
-                LSG_NavigateForward("Navigation");
+                LSG_NavigateNext("Navigation");
 
                 position = LSG_GetNavigationPosition("Navigation");
 
@@ -559,6 +629,94 @@ namespace LSG_UnitTest
                 position = LSG_GetNavigationPosition("Navigation");
 
                 Assert::AreEqual(19, position);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
+
+    TEST_CLASS(Slider)
+    {
+        TEST_METHOD(GetParts)
+        {
+            try
+            {
+                auto parts = LSG_GetSliderParts("Slider");
+
+                Assert::AreEqual(4, (int)parts.size());
+
+                Assert::AreEqual(0.0,  parts[0].value);
+                Assert::AreEqual(0.25, parts[1].value);
+                Assert::AreEqual(0.5,  parts[2].value);
+                Assert::AreEqual(0.75, parts[3].value);
+
+                Assert::AreEqual("Part 1", parts[0].tooltip.c_str());
+                Assert::AreEqual("Part 2", parts[1].tooltip.c_str());
+                Assert::AreEqual("Part 3", parts[2].tooltip.c_str());
+                Assert::AreEqual("Part 4", parts[3].tooltip.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(GetValue)
+        {
+            try
+            {
+                auto value = LSG_GetSliderValue("Slider");
+
+                Assert::AreEqual(0.5, value);
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetParts)
+        {
+            try
+            {
+                LSG_SliderParts newParts = {
+                    { .value = 0,   .tooltip = "New Part 1" },
+                    { .value = 0.1, .tooltip = "New Part 2" },
+                    { .value = 0.3, .tooltip = "New Part 3" },
+                    { .value = 0.6, .tooltip = "New Part 4" },
+                    { .value = 0.9, .tooltip = "New Part 5" }
+                };
+
+                LSG_SetSliderParts("Slider", newParts);
+
+                auto parts = LSG_GetSliderParts("Slider");
+
+                Assert::AreEqual((int)newParts.size(), (int)parts.size());
+
+                for (size_t i = 0; i < parts.size(); i++)
+                {
+                    Assert::AreEqual(newParts[i].value, parts[i].value);
+
+                    Assert::AreEqual(newParts[i].tooltip.c_str(), parts[i].tooltip.c_str());
+                }
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetValue)
+        {
+            try
+            {
+                LSG_SetSliderValue("Slider", 0.1);
+
+                auto value = LSG_GetSliderValue("Slider");
+
+                Assert::AreEqual(0.1, value);
             }
             catch (const std::exception& e)
             {
@@ -1356,6 +1514,39 @@ namespace LSG_UnitTest
             }
         }
 	};
+
+    TEST_CLASS(Tooltip)
+    {
+        TEST_METHOD(GetTooltip)
+        {
+            try
+            {
+                auto tooltip = LSG_GetTooltip("ButtonIdColorThemeDark");
+
+                Assert::AreEqual("Dark color theme", tooltip.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+
+        TEST_METHOD(SetTooltip)
+        {
+            try
+            {
+                LSG_SetTooltip("ButtonIdColorThemeDark", "New tooltip text");
+
+                auto tooltip = LSG_GetTooltip("ButtonIdColorThemeDark");
+
+                Assert::AreEqual("New tooltip text", tooltip.c_str());
+            }
+            catch (const std::exception& e)
+            {
+                Assert::Fail(ToString(e.what()).c_str());
+            }
+        }
+    };
 }
 
 #endif

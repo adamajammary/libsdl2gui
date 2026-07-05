@@ -13,7 +13,7 @@ void LSG_Table::AddGroup(const LSG_TableGroup& group)
 {
 	this->groups.push_back(group);
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::AddGroup(LibXml::xmlNode* node)
@@ -47,7 +47,7 @@ void LSG_Table::AddRow(const LSG_Strings& row)
 {
 	this->rows.push_back(row);
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::AddRow(LibXml::xmlNode* node)
@@ -278,7 +278,7 @@ void LSG_Table::OnMouseClick(const SDL_Point& mousePosition)
 		if (!this->selectedRows.empty())
 			this->Select(this->selectedRows[0], clickedRow);
 	} else {
-		this->Select(clickedRow);
+		this->Select(clickedRow, true);
 	}
 }
 
@@ -291,7 +291,7 @@ bool LSG_Table::OnMouseMove(const SDL_Point& mousePosition, const SDL_Point& las
 	auto minWidth = this->getMinColumnWidth();
 	auto newWidth = (this->resizeColumnWidth + (mousePosition.x - lastEventPosition.x));
 
-	this->columnWidths[this->resizeColumn] = std::max(std::min(newWidth, maxWidth), minWidth);
+	this->columnWidths[this->resizeColumn] = std::max(minWidth, std::min(newWidth, maxWidth));
 
 	return true;
 }
@@ -376,18 +376,9 @@ void LSG_Table::removeRow()
 {
 	this->Update();
 
-	auto lastRow = this->getLastRow();
+	this->resetScroll();
 
-	if (lastRow < 0)
-	{
-		this->page = 0;
-
-		this->resetScroll();
-
-		this->Select(-1);
-	} else if (!this->selectedRows.empty() && this->selectedRows[0] > lastRow) {
-		this->SelectLastRow();
-	}
+	this->Select(-1);
 }
 
 void LSG_Table::Render(SDL_Renderer* renderer, const SDL_Point& position)
@@ -483,10 +474,10 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 		clip.x         = 0;
 		destination.x -= offsetX;
 	} else if (column == 0) {
-		clip.x         = std::max((offsetX - spacingHalf), 0);
+		clip.x         = std::max(0, (offsetX - spacingHalf));
 		destination.x -= spacingHalf;
 	} else {
-		clip.x = std::max((offsetX - spacingHalf), 0);
+		clip.x = std::max(0, (offsetX - spacingHalf));
 	}
 
 	auto maxSizeWidth   = std::max(columnSize.width, headerSize.width);
@@ -494,21 +485,21 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 	auto spacingOffset  = (this->scrollHorizontal.offset < spacingHalf ? (spacingHalf - this->scrollHorizontal.offset) : 0);
 
 	if (header)
-		clip.w = std::max(std::min((std::min(headerSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
+		clip.w = std::max(0, std::min((std::min(headerSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)));
 	else
-		clip.w = std::max(std::min((std::min(columnSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)), 0);
+		clip.w = std::max(0, std::min((std::min(columnSize.width, maxColumnWidth) - clip.x), (width - spacingOffset)));
 
 	destination.w = clip.w;
 
 	auto sizeWidth   = std::min(maxSizeWidth, maxColumnWidth);
-	auto columnWidth = std::max(std::min((sizeWidth - clip.x), width), 0);
+	auto columnWidth = std::max(0, std::min((sizeWidth - clip.x), width));
 	auto clipWidth   = (columnWidth + spacing);
 	auto texture     = (header ? this->headerTextures[column] : this->textures[column]);
 
 	if (columnWidth > 0) {
 		SDL_RenderCopy(renderer, texture, &clip, &destination);
 	} else {
-		clipWidth  = std::max((spacing - (clip.x - sizeWidth)), 0);
+		clipWidth  = std::max(0, (spacing - (clip.x - sizeWidth)));
 		sizeWidth += (spacing - clipWidth);
 	}
 
@@ -577,13 +568,6 @@ void LSG_Table::renderRows(SDL_Renderer* renderer, const SDL_Rect& fillArea, con
 		this->renderColumn(renderer, i, clip, destination, spacing, offsetX, remainingWidth, false);
 }
 
-void LSG_Table::reset()
-{
-	this->destroyTextures();
-
-	this->SetRows();
-}
-
 void LSG_Table::SetColumnWidth(int column, int width)
 {
 	if ((column < 0) || (column >= (int)this->columnWidths.size()))
@@ -604,7 +588,7 @@ void LSG_Table::SetGroup(const LSG_TableGroup& group)
 
 		pageGroup.rows = group.rows;
 
-		this->reset();
+		this->SetRows();
 
 		break;
 	}
@@ -614,7 +598,7 @@ void LSG_Table::SetGroups(const LSG_TableGroups& groups)
 {
 	this->groups = groups;
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::SetHeader(const LSG_Strings& header)
@@ -677,8 +661,6 @@ void LSG_Table::setRow(int row, int start, int end, const LSG_Strings& columns)
 
 		pageRow = columns;
 
-		this->destroyTextures();
-
 		this->setRows(false);
 
 		return;
@@ -691,21 +673,23 @@ void LSG_Table::SetRows(const LSG_TableRows& rows)
 
 	this->resetScroll();
 
+	this->selectedRows.clear();
+
 	this->rows = rows;
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::SetRows()
 {
-	this->destroyTextures();
-
 	this->setRows();
 }
 
 void LSG_Table::setRows(bool sort)
 {
 	LSG_Graphics::DestroyTextures();
+
+	this->destroyTextures();
 
 	if (this->showPagination())
 		this->initPagination(this->getFillArea(), this->backgroundColor);
@@ -732,14 +716,14 @@ void LSG_Table::setRows(bool sort)
 			if (i < this->header.size())
 			{
 				if ((i == sortColumn) && (sortOrder == LSG_ConstSortOrder::Ascending))
-					columns[i].append(LSG_ConstUnicodeCharacter::ArrowUp).append(" ");
+					columns[i].append(LSG_ConstSymbol::ArrowUp);
 				else if ((i == sortColumn) && (sortOrder == LSG_ConstSortOrder::Descending))
-					columns[i].append(LSG_ConstUnicodeCharacter::ArrowDown).append(" ");
+					columns[i].append(LSG_ConstSymbol::ArrowDown);
 
 				columns[i].append(!this->header[i].empty() ? this->header[i] : " ");
 			}
 
-			this->headerTextures.push_back(this->getTexture(columns[i], 0, TTF_STYLE_BOLD));
+			this->headerTextures.push_back(LSG_Text::GetTexture(columns[i], this->getFontSize(), TTF_STYLE_BOLD, this->textColor, this->wrap));
 
 			columns[i].append("\n");
 		}
@@ -801,7 +785,7 @@ void LSG_Table::Sort(LSG_SortOrder sortOrder, int sortColumn)
 
 	this->resetScroll();
 
-	this->reset();
+	this->SetRows();
 }
 
 void LSG_Table::sort()
@@ -827,7 +811,5 @@ void LSG_Table::sort()
 
 void LSG_Table::Update()
 {
-	this->destroyTextures();
-
 	this->setRows(false);
 }

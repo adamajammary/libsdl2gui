@@ -7,7 +7,7 @@
 	#include <windows.h> // WinMain(x)
 #endif
 
-#include <libsdl2gui.h>
+#include <libsdlui.h>
 
 static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile, bool isInit = false)
 {
@@ -110,11 +110,11 @@ static void handleUserEvent(const SDL_UserEvent& event)
     case LSG_EVENT_NAVIGATE_END:
         LSG_NavigateEnd(id);
         break;
-    case LSG_EVENT_NAVIGATE_FORWARD:
-        LSG_NavigateForward(id);
-        break;
     case LSG_EVENT_NAVIGATE_HOME:
         LSG_NavigateHome(id);
+        break;
+    case LSG_EVENT_NAVIGATE_NEXT:
+        LSG_NavigateNext(id);
         break;
     case LSG_EVENT_ROW_SELECTED:
     case LSG_EVENT_ROW_UNSELECTED:
@@ -128,11 +128,11 @@ static void handleUserEvent(const SDL_UserEvent& event)
     case LSG_EVENT_TILE_UNSELECTED:
         handleTileEvent(id, *static_cast<std::vector<int>*>(event.data2));
         break;
-    case LSG_EVENT_TOGGLED_OFF:
+    case LSG_EVENT_TOGGLE_OFF:
         if (id == "Toggle")
             setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
         break;
-    case LSG_EVENT_TOGGLED_ON:
+    case LSG_EVENT_TOGGLE_ON:
         if (id == "Toggle")
             setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
         break;

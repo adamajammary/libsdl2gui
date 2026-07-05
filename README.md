@@ -1,10 +1,10 @@
-# libsdl2gui
+# libsdlui
 
 ## A free cross-platform user interface library using SDL
 
 Copyright (C) 2021 Adam A. Jammary (Jammary Studio)
 
-libsdl2gui is a free cross-platform user interface library using SDL (Simple DirectMedia Layer).
+libsdlui is a free cross-platform user interface library using SDL (Simple DirectMedia Layer).
 
 ## 3rd Party Libraries
 
@@ -25,16 +25,18 @@ Platform | Header | Package
 -------- | ------ | -------
 Android | android/asset_manager_jni.h | [Android NDK](https://developer.android.com/ndk/downloads)
 Android | sys/stat.h | [Android NDK](https://developer.android.com/ndk/downloads)
-iOS | MediaPlayer/MediaPlayer.h | Media Player Framework
-iOS | Photos/Photos.h | Photos Framework
-iOS | PhotosUI/PhotosUI.h | PhotosUI Kit Framework
-iOS | StoreKit/StoreKit.h | StoreKit Framework
-iOS | UIKit/UIKit.h | UIKit Framework
-iOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
-Linux | gtk/gtk.h | libgtk-3-dev
-macOS | AppKit/AppKit.h | AppKit Framework
-macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | Uniform Type Identifiers framework
-Windows | shobjidl_core.h | Win32 API
+iOS | MediaPlayer/MediaPlayer.h | [Media Player Framework](https://developer.apple.com/documentation/mediaplayer?language=objc)
+iOS | Photos/Photos.h | [Photos Framework](https://developer.apple.com/documentation/photos?language=objc)
+iOS | PhotosUI/PhotosUI.h | [PhotosUI Framework](https://developer.apple.com/documentation/photosui?language=objc)
+iOS | StoreKit/StoreKit.h | [StoreKit Framework](https://developer.apple.com/documentation/storekit?language=objc)
+iOS | UIKit/UIKit.h | [UIKit Framework](https://developer.apple.com/documentation/uikit?language=objc)
+iOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | [Uniform Type Identifiers framework](https://developer.apple.com/documentation/uniformtypeidentifiers?language=objc)
+Linux | gtk/gtk.h | [libgtk-3-dev](https://docs.gtk.org/gtk3/)
+macOS | AppKit/AppKit.h | [AppKit Framework](https://developer.apple.com/documentation/appkit?language=objc)
+macOS | Foundation/Foundation.h | [Foundation Framework](https://developer.apple.com/documentation/foundation?language=objc)
+macOS | UniformTypeIdentifiers/UniformTypeIdentifiers.h | [Uniform Type Identifiers framework](https://developer.apple.com/documentation/uniformtypeidentifiers?language=objc)
+Windows | shobjidl_core.h | [Win32 API](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/)
+Windows | windows.h | [WinMain](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-winmain)
 
 ## Compilers and C++20
 
@@ -93,19 +95,19 @@ make
 ##### Install APK to device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdl2gui-arm64-v8a-debug.apk
+/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdlui-arm64-v8a-debug.apk
 ```
 
 ##### Re-install (update) APK to device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdl2gui-arm64-v8a-debug.apk
+/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdlui-arm64-v8a-debug.apk
 ```
 
 ##### Uninstall (remove) APK from device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb uninstall com.libsdl2gui.test
+/path/to/ANDROID_SDK/platform-tools/adb uninstall com.libsdlui.test
 ```
 
 ![Screenshot of Test project on Android](screenshots/android_480p.png)
@@ -127,7 +129,7 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 -D IOS_SDK="iphoneos" \
 -D LSG_EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdlui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
 ```
 
 #### Xcode - Devices
@@ -141,11 +143,11 @@ xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdl2gui.xcodeproj -configu
 1. Select `Window > Devices and Simulators` from the main menu.
 1. Select the device from the list on the left.
 1. Click the `+` icon under **Installed Apps**.
-1. Locate and select `dist/bin/testsdl2gui-arm64.app`.
+1. Locate and select `dist/bin/testsdlui-arm64.app`.
 
-The app should now be installed on the device with the name **testsdl2gui**.
+The app should now be installed on the device with the name **testsdlui**.
 
-> If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
+> If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdlui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
 
 ![Screenshot of Test project on iPhone](screenshots/iphone_480p.png)
 
@@ -161,7 +163,7 @@ You can get the macOS SDK path with the following command: `xcrun --sdk macosx -
 -D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
 -D LSG_EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild MACOSX_DEPLOYMENT_TARGET="13.4" -project sdl2gui.xcodeproj -configuration Release
+xcodebuild MACOSX_DEPLOYMENT_TARGET="13.4" -project sdlui.xcodeproj -configuration Release
 ```
 
 ![Screenshot of Test project on macOS](screenshots/macos_480p.png)
@@ -185,7 +187,7 @@ cmake .. -G "Visual Studio 17 2022" \
 -D CMAKE_BUILD_TYPE=Release \
 -D LSG_EXT_LIB_DIR="/path/to/libs"
 
-devenv.com sdl2gui.sln -build "Release|x64"
+devenv.com sdlui.sln -build "Release|x64"
 ```
 
 ![Screenshot of Test project on Windows](screenshots/windows_480p.png)
@@ -339,6 +341,7 @@ border-radius="int"
 border-width="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 icon="file_path"
 text="string"
@@ -346,7 +349,7 @@ text="string"
 
 ### \<cards\>
 
-[alignment](#alignment) | [boolean](#boolean) | [card_border_type](#card_border_type) | [color](#color) | [size](#size)
+[alignment](#alignment) | [boolean](#boolean) | [card_border_type](#card_border_type) | [color](#color) | [size](#size) | [text_overflow](#text_overflow)
 
 Triggers [LSG_EVENT_ROW_ACTIVATED](#handle-events), [LSG_EVENT_ROW_SELECTED](#handle-events) and [LSG_EVENT_ROW_UNSELECTED](#handle-events) events.
 
@@ -363,9 +366,11 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 card-height="int" # default="128"
 card-border-type="card_border_type"
+text-overflow="text_overflow"
 ```
 
 ### \<card\>
@@ -389,6 +394,7 @@ height="size"
 border-radius="int"
 halign="alignment_horizontal"
 valign="alignment_vertical"
+tooltip="string"
 
 file="file_path"
 fill="boolean"
@@ -401,6 +407,7 @@ fill="boolean"
 ```ini
 id="string"
 orientation="orientation"
+tooltip="string"
 
 color="color"
 ```
@@ -423,6 +430,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 sort="sort_order"
 ```
@@ -443,6 +451,7 @@ valign="alignment_vertical"
 padding="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 title="string"
 width="size"
@@ -515,6 +524,7 @@ height="size"
 background-color="color"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 items-total="size_t"          # Number of total items that can be navigated, default is 0.
 items-per-navigation="size_t" # Number of items to navigate by, default is 1.
@@ -542,6 +552,7 @@ valign="alignment_vertical"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 scrollable="boolean"
 ```
@@ -560,6 +571,7 @@ background-color="color"
 border-color="color"
 border-radius="int"
 border-width="int"
+tooltip="string"
 
 value="percent"
 progress-color="color"
@@ -567,7 +579,7 @@ progress-color="color"
 
 ### \<slider\>
 
-[boolean](#boolean) | [color](#color) | [orientation](#orientation) | [percent](#percent) | [size](#size)
+[boolean](#boolean) | [color](#color) | [orientation](#orientation) | [percent](#percent) | [percents](#percents) | [size](#size)
 
 Triggers [LSG_EVENT_SLIDER_VALUE_CHANGED](#handle-events) event.
 
@@ -582,15 +594,25 @@ background-color="color"
 border-color="color"
 border-radius="int"
 border-width="int"
+tooltip="string"
 
 value="percent"
 fill-progress="boolean"
 progress-color="color"
-thumb-color="color"
-thumb-width="int" # minimum="10"
+bar-width="int"
 thumb-border-color="color"
-thumb-border-radius="int"
 thumb-border-width="int"
+thumb-color="color"
+thumb-size="int"
+```
+
+### \<slider-part\>
+
+[percent](#percent)
+
+```ini
+value="percent"
+tooltip="string"
 ```
 
 ### \<table\>
@@ -612,6 +634,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 sort="sort_order"
 sort-column="int" # 0-based index
@@ -619,17 +642,19 @@ sort-column="int" # 0-based index
 
 ### \<text\>
 
-[boolean](#boolean) | [color](#color)
+[boolean](#boolean) | [color](#color) | [text_overflow](#text_overflow)
 
 ```ini
 id="string"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 bold="boolean"
 italic="boolean"
 strike-through="boolean"
 underline="boolean"
+text-overflow="text_overflow"
 wrap="boolean"
 ```
 
@@ -648,6 +673,7 @@ border-width="int"
 font-size="int" # default="14"
 padding="int"
 text-color="color"
+tooltip="string"
 
 placeholder="string"
 value="string"
@@ -671,6 +697,7 @@ border-radius="int"
 spacing="int"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 text-halign="alignment_horizontal"
 text-valign="alignment_vertical"
@@ -704,6 +731,7 @@ halign="alignment_horizontal"
 valign="alignment_vertical"
 font-size="int" # default="14"
 text-color="color"
+tooltip="string"
 
 on="boolean"
 ```
@@ -771,6 +799,12 @@ value="horizontal|vertical" # default="horizontal"
 value="0.5" # 50% [0.0,1.0] default="0.0"
 ```
 
+### percents
+
+```ini
+value="0.25,0.5,0.75" # Comma-separated list of percents
+```
+
 ### size
 
 ```ini
@@ -783,6 +817,11 @@ value="10%" # Relative
 ```ini
 value="ascending|descending" # default="ascending"
 ```
+
+### text_overflow
+
+```ini
+value="ellipsis|clip" # default="clip"
 
 ## Color Theme File
 
@@ -816,13 +855,15 @@ Slider.thumb-border-color=#000000
 ```cpp
 enum LSG_EventType {
   LSG_EVENT_BUTTON_CLICKED,
-  LSG_EVENT_BUTTON_PRESSED,
   LSG_EVENT_COMPONENT_CLICKED,
   LSG_EVENT_COMPONENT_DOUBLE_CLICKED,
   LSG_EVENT_COMPONENT_RIGHT_CLICKED,
   LSG_EVENT_COMPONENT_KEY_ENTERED,
+  LSG_EVENT_COMPONENT_LONG_PRESSED,
   LSG_EVENT_COMPONENT_SCROLLED,
   LSG_EVENT_MENU_ITEM_SELECTED,
+  LSG_EVENT_MODAL_CLOSED,
+  LSG_EVENT_MODAL_OPENED,
   LSG_EVENT_NAVIGATE_BACK,
   LSG_EVENT_NAVIGATE_END,
   LSG_EVENT_NAVIGATE_FORWARD,
@@ -838,8 +879,8 @@ enum LSG_EventType {
   LSG_EVENT_TILE_ACTIVATED, // ENTER or double-click
   LSG_EVENT_TILE_SELECTED,
   LSG_EVENT_TILE_UNSELECTED,
-  LSG_EVENT_TOGGLED_OFF,
-  LSG_EVENT_TOGGLED_ON
+  LSG_EVENT_TOGGLE_OFF,
+  LSG_EVENT_TOGGLE_ON
 };
 ```
 
@@ -925,10 +966,25 @@ const int LSG_DEFAULT_FONT_SIZE = 14;
 const int LSG_MAX_ROWS_PER_PAGE = 100;
 ```
 
+### LSG_File
+
+```cpp
+struct LSG_File
+{
+  std::string ext      = "";  // ext
+  std::string file     = "";  // file.ext
+  std::string filePath = "";  // /path/file.ext
+  std::string name     = "";  // file
+  std::string path     = "";  // /path
+  char        pathSep  = '/'; // /
+};
+```
+
 ### SDL_Size
 
 ```cpp
-struct SDL_Size {
+struct SDL_Size
+{
   int width  = 0;
   int height = 0;
 };
@@ -978,6 +1034,16 @@ struct LSG_GPS
 };
 ```
 
+### LSG_SliderPart
+
+```cpp
+struct LSG_SliderPart
+{
+  double      value   = 0.0;
+  std::string tooltip = "";
+};
+```
+
 ### LSG_TableGroup
 
 ```cpp
@@ -1002,6 +1068,12 @@ struct LSG_TileItem
 
 ```cpp
 using LSG_ExifTags = std::map<uint16_t, std::string>;
+```
+
+### LSG_SliderParts
+
+```cpp
+using LSG_SliderParts = std::vector<LSG_SliderPart>;
 ```
 
 ### LSG_Strings
@@ -1255,6 +1327,40 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetButtonIconPath
+
+```cpp
+std::string LSG_GetButtonIconPath(const std::string& id);
+```
+
+Returns the icon file path of the button.
+
+Parameters
+
+- **id** \<button\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetButtonText
+
+```cpp
+std::string LSG_GetButtonText(const std::string& id);
+```
+
+Returns the text label of the button.
+
+Parameters
+
+- **id** \<button\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetCard
 
 ```cpp
@@ -1330,6 +1436,14 @@ Returns a scaled value relative to the display DPI factor.
 Exceptions
 
 - runtime_error
+
+### LSG_GetFile
+
+```cpp
+LSG_File LSG_GetFile(const std::string& filePath);
+```
+
+Returns a file structure based on filePath.
 
 ### LSG_GetFontStyle
 
@@ -1547,6 +1661,23 @@ Returns the current 0-based position of the navigation component.
 Parameters
 
 - **id** \<navigation\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetOrientation
+
+```cpp
+LSG_Orientation LSG_GetOrientation(const std::string& id);
+```
+
+Returns the layout orientation of the children of a component.
+
+Parameters
+
+- **id** Component ID
 
 Exceptions
 
@@ -1799,11 +1930,28 @@ Exceptions
 SDL_Size LSG_GetSize(const std::string& id);
 ```
 
-Returns the component size.
+Returns the DPI-scaled component size.
 
 Parameters
 
 - **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSliderParts
+
+```cpp
+LSG_SliderParts LSG_GetSliderParts(const std::string& id);
+```
+
+Returns the slider parts as percentage values with an optional tooltip.
+
+Parameters
+
+- **id** \<slider\> component ID
 
 Exceptions
 
@@ -2103,6 +2251,23 @@ Exceptions
 - invalid_argument
 - runtime_error
 
+### LSG_GetTooltip
+
+```cpp
+std::string LSG_GetTooltip(const std::string& id);
+```
+
+Returns the tooltip text of the component.
+
+Parameters
+
+- **id** Component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
 ### LSG_GetWindowMinimumSize
 
 ```cpp
@@ -2286,7 +2451,7 @@ Exceptions
 void LSG_NavigateBack(const std::string& id, const std::string& text = "");
 ```
 
-Navigates backwards, and displays an updated text label.
+Navigates back to the previous item, and displays an updated text label.
 
 Parameters
 
@@ -2298,31 +2463,13 @@ Exceptions
 - invalid_argument
 - runtime_error
 
-### LSG_NavigateEnd
+### LSG_NavigateNext
 
 ```cpp
-void LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+void LSG_NavigateNext(const std::string& id, const std::string& text = "");
 ```
 
-Navigates to the last item, and displays an updated text label.
-
-Parameters
-
-- **id** \<navigation\> component ID
-- **text** Optional text label, shows "[last_position] / [total_items]" by default.
-
-Exceptions
-
-- invalid_argument
-- runtime_error
-
-### LSG_NavigateForward
-
-```cpp
-void LSG_NavigateForward(const std::string& id, const std::string& text = "");
-```
-
-Navigates forwards, and displays an updated text label.
+Navigates to the next item, and displays an updated text label.
 
 Parameters
 
@@ -2346,6 +2493,24 @@ Parameters
 
 - **id** \<navigation\> component ID
 - **text** Optional text label, shows "1 / [total_items]" by default.
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_NavigateEnd
+
+```cpp
+void LSG_NavigateEnd(const std::string& id, const std::string& text = "");
+```
+
+Navigates to the last item, and displays an updated text label.
+
+Parameters
+
+- **id** \<navigation\> component ID
+- **text** Optional text label, shows "[last_position] / [total_items]" by default.
 
 Exceptions
 
@@ -2440,7 +2605,7 @@ See [LSG_OpenFile](#lsg_openfile) for examples.
 ### LSG_OpenFolder
 
 ```cpp
-std::string LSG_OpenFolder();
+std::string LSG_OpenFolder(); // Android, Linux, macOS and Windows
 ```
 
 > Only supported on Android, Linux, macOS and Windows.
@@ -2456,7 +2621,7 @@ Exceptions
 ### LSG_OpenFolders
 
 ```cpp
-LSG_Strings LSG_OpenFolders();
+LSG_Strings LSG_OpenFolders(); // Linux, macOS and Windows
 ```
 
 > Only supported on Linux, macOS and Windows.
@@ -3033,10 +3198,10 @@ Exceptions
 
 See [LSG_OpenFile](#lsg_openfile) for examples.
 
-### LSG_ScrollHorizontal
+### LSG_ScrollByHorizontal
 
 ```cpp
-void LSG_ScrollHorizontal(const std::string& id, int scroll);
+void LSG_ScrollByHorizontal(const std::string& id, int offset);
 ```
 
 Scrolls the component horizontally by the specified offset.
@@ -3044,17 +3209,17 @@ Scrolls the component horizontally by the specified offset.
 Parameters
 
 - **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
-- **scroll** Horizontal scroll offset
+- **offset** Horizontal scroll offset
 
 Exceptions
 
 - invalid_argument
 - runtime_error
 
-### LSG_ScrollVertical
+### LSG_ScrollByVertical
 
 ```cpp
-void LSG_ScrollVertical(const std::string& id, int scroll);
+void LSG_ScrollByVertical(const std::string& id, int offset);
 ```
 
 Scrolls the component vertically by the specified offset.
@@ -3062,7 +3227,7 @@ Scrolls the component vertically by the specified offset.
 Parameters
 
 - **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
-- **scroll** Vertical scroll offset
+- **offset** Vertical scroll offset
 
 Exceptions
 
@@ -3097,6 +3262,42 @@ Scrolls to the top of the component.
 Parameters
 
 - **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToHorizontal
+
+```cpp
+void LSG_ScrollToHorizontal(const std::string& id, int position);
+```
+
+Scrolls the component horizontally to the specified position.
+
+Parameters
+
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **position** Horizontal scroll position
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_ScrollToVertical
+
+```cpp
+void LSG_ScrollToVertical(const std::string& id, int position);
+```
+
+Scrolls the component vertically to the specified position.
+
+Parameters
+
+- **id** \<cards\>, \<list\>, \<panel\>, \<table\>, \<text\> or \<tiles\> component ID
+- **position** Vertical scroll position
 
 Exceptions
 
@@ -4070,6 +4271,37 @@ Example
 LSG_SetSize("ButtonIdColorThemeDark", 0.25, 0.75);
 ```
 
+### LSG_SetSliderParts
+
+```cpp
+void LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts);
+```
+
+Sets the slider parts as percentage values with an optional tooltip.
+
+Parameters
+
+- **id** \<slider\> component ID
+- **parts** Slider parts
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SliderParts parts = {
+  { .value = 0,    .tooltip = "Part 1" },
+  { .value = 0.25, .tooltip = "Part 2" },
+  { .value = 0.5,  .tooltip = "Part 3" },
+  { .value = 0.75, .tooltip = "Part 4" }
+};
+
+LSG_SetSliderParts("Slider", parts);
+```
+
 ### LSG_SetSliderValue
 
 ```cpp
@@ -4167,8 +4399,8 @@ Example
 LSG_TableGroup tableGroup = {
     "Quis Hendrerit", {
       { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
-      { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
-      { "Consequat", "Ac felis donec et odio pellentesque diam volutpat commodo" }
+      { "Congue",     "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
+      { "Consequat",  "Ac felis donec et odio pellentesque diam volutpat commodo" }
     }
 };
 
@@ -4200,15 +4432,15 @@ LSG_TableGroups tableGroups = {
   {
     "Quis Hendrerit", {
       { "Adipiscing", "Elit pellentesque habitant morbi tristique senectus et" },
-      { "Congue", "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
-      { "Consequat", "Ac felis donec et odio pellentesque diam volutpat commodo" }
+      { "Congue",     "Sed egestas egestas fringilla phasellus faucibus scelerisque" },
+      { "Consequat",  "Ac felis donec et odio pellentesque diam volutpat commodo" }
     }
   },
   {
     "Vestibulum", {
       { "Blandit", "Imperdiet nulla malesuada" },
-      { "Cursus", "Pellentesque elit eget gravida" },
-      { "Risus", "Sociis natoque penatibus" }
+      { "Cursus",  "Pellentesque elit eget gravida" },
+      { "Risus",   "Sociis natoque penatibus" }
     }
   }
 };
@@ -4302,7 +4534,7 @@ LSG_TableRows rows = {
   { "Risus",      "Sociis natoque penatibus" }
 };
 
-LSG_SetTableRows("Table", rows);
+LSG_SetTableRows("TableWithGroups", rows);
 ```
 
 ### LSG_SetText
@@ -4479,6 +4711,30 @@ Exceptions
 
 - invalid_argument
 - runtime_error
+
+### LSG_SetTooltip
+
+```cpp
+void LSG_SetTooltip(const std::string& id, const std::string& tooltip);
+```
+
+Sets the tooltip text of the component.
+
+Parameters
+
+- **id** Component ID
+- **tooltip** Tooltip text
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+LSG_SetTooltip("ButtonIdColorThemeDark", "Dark color theme");
+```
 
 ### LSG_SetVisible
 
@@ -4766,6 +5022,94 @@ Exceptions
 LSG_SortTable("Table", LSG_SORT_ORDER_ASCENDING, 0);
 LSG_SortTable("TableWithGroups", LSG_SORT_ORDER_DESCENDING, 1);
 ```
+
+### LSG_TextJoin
+
+```cpp
+std::string LSG_TextJoin(const LSG_Strings& strings, const std::string& separator);
+```
+
+Joins text strings together by separator.
+
+Parameters
+
+- **strings** Strings to join
+- **separator** String to use as a separator
+
+### LSG_TextReplace
+
+```cpp
+std::string LSG_TextReplace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
+```
+
+Replaces all occurrences of oldSubstring in text with newSubstring.
+
+Parameters
+
+- **text** Text string
+- **oldSubstring** String to be replaced
+- **newSubstring** String to use as replacement
+
+### LSG_TextSplit
+
+```cpp
+LSG_Strings LSG_TextSplit(const std::string& text, char separator);
+```
+
+Splits text by separator.
+
+Parameters
+
+- **text** String to split
+- **separator** Character to use as a separator
+
+### LSG_TextToLower
+
+```cpp
+std::string LSG_TextToLower(const std::string& text);
+```
+
+Converts text to lowercase.
+
+Parameters
+
+- **text** Text string
+
+### LSG_TextToUpper
+
+```cpp
+std::string LSG_TextToUpper(const std::string& text);
+```
+
+Converts text to uppercase.
+
+Parameters
+
+- **text** Text string
+
+### LSG_TextToUTF8
+
+```cpp
+std::string LSG_TextToUTF8(const std::wstring& wide);
+```
+
+Converts wide string to standard string with UTF-8 character encoding.
+
+Parameters
+
+- **wide** Wide text string
+
+### LSG_TextToWide
+
+```cpp
+std::wstring LSG_TextToWide(const std::string& text);
+```
+
+Converts standard string to wide string.
+
+Parameters
+
+- **text** Text string
 
 ### LSG_Start
 
