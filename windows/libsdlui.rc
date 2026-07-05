@@ -12,12 +12,12 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName",      "Adam A. Jammary (Jammary Studio)"
 			VALUE "LegalCopyright",   "(c) 2021 Adam A. Jammary (Jammary Studio)"
-			VALUE "ProductName",      "libsdl2gui"
-			VALUE "FileDescription",  "libsdl2gui"
+			VALUE "ProductName",      "libsdlui"
+			VALUE "FileDescription",  "libsdlui"
 			VALUE "FileVersion",      "1.5.0"
 			VALUE "ProductVersion",   "1.5.0"
-			VALUE "InternalName",     "libsdl2gui.dll"
-			VALUE "OriginalFilename", "libsdl2gui.dll"
+			VALUE "InternalName",     "libsdlui.dll"
+			VALUE "OriginalFilename", "libsdlui.dll"
 		END
 	END
 	BLOCK "VarFileInfo"

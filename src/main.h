@@ -56,7 +56,7 @@ namespace LibXml {
 }
 #endif
 
-#include <libsdl2gui.h>
+#include <libsdlui.h>
 
 #if defined _windows
 	#define strdup _strdup
@@ -165,7 +165,7 @@ enum LSG_Vector
 #if defined _android
 struct LSG_ConstAndroid
 {
-	static inline const std::string ActivityClassPath = "com/libsdl2gui/app/Sdl2GuiActivity";
+	static inline const std::string ActivityClassPath = "com/libsdlui/app/SDLUIActivity";
 };
 #endif
 

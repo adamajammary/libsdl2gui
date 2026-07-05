@@ -7,7 +7,7 @@
 	#include <windows.h> // WinMain(x)
 #endif
 
-#include <libsdl2gui.h>
+#include <libsdlui.h>
 
 static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile, bool isInit = false)
 {

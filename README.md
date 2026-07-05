@@ -1,10 +1,10 @@
-# libsdl2gui
+# libsdlui
 
 ## A free cross-platform user interface library using SDL
 
 Copyright (C) 2021 Adam A. Jammary (Jammary Studio)
 
-libsdl2gui is a free cross-platform user interface library using SDL (Simple DirectMedia Layer).
+libsdlui is a free cross-platform user interface library using SDL (Simple DirectMedia Layer).
 
 ## 3rd Party Libraries
 
@@ -95,19 +95,19 @@ make
 ##### Install APK to device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdl2gui-arm64-v8a-debug.apk
+/path/to/ANDROID_SDK/platform-tools/adb install dist/bin/testsdlui-arm64-v8a-debug.apk
 ```
 
 ##### Re-install (update) APK to device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdl2gui-arm64-v8a-debug.apk
+/path/to/ANDROID_SDK/platform-tools/adb install -r dist/bin/testsdlui-arm64-v8a-debug.apk
 ```
 
 ##### Uninstall (remove) APK from device
 
 ```bash
-/path/to/ANDROID_SDK/platform-tools/adb uninstall com.libsdl2gui.test
+/path/to/ANDROID_SDK/platform-tools/adb uninstall com.libsdlui.test
 ```
 
 ![Screenshot of Test project on Android](screenshots/android_480p.png)
@@ -129,7 +129,7 @@ You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos -
 -D IOS_SDK="iphoneos" \
 -D LSG_EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdl2gui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
+xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdlui.xcodeproj -configuration Release -destination "generic/platform=iOS" -allowProvisioningUpdates
 ```
 
 #### Xcode - Devices
@@ -143,11 +143,11 @@ xcodebuild IPHONEOS_DEPLOYMENT_TARGET="16.5" -project sdl2gui.xcodeproj -configu
 1. Select `Window > Devices and Simulators` from the main menu.
 1. Select the device from the list on the left.
 1. Click the `+` icon under **Installed Apps**.
-1. Locate and select `dist/bin/testsdl2gui-arm64.app`.
+1. Locate and select `dist/bin/testsdlui-arm64.app`.
 
-The app should now be installed on the device with the name **testsdl2gui**.
+The app should now be installed on the device with the name **testsdlui**.
 
-> If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdl2gui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
+> If the installation fails, most likely it means the app package was not signed correctly. Try opening `sdlui.xcodeproj` in Xcode to make sure all signing options have been set correctly.
 
 ![Screenshot of Test project on iPhone](screenshots/iphone_480p.png)
 
@@ -163,7 +163,7 @@ You can get the macOS SDK path with the following command: `xcrun --sdk macosx -
 -D CMAKE_OSX_SYSROOT="/path/to/MACOSX_SDK" \
 -D LSG_EXT_LIB_DIR="/path/to/libs"
 
-xcodebuild MACOSX_DEPLOYMENT_TARGET="13.4" -project sdl2gui.xcodeproj -configuration Release
+xcodebuild MACOSX_DEPLOYMENT_TARGET="13.4" -project sdlui.xcodeproj -configuration Release
 ```
 
 ![Screenshot of Test project on macOS](screenshots/macos_480p.png)
@@ -187,7 +187,7 @@ cmake .. -G "Visual Studio 17 2022" \
 -D CMAKE_BUILD_TYPE=Release \
 -D LSG_EXT_LIB_DIR="/path/to/libs"
 
-devenv.com sdl2gui.sln -build "Release|x64"
+devenv.com sdlui.sln -build "Release|x64"
 ```
 
 ![Screenshot of Test project on Windows](screenshots/windows_480p.png)

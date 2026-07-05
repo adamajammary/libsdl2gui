@@ -1,10 +1,10 @@
-#ifndef LIBSDL2GUI_H
-#define LIBSDL2GUI_H
+#ifndef LIBSDLUI_H
+#define LIBSDLUI_H
 
 #if defined _windows
     #define DLL __cdecl
 
-    #ifdef sdl2gui_EXPORTS
+    #ifdef sdlui_EXPORTS
 	    #define DLLEXPORT __declspec(dllexport)
     #else
 	    #define DLLEXPORT __declspec(dllimport)

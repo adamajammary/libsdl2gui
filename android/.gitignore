@@ -1,5 +1,5 @@
 .gradle
 .idea
-testsdl2gui/build
-testsdl2gui/libs
-testsdl2gui/src/main/assets
+testsdlui/build
+testsdlui/libs
+testsdlui/src/main/assets

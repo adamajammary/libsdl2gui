@@ -1,6 +1,6 @@
 #include "main.h"
 
-const char ERROR_NOT_STARTED[] = "libsdl2gui has not been started, call LSG_Start.";
+const char ERROR_NOT_STARTED[] = "libsdlui has not been started, call LSG_Start.";
 
 char* basePath  = nullptr;
 bool  isRunning = false;

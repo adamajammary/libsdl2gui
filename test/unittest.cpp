@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include <CppUnitTest.h>
-#include <libsdl2gui.h>
+#include <libsdlui.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
