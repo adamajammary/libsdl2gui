@@ -245,9 +245,9 @@ if (IOS)
         MACOSX_BUNDLE_COPYRIGHT            "(c) 2021 Adam A. Jammary (Jammary Studio)"
         MACOSX_BUNDLE_GUI_IDENTIFIER       "com.libsdlui.test"
         MACOSX_BUNDLE_ICON_FILE            "icon"
-        MACOSX_BUNDLE_BUNDLE_VERSION       "1.0.0"
-        MACOSX_BUNDLE_LONG_VERSION_STRING  "1.0.0"
-        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0.0"
+        MACOSX_BUNDLE_BUNDLE_VERSION       "1.6.0"
+        MACOSX_BUNDLE_LONG_VERSION_STRING  "1.6.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.6.0"
     )
 elseif (WIN32)
     set_property(TARGET testsdlui PROPERTY LINK_FLAGS_DEBUG   "-SUBSYSTEM:CONSOLE,5.02")
