@@ -167,6 +167,26 @@ static void handleEvents(const std::vector<SDL_Event>& events)
     }
 }
 
+static std::string handleHover() {
+    SDL_Point mousePosition = {};
+    SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+
+    auto value   = LSG_GetSliderValue("Slider", mousePosition);
+    auto percent = (int)(value * 100.0);
+
+    return std::format("Percent: {}%", percent);
+}
+
+static void init()
+{
+    LSG_SetSliderOnHoverCallback("Slider", handleHover);
+
+    if (!LSG_IsPreferredDarkMode())
+        setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme", true);
+    else
+        setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme", true);
+}
+
 static void render(SDL_Renderer* renderer)
 {
     if (!renderer || !LSG_IsRunning())
@@ -201,12 +221,7 @@ int SDL_main(int argc, char* argv[])
         SDL_Renderer* renderer = LSG_Start("ui/main.xml");
 
         if (LSG_IsRunning())
-        {
-            if (!LSG_IsPreferredDarkMode())
-                setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme", true);
-            else
-                setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme", true);
-        }
+            init();
 
         std::vector<SDL_Event> events;
 

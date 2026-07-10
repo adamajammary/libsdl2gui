@@ -23,6 +23,22 @@ void LSG_Graphics::DestroyTextures()
 	LSG_Graphics::textures.clear();
 }
 
+void LSG_Graphics::DestroyTextures(const std::string& prefixId)
+{
+	if (LSG_Graphics::textures.empty())
+		return;
+
+	LSG_Strings textureIds;
+
+	for (const auto& texture : LSG_Graphics::textures) {
+		if (texture.first.starts_with(prefixId))
+			textureIds.push_back(texture.first);
+	}
+
+	for (const auto& id : textureIds)
+		LSG_Graphics::DestroyTexture(id);
+}
+
 SDL_Rect LSG_Graphics::GetDestinationAligned(const SDL_Rect& background, const SDL_Size& size, const LSG_Alignment& alignment)
 {
 	SDL_Rect destination = {
@@ -999,7 +1015,7 @@ void LSG_Graphics::RenderTooltip(SDL_Renderer* renderer, const std::string& text
 	// TEXT TEXTURE
 
 	auto fontSize  = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipFontSize);
-	auto textId    = std::format("{}_tooltip_text", id);
+	auto textId    = std::format("{}_text", id);
 	auto textColor = LSG_ConstDefaultColor::White;
 
 	if (!LSG_Graphics::textures.contains(textId))
@@ -1041,7 +1057,7 @@ void LSG_Graphics::RenderTooltip(SDL_Renderer* renderer, const std::string& text
 		borderRadius,
 		borderWidth,
 		backgroundDestination,
-		std::format("{}_tooltip_background", id)
+		std::format("{}_background", id)
 	);
 
 	// TEXT

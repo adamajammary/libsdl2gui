@@ -518,13 +518,12 @@ void LSG_Component::RenderTooltip(SDL_Renderer* renderer) const
 		return;
 
 	if (!this->highlighted) {
-		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_background", this->id));
-		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_text",       this->id));
+		LSG_Graphics::DestroyTextures(std::format("{}_tooltip", this->id));
 		return;
 	}
 
 	if (!this->tooltip.empty())
-		LSG_Graphics::RenderTooltip(renderer, this->tooltip, LSG_Window::GetMousePosition(), this->id);
+		LSG_Graphics::RenderTooltip(renderer, this->tooltip, LSG_Window::GetMousePosition(), std::format("{}_tooltip", this->id));
 }
 
 void LSG_Component::sendEvent(LSG_EventType type) const

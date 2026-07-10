@@ -334,7 +334,7 @@ elseif (OS STREQUAL "_macosx")
     add_custom_command(TARGET testsdlui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_SDLI}  @executable_path/${EXT_LIB_SDLI}  ${DIST_DIR}/bin/testsdlui)
     add_custom_command(TARGET testsdlui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_SDLT}  @executable_path/${EXT_LIB_SDLT}  ${DIST_DIR}/bin/testsdlui)
     add_custom_command(TARGET testsdlui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/${EXT_LIB_XML}   @executable_path/${EXT_LIB_XML}   ${DIST_DIR}/bin/testsdlui)
-    add_custom_command(TARGET testsdlui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/libsdlui.dylib @executable_path/libsdlui.dylib ${DIST_DIR}/bin/testsdlui)
+    add_custom_command(TARGET testsdlui_rpath POST_BUILD COMMAND install_name_tool -change @rpath/libsdlui.dylib   @executable_path/libsdlui.dylib   ${DIST_DIR}/bin/testsdlui)
 endif()
 
 # install

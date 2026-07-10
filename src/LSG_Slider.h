@@ -20,6 +20,14 @@ struct LSG_SliderThumb
 	int         size        = 0;
 };
 
+struct LSG_SliderTooltip
+{
+	std::string id            = "";
+	SDL_Point   mousePosition = {};
+	std::string onHoverText   = "";
+	std::string text          = "";
+};
+
 class LSG_Slider : public LSG_ProgressBar
 {
 public:
@@ -36,6 +44,7 @@ private:
 	int                 barWidth;
 	bool                fillProgress;
 	bool                isSlideActive;
+	LSG_OnHoverCallback onHoverCB;
 	std::string         orientation;
 	int                 partSize;
 	LSG_SliderPartItems parts;
@@ -44,6 +53,7 @@ private:
 public:
 	void            AddPart(LibXml::xmlNode* node);
 	LSG_SliderParts GetParts() const;
+	double          GetValue(const SDL_Point& mousePosition) const;
 	void            OnMouseClick(const SDL_Point& mousePosition);
 	bool            OnMouseClickThumb(const SDL_Point& mousePosition);
 	bool            OnMouseMove(const SDL_Point& mousePosition);
@@ -53,6 +63,7 @@ public:
 	virtual void    Render(SDL_Renderer* renderer) override;
 	virtual void    RenderTooltip(SDL_Renderer* renderer) const override;
 	virtual void    SetColors() override;
+	void            SetOnHoverCallback(const LSG_OnHoverCallback& callback);
 	void            SetParts(const LSG_SliderParts& parts);
 
 private:
@@ -61,10 +72,13 @@ private:
 	int          getProgressWidth() const;
 	SDL_Rect     getThumb() const;
 	int          getThumbSize(bool isVertical) const;
+	std::string  getTooltip(const LSG_SliderTooltip& tooltip) const;
+	bool         isMouseOverPart(const SDL_Point& mousePosition, const SDL_Rect& bar, size_t index) const;
 	void         render(SDL_Renderer*      renderer);
 	void         renderBar(SDL_Renderer*   renderer, const SDL_Rect& bar) const;
 	void         renderParts(SDL_Renderer* renderer, const SDL_Rect& bar);
 	void         renderThumb(SDL_Renderer* renderer) const;
+	void         renderTooltip(SDL_Renderer* renderer, const LSG_SliderTooltip& tooltip) const;
 	virtual void sendEvent(LSG_EventType type) const override;
 	void         setValue(const SDL_Point& mousePosition);
 	void         setValue(int offset);

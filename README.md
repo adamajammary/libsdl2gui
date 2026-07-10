@@ -1070,6 +1070,12 @@ struct LSG_TileItem
 using LSG_ExifTags = std::map<uint16_t, std::string>;
 ```
 
+### LSG_OnHoverCallback
+
+```cpp
+using LSG_OnHoverCallback = std::function<std::string()>;
+```
+
 ### LSG_SliderParts
 
 ```cpp
@@ -1964,11 +1970,29 @@ Exceptions
 double LSG_GetSliderValue(const std::string& id);
 ```
 
-Returns the value of the slider as a percent between 0 and 1.
+Returns the current value of the slider as a percent between 0 and 1.
 
 Parameters
 
 - **id** \<slider\> component ID
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+### LSG_GetSliderValue (mousePosition)
+
+```cpp
+double LSG_GetSliderValue(const std::string& id, const SDL_Point& mousePosition);
+```
+
+Returns the value of the slider as a percent between 0 and 1 relative to mousePosition.
+
+Parameters
+
+- **id** \<slider\> component ID
+- **mousePosition** Mouse cursor position
 
 Exceptions
 
@@ -4271,13 +4295,47 @@ Example
 LSG_SetSize("ButtonIdColorThemeDark", 0.25, 0.75);
 ```
 
+### LSG_SetSliderOnHoverCallback
+
+```cpp
+void LSG_SetSliderOnHoverCallback(const std::string& id, const LSG_OnHoverCallback& callback);
+```
+
+Sets a callback that will be called every time the mouse cursor hovers over the slider.
+
+Parameters
+
+- **id** \<slider\> component ID
+- **callback** Returns a string that will be displayed as a tooltip
+
+Exceptions
+
+- invalid_argument
+- runtime_error
+
+Example
+
+```cpp
+static std::string handleHover() {
+  SDL_Point mousePosition = {};
+  SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+
+  auto value   = LSG_GetSliderValue("Slider", mousePosition);
+  auto percent = (int)(value * 100.0);
+
+  return std::format("Percent: {}%", percent);
+}
+
+LSG_SetSliderOnHoverCallback("Slider", handleHover);
+```
+
 ### LSG_SetSliderParts
 
 ```cpp
 void LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts);
 ```
 
-Sets the slider parts as percentage values with an optional tooltip.
+Sets the slider parts as percentage values with a tooltip.
 
 Parameters
 

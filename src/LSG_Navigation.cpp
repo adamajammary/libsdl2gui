@@ -310,23 +310,8 @@ void LSG_Navigation::renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea
 
 void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const
 {
-	if (!this->highlighted)
-	{
-		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_background", this->id));
-		LSG_Graphics::DestroyTexture(std::format("{}_tooltip_text",       this->id));
-
-		LSG_Graphics::DestroyTexture(std::format("{}_back_tooltip_background", this->id));
-		LSG_Graphics::DestroyTexture(std::format("{}_back_tooltip_text",       this->id));
-
-		LSG_Graphics::DestroyTexture(std::format("{}_end_tooltip_background", this->id));
-		LSG_Graphics::DestroyTexture(std::format("{}_end_tooltip_text",       this->id));
-
-		LSG_Graphics::DestroyTexture(std::format("{}_home_tooltip_background", this->id));
-		LSG_Graphics::DestroyTexture(std::format("{}_home_tooltip_text",       this->id));
-
-		LSG_Graphics::DestroyTexture(std::format("{}_next_tooltip_background", this->id));
-		LSG_Graphics::DestroyTexture(std::format("{}_next_tooltip_text",       this->id));
-
+	if (!this->highlighted) {
+		LSG_Graphics::DestroyTextures(std::format("{}_tooltip", this->id));
 		return;
 	}
 
@@ -342,35 +327,35 @@ void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const
 	std::string tooltip = "";
 
 	if (SDL_PointInRect(&mousePosition, &destination)) {
-		id      = std::format("{}_home", this->id);
+		id      = std::format("{}_tooltip_home", this->id);
 		tooltip = "Home";
 	}
 	
 	destination.x += arrowWidth;
 
 	if (SDL_PointInRect(&mousePosition, &destination)) {
-		id      = std::format("{}_back", this->id);
+		id      = std::format("{}_tooltip_back", this->id);
 		tooltip = "Back";
 	}
 
 	destination.x = (fillArea.x + fillArea.w - padding - this->arrow.size);
 
 	if (SDL_PointInRect(&mousePosition, &destination)) {
-		id      = std::format("{}_end", this->id);
+		id      = std::format("{}_tooltip_end", this->id);
 		tooltip = "End";
 	}
 
 	destination.x -= arrowWidth;
 
 	if (SDL_PointInRect(&mousePosition, &destination)) {
-		id      = std::format("{}_next", this->id);
+		id      = std::format("{}_tooltip_next", this->id);
 		tooltip = "Next";
 	}
 
 	if (!id.empty() && !tooltip.empty())
 		LSG_Graphics::RenderTooltip(renderer, tooltip, mousePosition, id);
 	else if (!this->tooltip.empty())
-		LSG_Graphics::RenderTooltip(renderer, this->tooltip, mousePosition, this->id);
+		LSG_Graphics::RenderTooltip(renderer, this->tooltip, mousePosition, std::format("{}_tooltip", this->id));
 }
 
 void LSG_Navigation::set()

@@ -256,6 +256,7 @@
           thumb-size="30"
           thumb-border-color="#000000"
           thumb-border-width="1"
+          tooltip="Slider"
         >
           <slider-part value="0"    tooltip="Part 1" />
           <slider-part value="0.25" tooltip="Part 2" />

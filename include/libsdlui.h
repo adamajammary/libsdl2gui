@@ -185,6 +185,8 @@ struct LSG_GPS
 	double            altitude  = 0.0;
 };
 
+using LSG_OnHoverCallback = std::function<std::string()>;
+
 struct LSG_SliderPart
 {
 	double      value   = 0.0;
@@ -592,12 +594,21 @@ DLLEXPORT SDL_Size DLL LSG_GetSize(const std::string& id);
 DLLEXPORT LSG_SliderParts DLL LSG_GetSliderParts(const std::string& id);
 
 /**
- * @returns the value of the slider as a percent between 0 and 1
+ * @returns the current value of the slider as a percent between 0 and 1
  * @param id <slider> component ID
  * @throws invalid_argument
  * @throws runtime_error
  */
 DLLEXPORT double DLL LSG_GetSliderValue(const std::string& id);
+
+/**
+ * @returns the value of the slider as a percent between 0 and 1 relative to mousePosition
+ * @param id            <slider> component ID
+ * @param mousePosition Mouse cursor position
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT double DLL LSG_GetSliderValue(const std::string& id, const SDL_Point& mousePosition);
 
 /**
  * @returns the sort column index of the table
@@ -1533,7 +1544,16 @@ DLLEXPORT void DLL LSG_SetSize(const std::string& id, const SDL_Size& size, bool
 DLLEXPORT void DLL LSG_SetSize(const std::string& id, double width, double height, bool layout = true);
 
 /**
- * @brief Sets the slider parts as percentage values with an optional tooltip.
+ * @brief Sets a callback that will be called every time the mouse cursor hovers over the slider.
+ * @param id       <slider> component ID
+ * @param callback Returns a string that will be displayed as a tooltip
+ * @throws invalid_argument
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_SetSliderOnHoverCallback(const std::string& id, const LSG_OnHoverCallback& callback);
+
+/**
+ * @brief Sets the slider parts as percentage values with a tooltip.
  * @param id    <slider> component ID
  * @param parts Slider parts
  * @throws invalid_argument

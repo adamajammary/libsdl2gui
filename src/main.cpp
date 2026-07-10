@@ -778,7 +778,22 @@ double LSG_GetSliderValue(const std::string& id)
 	if (!component || !component->IsSlider())
 		throw std::invalid_argument(getErrorNoID("<slider>", id));
 
-	auto value = static_cast<LSG_Slider*>(component)->GetValue();
+	auto value = static_cast<LSG_ProgressBar*>(component)->GetValue();
+
+	return value;
+}
+
+double LSG_GetSliderValue(const std::string& id, const SDL_Point& mousePosition)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id));
+
+	auto value = static_cast<LSG_Slider*>(component)->GetValue(mousePosition);
 
 	return value;
 }
@@ -2307,6 +2322,19 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 
 	if (layout)
 		LSG_UI::LayoutRoot();
+}
+
+void LSG_SetSliderOnHoverCallback(const std::string& id, const LSG_OnHoverCallback& callback)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	auto component = getComponent(id);
+
+	if (!component || !component->IsSlider())
+		throw std::invalid_argument(getErrorNoID("<slider>", id));
+
+	static_cast<LSG_Slider*>(component)->SetOnHoverCallback(callback);
 }
 
 void LSG_SetSliderParts(const std::string& id, const LSG_SliderParts& parts)
