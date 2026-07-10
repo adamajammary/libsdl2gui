@@ -164,7 +164,7 @@ double LSG_Slider::GetValue(const SDL_Point& mousePosition) const
 	return std::max(0.0, std::min(1.0, value));
 }
 
-bool LSG_Slider::isMouseOverPart(const SDL_Point& mousePosition, const SDL_Rect& bar, size_t index) const
+bool LSG_Slider::isMouseOverPart(const SDL_Point& mousePosition, size_t index) const
 {
 	if (index >= this->parts.size())
 		return false;
@@ -174,16 +174,22 @@ bool LSG_Slider::isMouseOverPart(const SDL_Point& mousePosition, const SDL_Rect&
 
 	if (this->IsVertical())
 	{
-		auto nextPartY = (!isLastPart ? this->parts[index + 1].destination.y : bar.y);
+		auto nextPartY = (!isLastPart ? this->parts[index + 1].destination.y : this->background.y);
 
 		partDest.h = (partDest.y - nextPartY);
 		partDest.y = nextPartY;
+
+		partDest.x = this->background.x;
+		partDest.w = this->background.w;
 	}
 	else
 	{
-		auto nextPartX = (!isLastPart ? this->parts[index + 1].destination.x : (bar.x + bar.w));
+		auto nextPartX = (!isLastPart ? this->parts[index + 1].destination.x : (this->background.x + this->background.w));
 
 		partDest.w = (nextPartX - partDest.x);
+
+		partDest.y = this->background.y;
+		partDest.h = this->background.h;
 	}
 
 	return SDL_PointInRect(&mousePosition, &partDest);
@@ -368,13 +374,12 @@ void LSG_Slider::RenderTooltip(SDL_Renderer* renderer) const
 		return;
 	}
 
-	auto bar            = this->getBar();
 	auto onHoverTooltip = (this->onHoverCB != nullptr ? this->onHoverCB() : "");
 	auto mousePosition  = LSG_Window::GetMousePosition();
 
 	for (size_t i = 0; i < this->parts.size(); i++)
 	{
-		if (!this->isMouseOverPart(mousePosition, bar, i))
+		if (!this->isMouseOverPart(mousePosition, i))
 			continue;
 
 		LSG_SliderTooltip tooltip = {

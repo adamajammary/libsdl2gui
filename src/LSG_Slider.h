@@ -73,7 +73,7 @@ private:
 	SDL_Rect     getThumb() const;
 	int          getThumbSize(bool isVertical) const;
 	std::string  getTooltip(const LSG_SliderTooltip& tooltip) const;
-	bool         isMouseOverPart(const SDL_Point& mousePosition, const SDL_Rect& bar, size_t index) const;
+	bool         isMouseOverPart(const SDL_Point& mousePosition, size_t index) const;
 	void         render(SDL_Renderer*      renderer);
 	void         renderBar(SDL_Renderer*   renderer, const SDL_Rect& bar) const;
 	void         renderParts(SDL_Renderer* renderer, const SDL_Rect& bar);
