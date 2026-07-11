@@ -297,3 +297,16 @@ std::wstring LSG_Text::ToWide(const std::string& text)
 
     return wide;
 }
+
+std::string LSG_Text::Trim(const std::string& text)
+{
+	auto trimmed = std::string(text);
+
+	while (!trimmed.empty() && (trimmed[0] > 0) && std::isspace(trimmed[0]))
+		trimmed = trimmed.substr(1);
+
+	while (!trimmed.empty() && (trimmed[trimmed.size() - 1] > 0) && std::isspace(trimmed[trimmed.size() - 1]))
+		trimmed = trimmed.substr(0, trimmed.size() - 1);
+
+	return trimmed;
+}

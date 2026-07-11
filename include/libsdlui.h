@@ -1866,6 +1866,12 @@ DLLEXPORT std::string DLL LSG_TextToUTF8(const std::wstring& wide);
 DLLEXPORT std::wstring DLL LSG_TextToWide(const std::string& text);
 
 /**
+ * @brief Removes whitespaces from beginning and end of text.
+ * @param text Text string
+ */
+DLLEXPORT std::string DLL LSG_TextTrim(const std::string& text);
+
+/**
  * @brief Tries to initialize the library and open a new window based on layout from XML file.
  * @param xmlFile Window and UI component layout file. ex: "ui/main.xml"
  * @returns an SDL renderer

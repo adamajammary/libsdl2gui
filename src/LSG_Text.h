@@ -27,12 +27,13 @@ public:
 	static SDL_Texture*        GetTexture(const std::string& text, int fontSize, int fontStyle, const SDL_Color& textColor, bool wrap);
 	static std::string         Join(const LSG_Strings& strings, const std::string& separator);
 	static std::string         Replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring);
-	static LSG_Strings         Split(const std::string& text, char separator);
+	static LSG_Strings         Split(const   std::string& text, char separator);
 	static std::string         ToLower(const std::string& text);
 	static std::string         ToUpper(const std::string& text);
-	static std::string         ToUTF8(const  std::wstring& wide);
+	static std::string         ToUTF8(const std::wstring& wide);
 	static uint16_t*           ToUTF16(const std::string& text);
 	static std::wstring        ToWide(const  std::string& text);
+	static std::string         Trim(const    std::string& text);
 
 protected:
 	SDL_Surface* getSurface(const std::string& text) const;

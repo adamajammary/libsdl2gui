@@ -2759,6 +2759,11 @@ std::wstring LSG_TextToWide(const std::string& text)
 	return LSG_Text::ToWide(text);
 }
 
+std::string LSG_TextTrim(const std::string& text)
+{
+	return LSG_Text::Trim(text);
+}
+
 SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
 	LibXml::xmlInitParser();

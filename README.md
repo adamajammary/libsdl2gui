@@ -5169,6 +5169,18 @@ Parameters
 
 - **text** Text string
 
+### LSG_TextTrim
+
+```cpp
+std::string LSG_TextTrim(const std::string& text);
+```
+
+Removes whitespaces from beginning and end of text.
+
+Parameters
+
+- **text** Text string
+
 ### LSG_Start
 
 ```cpp
