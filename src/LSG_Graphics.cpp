@@ -66,7 +66,7 @@ SDL_Point LSG_Graphics::GetDownscaleFactor(const SDL_Size& fullSize, const SDL_S
 	if ((maxSize.width < 1) || (maxSize.height < 1))
 		return { 1, 1 };
 
-	if ((fullSize.width <= (maxSize.width * 2)) && ((fullSize.height <= (maxSize.height * 2))))
+	if ((fullSize.width < maxSize.width) || (fullSize.height < maxSize.height))
 		return { 1, 1 };
 
 	SDL_Point downScaleFactor = {
