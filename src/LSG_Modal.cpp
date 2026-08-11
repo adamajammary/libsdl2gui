@@ -225,7 +225,7 @@ SDL_Cursor* LSG_Modal::Highlight(const SDL_Point& mousePosition)
 		component.second->highlighted = false;
 
 	if (this->highlighted)
-		return SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		return SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
 
 	auto component = this->getComponent(mousePosition);
 
@@ -278,7 +278,7 @@ void LSG_Modal::OnKeyDown(const SDL_KeyboardEvent& event)
 	if (!this->visible)
 		return;
 
-	if (!this->hideCloseIcon && (event.keysym.sym == SDLK_ESCAPE)) {
+	if (!this->hideCloseIcon && (event.key == SDLK_ESCAPE)) {
 		this->Close();
 		return;
 	}
@@ -453,7 +453,7 @@ void LSG_Modal::renderHeaderCloseIcon(SDL_Renderer* renderer) const
 
 	auto destination = this->getCloseIcon();
 
-	SDL_RenderCopy(renderer, texture, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, texture, nullptr, &destination);
 
 	if (this->highlighted)
 		this->renderHighlight(renderer, destination, (destination.h / 2));
@@ -503,7 +503,7 @@ void LSG_Modal::renderHeaderTitle(SDL_Renderer* renderer, int headerHeight) cons
 
 
 	if (textureSize.width <= maxWidth)
-		SDL_RenderCopy(renderer, texture, &clip, &destination);
+		LSG_Graphics::RenderTexture(renderer, texture, &clip, &destination);
 	else
 		this->renderTextOverflowEllipse(renderer, texture, destination, maxWidth);
 }

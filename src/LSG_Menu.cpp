@@ -340,7 +340,7 @@ void LSG_Menu::renderIconClose(SDL_Renderer* renderer, const SDL_Rect& menu) con
 
 	auto icon = this->getIconClose(menu);
 
-	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_CLOSE], nullptr, &icon);
+	LSG_Graphics::RenderTexture(renderer, this->textures[LSG_MENU_TEXTURE_ICON_CLOSE], nullptr, &icon);
 
 	if (this->enabled && this->highlightedIconClose)
 		this->renderHighlight(renderer, icon, (icon.h / 2));
@@ -353,7 +353,7 @@ void LSG_Menu::renderIconOpen(SDL_Renderer* renderer) const
 
 	auto icon = this->getIconOpen();
 
-	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_ICON_OPEN], nullptr, &icon);
+	LSG_Graphics::RenderTexture(renderer, this->textures[LSG_MENU_TEXTURE_ICON_OPEN], nullptr, &icon);
 
 	if (this->enabled && this->highlighted)
 		this->renderHighlightIconOpen(renderer, icon);
@@ -392,7 +392,7 @@ void LSG_Menu::renderMenu(SDL_Renderer* renderer)
 
 	auto clip = this->getClipWithOffset({ 0, offsetY, menu.w, menu.h }, { menu.w, textureHeight });
 
-	SDL_RenderCopy(renderer, this->renderTarget, &clip, &menu);
+	LSG_Graphics::RenderTexture(renderer, this->renderTarget, &clip, &menu);
 
 	this->renderScrollBarVertical(renderer, menu, textureHeight, this->backgroundColor, true, this);
 }
@@ -404,7 +404,7 @@ void LSG_Menu::renderMenuContentToTexture(SDL_Renderer* renderer, int offsetY, c
 {
 	LSG_Window::InitRenderTarget(this->renderTarget, textureSize);
 
-	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+	if (!SDL_SetRenderTarget(renderer, this->renderTarget))
 		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
 	SDL_Rect background = {
@@ -454,7 +454,7 @@ void LSG_Menu::renderNavBack(SDL_Renderer* renderer, const SDL_Rect& menu) const
 		size.height
 	};
 
-	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_NAV_BACK], nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->textures[LSG_MENU_TEXTURE_NAV_BACK], nullptr, &destination);
 
 	if (this->enabled && this->highlightedNavBack)
 		this->renderHighlight(renderer, this->getNavBackHighlight(menu), (maxHeight / 2));
@@ -486,7 +486,7 @@ void LSG_Menu::renderTitle(SDL_Renderer* renderer, const SDL_Rect& menu) const
 		clip.h
 	};
 
-	SDL_RenderCopy(renderer, this->textures[LSG_MENU_TEXTURE_TITLE], &clip, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->textures[LSG_MENU_TEXTURE_TITLE], &clip, &destination);
 }
 
 void LSG_Menu::setMenuClosed()

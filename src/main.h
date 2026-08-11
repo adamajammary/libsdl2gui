@@ -33,22 +33,15 @@
 	#include <shobjidl_core.h> // IFileOpenDialog, IFileSaveDialog
 #endif
 
-#ifndef LIB_SDL2_SYSWM_H
-#define LIB_SDL2_SYSWM_H
+#ifndef LIB_SDL_IMAGE_H
+#define LIB_SDL_IMAGE_H
 extern "C" {
-	#include <SDL2/SDL_syswm.h>
+	#include <SDL3_image/SDL_image.h>
 }
 #endif
 
-#ifndef LIB_SDL2_IMAGE_H
-#define LIB_SDL2_IMAGE_H
-extern "C" {
-	#include <SDL2/SDL_image.h>
-}
-#endif
-
-#ifndef LIB_XML2_H
-#define LIB_XML2_H
+#ifndef LIB_XML_H
+#define LIB_XML_H
 namespace LibXml {
 	extern "C" {
 		#include <libxml/xpath.h>
@@ -259,7 +252,7 @@ struct LSG_ItemText
 	LSG_ItemTexture texture = {};
 };
 
-const char* LSG_GetBasePath();
+std::string LSG_GetBasePath();
 
 #if defined _android
 	#include "LSG_AndroidJNI.h"

@@ -41,6 +41,7 @@ public:
 	static void                    RenderFill(SDL_Renderer*   renderer, int borderWidth, const SDL_Color& color, const SDL_Rect& background);
 	static void                    RenderFillCircle(SDL_Renderer* renderer, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
 	static void                    RenderFillCircleWithBorder(SDL_Renderer* renderer, const SDL_Color& fillColor, const SDL_Rect& background, const SDL_Color& borderColor, int borderWidth, const std::string& id);
+	static void                    RenderFill(SDL_Renderer* renderer, const SDL_Rect* dest);
 	static void                    RenderFillRounded(SDL_Renderer*       renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
 	static void                    RenderFillRoundedBottom(SDL_Renderer* renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
 	static void                    RenderFillRoundedLeft(SDL_Renderer*   renderer, int borderRadius, const SDL_Color& color, const SDL_Rect& background, const std::string& id);
@@ -49,7 +50,9 @@ public:
 	static void                    RenderRoundedCorners(SDL_Renderer*       renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
 	static void                    RenderRoundedCornersBottom(SDL_Renderer* renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
 	static void                    RenderRoundedCornersTop(SDL_Renderer*    renderer, const SDL_Color& fillColor, int borderRadius, const SDL_Rect& background, const std::string& id);
+	static void                    RenderTexture(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect* clip, const SDL_Rect* dest);
 	static void                    RenderTexture(SDL_Renderer* renderer, const SDL_Rect& background, const LSG_Alignment& alignment, SDL_Texture* texture, const SDL_Size& size);
+	static void                    RenderTextureRotated(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect* clip, const SDL_Rect* dest, double angle, const SDL_Point* center, SDL_FlipMode flip);
 	static void                    RenderTextureWithRoundedCorners(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, const SDL_Rect* clip, int radius, const SDL_Color& backgroundColor, const std::string& id);
 	static void                    RenderTooltip(SDL_Renderer* renderer, const std::string& text, const SDL_Point& position, const std::string& id);
 	static void                    Rotate(LSG_ItemImage& image);

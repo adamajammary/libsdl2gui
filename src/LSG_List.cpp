@@ -273,7 +273,7 @@ void LSG_List::renderHighlightSelection(SDL_Renderer* renderer, const SDL_Rect& 
 			row.h = offsetBottom;
 		}
 
-		SDL_RenderFillRect(renderer, &row);
+		LSG_Graphics::RenderFill(renderer, &row);
 	}
 }
 
@@ -299,7 +299,7 @@ void LSG_List::renderRowBorder(SDL_Renderer* renderer, const SDL_Rect& backgroun
 	auto x2 = (background.x + background.w - 1 - scrollWidth);
 
 	for (int i = 0; i < rows; i++) {
-		SDL_RenderDrawLine(renderer, background.x, y, x2, y);
+		SDL_RenderLine(renderer, background.x, y, x2, y);
 		y += rowHeight;
 	}
 }

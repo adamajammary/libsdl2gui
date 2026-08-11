@@ -86,17 +86,17 @@ void LSG_Cards::AddCard(LibXml::xmlNode* node)
 void LSG_Cards::destroySurfaces(LSG_Card& card)
 {
 	if (card.title.surface) {
-		SDL_FreeSurface(card.title.surface);
+		SDL_DestroySurface(card.title.surface);
 		card.title.surface = nullptr;
 	}
 
 	if (card.description.surface) {
-		SDL_FreeSurface(card.description.surface);
+		SDL_DestroySurface(card.description.surface);
 		card.description.surface = nullptr;
 	}
 
 	if (card.thumbnail.surface) {
-		SDL_FreeSurface(card.thumbnail.surface);
+		SDL_DestroySurface(card.thumbnail.surface);
 		card.thumbnail.surface = nullptr;
 	}
 }
@@ -348,7 +348,7 @@ void LSG_Cards::render(SDL_Renderer* renderer)
 	if (this->scrollVertical.show)
 		fillArea.w -= scrollBarSize;
 
-	SDL_RenderCopy(renderer, this->renderTarget, &clip, &fillArea);
+	LSG_Graphics::RenderTexture(renderer, this->renderTarget, &clip, &fillArea);
 
 	this->renderScrollBar(renderer, textureSize);
 }
@@ -504,7 +504,7 @@ void LSG_Cards::renderDescription(SDL_Renderer* renderer, const LSG_Card& card) 
 	auto maxWidth = (this->background.w - this->cardHeight);
 
 	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.description.texture.size.width <= maxWidth))
-		SDL_RenderCopy(renderer, card.description.texture.texture, &clip, &destination);
+		LSG_Graphics::RenderTexture(renderer, card.description.texture.texture, &clip, &destination);
 	else if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
 		this->renderTextOverflowClip(renderer, card.description.texture.texture, destination, maxWidth);
 	else
@@ -538,7 +538,7 @@ void LSG_Cards::renderTitle(SDL_Renderer* renderer, const LSG_Card& card) const
 	auto maxWidth = (this->background.w - this->cardHeight);
 
 	if ((this->textOverflow == LSG_TEXT_OVERFLOW_NONE) || (card.title.texture.size.width <= maxWidth))
-		SDL_RenderCopy(renderer, card.title.texture.texture, nullptr, &destination);
+		LSG_Graphics::RenderTexture(renderer, card.title.texture.texture, nullptr, &destination);
 	else if (this->textOverflow == LSG_TEXT_OVERFLOW_CLIP)
 		this->renderTextOverflowClip(renderer, card.title.texture.texture, destination, maxWidth);
 	else
@@ -593,7 +593,7 @@ void LSG_Cards::renderToTarget(SDL_Renderer* renderer, const SDL_Size& textureSi
 
 	auto renderTarget = SDL_GetRenderTarget(renderer);
 
-	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+	if (!SDL_SetRenderTarget(renderer, this->renderTarget))
 		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
 	this->renderContent(renderer, textureSize);

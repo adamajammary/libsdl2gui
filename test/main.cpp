@@ -52,13 +52,13 @@ static void handleKeyEvent(const SDL_KeyboardEvent& event)
 {
     // https://wiki.libsdl.org/SDL2/SDL_Keymod
 
-    auto key     = event.keysym.sym;
-    bool isCtrl  = (event.keysym.mod & KMOD_CTRL);
-    bool isShift = (event.keysym.mod & KMOD_SHIFT);
+    auto key     = event.key;
+    bool isCtrl  = (event.mod & SDL_KMOD_CTRL);
+    bool isShift = (event.mod & SDL_KMOD_SHIFT);
 
-    if (isCtrl && (key == SDLK_d))
+    if (isCtrl && (key == SDLK_D))
         setColorTheme("MenuIdColorThemeDark", "ui/dark.colortheme");
-    else if (isCtrl && (key == SDLK_l))
+    else if (isCtrl && (key == SDLK_L))
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
     else if (isShift && (key == SDLK_F1))
         LSG_OpenModal("ModalIdAbout");
@@ -158,18 +158,20 @@ static void handleEvents(const std::vector<SDL_Event>& events)
 {
     for (const auto& event : events)
     {
-        if ((event.type == SDL_QUIT) || ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE)))
+        if ((event.type == SDL_EVENT_QUIT) || (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED))
             LSG_Quit();
-        else if (event.type == SDL_KEYUP)
+        else if (event.type == SDL_EVENT_KEY_UP)
             handleKeyEvent(event.key);
-        else if (event.type >= SDL_USEREVENT)
+        else if (event.type >= SDL_EVENT_USER)
             handleUserEvent(event.user);
     }
 }
 
 static std::string handleHover() {
-    SDL_Point mousePosition = {};
-    SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+
+    SDL_Point mousePosition = { (int)x, (int)y };
 
     auto value   = LSG_GetSliderValue("Slider", mousePosition);
     auto percent = (int)(value * 100.0);
@@ -196,11 +198,11 @@ static void render(SDL_Renderer* renderer)
     SDL_Size  windowSize = LSG_GetWindowSize();
     SDL_Size  overlay    = { 100, 100 };
 
-    SDL_Rect destination = {
-        ((windowSize.width  - overlay.width)  / 2),
-        ((windowSize.height - overlay.height) / 2),
-        overlay.width,
-        overlay.height
+    SDL_FRect destination = {
+        (float)((windowSize.width  - overlay.width)  / 2),
+        (float)((windowSize.height - overlay.height) / 2),
+        (float)overlay.width,
+        (float)overlay.height
     };
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);

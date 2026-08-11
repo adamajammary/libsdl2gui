@@ -465,7 +465,7 @@ void LSG_Component::renderDisabled(SDL_Renderer* renderer) const
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer,     0, 0, 0, 64);
 
-	SDL_RenderFillRect(renderer, &this->background);
+	LSG_Graphics::RenderFill(renderer, &this->background);
 }
 
 void LSG_Component::renderFill(SDL_Renderer* renderer) const
@@ -508,7 +508,7 @@ void LSG_Component::renderHighlight(SDL_Renderer* renderer, const SDL_Rect& back
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(renderer, highlightColor.r, highlightColor.g, highlightColor.b, 32);
 
-		SDL_RenderFillRect(renderer, &fillArea);
+		LSG_Graphics::RenderFill(renderer, &fillArea);
 	}
 }
 

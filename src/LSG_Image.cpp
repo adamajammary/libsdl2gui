@@ -109,7 +109,7 @@ void LSG_Image::render(SDL_Renderer* renderer)
 	auto fillArea = this->getFillArea();
 
 	if (this->fill) {
-		SDL_RenderCopy(renderer, this->texture, nullptr, &fillArea);
+		LSG_Graphics::RenderTexture(renderer, this->texture, nullptr, &fillArea);
 		return;
 	}
 
@@ -146,14 +146,9 @@ void LSG_Image::rotate()
 
 	if (this->orientation.rotation > 0.0)
 	{
-		uint32_t format;
-		int      width, height;
+		auto maxSize = std::max(this->imageSize.width, this->imageSize.height);
 
-		SDL_QueryTexture(this->texture, &format, nullptr, &width, &height);
-
-		auto maxSize = std::max(width, height);
-
-		this->texture = LSG_Window::RotateTexture(this->texture, this->orientation, { maxSize, maxSize }, format);
+		this->texture = LSG_Window::RotateTexture(this->texture, this->orientation, { maxSize, maxSize });
 
 		this->imageSize = { maxSize, maxSize };
 

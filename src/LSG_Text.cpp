@@ -23,7 +23,7 @@ bool LSG_Text::FontSupportsText(TTF_Font* font, uint16_t* text)
 
 	for (size_t i = 0; text[i] != 0; i++)
 	{
-		if (!std::iswspace(text[i]) && !TTF_GlyphIsProvided(font, text[i]))
+		if (!std::iswspace(text[i]) && !TTF_FontHasGlyph(font, text[i]))
 			return false;
 	}
 
@@ -48,7 +48,7 @@ TTF_Font* LSG_Text::GetFont(int size, uint16_t* text)
 	}
 
 	if (!font)
-		throw std::invalid_argument(std::format("Failed to open default font: {}", TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to open default font: {}", SDL_GetError()));
 
 	return font;
 }
@@ -112,23 +112,25 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 
 	LSG_Text::surfaceLock.lock();
 
-	auto text16 = LSG_Text::ToUTF16(text);
-	auto font   = LSG_Text::GetFont(fontSize, text16);
+	auto textUTF16 = LSG_Text::ToUTF16(text);
+	auto textUTF8  = LSG_Text::ToUTF8(textUTF16);
+
+	auto font = LSG_Text::GetFont(fontSize, textUTF16);
 
 	TTF_SetFontStyle(font, fontStyle);
 
 	SDL_Surface* surface = nullptr;
 
 	if (wrap)
-		surface = TTF_RenderUNICODE_Blended_Wrapped(font, text16, textColor, 0);
+		surface = TTF_RenderText_Blended_Wrapped(font, textUTF8.c_str(), textUTF8.size(), textColor, 0);
 	else
-		surface = TTF_RenderUNICODE_Blended(font, text16, textColor);
+		surface = TTF_RenderText_Blended(font, textUTF8.c_str(), textUTF8.size(), textColor);
 
 	TTF_CloseFont(font);
-	SDL_free(text16);
+	SDL_free(textUTF16);
 
 	if (!surface)
-		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, TTF_GetError()));
+		throw std::invalid_argument(std::format("Failed to create a Unicode surface for text '{}': {}", text, SDL_GetError()));
 
 	LSG_Text::surfaceLock.unlock();
 
@@ -143,7 +145,7 @@ SDL_Texture* LSG_Text::getTexture(const std::string& text, int fontSize, int fon
 	auto surface = LSG_Text::getSurface(text, fontSize, fontStyle, textColor, wrap);
 	auto texture = LSG_Window::ToTexture(surface);
 
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 
 	return texture;
 }
@@ -191,7 +193,7 @@ void LSG_Text::renderTextOverflowClip(SDL_Renderer* renderer, SDL_Texture* textu
 
 	textDestination.w = textClip.w;
 
-	SDL_RenderCopy(renderer, texture, &textClip, &textDestination);
+	LSG_Graphics::RenderTexture(renderer, texture, &textClip, &textDestination);
 }
 
 void LSG_Text::renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& destination, int maxWidth) const
@@ -204,7 +206,7 @@ void LSG_Text::renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* te
 
 	textDestination.w = textClip.w;
 
-	SDL_RenderCopy(renderer, texture, &textClip, &textDestination);
+	LSG_Graphics::RenderTexture(renderer, texture, &textClip, &textDestination);
 
 	SDL_Rect ellipsisDestination = {
 		(destination.x + maxWidth - ellipsisSize.width),
@@ -213,7 +215,7 @@ void LSG_Text::renderTextOverflowEllipse(SDL_Renderer* renderer, SDL_Texture* te
 		ellipsisSize.height
 	};
 
-	SDL_RenderCopy(renderer, this->ellipsisTexture, nullptr, &ellipsisDestination);
+	LSG_Graphics::RenderTexture(renderer, this->ellipsisTexture, nullptr, &ellipsisDestination);
 }
 
 std::string LSG_Text::Replace(const std::string& text, const std::string& oldSubstring, const std::string& newSubstring)
@@ -270,6 +272,13 @@ std::string LSG_Text::ToUTF8(const std::wstring& wide)
 	SDL_free(buffer);
 
     return utf8;
+}
+
+std::string LSG_Text::ToUTF8(uint16_t* utf16)
+{
+	auto wide = std::wstring(reinterpret_cast<const wchar_t*>(utf16));
+
+	return LSG_Text::ToUTF8(wide);
 }
 
 uint16_t* LSG_Text::ToUTF16(const std::string& text)

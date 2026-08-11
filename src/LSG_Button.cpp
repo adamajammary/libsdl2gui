@@ -142,10 +142,10 @@ void LSG_Button::render(SDL_Renderer* renderer)
 	}
 
 	if (iconTexture)
-		SDL_RenderCopy(renderer, iconTexture, nullptr, &iconDestination);
+		LSG_Graphics::RenderTexture(renderer, iconTexture, nullptr, &iconDestination);
 
 	if (textTexture)
-		SDL_RenderCopy(renderer, textTexture, &textClip, &textDestination);
+		LSG_Graphics::RenderTexture(renderer, textTexture, &textClip, &textDestination);
 
 	if (!this->enabled)
 		this->renderDisabled(renderer);

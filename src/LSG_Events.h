@@ -39,9 +39,7 @@ private:
 	static void      handleKeyDownEventTextInput(const SDL_KeyboardEvent& event);
 	static void      handleMouseLastDownEvent();
 	static void      handleMouseMoveEvent(const SDL_Event& event);
-	static void      handleSysWMEvent(const SDL_SysWMEvent& event);
 	static void      handleTextInputEvent(const SDL_TextInputEvent& event);
-	static void      handleWindowEvent(const SDL_WindowEvent& event);
 	static void      sendEvent(LSG_EventType type, const std::string& id, SDL_Keycode key = SDLK_UNKNOWN);
 };
 

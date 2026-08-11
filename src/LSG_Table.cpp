@@ -497,7 +497,7 @@ void LSG_Table::renderColumn(SDL_Renderer* renderer, size_t column, SDL_Rect& cl
 	auto texture     = (header ? this->headerTextures[column] : this->textures[column]);
 
 	if (columnWidth > 0) {
-		SDL_RenderCopy(renderer, texture, &clip, &destination);
+		LSG_Graphics::RenderTexture(renderer, texture, &clip, &destination);
 	} else {
 		clipWidth  = std::max(0, (spacing - (clip.x - sizeWidth)));
 		sizeWidth += (spacing - clipWidth);
@@ -517,7 +517,7 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
 
-	SDL_RenderFillRect(renderer, &header);
+	LSG_Graphics::RenderFill(renderer, &header);
 
 	SDL_Rect clip = {};
 
@@ -546,7 +546,7 @@ void LSG_Table::renderHeader(SDL_Renderer* renderer, const SDL_Rect& background,
 		auto maxWidth     = (header.x + header.w - scrollSize);
 
 		if ((borderX >= header.x) && (borderX < maxWidth) && (i < (this->headerTextures.size() - 1)))
-			SDL_RenderDrawLine(renderer, borderX, header.y, borderX, (header.y + borderHeight - 1));
+			SDL_RenderLine(renderer, borderX, header.y, borderX, (header.y + borderHeight - 1));
 	}
 }
 

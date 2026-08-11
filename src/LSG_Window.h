@@ -12,8 +12,11 @@ private:
 private:
     static float         dpiScale;
     static SDL_Renderer* renderer;
-    static SDL_SysWMinfo sysWmInfo;
     static SDL_Window*   window;
+
+    #if defined _ios
+        UIWindow* uiWindow;
+    #endif
 
 public:
     static void          Close();
@@ -29,7 +32,7 @@ public:
     static SDL_Renderer* Open(const std::string& title, int width, int height);
     static void          Present();
     static void          Render();
-    static SDL_Texture*  RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format);
+    static SDL_Texture*  RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size);
     static void          SetDPIScale();
     static void          SetMaximized(bool maximized = true);
     static void          SetMinimumSize(int width, int height);
@@ -37,6 +40,8 @@ public:
     static void          SetSize(int width, int height);
     static void          SetTitle(const std::string& title);
     static void          ShowMessage(const std::string& message, uint32_t flags = SDL_MESSAGEBOX_ERROR);
+    static void          StartTextInput(const SDL_Rect* area, int cursor);
+    static void          StopTextInput();
     static SDL_Texture*  ToTexture(const std::string& imageFile);
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
 

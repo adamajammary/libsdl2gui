@@ -10,12 +10,10 @@ libsdlui is a free cross-platform user interface library using SDL (Simple Direc
 
 Library | Version | License
 ------- | ------- | -------
-[SDL2](https://github.com/libsdl-org/SDL) | [2.32.10](https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-2.32.10.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
-[SDL2_image](https://github.com/libsdl-org/SDL_image) | [2.8.8](https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.8/SDL2_image-2.8.8.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_image#Zlib-1-ov-file)
-[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf) | [2.24.0](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-2.24.0.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
-[libtiff](https://github.com/libsdl-org/libtiff) | [4.7.1](https://github.com/libsdl-org/libtiff/archive/refs/tags/v4.7.1.tar.gz) | [LibTIFF license](https://github.com/libsdl-org/libtiff?tab=License-1-ov-file#readme)
-[libwebp](https://github.com/webmproject/libwebp) | [1.6.0](https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.tar.gz) | [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
-[libXML2](https://github.com/GNOME/libxml2) | [2.15.2](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.2.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
+[SDL3](https://github.com/libsdl-org/SDL) | [3.4.14](https://github.com/libsdl-org/SDL/releases/download/release-3.4.14/SDL3-3.4.14.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL#Zlib-1-ov-file)
+[SDL3_image](https://github.com/libsdl-org/SDL_image) | [3.4.4](https://github.com/libsdl-org/SDL_image/releases/download/release-3.4.4/SDL3_image-3.4.4.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_image#Zlib-1-ov-file)
+[SDL3_ttf](https://github.com/libsdl-org/SDL_ttf) | [3.2.2](https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-3.2.2.tar.gz) | [zlib license](https://github.com/libsdl-org/SDL_ttf#Zlib-1-ov-file)
+[libXML2](https://github.com/GNOME/libxml2) | [2.15.3](https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.3.tar.gz) | [MIT License](https://opensource.org/licenses/mit-license.html)
 [DejaVu fonts](https://dejavu-fonts.github.io/) | [2.37](https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-sans-ttf-2.37.zip) | [DejaVu Fonts license](https://dejavu-fonts.github.io/License.html)
 [Noto CJK fonts](https://github.com/notofonts/noto-cjk) | [2.004](https://github.com/notofonts/noto-cjk/blob/main/Sans/OTC/NotoSansCJK-Regular.ttc) | [SIL Open Font license](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
 
@@ -72,7 +70,7 @@ Make sure the correct Android SDK path is set as either
 - an environment variable `ANDROID_HOME=/path/to/ANDROID_SDK` or
 - a local property `sdk.dir=/path/to/ANDROID_SDK` in the **android/local.properties** file
 
-> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL Android README](https://wiki.libsdl.org/SDL2/README-android) for more details.
+> See [Android SDK Command-Line Tools](https://developer.android.com/tools) and [SDL Android README](https://wiki.libsdl.org/SDL3/README-android) for more details.
 
 ```bash
 cmake .. -G "Unix Makefiles" \
@@ -116,7 +114,7 @@ make
 
 You can get the iOS SDK path with the following command: `xcrun --sdk iphoneos --show-sdk-path`
 
-> See [SDL iOS README](https://wiki.libsdl.org/SDL2/README-ios) for more details.
+> See [SDL iOS README](https://wiki.libsdl.org/SDL3/README-ios) for more details.
 
 ```bash
 /Applications/CMake.app/Contents/bin/cmake .. -G "Xcode" \
@@ -224,9 +222,9 @@ try {
 
 The first step is to run [LSG_Start](#lsg_start) which
 
-- creates a new [SDL_Window](https://wiki.libsdl.org/SDL2/SDL_CreateWindow)
+- creates a new [SDL_Window](https://wiki.libsdl.org/SDL3/SDL_CreateWindow)
 - loads UI components from the XML file
-- creates and returns an [SDL_Renderer](https://wiki.libsdl.org/SDL2/SDL_CreateRenderer)
+- creates and returns an [SDL_Renderer](https://wiki.libsdl.org/SDL3/SDL_CreateRenderer)
 
 ```cpp
 SDL_Renderer* renderer = LSG_Start("ui/main.xml");
@@ -241,26 +239,26 @@ You can call [LSG_IsRunning](#lsg_isrunning) to make sure the library was initia
 - Clears the render buffer
 - Renders UI components (if XML file was loaded)
 - Handles UI related events (like clicking, scrolling, sliding etc.)
-- Returns a list of all [SDL Events](https://wiki.libsdl.org/SDL2/SDL_Event) available
+- Returns a list of all [SDL Events](https://wiki.libsdl.org/SDL3/SDL_Event) available
   - including the ones already handled by the library
-  - custom library events will be available as [SDL_UserEvent](https://wiki.libsdl.org/SDL2/SDL_UserEvent)
+  - custom library events will be available as [SDL_UserEvent](https://wiki.libsdl.org/SDL3/SDL_UserEvent)
 
 ```cpp
 void myapp_handleEvents(const std::vector<SDL_Event>& events)
 {
   for (const SDL_Event& event : events)
   {
-    if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_CLOSE))
+    if ((event.type == SDL_EVENT_QUIT) || (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED))
       LSG_Quit();
-    else if (event.type >= SDL_USEREVENT)
-      myapp_handleUserEvent(event.user);
-    else if (event.type == SDL_KEYUP)
+    else if (event.type == SDL_EVENT_KEY_UP)
       myapp_handleKeyEvent(event.key);
+    else if (event.type >= SDL_EVENT_USER)
+      myapp_handleUserEvent(event.user);
   }
 }
 ```
 
-[SDL_UserEvent](https://wiki.libsdl.org/SDL2/SDL_UserEvent)
+[SDL_UserEvent](https://wiki.libsdl.org/SDL3/SDL_UserEvent)
 
 - The `.code` property will contain the [LSG_EventType](#lsg_eventtype)
 - The `.data1` property will contain the `id` XML-attribute of the UI component that triggered the event
@@ -296,15 +294,15 @@ void myapp_handleUserEvent(const SDL_UserEvent& event)
 
 ## Custom Render
 
-You can also perform custom rendering like [SDL_RenderFillRect](https://wiki.libsdl.org/SDL2/SDL_RenderFillRect) by using the [SDL_Renderer](https://wiki.libsdl.org/SDL2/SDL_CreateRenderer) returned from [LSG_Start](#lsg_start).
+You can also perform custom rendering like [SDL_RenderFillRect](https://wiki.libsdl.org/SDL3/SDL_RenderFillRect) by using the [SDL_Renderer](https://wiki.libsdl.org/SDL3/SDL_CreateRenderer) returned from [LSG_Start](#lsg_start).
 
 > Make sure to render after calling [LSG_Run](#lsg_run) as it will clear anything in the render buffer.
 
 ```cpp
 void myapp_render(SDL_Renderer* renderer)
 {
-    SDL_Size windowSize  = LSG_GetWindowSize();
-    SDL_Rect destination = { ((windowSize.width - 100) / 2), ((windowSize.height - 100) / 2), 100, 100 };
+    SDL_Size  windowSize  = LSG_GetWindowSize();
+    SDL_FRect destination = { (float)((windowSize.width - 100) / 2), (float)((windowSize.height - 100) / 2), 100.0f, 100.0f };
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 64);
@@ -314,7 +312,7 @@ void myapp_render(SDL_Renderer* renderer)
 
 ## Present
 
-Finally, you can run [LSG_Present](#lsg_present) to swap the background buffer and [present](https://wiki.libsdl.org/SDL2/SDL_RenderPresent) it to the screen.
+Finally, you can run [LSG_Present](#lsg_present) to swap the background buffer and [present](https://wiki.libsdl.org/SDL3/SDL_RenderPresent) it to the screen.
 
 ## Quit
 

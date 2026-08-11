@@ -281,7 +281,7 @@ void LSG_Panel::renderContent(SDL_Renderer* renderer, const SDL_Rect& background
 	SDL_Rect clip           = { 0, 0, destination.w, destination.h };
 	auto     clipWithOffset = this->getClipWithOffset(clip, maxSize);
 
-	SDL_RenderCopy(renderer, this->renderTarget, &clipWithOffset, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->renderTarget, &clipWithOffset, &destination);
 }
 
 /**
@@ -291,7 +291,7 @@ void LSG_Panel::renderContentToTexture(SDL_Renderer* renderer, const SDL_Size& m
 {
 	LSG_Window::InitRenderTarget(this->renderTarget, maxSize);
 
-	if (SDL_SetRenderTarget(renderer, this->renderTarget) < 0)
+	if (!SDL_SetRenderTarget(renderer, this->renderTarget))
 		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
 	SDL_Rect background = { 0, 0, maxSize.width, maxSize.height };

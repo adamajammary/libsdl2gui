@@ -109,7 +109,7 @@ void LSG_MenuItem::renderIcon(SDL_Renderer* renderer) const
 
 	SDL_Point center = { (destination.w / 2), (destination.h / 2) };
 
-	SDL_RenderCopyEx(
+	LSG_Graphics::RenderTextureRotated(
 		renderer,
 		texture,
 		nullptr,
@@ -137,7 +137,7 @@ void LSG_MenuItem::renderSelected(SDL_Renderer* renderer) const
 		size.height
 	};
 
-	SDL_RenderCopy(renderer, texture, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, texture, nullptr, &destination);
 }
 
 void LSG_MenuItem::renderKey(SDL_Renderer* renderer) const
@@ -169,7 +169,7 @@ void LSG_MenuItem::renderKey(SDL_Renderer* renderer) const
 		clip.h
 	};
 
-	SDL_RenderCopy(renderer, texture, &clip, &destination);
+	LSG_Graphics::RenderTexture(renderer, texture, &clip, &destination);
 }
 
 void LSG_MenuItem::renderText(SDL_Renderer* renderer, SDL_Texture* texture) const
@@ -193,7 +193,7 @@ void LSG_MenuItem::renderText(SDL_Renderer* renderer, SDL_Texture* texture) cons
 		clip.h
 	};
 
-	SDL_RenderCopy(renderer, texture, &clip, &destination);
+	LSG_Graphics::RenderTexture(renderer, texture, &clip, &destination);
 }
 
 void LSG_MenuItem::sendEvent(LSG_EventType type) const

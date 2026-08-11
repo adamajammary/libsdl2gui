@@ -12,7 +12,7 @@ SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 {
 	SDL_Point position = {};
 
-	if ((event.type == SDL_FINGERDOWN) || (event.type == SDL_FINGERUP) || (event.type == SDL_FINGERMOTION))
+	if ((event.type == SDL_EVENT_FINGER_DOWN) || (event.type == SDL_EVENT_FINGER_UP) || (event.type == SDL_EVENT_FINGER_MOTION))
 	{
 		auto size = LSG_Window::GetSize();
 		position  = { (int)(event.tfinger.x * (float)size.width), (int)(event.tfinger.y * (float)size.height) };
@@ -26,10 +26,10 @@ SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 		else if (event.type == SDL_MOUSEMOTION)
 			position = { LSG_Window::GetDPIScaled(event.motion.x), LSG_Window::GetDPIScaled(event.motion.y) };
 	#else
-		if ((event.type == SDL_MOUSEBUTTONDOWN) || (event.type == SDL_MOUSEBUTTONUP))
-			position = { event.button.x, event.button.y };
-		else if (event.type == SDL_MOUSEMOTION)
-			position = { event.motion.x, event.motion.y };
+		if ((event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) || (event.type == SDL_EVENT_MOUSE_BUTTON_UP))
+			position = { (int)event.button.x, (int)event.button.y };
+		else if (event.type == SDL_EVENT_MOUSE_MOTION)
+			position = { (int)event.motion.x, (int)event.motion.y };
 	#endif
 
 	return position;
@@ -96,7 +96,7 @@ void LSG_Events::HandleKeyDownEvent(const SDL_KeyboardEvent& event, LSG_Componen
 		isHandled = LSG_Events::handleKeyDownEventPanel(event, static_cast<LSG_Panel*>(component));
 
 	if (!isHandled)
-		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID(), event.keysym.sym);
+		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_KEY_ENTERED, component->GetID(), event.key);
 }
 
 void LSG_Events::handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Cards* cards)
@@ -104,10 +104,10 @@ void LSG_Events::handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Car
 	if (!cards || !cards->enabled)
 		return;
 
-	if (event.keysym.mod & KMOD_CTRL)
+	if (event.mod & SDL_KMOD_CTRL)
 	{
-		switch (event.keysym.sym) {
-			case SDLK_a:        cards->SelectAll(); break;
+		switch (event.key) {
+			case SDLK_A:        cards->SelectAll(); break;
 			case SDLK_LEFT:     cards->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
 			case SDLK_RIGHT:    cards->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
 			case SDLK_HOME:     cards->OnScrollHome(); break;
@@ -122,9 +122,9 @@ void LSG_Events::handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Car
 		return;
 	}
 
-	if (event.keysym.mod & KMOD_SHIFT)
+	if (event.mod & SDL_KMOD_SHIFT)
 	{
-		switch (event.keysym.sym) {
+		switch (event.key) {
 			case SDLK_HOME:     cards->SelectFirst(true); break;
 			case SDLK_END:      cards->SelectLast(true); break;
 			case SDLK_UP:       cards->SelectRow(-1, true); break;
@@ -137,7 +137,7 @@ void LSG_Events::handleKeyDownEventCards(const SDL_KeyboardEvent& event, LSG_Car
 		return;
 	}
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_LEFT:     cards->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
 		case SDLK_RIGHT:    cards->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
 		case SDLK_HOME:     cards->SelectFirst(); break;
@@ -156,10 +156,10 @@ void LSG_Events::handleKeyDownEventList(const SDL_KeyboardEvent& event, LSG_List
 	if (!list || !list->enabled)
 		return;
 
-	if (event.keysym.mod & KMOD_CTRL)
+	if (event.mod & SDL_KMOD_CTRL)
 	{
-		switch (event.keysym.sym) {
-			case SDLK_a:        list->SelectAll(); break;
+		switch (event.key) {
+			case SDLK_A:        list->SelectAll(); break;
 			case SDLK_LEFT:     list->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
 			case SDLK_RIGHT:    list->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
 			case SDLK_HOME:     list->OnScrollHome(); break;
@@ -174,9 +174,9 @@ void LSG_Events::handleKeyDownEventList(const SDL_KeyboardEvent& event, LSG_List
 		return;
 	}
 
-	if (event.keysym.mod & KMOD_SHIFT)
+	if (event.mod & SDL_KMOD_SHIFT)
 	{
-		switch (event.keysym.sym) {
+		switch (event.key) {
 			case SDLK_HOME:     list->SelectFirstRowShift(); break;
 			case SDLK_END:      list->SelectLastRowShift(); break;
 			case SDLK_UP:       list->SelectRow(-1, true); break;
@@ -189,7 +189,7 @@ void LSG_Events::handleKeyDownEventList(const SDL_KeyboardEvent& event, LSG_List
 		return;
 	}
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_LEFT:     list->OnScrollHorizontal(-LSG_ScrollBar::Unit); break;
 		case SDLK_RIGHT:    list->OnScrollHorizontal(LSG_ScrollBar::Unit); break;
 		case SDLK_HOME:     list->SelectFirstRow(); break;
@@ -208,7 +208,7 @@ void LSG_Events::handleKeyDownEventMenu(const SDL_KeyboardEvent& event, LSG_Menu
 	if (!menu || !menu->enabled || !menu->IsOpen())
 		return;
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_ESCAPE:   menu->Close(); break;
 		case SDLK_HOME:     menu->OnScrollHome(); break;
 		case SDLK_END:      menu->OnScrollEnd(); break;
@@ -225,7 +225,7 @@ bool LSG_Events::handleKeyDownEventPanel(const SDL_KeyboardEvent& event, LSG_Pan
 	if (!panel || !panel->enabled)
 		return false;
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_LEFT:     return panel->OnScrollHorizontal(-LSG_ScrollBar::Unit);
 		case SDLK_RIGHT:    return panel->OnScrollHorizontal(LSG_ScrollBar::Unit);
 		case SDLK_HOME:     return panel->OnScrollHome();
@@ -245,7 +245,7 @@ void LSG_Events::handleKeyDownEventSlider(const SDL_KeyboardEvent& event, LSG_Sl
 	if (!slider || !slider->enabled)
 		return;
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_LEFT:     slider->OnMouseScroll(LSG_ScrollBar::Unit); break;
 		case SDLK_RIGHT:    slider->OnMouseScroll(-LSG_ScrollBar::Unit); break;
 		case SDLK_HOME:     slider->SetValue(0.0); break;
@@ -263,7 +263,7 @@ bool LSG_Events::handleKeyDownEventTextLabel(const SDL_KeyboardEvent& event, LSG
 	if (!textLabel || !textLabel->enabled)
 		return false;
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_LEFT:     return textLabel->OnScrollHorizontal(-LSG_ScrollBar::Unit);
 		case SDLK_RIGHT:    return textLabel->OnScrollHorizontal(LSG_ScrollBar::Unit);
 		case SDLK_HOME:     return textLabel->OnScrollHome();
@@ -283,10 +283,10 @@ void LSG_Events::handleKeyDownEventTiles(const SDL_KeyboardEvent& event, LSG_Til
 	if (!tiles || !tiles->enabled)
 		return;
 
-	if (event.keysym.mod & KMOD_CTRL)
+	if (event.mod & SDL_KMOD_CTRL)
 	{
-		switch (event.keysym.sym) {
-			case SDLK_a:        tiles->SelectAll(); break;
+		switch (event.key) {
+			case SDLK_A:        tiles->SelectAll(); break;
 			case SDLK_HOME:     tiles->OnScrollHome(); break;
 			case SDLK_END:      tiles->OnScrollEnd(); break;
 			case SDLK_UP:       tiles->OnScrollVertical(-LSG_ScrollBar::Unit); break;
@@ -299,9 +299,9 @@ void LSG_Events::handleKeyDownEventTiles(const SDL_KeyboardEvent& event, LSG_Til
 		return;
 	}
 
-	if (event.keysym.mod & KMOD_SHIFT)
+	if (event.mod & SDL_KMOD_SHIFT)
 	{
-		switch (event.keysym.sym) {
+		switch (event.key) {
 			case SDLK_HOME:     tiles->SelectFirst(true); break;
 			case SDLK_END:      tiles->SelectLast(true); break;
 			case SDLK_LEFT:     tiles->SelectPrevious(true); break;
@@ -316,7 +316,7 @@ void LSG_Events::handleKeyDownEventTiles(const SDL_KeyboardEvent& event, LSG_Til
 		return;
 	}
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_HOME:     tiles->SelectFirst(); break;
 		case SDLK_END:      tiles->SelectLast(); break;
 		case SDLK_LEFT:     tiles->SelectPrevious(); break;
@@ -337,21 +337,21 @@ void LSG_Events::handleKeyDownEventTextInput(const SDL_KeyboardEvent& event)
 	if (!textInput->enabled || !textInput->visible)
 		return;
 
-	if (event.keysym.mod & KMOD_CTRL)
+	if (event.mod & SDL_KMOD_CTRL)
 	{
-		switch (event.keysym.sym) {
-			case SDLK_a: textInput->SelectAll(); break;
-			case SDLK_c: textInput->Copy(); break;
-			case SDLK_v: textInput->Paste(); break;
+		switch (event.key) {
+			case SDLK_A: textInput->SelectAll(); break;
+			case SDLK_C: textInput->Copy(); break;
+			case SDLK_V: textInput->Paste(); break;
 			default: break;
 		}
 
 		return;
 	}
 
-	if (event.keysym.mod & KMOD_SHIFT)
+	if (event.mod & SDL_KMOD_SHIFT)
 	{
-		switch (event.keysym.sym) {
+		switch (event.key) {
 			case SDLK_HOME:  textInput->SelectHome(); break;
 			case SDLK_END:   textInput->SelectEnd(); break;
 			case SDLK_LEFT:  textInput->SelectLeft(); break;
@@ -362,7 +362,7 @@ void LSG_Events::handleKeyDownEventTextInput(const SDL_KeyboardEvent& event)
 		return;
 	}
 
-	switch (event.keysym.sym) {
+	switch (event.key) {
 		case SDLK_HOME:      textInput->MoveCursorHome(); break;
 		case SDLK_END:       textInput->MoveCursorEnd(); break;
 		case SDLK_LEFT:      textInput->MoveCursorLeft(); break;
@@ -388,7 +388,7 @@ void LSG_Events::HandleMouseDownEvent(const SDL_Event& event, LSG_Component* com
 	if (!component || !component->enabled)
 		return;
 
-	if ((event.type == SDL_MOUSEBUTTONDOWN) && (event.button.button == SDL_BUTTON_RIGHT)) {
+	if ((event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) && (event.button.button == SDL_BUTTON_RIGHT)) {
 		LSG_Events::sendEvent(LSG_EVENT_COMPONENT_RIGHT_CLICKED, component->GetID());
 		return;
 	}
@@ -549,7 +549,7 @@ void LSG_Events::handleMouseMoveEvent(const SDL_Event& event)
 void LSG_Events::HandleMouseScrollEvent(const SDL_MouseWheelEvent& event, LSG_Component* component)
 {
 	int       scrollOffset  = -(event.y * LSG_ScrollBar::UnitWheel);
-	SDL_Point mousePosition = { event.mouseX, event.mouseY };
+	SDL_Point mousePosition = { (int)event.mouse_x, (int)event.mouse_y };
 
 	if (!component)
 		component = LSG_UI::GetComponent(mousePosition);
@@ -656,7 +656,7 @@ void LSG_Events::HandleMouseUpEvent(const SDL_Event& event, LSG_Component* compo
 
 			if (isDoubleClick)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_DOUBLE_CLICKED, component->GetID());
-			else if (isLongPress && (event.type == SDL_FINGERUP))
+			else if (isLongPress && (event.type == SDL_EVENT_FINGER_UP))
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_LONG_PRESSED, component->GetID());
 			else if (!isLongPress)
 				LSG_Events::sendEvent(LSG_EVENT_COMPONENT_CLICKED, component->GetID());
@@ -710,36 +710,10 @@ void LSG_Events::HandleMouseUpEvent(const SDL_Event& event, LSG_Component* compo
 	LSG_UI::UnhighlightComponents();
 }
 
-void LSG_Events::handleSysWMEvent(const SDL_SysWMEvent& event)
-{
-	if (!event.msg)
-		return;
-
-	#if defined _windows
-	if (event.msg->subsystem != SDL_SYSWM_WINDOWS)
-		return;
-
-	switch (event.msg->msg.win.msg) {
-		case WM_DPICHANGED: LSG_UI::Layout(); break;
-		case WM_QUERYENDSESSION: case WM_ENDSESSION: LSG_Quit(); break;
-		default: break;
-	}
-	#endif
-}
-
 void LSG_Events::handleTextInputEvent(const SDL_TextInputEvent& event)
 {
 	if (LSG_Events::textInput)
 		static_cast<LSG_TextInput*>(LSG_Events::textInput)->Input(event.text);
-}
-
-void LSG_Events::handleWindowEvent(const SDL_WindowEvent& event)
-{
-	switch (event.event) {
-		case SDL_WINDOWEVENT_CLOSE: LSG_Quit(); break;
-		case SDL_WINDOWEVENT_RESTORED: case SDL_WINDOWEVENT_SIZE_CHANGED: LSG_UI::Layout(); break;
-		default: break;
-	}
 }
 
 std::vector<SDL_Event> LSG_Events::Handle()
@@ -754,23 +728,49 @@ std::vector<SDL_Event> LSG_Events::Handle()
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type) {
-			case SDL_QUIT:         LSG_Quit(); break;
-			case SDL_KEYDOWN:      LSG_Events::handleKeyDownEvent(event.key); break;
-			case SDL_TEXTINPUT:    LSG_Events::handleTextInputEvent(event.text); break;
-			case SDL_SYSWMEVENT:   LSG_Events::handleSysWMEvent(event.syswm); break;
-			case SDL_WINDOWEVENT:  LSG_Events::handleWindowEvent(event.window); break;
-			case SDL_MOUSEWHEEL:   LSG_Events::HandleMouseScrollEvent(event.wheel); break;
-			case SDL_FINGERDOWN:   case SDL_MOUSEBUTTONDOWN: LSG_Events::HandleMouseDownEvent(event); break;
-			case SDL_FINGERUP:     case SDL_MOUSEBUTTONUP:   LSG_Events::HandleMouseUpEvent(event); break;
-			case SDL_FINGERMOTION: case SDL_MOUSEMOTION:     LSG_Events::handleMouseMoveEvent(event); break;
-			case SDL_DISPLAYEVENT: case SDL_RENDER_DEVICE_RESET: case SDL_RENDER_TARGETS_RESET: LSG_UI::Layout(); break;
-			default: break;
+		case SDL_EVENT_QUIT:
+		case SDL_EVENT_TERMINATING:
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+			LSG_Quit();
+			break;
+		case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
+		case SDL_EVENT_DISPLAY_ORIENTATION:
+		case SDL_EVENT_RENDER_DEVICE_RESET:
+		case SDL_EVENT_RENDER_TARGETS_RESET:
+		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+		case SDL_EVENT_WINDOW_RESTORED:
+			LSG_UI::Layout();
+			break;
+		case SDL_EVENT_KEY_DOWN:
+			LSG_Events::handleKeyDownEvent(event.key);
+			break;
+		case SDL_EVENT_TEXT_INPUT:
+			LSG_Events::handleTextInputEvent(event.text);
+			break;
+		case SDL_EVENT_MOUSE_WHEEL:
+			LSG_Events::HandleMouseScrollEvent(event.wheel);
+			break;
+		case SDL_EVENT_FINGER_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			LSG_Events::HandleMouseDownEvent(event);
+			break;
+		case SDL_EVENT_FINGER_UP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+			LSG_Events::HandleMouseUpEvent(event);
+			break;
+		case SDL_EVENT_FINGER_MOTION:
+		case SDL_EVENT_MOUSE_MOTION:
+			LSG_Events::handleMouseMoveEvent(event);
+			break;
+		default:
+			break;
 		}
 
 		events.push_back(SDL_Event(event));
 	}
 
-	if (LSG_Events::lastEvent.type == SDL_MOUSEBUTTONDOWN)
+	if (LSG_Events::lastEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
 		LSG_Events::isMouseDown = (SDL_GetMouseState(nullptr, nullptr) == SDL_BUTTON_LEFT);
 
 	return events;

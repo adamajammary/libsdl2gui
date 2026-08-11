@@ -92,7 +92,7 @@ void LSG_MenuSub::renderArrow(SDL_Renderer* renderer) const
 		size.height
 	};
 
-	SDL_RenderCopy(renderer, texture, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, texture, nullptr, &destination);
 }
 
 void LSG_MenuSub::Set()

@@ -35,12 +35,12 @@ void LSG_Line::render(SDL_Renderer* renderer) const
 	{
 		auto dest = LSG_Graphics::GetDestinationAligned(this->background, { 1, this->background.h }, alignment);
 
-		SDL_RenderDrawLine(renderer, dest.x, dest.y, dest.x, (dest.y + dest.h - 1));
+		SDL_RenderLine(renderer, dest.x, dest.y, dest.x, (dest.y + dest.h - 1));
 	}
 	else
 	{
 		auto dest = LSG_Graphics::GetDestinationAligned(this->background, { this->background.w, 1 }, alignment);
 
-		SDL_RenderDrawLine(renderer, dest.x, dest.y, (dest.x + dest.w - 1), dest.y);
+		SDL_RenderLine(renderer, dest.x, dest.y, (dest.x + dest.w - 1), dest.y);
 	}
 }

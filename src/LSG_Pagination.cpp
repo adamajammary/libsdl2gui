@@ -237,12 +237,12 @@ SDL_Texture* LSG_Pagination::getPaginationTexture(const std::string& text, const
 	auto font = LSG_Text::GetFont(LSG_Pagination::FontSize);
 
 	if (font)
-		surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+		surface = TTF_RenderText_Blended(font, text.c_str(), text.size(), color);
 
 	if (surface)
 		texture = LSG_Window::ToTexture(surface);
 
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 	TTF_CloseFont(font);
 
 	return texture;
@@ -369,33 +369,33 @@ void LSG_Pagination::renderPagination(SDL_Renderer* renderer, const SDL_Rect& ba
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
-	SDL_RenderFillRect(renderer, &this->pagination);
+	LSG_Graphics::RenderFill(renderer, &this->pagination);
 
 	auto arrowHomeTextureSize = LSG_Graphics::GetTextureSize(this->textureArrowHome);
 	auto arrowHomeDestination = this->getDestinationCenterAligned(this->arrowHome, arrowHomeTextureSize);
 
-	SDL_RenderCopy(renderer, this->textureArrowHome, nullptr, &arrowHomeDestination);
+	LSG_Graphics::RenderTexture(renderer, this->textureArrowHome, nullptr, &arrowHomeDestination);
 
 	auto arrowPrevTextureSize = LSG_Graphics::GetTextureSize(this->textureArrowPrev);
 	auto arrowPrevDestination = this->getDestinationCenterAligned(this->arrowPrev, arrowPrevTextureSize);
 
-	SDL_RenderCopy(renderer, this->textureArrowPrev, nullptr, &arrowPrevDestination);
+	LSG_Graphics::RenderTexture(renderer, this->textureArrowPrev, nullptr, &arrowPrevDestination);
 
 	auto arrowNextTextureSize = LSG_Graphics::GetTextureSize(this->textureArrowNext);
 	auto arrowNextDestination = this->getDestinationCenterAligned(this->arrowNext, arrowNextTextureSize);
 
-	SDL_RenderCopy(renderer, this->textureArrowNext, nullptr, &arrowNextDestination);
+	LSG_Graphics::RenderTexture(renderer, this->textureArrowNext, nullptr, &arrowNextDestination);
 
 	auto arrowEndTextureSize = LSG_Graphics::GetTextureSize(this->textureArrowEnd);
 	auto arrowEndDestination = this->getDestinationCenterAligned(this->arrowEnd, arrowEndTextureSize);
 
-	SDL_RenderCopy(renderer, this->textureArrowEnd, nullptr, &arrowEndDestination);
+	LSG_Graphics::RenderTexture(renderer, this->textureArrowEnd, nullptr, &arrowEndDestination);
 
 	auto     labelTextureSize = LSG_Graphics::GetTextureSize(this->textureLabel);
 	SDL_Rect labelClip        = { 0, 0, std::min(labelTextureSize.width, this->label.w), std::min(labelTextureSize.height, this->label.h) };
 	auto     labelDestination = this->getDestinationCenterAligned(this->label, { labelClip.w, labelClip.h });
 
-	SDL_RenderCopy(renderer, this->textureLabel, &labelClip, &labelDestination);
+	LSG_Graphics::RenderTexture(renderer, this->textureLabel, &labelClip, &labelDestination);
 }
 
 bool LSG_Pagination::showPagination() const

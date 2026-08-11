@@ -2,8 +2,11 @@
 
 float         LSG_Window::dpiScale  = 1.0f;
 SDL_Renderer* LSG_Window::renderer  = nullptr;
-SDL_SysWMinfo LSG_Window::sysWmInfo = {};
 SDL_Window*   LSG_Window::window    = nullptr;
+
+#if defined _ios
+    UIWindow* LSG_Window::uiWindow = nil;
+#endif
 
 void LSG_Window::Close()
 {
@@ -61,8 +64,10 @@ SDL_Size LSG_Window::GetMinimumSize()
 
 SDL_Point LSG_Window::GetMousePosition()
 {
-	SDL_Point mousePosition = {};
-	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+	float x, y;
+	SDL_GetMouseState(&x, &y);
+
+	SDL_Point mousePosition = { (int)x, (int)y, };
 
 	return mousePosition;
 }
@@ -84,10 +89,10 @@ SDL_Size LSG_Window::GetSize()
 
 	SDL_Size size = {};
 
-	if (SDL_SetRenderTarget(LSG_Window::renderer, nullptr) < 0)
+	if (!SDL_SetRenderTarget(LSG_Window::renderer, nullptr))
 		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
-	SDL_GetRendererOutputSize(LSG_Window::renderer, &size.width, &size.height);
+	SDL_GetCurrentRenderOutputSize(LSG_Window::renderer, &size.width, &size.height);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
@@ -96,6 +101,9 @@ SDL_Size LSG_Window::GetSize()
 
 SDL_FPoint LSG_Window::GetSizeScale()
 {
+	if (!LSG_Window::window)
+		return { 1.0f, 1.0f };
+
 	auto sizeInPixels = LSG_Window::GetSize();
 
 	SDL_Size size = {};
@@ -155,9 +163,9 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 {
 	LSG_Window::window = SDL_CreateWindow(
 		title.c_str(),
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		width, height,
-		(SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE)
+		width,
+		height,
+		(SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE)
 	);
 
 	if (!LSG_Window::window)
@@ -168,27 +176,23 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
 		auto iconSurface = IMG_Load(iconFile.c_str());
 
 		SDL_SetWindowIcon(LSG_Window::window, iconSurface);
-		SDL_FreeSurface(iconSurface);
+		SDL_DestroySurface(iconSurface);
 	#endif
 
-    SDL_VERSION(&LSG_Window::sysWmInfo.version);
-    SDL_GetWindowWMInfo(LSG_Window::window, &LSG_Window::sysWmInfo);
+    #if defined _ios
+		SDL_PropertiesID windowProperties = SDL_GetWindowProperties(LSG_Window::window);
 
-	LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_ACCELERATED);
+		LSG_Window::uiWindow = (__bridge UIWindow*)SDL_GetPointerProperty(
+			windowProperties,
+			SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER,
+			nullptr
+		);
+    #endif
 
-	if (!LSG_Window::renderer)
-		LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, -1, SDL_RENDERER_SOFTWARE);
+	LSG_Window::renderer = SDL_CreateRenderer(LSG_Window::window, nullptr);
 
 	if (!LSG_Window::renderer)
 		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
-
-	SDL_RendererInfo renderInfo = {};
-
-	if (SDL_GetRendererInfo(LSG_Window::renderer, &renderInfo) < 0)
-		throw std::runtime_error(std::format("Failed to validate renderer: {}", SDL_GetError()));
-
-	if ((renderInfo.flags & SDL_RENDERER_TARGETTEXTURE) < SDL_RENDERER_TARGETTEXTURE)
-		throw std::runtime_error(std::format("The renderer does not support target textures: {}\n", SDL_GetError()));
 
 	LSG_Window::SetDPIScale();
 
@@ -201,7 +205,7 @@ SDL_Renderer* LSG_Window::Open(const std::string& title, int width, int height)
  */
 void LSG_Window::OpenTest()
 {
-	auto surface = SDL_CreateRGBSurfaceWithFormat(0, 800, 600, 24, SDL_PIXELFORMAT_RGB24);
+	auto surface = SDL_CreateSurface(800, 600, SDL_PIXELFORMAT_RGB24);
 
 	if (!surface)
 		throw std::runtime_error(std::format("Failed to create a surface: {}", SDL_GetError()));
@@ -210,6 +214,8 @@ void LSG_Window::OpenTest()
 
 	if (!LSG_Window::renderer)
 		throw std::runtime_error(std::format("Failed to create a renderer: {}", SDL_GetError()));
+
+	LSG_Window::SetDPIScale();
 }
 #endif
 
@@ -626,7 +632,7 @@ void LSG_Window::OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> results
 
     picker.delegate = documentPicker;
 
-    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+    auto viewController = LSG_Window::window.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -660,7 +666,7 @@ void LSG_Window::OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resul
 
     picker.delegate = mediaPicker;
 
-    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+	auto viewController = LSG_Window::window.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -696,7 +702,7 @@ void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* res
 
     picker.delegate = photoPicker;
     
-    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+	auto viewController = LSG_Window::window.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -711,7 +717,7 @@ void LSG_Window::OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallbac
 
     picker.delegate = documentPicker;
 
-    auto viewController = LSG_Window::sysWmInfo.info.uikit.window.rootViewController;
+	auto viewController = LSG_Window::window.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -734,15 +740,21 @@ void LSG_Window::Render()
 /**
  * @throws runtime_error
  */
-SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size, uint32_t format)
+SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrientation& orientation, const SDL_Size& size)
 {
+	auto format = (SDL_PixelFormat)SDL_GetNumberProperty(
+		SDL_GetTextureProperties(texture),
+		SDL_PROP_TEXTURE_FORMAT_NUMBER,
+		0
+	);
+
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 	auto newTexture   = SDL_CreateTexture(LSG_Window::renderer, format, SDL_TEXTUREACCESS_TARGET, size.width, size.height);
 
-	if (SDL_SetRenderTarget(LSG_Window::renderer, newTexture) < 0)
+	if (!SDL_SetRenderTarget(LSG_Window::renderer, newTexture))
 		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
-	SDL_RenderCopyEx(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
+	LSG_Graphics::RenderTextureRotated(LSG_Window::renderer, texture, nullptr, nullptr, orientation.rotation, nullptr, orientation.flip);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
@@ -939,6 +951,17 @@ void LSG_Window::SetTitle(const std::string& title)
 void LSG_Window::ShowMessage(const std::string& message, uint32_t flags)
 {
 	SDL_ShowSimpleMessageBox(flags, LSG_Window::GetTitle().c_str(), message.c_str(), LSG_Window::window);
+}
+
+void LSG_Window::StartTextInput(const SDL_Rect* area, int cursor)
+{
+	SDL_SetTextInputArea(LSG_Window::window, area, cursor);
+	SDL_StartTextInput(LSG_Window::window);
+}
+
+void LSG_Window::StopTextInput()
+{
+	SDL_StopTextInput(LSG_Window::window);
 }
 
 SDL_Texture* LSG_Window::ToTexture(const std::string& imageFile)

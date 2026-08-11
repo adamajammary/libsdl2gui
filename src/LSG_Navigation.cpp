@@ -264,21 +264,21 @@ void LSG_Navigation::renderArrows(SDL_Renderer* renderer, const SDL_Rect& fillAr
 {
 	auto destination = this->getArrowDestination(fillArea, padding);
 
-	SDL_RenderCopy(renderer, this->arrow.home, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->arrow.home, nullptr, &destination);
 
 	auto arrowWidth = (this->arrow.size + padding);
 
 	destination.x += arrowWidth;
 
-	SDL_RenderCopy(renderer, this->arrow.back, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->arrow.back, nullptr, &destination);
 
 	destination.x = (fillArea.x + fillArea.w - padding - this->arrow.size);
 
-	SDL_RenderCopy(renderer, this->arrow.end, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->arrow.end, nullptr, &destination);
 
 	destination.x -= arrowWidth;
 
-	SDL_RenderCopy(renderer, this->arrow.next, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->arrow.next, nullptr, &destination);
 }
 
 void LSG_Navigation::renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea, int padding) const
@@ -305,7 +305,7 @@ void LSG_Navigation::renderText(SDL_Renderer* renderer, const SDL_Rect& fillArea
 
 	auto destination = LSG_Graphics::GetDestinationAligned(background, { clip.w, clip.h }, alignment);
 
-	SDL_RenderCopy(renderer, this->texture, &clip, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->texture, &clip, &destination);
 }
 
 void LSG_Navigation::RenderTooltip(SDL_Renderer* renderer) const

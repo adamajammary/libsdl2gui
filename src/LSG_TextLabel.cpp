@@ -35,7 +35,7 @@ void LSG_TextLabel::render(SDL_Renderer* renderer)
 		return;
 
 	if (this->parent->IsScrollablePanel(true)) {
-		SDL_RenderCopy(renderer, this->texture, nullptr, &this->background);
+		LSG_Graphics::RenderTexture(renderer, this->texture, nullptr, &this->background);
 		return;
 	}
 
@@ -49,7 +49,7 @@ void LSG_TextLabel::renderClip(SDL_Renderer* renderer)
 {
 	SDL_Rect clip = { 0, 0, this->background.w, this->background.h };
 
-	SDL_RenderCopy(renderer, this->texture, &clip, &this->background);
+	LSG_Graphics::RenderTexture(renderer, this->texture, &clip, &this->background);
 }
 
 void LSG_TextLabel::renderEllipsis(SDL_Renderer* renderer)

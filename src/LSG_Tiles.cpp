@@ -253,12 +253,12 @@ void LSG_Tiles::clipTileY(const LSG_Tile& tile)
 void LSG_Tiles::destroySurfaces(LSG_Tile& tile)
 {
 	if (tile.image.surface) {
-		SDL_FreeSurface(tile.image.surface);
+		SDL_DestroySurface(tile.image.surface);
 		tile.image.surface = nullptr;
 	}
 
 	if (tile.text.surface) {
-		SDL_FreeSurface(tile.text.surface);
+		SDL_DestroySurface(tile.text.surface);
 		tile.text.surface = nullptr;
 	}
 }
@@ -770,7 +770,7 @@ void LSG_Tiles::renderText(SDL_Renderer* renderer, int index)
 
 	auto destination = this->getTextDestination();
 
-	SDL_RenderCopy(renderer, text.texture.texture, &this->text.clip, &destination);
+	LSG_Graphics::RenderTexture(renderer, text.texture.texture, &this->text.clip, &destination);
 }
 
 void LSG_Tiles::renderScrollBar(SDL_Renderer* renderer)

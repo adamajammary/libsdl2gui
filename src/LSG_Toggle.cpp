@@ -72,7 +72,7 @@ void LSG_Toggle::render(SDL_Renderer* renderer) const
 
 	auto destination = this->getDestination();
 
-	SDL_RenderCopy(renderer, this->texture, nullptr, &destination);
+	LSG_Graphics::RenderTexture(renderer, this->texture, nullptr, &destination);
 }
 
 void LSG_Toggle::Set(bool on)

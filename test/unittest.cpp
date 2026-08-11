@@ -8,8 +8,6 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace LSG_UnitTest
 {
-    std::string WorkingDir = "";
-
     TEST_MODULE_INITIALIZE(Start)
     {
         try
@@ -21,11 +19,10 @@ namespace LSG_UnitTest
             GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, &moduleName, &hmodule);
             GetModuleFileNameA(hmodule, pathA, (MAX_PATH + 1));
 
-            auto path = std::string(pathA);
+            auto path       = std::string(pathA);
+            auto workingDir = path.substr(0, path.rfind("\\") + 1);
 
-            WorkingDir = path.substr(0, path.rfind("\\") + 1);
-
-            LSG_StartTest("ui/main.xml", WorkingDir);
+            LSG_StartTest("ui/main.xml", workingDir);
 
             Assert::IsTrue(LSG_IsRunning());
         }
@@ -450,8 +447,7 @@ namespace LSG_UnitTest
 
                 auto rows1 = LSG_GetSelectedRows("List");
 
-                Assert::AreEqual(1, (int)rows1.size());
-                Assert::AreEqual(0, (int)rows1[0]);
+                Assert::IsTrue(rows1.empty());
 
                 LSG_SelectRow("List", 1);
 

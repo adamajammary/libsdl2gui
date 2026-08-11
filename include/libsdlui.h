@@ -29,17 +29,17 @@
     #include <PhotosUI/PhotosUI.h>       // PHPickerResult, PHPickerViewController
 #endif
 
-#ifndef LIB_SDL2_H
-#define LIB_SDL2_H
+#ifndef LIB_SDL_H
+#define LIB_SDL_H
 extern "C" {
-	#include <SDL2/SDL.h>
+	#include <SDL3/SDL.h>
 }
 #endif
 
-#ifndef LIB_SDL2_TTF_H
-#define LIB_SDL2_TTF_H
+#ifndef LIB_SDL_TTF_H
+#define LIB_SDL_TTF_H
 extern "C" {
-	#include <SDL2/SDL_ttf.h>
+	#include <SDL3_ttf/SDL_ttf.h>
 }
 #endif
 
@@ -166,8 +166,8 @@ struct LSG_ExifData
 
 struct LSG_ImageOrientation
 {
-	SDL_RendererFlip flip     = SDL_FLIP_NONE;
-	double           rotation = 0.0;
+	SDL_FlipMode flip     = SDL_FLIP_NONE;
+	double       rotation = 0.0;
 };
 
 struct LSG_GPSCoordinate

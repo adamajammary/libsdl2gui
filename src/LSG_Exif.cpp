@@ -333,7 +333,7 @@ SDL_Surface* LSG_Exif::getThumbnail(LSG_ExifState& state)
 	SDL_Surface* thumbnail = nullptr;
 
 	if (std::fread(pixels, 1, dataSize, state.file) == dataSize)
-		thumbnail = IMG_LoadJPG_RW(SDL_RWFromConstMem(pixels, dataSize));
+		thumbnail = IMG_LoadJPG_IO(SDL_IOFromConstMem(pixels, dataSize));
 
 	std::free(pixels);
 

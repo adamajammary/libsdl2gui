@@ -2,10 +2,10 @@
 
 const char ERROR_NOT_STARTED[] = "libsdlui has not been started, call LSG_Start.";
 
-char* basePath  = nullptr;
-bool  isRunning = false;
+std::string basePath  = "";
+bool        isRunning = false;
 
-const char* LSG_GetBasePath()
+std::string LSG_GetBasePath()
 {
 	return basePath;
 }
@@ -31,13 +31,17 @@ static std::string getErrorNoID(const std::string& component, const std::string&
  */
 static void initBasePath()
 {
-	if (basePath)
+	if (!basePath.empty())
 		return;
 
-	basePath = SDL_GetPrefPath(nullptr, nullptr);
+	auto prefPath = SDL_GetPrefPath(nullptr, nullptr);
 
-	if (!basePath)
+	if (!prefPath)
 		throw std::runtime_error("Failed to get an app-specific location where files can be written.");
+
+	basePath = std::string(prefPath);
+
+	SDL_free(prefPath);
 
 	auto jniAssetManager = LSG_AndroidJNI::GetAssetManager();
 	auto dirs            = { "fonts", "img", "ui" };
@@ -83,7 +87,15 @@ static void initBasePath()
 #else
 static void initBasePath()
 {
-	basePath = SDL_GetBasePath();
+	if (!basePath.empty())
+		return;
+
+	auto path = SDL_GetBasePath();
+
+	if (!path)
+		throw std::runtime_error("Failed to get an app-specific location where files can be written.");
+
+	basePath = std::string(path);
 }
 #endif
 
@@ -109,24 +121,17 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 	
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS,           "0");
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS,           "0");
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,         "2");
-	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED,       "0");
 	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
-	if ((SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) || (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0))
+	if (!SDL_InitSubSystem(SDL_INIT_VIDEO) || !SDL_InitSubSystem(SDL_INIT_EVENTS))
 		throw std::runtime_error(std::format("Failed to initialize SDL: {}", SDL_GetError()));
 
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-
-	if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP) < 15)
-		throw std::runtime_error(std::format("Failed to initialize SDL_image: {}", IMG_GetError()));
-
-	if (TTF_Init() < 0)
-		throw std::runtime_error(std::format("Failed to initialize SDL_ttf: {}", TTF_GetError()));
+	if (!TTF_Init())
+		throw std::runtime_error(std::format("Failed to initialize SDL_ttf: {}", SDL_GetError()));
 
 	auto renderer = LSG_Window::Open(title, width, height);
 
-	SDL_StopTextInput();
+	SDL_StopTextInput(SDL_GetRenderWindow(renderer));
 
 	isRunning = true;
 
@@ -1441,16 +1446,10 @@ void LSG_Quit()
 	LSG_UI::Close();
 	LSG_Window::Close();
 
-	if (basePath) {
-		SDL_free(basePath);
-		basePath = nullptr;
-	}
-
 	TTF_Quit();
 
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-	SDL_Quit();
 }
 
 void LSG_RemoveCard(const std::string& id, int row)
@@ -2768,8 +2767,7 @@ SDL_Renderer* LSG_Start(const std::string& xmlFile)
 {
 	LibXml::xmlInitParser();
 
-	if (!basePath)
-		initBasePath();
+	initBasePath();
 
 	auto windowAttribs = LSG_UI::OpenWindow(xmlFile);
 
@@ -2812,16 +2810,13 @@ void LSG_StartTest(const std::string& xmlFile, const std::string& workingDir)
 {
 	LibXml::xmlInitParser();
 
-	if (!basePath)
-		basePath = (char*)workingDir.c_str();
+	if (basePath.empty())
+		basePath = std::string(workingDir);
 
 	auto windowAttribs = LSG_UI::OpenWindow(xmlFile);
 
-	if (IMG_Init(IMG_INIT_PNG) < IMG_INIT_PNG)
-		throw std::runtime_error(std::format("Failed to initialize SDL2_image: {}", IMG_GetError()));
-
-	if (TTF_Init() < 0)
-		throw std::runtime_error(std::format("Failed to initialize SDL2_ttf: {}", TTF_GetError()));
+	if (!TTF_Init())
+		throw std::runtime_error(std::format("Failed to initialize SDL3_ttf: {}", SDL_GetError()));
 
 	LSG_Window::OpenTest();
 
