@@ -204,12 +204,22 @@ add_custom_command(TARGET sdlui POST_BUILD COMMAND cp -f ${INC_H} ${DIST_DIR}/in
 
 # licenses
 
-if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
-    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2.txt")
-    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2_ttf.txt")
-    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl2_image.txt")
+if (EXISTS "${EXT_LIB_DIR}/LICENSE-sdl.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl.txt")
+
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl_ttf.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-freetype.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-harfbuzz.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-plutosvg.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-plutovg.txt")
+
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-sdl_image.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-jpeg.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libjxl.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libtiff.txt")
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libwebp.txt")
+    list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-zlib.txt")
+
     list(APPEND LICENSES "${EXT_LIB_DIR}/LICENSE-libxml2.txt")
 endif()
 
