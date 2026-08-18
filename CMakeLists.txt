@@ -24,6 +24,7 @@ elseif (IOS)
     set(EXT_LIB_SDL  libSDL3.a)
     set(EXT_LIB_SDLI libSDL3_image.a)
     set(EXT_LIB_PNG  libpng16.a)
+    set(EXT_LIB_SYUV libsharpyuv.a)
     set(EXT_LIB_WEBP libwebp.a)
     set(EXT_LIB_WPDM libwebpdemux.a)
     set(EXT_LIB_WPM  libwebpmux.a)
@@ -58,6 +59,7 @@ find_file(LIB_XML  ${EXT_LIB_XML}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FI
 
 if (IOS)
     find_file(LIB_PNG  ${EXT_LIB_PNG}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
+    find_file(LIB_SYUV ${EXT_LIB_SYUV} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WEBP ${EXT_LIB_WEBP} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WPDM ${EXT_LIB_WPDM} PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
     find_file(LIB_WPM  ${EXT_LIB_WPM}  PATHS "${LIB_DIR}" NO_CACHE REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
@@ -98,7 +100,7 @@ else()
     set(TEST_LIBS "${LIB_SDL}")
 
     if (IOS)
-        set(LIBS ${LIBS} "${LIB_PNG}" "${LIB_WEBP}" "${LIB_WPDM}" "${LIB_WPM}" "${LIB_Z}")
+        set(LIBS ${LIBS} "${LIB_PNG}" "${LIB_SYUV}" "${LIB_WEBP}" "${LIB_WPDM}" "${LIB_WPM}" "${LIB_Z}")
     endif()
 endif()
 
@@ -122,7 +124,7 @@ elseif (IOS)
     set(RC         "${SRC_DIR}/ios/LaunchScreen.storyboard")
 
     set(OS_LIBS      "-framework MediaPlayer" "-framework Photos" "-framework PhotosUI" "-framework StoreKit" "-framework UIKit" "-framework UniformTypeIdentifiers")
-    set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMotion" "-framework CoreServices" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
+    set(OS_TEST_LIBS "-framework AudioToolbox" "-framework AVFoundation" "-framework CoreBluetooth" "-framework CoreFoundation" "-framework CoreGraphics" "-framework CoreHaptics" "-framework CoreMedia" "-framework CoreMotion" "-framework CoreServices" "-framework CoreText" "-framework CoreVideo" "-framework Foundation" "-framework GameController" "-framework ImageIO" "-framework Metal" "-framework OpenGLES" "-framework QuartzCore" "-framework UIKit")
 elseif (APPLE)
     set(OS "_macosx")
 
