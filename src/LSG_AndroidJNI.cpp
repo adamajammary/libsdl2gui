@@ -7,7 +7,7 @@
 AAssetManager* LSG_AndroidJNI::GetAssetManager()
 {
 	auto jniEnvironment    = LSG_AndroidJNI::GetEnvironment();
-	auto jniObjectActivity = (jobject)SDL_AndroidGetActivity();
+	auto jniObjectActivity = (jobject)SDL_GetAndroidActivity();
 
 	if (!jniObjectActivity)
 		throw std::runtime_error("Failed to get a valid Android JNI Activity.");
@@ -53,7 +53,7 @@ jclass LSG_AndroidJNI::GetClass(const std::string& classPath, JNIEnv* jniEnviron
  */
 JNIEnv* LSG_AndroidJNI::GetEnvironment()
 {
-	auto jniEnvironment = (JNIEnv*)SDL_AndroidGetJNIEnv();
+	auto jniEnvironment = (JNIEnv*)SDL_GetAndroidJNIEnv();
 
 	if (!jniEnvironment)
 		throw std::runtime_error("Failed to get a valid Android JNI Environment.");
