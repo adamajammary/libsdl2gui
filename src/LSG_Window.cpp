@@ -213,7 +213,7 @@ void LSG_Window::OpenTest()
 LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
-		SDL_setenv("DISPLAY", ":0", 1);
+		SDL_setenv_unsafe("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
 		return {};
@@ -762,7 +762,7 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
-		SDL_setenv("DISPLAY", ":0", 1);
+		SDL_setenv_unsafe("DISPLAY", ":0", 1);
 
 	if (!gtk_init_check(0, nullptr))
 		return "";

@@ -215,7 +215,7 @@ int wmain(int argc, wchar_t* argv[])
 #elif defined _windows && defined NDEBUG
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 #else
-int SDL_main(int argc, char* argv[])
+int main(int argc, char* argv[])
 #endif
 {
     try
@@ -252,14 +252,3 @@ int SDL_main(int argc, char* argv[])
 
     return 0;
 }
-
-#if !defined _windows
-int main(int argc, char* argv[])
-{
-#if defined _ios
-	return SDL_UIKitRunApp(argc, argv, SDL_main);
-#else
-	return SDL_main(argc, argv);
-#endif
-}
-#endif

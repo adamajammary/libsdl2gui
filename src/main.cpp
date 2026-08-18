@@ -66,7 +66,7 @@ static void initBasePath()
 				throw std::runtime_error(std::format("Failed to open asset: {}", sourcePath));
 
 			auto destinationPath = std::format("{}{}", basePath, sourcePath);
-			auto destinationFile = SDL_RWFromFile(destinationPath.c_str(), "w");
+			auto destinationFile = SDL_IOFromFile(destinationPath.c_str(), "w");
 
 			if (!destinationFile)
 				throw std::runtime_error(std::format("Failed to write file '{}': {}", destinationPath, SDL_GetError()));
@@ -75,9 +75,9 @@ static void initBasePath()
 			int  fileReadSize = 0;
 
 			while ((fileReadSize = AAsset_read(sourceAsset, destinationBuffer, BUFSIZ)) > 0)
-				SDL_RWwrite(destinationFile, destinationBuffer, fileReadSize, 1);
+				SDL_WriteIO(destinationFile, destinationBuffer, fileReadSize);
 
-			SDL_RWclose(destinationFile);
+			SDL_CloseIO(destinationFile);
 			AAsset_close(sourceAsset);
 		}
 
