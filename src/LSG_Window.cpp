@@ -21,16 +21,6 @@ void LSG_Window::Close()
 	}
 }
 
-#if defined _android
-float LSG_Window::getDPIScale()
-{
-	float dpi;
-	SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(LSG_Window::window), &dpi, nullptr, nullptr);
-
-	return dpi;
-}
-#endif
-
 int LSG_Window::GetDPIScaled(int value)
 {
 	return (int)((float)value * LSG_Window::dpiScale);
@@ -632,7 +622,7 @@ void LSG_Window::OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> results
 
     picker.delegate = documentPicker;
 
-    auto viewController = LSG_Window::window.rootViewController;
+    auto viewController = LSG_Window::uiWindow.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -666,7 +656,7 @@ void LSG_Window::OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resul
 
     picker.delegate = mediaPicker;
 
-	auto viewController = LSG_Window::window.rootViewController;
+	auto viewController = LSG_Window::uiWindow.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -702,7 +692,7 @@ void LSG_Window::OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>* res
 
     picker.delegate = photoPicker;
     
-	auto viewController = LSG_Window::window.rootViewController;
+	auto viewController = LSG_Window::uiWindow.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -717,7 +707,7 @@ void LSG_Window::OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallbac
 
     picker.delegate = documentPicker;
 
-	auto viewController = LSG_Window::window.rootViewController;
+	auto viewController = LSG_Window::uiWindow.rootViewController;
 
     [viewController presentViewController: picker animated: true completion: nil];
 }
@@ -914,7 +904,15 @@ std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 void LSG_Window::SetDPIScale()
 {
 	#if defined _android
-		LSG_Window::dpiScale = (LSG_Window::getDPIScale() / 160.0f);
+		// TODO: DPI Android?
+
+		//SDL_GetWindowSize
+		//SDL_GetWindowSizeInPixels
+
+		//SDL_GetDisplayContentScale
+		//SDL_GetWindowPixelDensity
+
+		LSG_Window::dpiScale = SDL_GetWindowDisplayScale(LSG_Window::window);
 	#else
 		LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
 	#endif

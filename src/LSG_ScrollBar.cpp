@@ -459,8 +459,8 @@ void LSG_ScrollBar::renderScrollThumbHorizontal(SDL_Renderer* renderer, const SD
 
 	auto sizeArrows = (scrollBarSize2x + (component->IsCards() && this->scrollVertical.show ? scrollBarSize : 0));
 
-	this->scrollHorizontal.thumb.w  = (int)ceil((double)(this->scrollHorizontal.thumb.w + sizeArrows) * this->scrollHorizontal.clipFactor);
-	this->scrollHorizontal.thumb.x += (int)ceil((double)this->scrollHorizontal.offset * this->scrollHorizontal.clipFactor);
+	this->scrollHorizontal.thumb.w  = (int)std::ceil((double)(this->scrollHorizontal.thumb.w + sizeArrows) * this->scrollHorizontal.clipFactor);
+	this->scrollHorizontal.thumb.x += (int)std::ceil((double)this->scrollHorizontal.offset * this->scrollHorizontal.clipFactor);
 
 	if (this->scrollHorizontal.thumb.w >= LSG_Window::GetDPIScaled(LSG_ScrollBar::ThumbRadius2x))
 	{
@@ -495,8 +495,8 @@ void LSG_ScrollBar::renderScrollThumbVertical(SDL_Renderer* renderer, const SDL_
 
 	auto sizeArrows = (scrollBarSize2x + (component->IsCards() && this->scrollHorizontal.show ? scrollBarSize : 0));
 
-	this->scrollVertical.thumb.h  = (int)ceil((double)(this->scrollVertical.thumb.h + sizeArrows) * this->scrollVertical.clipFactor);
-	this->scrollVertical.thumb.y += (int)ceil((double)this->scrollVertical.offset * this->scrollVertical.clipFactor);
+	this->scrollVertical.thumb.h  = (int)std::ceil((double)(this->scrollVertical.thumb.h + sizeArrows) * this->scrollVertical.clipFactor);
+	this->scrollVertical.thumb.y += (int)std::ceil((double)this->scrollVertical.offset * this->scrollVertical.clipFactor);
 
 	if (this->scrollVertical.thumb.h >= LSG_Window::GetDPIScaled(LSG_ScrollBar::ThumbRadius2x))
 	{

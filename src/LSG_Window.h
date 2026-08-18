@@ -15,7 +15,7 @@ private:
     static SDL_Window*   window;
 
     #if defined _ios
-        UIWindow* uiWindow;
+        static UIWindow* uiWindow;
     #endif
 
 public:
@@ -58,7 +58,6 @@ public:
         static LSG_Strings OpenFolders();
         static std::string SaveFile(const LSG_Strings& filters);
     #elif defined _android
-        static float       getDPIScale();
         static std::string OpenFile(const LSG_Strings& filters);
         static std::string OpenFolder();
         static std::string SaveFile(const LSG_Strings& filters);

@@ -2,6 +2,7 @@
 #define LSG_MAIN_H
 
 #include <algorithm> // min/max()
+#include <cmath>     // ceil()
 #include <cstdio>    // snprintf()
 #include <cstring>   // strlen(), strtok()
 #include <cwchar>    // wcslen()
