@@ -2084,7 +2084,7 @@ void LSG_SetHeight(const std::string& id, double percent, bool layout)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	auto height = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
+	auto height = std::format("{}%", (int)ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", height);
 
@@ -2313,8 +2313,8 @@ void LSG_SetSize(const std::string& id, double width, double height, bool layout
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	auto w = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, width))  * 100.0));
-	auto h = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, height)) * 100.0));
+	auto w = std::format("{}%", (int)ceil(std::max(0.0, std::min(1.0, width))  * 100.0));
+	auto h = std::format("{}%", (int)ceil(std::max(0.0, std::min(1.0, height)) * 100.0));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width",  w);
 	LSG_XML::SetAttribute(component->GetXmlNode(), "height", h);
@@ -2614,7 +2614,7 @@ void LSG_SetWidth(const std::string& id, double percent, bool layout)
 	if (!component)
 		throw std::invalid_argument(getErrorNoID("", id));
 
-	auto width = std::format("{}%", (int)std::ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
+	auto width = std::format("{}%", (int)ceil(std::max(0.0, std::min(1.0, percent)) * 100.0));
 
 	LSG_XML::SetAttribute(component->GetXmlNode(), "width", width);
 
