@@ -107,10 +107,10 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 	#if defined _macosx
 		SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 	#elif defined _linux
-		SDL_setenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN", "0", 1);
+		SDL_setenv_unsafe("SDL_VIDEO_X11_LEGACY_FULLSCREEN", "0", 1);
 
 		if (!std::getenv("DISPLAY"))
-			SDL_setenv("DISPLAY", ":0", 1);
+			SDL_setenv_unsafe("DISPLAY", ":0", 1);
 	#elif defined _windows
 		#if (WINVER >= 0x0605)
 			SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
