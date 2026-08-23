@@ -12,8 +12,8 @@ private:
 private:
 	static bool           isColumnResize;
 	static bool           isMouseDown;
-	static uint32_t       lastClickTime;
-	static uint32_t       lastClickTime2;
+	static uint64_t       lastClickTime;
+	static uint64_t       lastClickTime2;
 	static LSG_Component* lastComponent;
 	static SDL_Event      lastEvent;
 	static LSG_Component* textInput;

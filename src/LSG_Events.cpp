@@ -2,8 +2,8 @@
 
 bool           LSG_Events::isColumnResize = false;
 bool           LSG_Events::isMouseDown    = false;
-uint32_t       LSG_Events::lastClickTime  = 0;
-uint32_t       LSG_Events::lastClickTime2 = 0;
+uint64_t       LSG_Events::lastClickTime  = 0;
+uint64_t       LSG_Events::lastClickTime2 = 0;
 LSG_Component* LSG_Events::lastComponent  = nullptr;
 SDL_Event      LSG_Events::lastEvent      = {};
 LSG_Component* LSG_Events::textInput      = nullptr;

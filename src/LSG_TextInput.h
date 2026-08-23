@@ -16,7 +16,7 @@ private:
 	bool        highlightedIconClear;
 	int         highlightedTextLength;
 	SDL_Size    highlightedTextSize;
-	uint32_t    lastCursorActive;
+	uint64_t    lastCursorActive;
 	int         maxIconSize;
 	std::string placeholder;
 	SDL_Size    textSize;
