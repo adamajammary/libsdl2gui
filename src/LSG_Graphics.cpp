@@ -834,10 +834,10 @@ void LSG_Graphics::RenderFillCircleWithBorder(
 
 void LSG_Graphics::RenderFill(SDL_Renderer* renderer, const SDL_Rect* dest)
 {
+	SDL_FRect  destF  = {};
 	SDL_FRect* destFP = nullptr;
 
 	if (dest) {
-		SDL_FRect destF;
 		SDL_RectToFRect(dest, &destF);
 		destFP = &destF;
 	}
@@ -989,17 +989,15 @@ void LSG_Graphics::RenderRoundedCornersTop(
 
 void LSG_Graphics::RenderTexture(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect* clip, const SDL_Rect* dest)
 {
-	SDL_FRect* destFP = nullptr;
-	SDL_FRect* clipFP = nullptr;
+	SDL_FRect  destF = {}, clipF = {};
+	SDL_FRect* destFP = nullptr, *clipFP = nullptr;
 
 	if (dest) {
-		SDL_FRect destF;
 		SDL_RectToFRect(dest, &destF);
 		destFP = &destF;
 	}
 
 	if (clip) {
-		SDL_FRect clipF;
 		SDL_RectToFRect(clip, &clipF);
 		clipFP = &clipF;
 	}
@@ -1037,24 +1035,24 @@ void LSG_Graphics::RenderTextureRotated(
 	SDL_FlipMode     flip
 )
 {
-	SDL_FRect*  destFP   = nullptr;
-	SDL_FRect*  clipFP   = nullptr;
+	SDL_FPoint centerF = {};
+	SDL_FRect  destF   = {}, clipF = {};
+
 	SDL_FPoint* centerFP = nullptr;
+	SDL_FRect*  destFP   = nullptr, * clipFP = nullptr;
 
 	if (dest) {
-		SDL_FRect destF;
 		SDL_RectToFRect(dest, &destF);
 		destFP = &destF;
 	}
 
 	if (clip) {
-		SDL_FRect clipF;
 		SDL_RectToFRect(clip, &clipF);
 		clipFP = &clipF;
 	}
 
 	if (center) {
-		SDL_FPoint centerF = { (float)center->x, (float)center->y };
+		centerF = { (float)center->x, (float)center->y };
 		centerFP = &centerF;
 	}
 
