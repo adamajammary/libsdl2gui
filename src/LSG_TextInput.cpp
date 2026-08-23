@@ -142,12 +142,9 @@ size_t LSG_TextInput::getIndex(int mousePositionX)
 
 		if (this->value[index] < 0)
 		{
-			auto text = this->value.substr(index, 2);
-
+			auto text  = this->value.substr(index, 2);
 			auto utf16 = LSG_Text::ToUTF16(text);
-			auto utf8  = LSG_Text::ToUTF8(utf16);
-
-			auto font = fontDefault;
+			auto font  = fontDefault;
 
 			if (!LSG_Text::FontSupportsText(font, utf16))
 			{
@@ -157,7 +154,7 @@ size_t LSG_TextInput::getIndex(int mousePositionX)
 				font = fontCJK;
 			}
 
-			TTF_GetStringSize(font, utf8.c_str(), utf8.size(), &width, nullptr);
+			TTF_GetStringSize(font, text.c_str(), text.size(), &width, nullptr);
 
 			SDL_free(utf16);
 		}
@@ -650,22 +647,19 @@ void LSG_TextInput::setCursor()
 
 	auto fontSize = this->getFontSize();
 
-	auto cursorTextUTF16 = LSG_Text::ToUTF16(this->value.substr(0, this->cursorPosition));
-	auto cursorTextUTF8  = LSG_Text::ToUTF8(cursorTextUTF16);
+	auto cursorText      = this->value.substr(0, this->cursorPosition);
+	auto cursorTextUTF16 = LSG_Text::ToUTF16(cursorText);
+	auto cursorFont      = LSG_Text::GetFont(fontSize, cursorTextUTF16);
 
-	auto cursorFont = LSG_Text::GetFont(fontSize, cursorTextUTF16);
-
-	TTF_GetStringSize(cursorFont, cursorTextUTF8.c_str(), cursorTextUTF8.size(), &this->cursorTextWidth, nullptr);
+	TTF_GetStringSize(cursorFont, cursorText.c_str(), cursorText.size(), &this->cursorTextWidth, nullptr);
 
 	TTF_CloseFont(cursorFont);
 	SDL_free(cursorTextUTF16);
 
 	auto textUTF16 = LSG_Text::ToUTF16(this->value);
-	auto textUTF8  = LSG_Text::ToUTF8(textUTF16);
+	auto font      = LSG_Text::GetFont(fontSize, textUTF16);
 
-	auto font = LSG_Text::GetFont(fontSize, textUTF16);
-
-	TTF_GetStringSize(font, textUTF8.c_str(), textUTF8.size(), &this->textSize.width, &this->textSize.height);
+	TTF_GetStringSize(font, this->value.c_str(), this->value.size(), &this->textSize.width, &this->textSize.height);
 
 	TTF_CloseFont(font);
 	SDL_free(textUTF16);
@@ -675,15 +669,14 @@ void LSG_TextInput::setCursor()
 		auto start  = std::min((this->cursorPosition + this->highlightedTextLength), this->cursorPosition);
 		auto length = std::abs(this->highlightedTextLength);
 
-		auto highlightedTextUTF16 = LSG_Text::ToUTF16(this->value.substr(start, length));
-		auto highlightedTextUTF8  = LSG_Text::ToUTF8(highlightedTextUTF16);
-
-		auto highlightedFont = LSG_Text::GetFont(fontSize, highlightedTextUTF16);
+		auto highlightedText      = this->value.substr(start, length);
+		auto highlightedTextUTF16 = LSG_Text::ToUTF16(highlightedText);
+		auto highlightedFont      = LSG_Text::GetFont(fontSize, highlightedTextUTF16);
 
 		TTF_GetStringSize(
 			highlightedFont,
-			highlightedTextUTF8.c_str(),
-			highlightedTextUTF8.size(),
+			highlightedText.c_str(),
+			highlightedText.size(),
 			&this->highlightedTextSize.width,
 			&this->highlightedTextSize.height
 		);

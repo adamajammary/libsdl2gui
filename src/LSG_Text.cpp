@@ -113,18 +113,16 @@ SDL_Surface* LSG_Text::getSurface(const std::string& text, int fontSize, int fon
 	LSG_Text::surfaceLock.lock();
 
 	auto textUTF16 = LSG_Text::ToUTF16(text);
-	auto textUTF8  = LSG_Text::ToUTF8(textUTF16);
-
-	auto font = LSG_Text::GetFont(fontSize, textUTF16);
+	auto font      = LSG_Text::GetFont(fontSize, textUTF16);
 
 	TTF_SetFontStyle(font, fontStyle);
 
 	SDL_Surface* surface = nullptr;
 
 	if (wrap)
-		surface = TTF_RenderText_Blended_Wrapped(font, textUTF8.c_str(), textUTF8.size(), textColor, 0);
+		surface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), text.size(), textColor, 0);
 	else
-		surface = TTF_RenderText_Blended(font, textUTF8.c_str(), textUTF8.size(), textColor);
+		surface = TTF_RenderText_Blended(font, text.c_str(), text.size(), textColor);
 
 	TTF_CloseFont(font);
 	SDL_free(textUTF16);
@@ -272,13 +270,6 @@ std::string LSG_Text::ToUTF8(const std::wstring& wide)
 	SDL_free(buffer);
 
     return utf8;
-}
-
-std::string LSG_Text::ToUTF8(uint16_t* utf16)
-{
-	auto wide = std::wstring(reinterpret_cast<const wchar_t*>(utf16));
-
-	return LSG_Text::ToUTF8(wide);
 }
 
 uint16_t* LSG_Text::ToUTF16(const std::string& text)

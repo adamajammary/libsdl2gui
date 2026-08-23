@@ -31,7 +31,6 @@ public:
 	static std::string         ToLower(const std::string& text);
 	static std::string         ToUpper(const std::string& text);
 	static std::string         ToUTF8(const std::wstring& wide);
-	static std::string         ToUTF8(uint16_t* utf16);
 	static uint16_t*           ToUTF16(const std::string& text);
 	static std::wstring        ToWide(const  std::string& text);
 	static std::string         Trim(const    std::string& text);
