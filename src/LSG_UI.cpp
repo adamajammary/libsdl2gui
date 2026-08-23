@@ -154,7 +154,7 @@ SDL_Point LSG_UI::GetAlignedPosition(const SDL_Point& offsetPosition, int conten
 
 SDL_Rect LSG_UI::GetBackgroundArea()
 {
-	auto windowSize = LSG_Window::GetSize();
+	auto windowSize = LSG_Window::GetSizeInPixels();
 
 	#if defined _ios
 		UIWindow* window = [UIApplication sharedApplication].windows.firstObject;

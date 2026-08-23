@@ -24,7 +24,7 @@ public:
     static SDL_Size      GetMinimumSize();
     static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();
-    static SDL_Size      GetSize();
+    static SDL_Size      GetSizeInPixels();
     static SDL_FPoint    GetSizeScale();
     static std::string   GetTitle();
     static void          InitRenderTarget(SDL_Texture* &renderTarget, const SDL_Size& textureSize);

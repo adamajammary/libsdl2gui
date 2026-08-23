@@ -73,7 +73,7 @@ SDL_Point LSG_Window::GetPosition()
 /**
  * @throws runtime_error
  */
-SDL_Size LSG_Window::GetSize()
+SDL_Size LSG_Window::GetSizeInPixels()
 {
 	auto renderTarget = SDL_GetRenderTarget(LSG_Window::renderer);
 
@@ -82,7 +82,7 @@ SDL_Size LSG_Window::GetSize()
 	if (!SDL_SetRenderTarget(LSG_Window::renderer, nullptr))
 		throw std::runtime_error(std::format("Failed to set render target: {}", SDL_GetError()));
 
-	SDL_GetCurrentRenderOutputSize(LSG_Window::renderer, &size.width, &size.height);
+	SDL_GetRenderOutputSize(LSG_Window::renderer, &size.width, &size.height);
 
 	SDL_SetRenderTarget(LSG_Window::renderer, renderTarget);
 
@@ -94,7 +94,7 @@ SDL_FPoint LSG_Window::GetSizeScale()
 	if (!LSG_Window::window)
 		return { 1.0f, 1.0f };
 
-	auto sizeInPixels = LSG_Window::GetSize();
+	auto sizeInPixels = LSG_Window::GetSizeInPixels();
 
 	SDL_Size size = {};
 	SDL_GetWindowSize(LSG_Window::window, &size.width, &size.height);
@@ -903,19 +903,17 @@ std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 
 void LSG_Window::SetDPIScale()
 {
-	#if defined _android
-		// TODO: DPI Android?
+	// TODO: DPI Android?
 
-		//SDL_GetWindowSize
-		//SDL_GetWindowSizeInPixels
+	auto ds = SDL_GetWindowDisplayScale(LSG_Window::window);
+	auto pd = SDL_GetWindowPixelDensity(LSG_Window::window); // windows
+	auto cs = SDL_GetDisplayContentScale(SDL_GetWindowID(LSG_Window::window));
 
-		//SDL_GetDisplayContentScale
-		//SDL_GetWindowPixelDensity
+	LSG_Window::dpiScale = LSG_Window::GetSizeScale().x; // windows
 
-		LSG_Window::dpiScale = SDL_GetWindowDisplayScale(LSG_Window::window);
-	#else
-		LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
-	#endif
+	auto m = std::format("DS {:.2f} | PD {:.2f} | CS {:.2f} | DPI {:.2f}", ds, pd, cs, LSG_Window::dpiScale);
+
+	SDL_ShowSimpleMessageBox(0, "DPI", m.c_str(), LSG_Window::window);
 }
 
 void LSG_Window::SetMaximized(bool maximized)

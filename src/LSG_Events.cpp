@@ -14,7 +14,7 @@ SDL_Point LSG_Events::getMousePosition(const SDL_Event& event)
 
 	if ((event.type == SDL_EVENT_FINGER_DOWN) || (event.type == SDL_EVENT_FINGER_UP) || (event.type == SDL_EVENT_FINGER_MOTION))
 	{
-		auto size = LSG_Window::GetSize();
+		auto size = LSG_Window::GetSizeInPixels();
 		position  = { (int)(event.tfinger.x * (float)size.width), (int)(event.tfinger.y * (float)size.height) };
 
 		return position;

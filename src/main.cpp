@@ -1045,7 +1045,7 @@ SDL_Size LSG_GetWindowSize()
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::GetSize();
+	return LSG_Window::GetSizeInPixels();
 }
 
 std::string LSG_GetWindowTitle()
