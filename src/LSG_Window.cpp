@@ -212,11 +212,20 @@ void LSG_Window::OpenTest()
 #if defined _linux
 LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
 {
+	printf("openFiles 1\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "1", LSG_Window::window);
+
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv_unsafe("DISPLAY", ":0", 1);
 
+	printf("openFiles 2\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "2", LSG_Window::window);
+
 	if (!gtk_init_check(0, nullptr))
 		return {};
+
+	printf("openFiles 3\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "3", LSG_Window::window);
 
 	auto dialog = gtk_file_chooser_dialog_new(
 		(openFolder ? "Select a folder" : "Select a file"),
@@ -229,6 +238,9 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 		nullptr
 	);
 
+	printf("openFiles 4\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "4", LSG_Window::window);
+
 	if (!filters.empty())
 	{
 		auto fileFilter = gtk_file_filter_new();
@@ -239,12 +251,21 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
 	}
 
+	printf("openFiles 5\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "5", LSG_Window::window);
+
 	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
+
+	printf("openFiles 6\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "6", LSG_Window::window);
 
 	LSG_Strings filePaths;
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
 	{
+		printf("openFiles 7A\n");
+		SDL_ShowSimpleMessageBox(0, "openFiles", "7A", LSG_Window::window);
+
 		GSList* paths = nullptr;
 
 		for (paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog)); paths != nullptr; paths = paths->next)
@@ -267,12 +288,24 @@ LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, 
 
 		if (paths)
 			g_slist_free(paths);
+
+		printf("openFiles 7B\n");
+		SDL_ShowSimpleMessageBox(0, "openFiles", "7B", LSG_Window::window);
 	}
+
+	printf("openFiles 8\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "8", LSG_Window::window);
 
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
+	printf("openFiles 9\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "9", LSG_Window::window);
+
 	while (gtk_events_pending())
 		gtk_main_iteration();
+
+	printf("openFiles 10\n");
+	SDL_ShowSimpleMessageBox(0, "openFiles", "10", LSG_Window::window);
 
 	return filePaths;
 }
