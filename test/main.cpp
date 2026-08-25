@@ -62,6 +62,10 @@ static void handleKeyEvent(const SDL_KeyboardEvent& event)
         setColorTheme("MenuIdColorThemeLight", "ui/light.colortheme");
     else if (isShift && (key == SDLK_F1))
         LSG_OpenModal("ModalIdAbout");
+    else if (key == SDLK_F)
+        LSG_OpenFiles();
+    else if (key == SDLK_D)
+        LSG_OpenFolders();
 }
 
 static void handleRowEvent(const std::string& id, const std::vector<int>& rows)
