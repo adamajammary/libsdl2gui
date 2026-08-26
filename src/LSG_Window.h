@@ -16,6 +16,9 @@ private:
 
     #if defined _ios
         static UIWindow* uiWindow;
+    #elif defined _linux
+        static std::string path;
+        static LSG_Strings paths;
     #endif
 
 public:
@@ -46,20 +49,23 @@ public:
     static SDL_Texture*  ToTexture(SDL_Surface* surface);
 
     #if defined _windows
-        static std::wstring              OpenFile(const LSG_Strings& filters);
+        static std::wstring              OpenFile(const  LSG_Strings& filters);
         static std::vector<std::wstring> OpenFiles(const LSG_Strings& filters);
         static std::wstring              OpenFolder();
         static std::vector<std::wstring> OpenFolders();
         static std::wstring              SaveFile(const LSG_Strings& filters);
     #elif defined _linux || defined _macosx
-        static std::string OpenFile(const LSG_Strings& filters);
+        static std::string OpenFile(const  LSG_Strings& filters);
         static LSG_Strings OpenFiles(const LSG_Strings& filters);
+
         static std::string OpenFolder();
         static LSG_Strings OpenFolders();
+
         static std::string SaveFile(const LSG_Strings& filters);
     #elif defined _android
         static std::string OpenFile(const LSG_Strings& filters);
         static std::string OpenFolder();
+
         static std::string SaveFile(const LSG_Strings& filters);
     #elif defined _ios
         static void OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> resultsCallback, bool allowMultipleSelection);
@@ -81,6 +87,20 @@ private:
         static LSG_Strings openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters);
     #elif defined _android
         static std::string pickFile(const LSG_Strings& filters, bool saveFile = false);
+    #endif
+
+    #if defined _linux
+        static LSG_Strings getPaths(GFile* file);
+        static LSG_Strings getPaths(GListModel* files);
+
+        static void openFileCB(GObject*           source, GAsyncResult* result, gpointer user_data);
+        static void openFileMultipleCB(GObject*   source, GAsyncResult* result, gpointer user_data);
+        static void openFolderCB(GObject*         source, GAsyncResult* result, gpointer user_data);
+        static void openFolderMultipleCB(GObject* source, GAsyncResult* result, gpointer user_data);
+
+        static void saveFileCB(GObject* source, GAsyncResult* result, gpointer user_data);
+
+        static void setFilters(const LSG_Strings& filters, GtkFileDialog* dialog);
     #endif
 };
 

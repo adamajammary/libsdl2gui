@@ -6,6 +6,9 @@ SDL_Window*   LSG_Window::window    = nullptr;
 
 #if defined _ios
     UIWindow* LSG_Window::uiWindow = nil;
+#elif defined _linux
+	std::string LSG_Window::path  = "";
+	LSG_Strings LSG_Window::paths = {};
 #endif
 
 void LSG_Window::Close()
@@ -210,104 +213,117 @@ void LSG_Window::OpenTest()
 #endif
 
 #if defined _linux
-LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
+LSG_Strings LSG_Window::getPaths(GFile* file)
 {
-	printf("openFiles 1\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "1", LSG_Window::window);
-
-	if (std::strlen(std::getenv("DISPLAY")) == 0)
-		SDL_setenv_unsafe("DISPLAY", ":0", 1);
-
-	printf("openFiles 2\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "2", LSG_Window::window);
-
-	if (!gtk_init_check(0, nullptr))
+	if (!file)
 		return {};
 
-	printf("openFiles 3\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "3", LSG_Window::window);
+	LSG_Strings paths = { std::string(g_file_get_path(file)) };
 
-	auto dialog = gtk_file_chooser_dialog_new(
-		(openFolder ? "Select a folder" : "Select a file"),
-		nullptr,
-		(openFolder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN),
-		"_Cancel",
-		GTK_RESPONSE_CANCEL,
-		"_Open",
-		GTK_RESPONSE_ACCEPT,
-		nullptr
-	);
+	g_object_unref(file);
 
-	printf("openFiles 4\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "4", LSG_Window::window);
+	return paths;
+}
 
-	if (!filters.empty())
+LSG_Strings LSG_Window::getPaths(GListModel* files)
+{
+	if (!files)
+		return {};
+
+	LSG_Strings paths;
+
+	for (auto i = 0; i < g_list_model_get_n_items(files); i++)
+	{
+		auto item = g_list_model_get_object(files, i);
+		auto path = std::string(g_file_get_path(G_FILE(item)));
+
+		paths.push_back(path);
+
+		g_object_unref(item);
+	}
+
+	return paths;
+}
+
+void LSG_Window::openFileCB(GObject* source, GAsyncResult* result, gpointer user_data)
+{
+	auto file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(source), result, nullptr);
+
+	LSG_Window::paths = LSG_Window::getPaths(file);
+}
+
+void LSG_Window::openFileMultipleCB(GObject* source, GAsyncResult* result, gpointer user_data)
+{
+	auto files = gtk_file_dialog_open_multiple_finish(GTK_FILE_DIALOG(source), result, nullptr);
+
+	LSG_Window::paths = LSG_Window::getPaths(files);
+}
+
+void LSG_Window::openFolderCB(GObject* source, GAsyncResult* result, gpointer user_data)
+{
+	auto folder = gtk_file_dialog_select_folder_finish(GTK_FILE_DIALOG(source), result, nullptr);
+
+	LSG_Window::paths = LSG_Window::getPaths(folder);
+}
+
+void LSG_Window::openFolderMultipleCB(GObject* source, GAsyncResult* result, gpointer user_data)
+{
+	auto folders = gtk_file_dialog_select_multiple_folders_finish(GTK_FILE_DIALOG(source), result, nullptr);
+
+	LSG_Window::paths = LSG_Window::getPaths(folders);
+}
+
+void LSG_Window::setFilters(const LSG_Strings& filters, GtkFileDialog* dialog)
+{
+	if (filters.empty())
+		return;
+
+	auto filterList = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+	for (const auto& filter : filters)
 	{
 		auto fileFilter = gtk_file_filter_new();
 
-		for (const auto& filter : filters)
-			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+		gtk_file_filter_add_pattern(fileFilter, filter.c_str());
 
-		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
+		g_list_store_append(filterList, fileFilter);
 	}
 
-	printf("openFiles 5\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "5", LSG_Window::window);
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filterList));
+}
 
-	gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), allowMultipleSelection);
+LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
+{
+	if (std::strlen(std::getenv("DISPLAY")) == 0)
+		SDL_setenv_unsafe("DISPLAY", ":0", 1);
 
-	printf("openFiles 6\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "6", LSG_Window::window);
+	if (!gtk_init_check())
+		return {};
 
-	LSG_Strings filePaths;
+	auto dialog = gtk_file_dialog_new();
 
-	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
-	{
-		printf("openFiles 7A\n");
-		SDL_ShowSimpleMessageBox(0, "openFiles", "7A", LSG_Window::window);
+	LSG_Window::setFilters(filters, dialog);
 
-		GSList* paths = nullptr;
+	LSG_Window::paths.clear();
 
-		for (paths = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog)); paths != nullptr; paths = paths->next)
-		{
-			auto selectedPath = (gchar*)paths->data;
-
-			if (!selectedPath)
-				continue;
-
-			auto filePath = std::string(selectedPath);
-
-			if (filePath.substr(0, 7) == "file://")
-				filePath = filePath.substr(7);
-
-			if (!filePath.empty())
-				filePaths.push_back(filePath);
-
-			g_free(selectedPath);
-		}
-
-		if (paths)
-			g_slist_free(paths);
-
-		printf("openFiles 7B\n");
-		SDL_ShowSimpleMessageBox(0, "openFiles", "7B", LSG_Window::window);
+	if (openFolder) {
+		if (allowMultipleSelection)
+			gtk_file_dialog_select_multiple_folders(dialog, nullptr, nullptr, openFolderMultipleCB, nullptr);
+		else
+			gtk_file_dialog_select_folder(dialog, nullptr, nullptr, openFolderCB, nullptr);
+	} else {
+		if (allowMultipleSelection)
+			gtk_file_dialog_open_multiple(dialog, nullptr, nullptr, openFileMultipleCB, nullptr);
+		else
+			gtk_file_dialog_open(dialog, nullptr, nullptr, openFileCB, nullptr);
 	}
 
-	printf("openFiles 8\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "8", LSG_Window::window);
+	g_object_unref(dialog);
 
-	gtk_widget_destroy(GTK_WIDGET(dialog));
+	while (g_list_model_get_n_items(gtk_window_get_toplevels()) > 0)
+		g_main_context_iteration(nullptr, TRUE);
 
-	printf("openFiles 9\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "9", LSG_Window::window);
-
-	while (gtk_events_pending())
-		gtk_main_iteration();
-
-	printf("openFiles 10\n");
-	SDL_ShowSimpleMessageBox(0, "openFiles", "10", LSG_Window::window);
-
-	return filePaths;
+	return LSG_Window::paths;
 }
 #elif defined _macosx
 LSG_Strings LSG_Window::openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters)
@@ -792,55 +808,40 @@ std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 	return LSG_Window::pickFile(filters, true);
 }
 #elif defined _linux
+void LSG_Window::saveFileCB(GObject* source, GAsyncResult* result, gpointer user_data)
+{
+	auto file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source), result, nullptr);
+
+	if (!file)
+		return;
+
+	LSG_Window::path = std::string(g_file_get_path(file));
+
+	g_object_unref(file);
+}
+
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)
 {
 	if (std::strlen(std::getenv("DISPLAY")) == 0)
 		SDL_setenv_unsafe("DISPLAY", ":0", 1);
 
-	if (!gtk_init_check(0, nullptr))
+	if (!gtk_init_check())
 		return "";
 
-	auto dialog = gtk_file_chooser_dialog_new(
-		"Save File",
-		nullptr,
-		GTK_FILE_CHOOSER_ACTION_SAVE,
-		"_Cancel",
-		GTK_RESPONSE_CANCEL,
-		"_Save",
-		GTK_RESPONSE_ACCEPT,
-		nullptr
-	);
+	auto dialog = gtk_file_dialog_new();
 
-	if (!filters.empty())
-	{
-		auto fileFilter = gtk_file_filter_new();
+	LSG_Window::setFilters(filters, dialog);
 
-		for (const auto& filter : filters)
-			gtk_file_filter_add_pattern(fileFilter, filter.c_str());
+	LSG_Window::path = "";
 
-		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), fileFilter);
-	}
+	gtk_file_dialog_save(dialog, nullptr, nullptr, saveFileCB, nullptr);
 
-	std::string filePath = "";
+	g_object_unref(dialog);
 
-	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
-	{
-		auto selectedPath = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	while (g_list_model_get_n_items(gtk_window_get_toplevels()) > 0)
+		g_main_context_iteration(nullptr, TRUE);
 
-		filePath = std::string(selectedPath);
-
-		if (filePath.substr(0, 7) == "file://")
-			filePath = filePath.substr(7);
-
-		g_free(selectedPath);
-	}
-
-	gtk_widget_destroy(GTK_WIDGET(dialog));
-
-	while (gtk_events_pending())
-		gtk_main_iteration();
-
-	return filePath;
+	return LSG_Window::path;
 }
 #elif defined _macosx
 std::string LSG_Window::SaveFile(const LSG_Strings& filters)

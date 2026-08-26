@@ -1325,9 +1325,7 @@ void LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback)
 
     LSG_Window::OpenFileDocuments(resultsCallback, false);
 }
-#endif
 
-#if defined _ios
 void LSG_OpenFiles(std::function<void(NSArray<NSURL*>*)> resultsCallback)
 {
     if (!isRunning)
@@ -1335,9 +1333,7 @@ void LSG_OpenFiles(std::function<void(NSArray<NSURL*>*)> resultsCallback)
 
     LSG_Window::OpenFileDocuments(resultsCallback, true);
 }
-#endif
 
-#if defined _ios
 void LSG_OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback)
 {
     if (!isRunning)
@@ -1345,9 +1341,7 @@ void LSG_OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback)
 
     LSG_Window::OpenFolder(resultsCallback);
 }
-#endif
 
-#if defined _ios
 void LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback)
 {
     if (!isRunning)
@@ -1355,9 +1349,7 @@ void LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallba
 
     LSG_Window::OpenFileMedia(resultsCallback, false);
 }
-#endif
 
-#if defined _ios
 void LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback)
 {
     if (!isRunning)
@@ -1401,9 +1393,7 @@ void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCal
 
     LSG_Window::OpenFilePhotos(resultsCallback, false);
 }
-#endif
 
-#if defined _ios
 void LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
 {
     if (!isRunning)
