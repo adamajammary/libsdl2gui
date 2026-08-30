@@ -1,5 +1,3 @@
-#define SDL_MAIN_HANDLED
-
 #include <cstdio> // snprintf(x)
 #include <format>
 
@@ -8,6 +6,10 @@
 #endif
 
 #include <libsdlui.h>
+
+extern "C" {
+	#include "SDL3/SDL_main.h"
+}
 
 static void setColorTheme(const std::string& menuItemId, const std::string& colorThemeFile, bool isInit = false)
 {
@@ -210,13 +212,7 @@ static void render(SDL_Renderer* renderer)
     SDL_RenderFillRect(renderer, &destination);
 }
 
-#if defined _windows && defined _DEBUG
-int wmain(int argc, wchar_t* argv[])
-#elif defined _windows && defined NDEBUG
-int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
-#else
 int main(int argc, char* argv[])
-#endif
 {
     try
     {
