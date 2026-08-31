@@ -1432,7 +1432,7 @@ Exceptions
 ### LSG_GetDPIScaled
 
 ```cpp
-int LSG_GetDPIScaled(int value);
+int LSG_GetDPIScaled(int value, bool inverse = false);
 ```
 
 Returns a scaled value relative to the display DPI factor.

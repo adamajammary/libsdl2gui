@@ -328,12 +328,12 @@ std::string LSG_GetColorTheme()
 	return LSG_UI::GetColorTheme();
 }
 
-int LSG_GetDPIScaled(int value)
+int LSG_GetDPIScaled(int value, bool inverse)
 {
 	if (!isRunning)
 		throw std::runtime_error(ERROR_NOT_STARTED);
 
-	return LSG_Window::GetDPIScaled(value);
+	return LSG_Window::GetDPIScaled(value, inverse);
 }
 
 LSG_File LSG_GetFile(const std::string& filePath)

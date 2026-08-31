@@ -23,7 +23,7 @@ private:
 
 public:
     static void          Close();
-    static int           GetDPIScaled(int value);
+    static int           GetDPIScaled(int value, bool inverse = false);
     static SDL_Size      GetMinimumSize();
     static SDL_Point     GetMousePosition();
     static SDL_Point     GetPosition();

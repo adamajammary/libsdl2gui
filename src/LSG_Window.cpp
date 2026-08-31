@@ -24,8 +24,11 @@ void LSG_Window::Close()
 	}
 }
 
-int LSG_Window::GetDPIScaled(int value)
+int LSG_Window::GetDPIScaled(int value, bool inverse)
 {
+	if (inverse)
+		return (int)((float)value / LSG_Window::dpiScale);
+
 	return (int)((float)value * LSG_Window::dpiScale);
 }
 
@@ -937,16 +940,7 @@ std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 
 void LSG_Window::SetDPIScale()
 {
-	// TODO: DPI Android?
-
-	//auto ds = SDL_GetWindowDisplayScale(LSG_Window::window);
-	//auto pd = SDL_GetWindowPixelDensity(LSG_Window::window);
-	//auto cs = SDL_GetDisplayContentScale(SDL_GetWindowID(LSG_Window::window));
-
 	LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
-
-	//auto m = std::format("DS {:.2f} | PD {:.2f} | CS {:.2f} | DPI {:.2f}", ds, pd, cs, LSG_Window::dpiScale);
-	//SDL_ShowSimpleMessageBox(0, "DPI", m.c_str(), LSG_Window::window);
 }
 
 void LSG_Window::SetMaximized(bool maximized)

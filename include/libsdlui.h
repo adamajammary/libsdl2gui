@@ -343,7 +343,7 @@ DLLEXPORT std::string DLL LSG_GetColorTheme();
  * @returns a scaled value relative to the display DPI factor
  * @throws runtime_error
  */
-DLLEXPORT int DLL LSG_GetDPIScaled(int value);
+DLLEXPORT int DLL LSG_GetDPIScaled(int value, bool inverse = false);
 
 /**
  * @returns a file structure based on filePath
