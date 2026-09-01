@@ -1,8 +1,8 @@
 // This is the main activity of the app, you can add your custom JNI methods here.
 
-package com.libsdlui.test;
+package com.sdlui.app;
 
-import com.libsdlui.app.SDLUIActivity;
+import com.sdlui.lib.SDLUIActivity;
 
 public class MainActivity extends SDLUIActivity
 {
