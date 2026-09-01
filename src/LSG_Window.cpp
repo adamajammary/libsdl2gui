@@ -940,7 +940,11 @@ std::wstring LSG_Window::SaveFile(const LSG_Strings& filters)
 
 void LSG_Window::SetDPIScale()
 {
-	LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
+	#if defined _android
+		LSG_Window::dpiScale = SDL_GetWindowDisplayScale(LSG_Window::window);
+	#else
+		LSG_Window::dpiScale = LSG_Window::GetSizeScale().x;
+	#endif
 }
 
 void LSG_Window::SetMaximized(bool maximized)
