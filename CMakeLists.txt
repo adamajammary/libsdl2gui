@@ -226,14 +226,14 @@ target_link_directories(testsdlui    PRIVATE ${LIB_DIR})
 target_link_libraries(testsdlui      PRIVATE sdlui ${OS_LIBS} ${LIBS} ${OS_TEST_LIBS} ${TEST_LIBS})
 
 if (IOS)
-    set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.libsdlui.test")
+    set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.sdlui.app")
     set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY    "1,2")
 
     set_target_properties(testsdlui PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST           "${INFO_PLIST}"
         MACOSX_BUNDLE_BUNDLE_NAME          "SDL UI Library"
         MACOSX_BUNDLE_COPYRIGHT            "(c) 2021 Adam A. Jammary (Jammary Studio)"
-        MACOSX_BUNDLE_GUI_IDENTIFIER       "com.libsdlui.test"
+        MACOSX_BUNDLE_GUI_IDENTIFIER       "com.sdlui.app"
         MACOSX_BUNDLE_ICON_FILE            "icon"
         MACOSX_BUNDLE_BUNDLE_VERSION       "1.7.0"
         MACOSX_BUNDLE_LONG_VERSION_STRING  "1.7.0"

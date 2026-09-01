@@ -1,10 +1,10 @@
 apply plugin: "com.android.application"
 
 android {
-  namespace "com.libsdlui.test"
+  namespace "com.sdlui.app"
 
   defaultConfig {
-    applicationId "com.libsdlui.test"
+    applicationId "com.sdlui.app"
     compileSdk 34
     minSdkVersion 29
     targetSdkVersion 34
