@@ -34,14 +34,12 @@ static void initBasePath()
 	if (!basePath.empty())
 		return;
 
-	auto prefPath = SDL_GetPrefPath(nullptr, nullptr);
+	auto path = SDL_GetAndroidInternalStoragePath();
 
-	if (!prefPath)
+	if (!path)
 		throw std::runtime_error(std::format("Failed to get an app-specific location where files can be written: {}", SDL_GetError()));
 
-	basePath = std::string(prefPath);
-
-	SDL_free(prefPath);
+	basePath = std::format("{}/", path);
 
 	auto jniAssetManager = LSG_AndroidJNI::GetAssetManager();
 	auto dirs            = { "fonts", "img", "ui" };
