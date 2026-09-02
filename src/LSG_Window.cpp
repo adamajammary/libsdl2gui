@@ -60,12 +60,39 @@ SDL_Size LSG_Window::GetMinimumSize()
 
 SDL_Point LSG_Window::GetMousePosition()
 {
-	float x, y;
-	SDL_GetMouseState(&x, &y);
+	if (SDL_GetCursor())
+	{
+		float x, y;
+		SDL_GetMouseState(&x, &y);
 
-	SDL_Point mousePosition = { (int)x, (int)y, };
+		return { (int)x, (int)y, };
+	}
 
-	return mousePosition;
+	int  touchDeviceCount;
+	auto touchDevices = SDL_GetTouchDevices(&touchDeviceCount);
+
+	if (!touchDevices || (touchDeviceCount < 1))
+		return {};
+
+	int  fingerCount;
+	auto fingers = SDL_GetTouchFingers(touchDevices[0], &fingerCount);
+
+	if (!fingers || (fingerCount < 1)) {
+		SDL_free(touchDevices);
+		return {};
+	}
+
+	auto windowSize = LSG_Window::GetSizeInPixels();
+
+	SDL_Point position = {
+		(int)(fingers[0]->x * (float)windowSize.width),
+		(int)(fingers[0]->y * (float)windowSize.height)
+	};
+
+	SDL_free(fingers);
+	SDL_free(touchDevices);
+
+	return position;
 }
 
 SDL_Point LSG_Window::GetPosition()
