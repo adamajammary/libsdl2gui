@@ -65,14 +65,20 @@ SDL_Point LSG_Window::GetMousePosition()
 		float x, y;
 		SDL_GetMouseState(&x, &y);
 
+		SDL_ShowSimpleMessageBox(0, "MOUSE_POSITION", std::format("{} {}", x, y).c_str(), LSG_Window::window);
+
 		return { (int)x, (int)y, };
 	}
+
+	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", "1", LSG_Window::window);
 
 	int  touchDeviceCount;
 	auto touchDevices = SDL_GetTouchDevices(&touchDeviceCount);
 
 	if (!touchDevices || (touchDeviceCount < 1))
 		return {};
+
+	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", "2", LSG_Window::window);
 
 	int  fingerCount;
 	auto fingers = SDL_GetTouchFingers(touchDevices[0], &fingerCount);
@@ -81,6 +87,8 @@ SDL_Point LSG_Window::GetMousePosition()
 		SDL_free(touchDevices);
 		return {};
 	}
+
+	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", "3", LSG_Window::window);
 
 	auto windowSize = LSG_Window::GetSizeInPixels();
 
@@ -91,6 +99,8 @@ SDL_Point LSG_Window::GetMousePosition()
 
 	SDL_free(fingers);
 	SDL_free(touchDevices);
+
+	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", std::format("{} {}", position.x, position.y).c_str(), LSG_Window::window);
 
 	return position;
 }
@@ -593,8 +603,8 @@ std::string LSG_Window::OpenFolder()
 
 	SDL_ShowSimpleMessageBox(0, "OPEN_FOLDER", "1", LSG_Window::window);
 
-	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-		SDL_Delay(10);
+	//while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
+	//	SDL_Delay(10);
 
 	SDL_ShowSimpleMessageBox(0, "OPEN_FOLDER", "2", LSG_Window::window);
 
@@ -630,8 +640,8 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 
 	SDL_ShowSimpleMessageBox(0, "PICK_FILE", "1", LSG_Window::window);
 
-	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-		SDL_Delay(10);
+	//while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
+	//	SDL_Delay(10);
 
 	SDL_ShowSimpleMessageBox(0, "PICK_FILE", "2", LSG_Window::window);
 
