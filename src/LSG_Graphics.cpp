@@ -1090,7 +1090,7 @@ void LSG_Graphics::RenderTooltip(SDL_Renderer* renderer, const std::string& text
 
 	// TEXT TEXTURE
 
-	auto fontSize  = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipFontSize);
+	auto fontSize  = LSG_Graphics::DefaultTooltipFontSize;
 	auto textId    = std::format("{}_text", id);
 	auto textColor = LSG_ConstDefaultColor::White;
 
@@ -1101,14 +1101,12 @@ void LSG_Graphics::RenderTooltip(SDL_Renderer* renderer, const std::string& text
 
 	// BACKGROUND
 
-	auto offsetCursor = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipOffsetCursor);
-
 	auto padding   = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipPadding);
 	auto padding2x = (padding + padding);
 
 	SDL_Rect backgroundDestination = {
 		position.x,
-		(position.y + offsetCursor),
+		(position.y + LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipOffsetCursor)),
 		(textSize.width  + padding2x),
 		(textSize.height + padding2x)
 	};
@@ -1123,15 +1121,12 @@ void LSG_Graphics::RenderTooltip(SDL_Renderer* renderer, const std::string& text
 	if ((backgroundDestination.y + backgroundDestination.h) > windowBottom)
 		backgroundDestination.y = (windowBottom - backgroundDestination.h);
 
-	auto borderRadius = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipBorderRadius);
-	auto borderWidth  = LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipBorderWidth);
-
 	LSG_Graphics::RenderFillWithRoundedBorder(
 		renderer,
 		LSG_ConstDefaultColor::Black,
 		LSG_ConstDefaultColor::White,
-		borderRadius,
-		borderWidth,
+		LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipBorderRadius),
+		LSG_Window::GetDPIScaled(LSG_Graphics::DefaultTooltipBorderWidth),
 		backgroundDestination,
 		std::format("{}_background", id)
 	);
