@@ -60,49 +60,15 @@ SDL_Size LSG_Window::GetMinimumSize()
 
 SDL_Point LSG_Window::GetMousePosition()
 {
-	if (SDL_HasMouse())
-	{
-		float x, y;
-		SDL_GetMouseState(&x, &y);
-
-		SDL_ShowSimpleMessageBox(0, "MOUSE_POSITION", std::format("{} {}", x, y).c_str(), LSG_Window::window);
-
-		return { (int)x, (int)y, };
-	}
-
-	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", "1", LSG_Window::window);
-
-	int  touchDeviceCount;
-	auto touchDevices = SDL_GetTouchDevices(&touchDeviceCount);
-
-	if (!touchDevices || (touchDeviceCount < 1))
+	if (!SDL_HasMouse())
 		return {};
 
-	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", "2", LSG_Window::window);
+	float x, y;
+	SDL_GetMouseState(&x, &y);
 
-	int  fingerCount;
-	auto fingers = SDL_GetTouchFingers(touchDevices[0], &fingerCount);
+	SDL_Point mousePosition = { (int)x, (int)y, };
 
-	if (!fingers || (fingerCount < 1)) {
-		SDL_free(touchDevices);
-		return {};
-	}
-
-	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", "3", LSG_Window::window);
-
-	auto windowSize = LSG_Window::GetSizeInPixels();
-
-	SDL_Point position = {
-		(int)(fingers[0]->x * (float)windowSize.width),
-		(int)(fingers[0]->y * (float)windowSize.height)
-	};
-
-	SDL_free(fingers);
-	SDL_free(touchDevices);
-
-	SDL_ShowSimpleMessageBox(0, "TOUCH_POSITION", std::format("{} {}", position.x, position.y).c_str(), LSG_Window::window);
-
-	return position;
+	return mousePosition;
 }
 
 SDL_Point LSG_Window::GetPosition()
@@ -593,17 +559,17 @@ std::string LSG_Window::OpenFile(const LSG_Strings& filters)
 
 std::string LSG_Window::OpenFolder()
 {
-	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
-	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
 	//auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
-	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity,  "ContentPath",      "Ljava/lang/String;");
-	auto jniOpenFolder       = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder",       "()V");
+	auto jniOpenFolder  = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder", "()V");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
 
 	//while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 	//    SDL_Delay(10);
 
+	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
 	auto openedFolder   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
 	auto folderUTF8     = jniEnvironment->GetStringUTFChars(openedFolder, nullptr);
 	auto selectedFolder = std::string(folderUTF8);
@@ -616,12 +582,11 @@ std::string LSG_Window::OpenFolder()
 
 std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 {
-	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
-	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
 	//auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity, "IsPickingContent", "Z");
-	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath",      "Ljava/lang/String;");
-	auto jniPickMethod       = (saveFile ? "SaveFile" : "OpenFile");
-	auto jniPickFile         = jniEnvironment->GetStaticMethodID(jniActivity, jniPickMethod, "(Ljava/lang/String;)V");
+	auto jniPickMethod  = (saveFile ? "SaveFile" : "OpenFile");
+	auto jniPickFile    = jniEnvironment->GetStaticMethodID(jniActivity, jniPickMethod, "(Ljava/lang/String;)V");
 
 	std::string filter = "";
 
@@ -635,9 +600,10 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	//while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 	//    SDL_Delay(10);
 
-	auto pickedFile   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
-	auto fileUTF8     = jniEnvironment->GetStringUTFChars(pickedFile, nullptr);
-	auto selectedFile = std::string(fileUTF8);
+	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
+	auto pickedFile     = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
+	auto fileUTF8       = jniEnvironment->GetStringUTFChars(pickedFile, nullptr);
+	auto selectedFile   = std::string(fileUTF8);
 
 	jniEnvironment->ReleaseStringUTFChars(pickedFile, fileUTF8);
 	jniEnvironment->DeleteLocalRef(jniFilter);
