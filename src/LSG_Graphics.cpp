@@ -265,9 +265,16 @@ std::vector<SDL_Vertex> LSG_Graphics::getGeometryTriangle(const SDL_Rect& backgr
 		break;
 	}
 
-	SDL_Vertex vertex1 = { { x1, y1 }, { (float)color.r, (float)color.g, (float)color.b, (float)color.a }, {} };
-	SDL_Vertex vertex2 = { { x2, y2 }, { (float)color.r, (float)color.g, (float)color.b, (float)color.a }, {} };
-	SDL_Vertex vertex3 = { { x3, y3 }, { (float)color.r, (float)color.g, (float)color.b, (float)color.a }, {} };
+	SDL_FColor colorF = {
+		((float)color.r / 255.0f),
+		((float)color.g / 255.0f),
+		((float)color.b / 255.0f),
+		((float)color.a / 255.0f)
+	};
+
+	SDL_Vertex vertex1 = { { x1, y1 }, colorF, {} };
+	SDL_Vertex vertex2 = { { x2, y2 }, colorF, {} };
+	SDL_Vertex vertex3 = { { x3, y3 }, colorF, {} };
 
 	return { vertex1, vertex2, vertex3 };
 }

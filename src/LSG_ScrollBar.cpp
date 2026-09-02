@@ -469,7 +469,7 @@ void LSG_ScrollBar::renderScrollThumbHorizontal(SDL_Renderer* renderer, const SD
 			LSG_Window::GetDPIScaled(LSG_ScrollBar::ThumbRadius),
 			color,
 			this->scrollHorizontal.thumb,
-			std::format("{}_scroll_thumb_horizontal", component->GetID())
+			std::format("{}_scroll_thumb_horizontal_{}_{}_{}_{}", component->GetID(), color.r, color.g, color.b, color.a)
 		);
 	}
 	else
@@ -505,7 +505,7 @@ void LSG_ScrollBar::renderScrollThumbVertical(SDL_Renderer* renderer, const SDL_
 			LSG_Window::GetDPIScaled(LSG_ScrollBar::ThumbRadius),
 			color,
 			this->scrollVertical.thumb,
-			std::format("{}_scroll_thumb_vertical", component->GetID())
+			std::format("{}_scroll_thumb_vertical{}_{}_{}_{}", component->GetID(), color.r, color.g, color.b, color.a)
 		);
 	}
 	else
