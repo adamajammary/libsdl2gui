@@ -443,6 +443,9 @@ LibXml::xmlDoc* LSG_UI::GetXmlDocument()
 
 void LSG_UI::HighlightComponents(const SDL_Point& mousePosition)
 {
+	if (!SDL_HasMouse())
+		return;
+
 	auto activeCursor = SDL_GetCursor();
 
 	if (!activeCursor)
@@ -1163,7 +1166,7 @@ void LSG_UI::renderModal(SDL_Renderer* renderer)
 
 void LSG_UI::renderTooltip(SDL_Renderer* renderer)
 {
-	if (!SDL_GetCursor())
+	if (!SDL_HasMouse())
 		return;
 
 	for (const auto& component : LSG_UI::componentsByLayer)
@@ -1466,7 +1469,7 @@ void LSG_UI::setToggle(LSG_Component* component)
 
 void LSG_UI::UnhighlightComponents()
 {
-	if (!SDL_GetCursor())
+	if (!SDL_HasMouse())
 		return;
 
 	for (const auto& component : LSG_UI::componentsByLayer)

@@ -60,7 +60,7 @@ SDL_Size LSG_Window::GetMinimumSize()
 
 SDL_Point LSG_Window::GetMousePosition()
 {
-	if (SDL_GetCursor())
+	if (SDL_HasMouse())
 	{
 		float x, y;
 		SDL_GetMouseState(&x, &y);
@@ -595,18 +595,14 @@ std::string LSG_Window::OpenFolder()
 {
 	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
-	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
+	//auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
 	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity,  "ContentPath",      "Ljava/lang/String;");
 	auto jniOpenFolder       = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder",       "()V");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
 
-	SDL_ShowSimpleMessageBox(0, "OPEN_FOLDER", "1", LSG_Window::window);
-
 	//while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-	//	SDL_Delay(10);
-
-	SDL_ShowSimpleMessageBox(0, "OPEN_FOLDER", "2", LSG_Window::window);
+	//    SDL_Delay(10);
 
 	auto openedFolder   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
 	auto folderUTF8     = jniEnvironment->GetStringUTFChars(openedFolder, nullptr);
@@ -615,8 +611,6 @@ std::string LSG_Window::OpenFolder()
 	jniEnvironment->ReleaseStringUTFChars(openedFolder, folderUTF8);
 	jniEnvironment->DeleteLocalRef(jniActivity);
 
-	SDL_ShowSimpleMessageBox(0, "OPEN_FOLDER", selectedFolder.c_str(), LSG_Window::window);
-
 	return selectedFolder;
 }
 
@@ -624,7 +618,7 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 {
 	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
-	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity, "IsPickingContent", "Z");
+	//auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity, "IsPickingContent", "Z");
 	auto jniContentPath      = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath",      "Ljava/lang/String;");
 	auto jniPickMethod       = (saveFile ? "SaveFile" : "OpenFile");
 	auto jniPickFile         = jniEnvironment->GetStaticMethodID(jniActivity, jniPickMethod, "(Ljava/lang/String;)V");
@@ -638,12 +632,8 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniPickFile, jniFilter);
 
-	SDL_ShowSimpleMessageBox(0, "PICK_FILE", "1", LSG_Window::window);
-
 	//while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-	//	SDL_Delay(10);
-
-	SDL_ShowSimpleMessageBox(0, "PICK_FILE", "2", LSG_Window::window);
+	//    SDL_Delay(10);
 
 	auto pickedFile   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
 	auto fileUTF8     = jniEnvironment->GetStringUTFChars(pickedFile, nullptr);
@@ -652,8 +642,6 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	jniEnvironment->ReleaseStringUTFChars(pickedFile, fileUTF8);
 	jniEnvironment->DeleteLocalRef(jniFilter);
 	jniEnvironment->DeleteLocalRef(jniActivity);
-
-	SDL_ShowSimpleMessageBox(0, "PICK_FILE", selectedFile.c_str(), LSG_Window::window);
 
 	return selectedFile;
 }

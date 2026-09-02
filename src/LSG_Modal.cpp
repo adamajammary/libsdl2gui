@@ -216,7 +216,7 @@ int LSG_Modal::getSizeFromXmlAttribute(const std::string& maxSize, const std::st
 
 SDL_Cursor* LSG_Modal::Highlight(const SDL_Point& mousePosition)
 {
-	if (!SDL_GetCursor())
+	if (!SDL_HasMouse())
 		return nullptr;
 
 	this->highlighted = this->isMouseOverCloseIcon(mousePosition);

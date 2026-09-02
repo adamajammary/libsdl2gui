@@ -799,7 +799,7 @@ bool LSG_Tiles::Select(int index, bool toggle)
 		this->sendEvent(LSG_EVENT_TILE_UNSELECTED);
 	} else {
 		this->selectedTiles = { index };
-		this->sendEvent(SDL_GetCursor() ? LSG_EVENT_TILE_SELECTED : LSG_EVENT_TILE_ACTIVATED);
+		this->sendEvent(SDL_HasMouse() ? LSG_EVENT_TILE_SELECTED : LSG_EVENT_TILE_ACTIVATED);
 	}
 
 	return true;
