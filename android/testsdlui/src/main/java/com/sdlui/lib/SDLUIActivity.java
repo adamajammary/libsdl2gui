@@ -81,15 +81,18 @@ public class SDLUIActivity extends SDLActivity
 
 	private static void handleContentRequest()
 	{
-		String   uriPath     = contentUri.getPath();
-		boolean  isDir       = ((uriPath != null) && uriPath.startsWith("/tree/"));
+		String   uriPath = contentUri.getPath();
+		boolean  isDir   = ((uriPath != null) && uriPath.startsWith("/tree/"));
+
+		String   docId    = (isDir ? DocumentsContract.getTreeDocumentId(contentUri) : DocumentsContract.getDocumentId(contentUri));
+		String[] docProps = docId.split(":");
+		String   docPath  = (docProps.length > 1 ? ("/" + docProps[1]) : "");
+		String   docType  = (docProps.length > 0 ? docProps[0] : "");
+
+		String   docsDir    = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+		String   storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+
 		String   docAuth     = contentUri.getAuthority();
-		String   docId       = (isDir ? DocumentsContract.getTreeDocumentId(contentUri) : DocumentsContract.getDocumentId(contentUri));
-		String[] docProps    = docId.split(":");
-		String   docPath     = (docProps.length > 1 ? ("/" + docProps[1]) : "");
-		String   docType     = (docProps.length > 0 ? docProps[0] : "");
-		String   docsDir     = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-		String   storageDir  = Environment.getExternalStorageDirectory().getAbsolutePath();
 		boolean  isHomeDocs  = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
 		String   storagePath = (isHomeDocs ? docsDir : storageDir);
 
@@ -158,9 +161,9 @@ public class SDLUIActivity extends SDLActivity
 
 		String  mediaType = contentResolver.getType(contentUri);
 
-		boolean isAudio   = (mediaType != null && mediaType.startsWith("audio"));
-		boolean isImage   = (mediaType != null && mediaType.startsWith("image"));
-		boolean isVideo   = (mediaType != null && mediaType.startsWith("video"));
+		boolean isAudio = (mediaType != null && mediaType.startsWith("audio"));
+		boolean isImage = (mediaType != null && mediaType.startsWith("image"));
+		boolean isVideo = (mediaType != null && mediaType.startsWith("video"));
 
 		boolean isApi34 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
 		boolean isApi33 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
