@@ -569,10 +569,9 @@ std::string LSG_Window::OpenFolder()
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
 
 	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "WAITING...\n");
-		SDL_Delay(1);
-	}
+		SDL_Delay(10);
+
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "DONE_OPENED_FOLDER\n");
 
 	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
 	auto openedFolder   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
@@ -583,6 +582,12 @@ std::string LSG_Window::OpenFolder()
 	jniEnvironment->DeleteLocalRef(jniActivity);
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "FOLDER: %s\n", selectedFolder.c_str());
+
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
+
+	LSG_UI::Layout();
+
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR2: %s\n", SDL_GetError());
 
 	return selectedFolder;
 }
@@ -607,10 +612,9 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniPickFile, jniFilter);
 
 	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "WAITING...\n");
-		SDL_Delay(1);
-	}
+		SDL_Delay(10);
+
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "DONE_PICKED_FILE\n");
 
 	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
 	auto pickedFile     = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
@@ -622,6 +626,12 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	jniEnvironment->DeleteLocalRef(jniActivity);
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "FILE: %s\n", selectedFile.c_str());
+
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
+
+	LSG_UI::Layout();
+
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR2: %s\n", SDL_GetError());
 
 	return selectedFile;
 }

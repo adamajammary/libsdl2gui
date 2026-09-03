@@ -102,7 +102,9 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 	if (isRunning)
 		LSG_Quit();
 
-	#if defined _macosx
+    #if defined _android
+        SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
+    #elif defined _macosx
 		SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 	#elif defined _linux
 		SDL_setenv_unsafe("SDL_VIDEO_X11_LEGACY_FULLSCREEN", "0", 1);
