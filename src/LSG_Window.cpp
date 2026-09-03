@@ -564,14 +564,14 @@ std::string LSG_Window::OpenFolder()
 	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
 	auto jniOpenFolder       = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder", "()V");
 
-	printf("OPEN_FOLDER\n");
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "OPEN_FOLDER\n");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
 
 	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 	{
-		printf("WAITING...\n");
-		SDL_Delay(100);
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "WAITING...\n");
+		SDL_Delay(1);
 	}
 
 	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
@@ -582,7 +582,7 @@ std::string LSG_Window::OpenFolder()
 	jniEnvironment->ReleaseStringUTFChars(openedFolder, folderUTF8);
 	jniEnvironment->DeleteLocalRef(jniActivity);
 
-	printf("FOLDER: %s\n", selectedFolder.c_str());
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "FOLDER: %s\n", selectedFolder.c_str());
 
 	return selectedFolder;
 }
@@ -602,14 +602,14 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 
 	auto jniFilter = jniEnvironment->NewStringUTF(filter.c_str());
 
-	printf("PICK_FILE\n");
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "PICK_FILE\n");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniPickFile, jniFilter);
 
 	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 	{
-		printf("WAITING...\n");
-		SDL_Delay(100);
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "WAITING...\n");
+		SDL_Delay(1);
 	}
 
 	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
@@ -621,7 +621,7 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 	jniEnvironment->DeleteLocalRef(jniFilter);
 	jniEnvironment->DeleteLocalRef(jniActivity);
 
-	printf("FILE: %s\n", selectedFile.c_str());
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "FILE: %s\n", selectedFile.c_str());
 
 	return selectedFile;
 }
