@@ -568,12 +568,8 @@ std::string LSG_Window::OpenFolder()
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
 
-	SDL_MinimizeWindow(LSG_Window::window);
-
 	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 		SDL_Delay(10);
-
-	SDL_RestoreWindow(LSG_Window::window);
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "DONE_OPENED_FOLDER\n");
 
@@ -589,6 +585,10 @@ std::string LSG_Window::OpenFolder()
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
 
+	SDL_MinimizeWindow(LSG_Window::window);
+	SDL_Delay(10);
+	SDL_RestoreWindow(LSG_Window::window);
+	SDL_Delay(10);
 	LSG_UI::Layout();
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR2: %s\n", SDL_GetError());
@@ -615,12 +615,8 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniPickFile, jniFilter);
 
-	SDL_MinimizeWindow(LSG_Window::window);
-
 	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
 		SDL_Delay(10);
-
-	SDL_RestoreWindow(LSG_Window::window);
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "DONE_PICKED_FILE\n");
 
@@ -637,6 +633,10 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
 
+	SDL_MinimizeWindow(LSG_Window::window);
+	SDL_Delay(10);
+	SDL_RestoreWindow(LSG_Window::window);
+	SDL_Delay(10);
 	LSG_UI::Layout();
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR2: %s\n", SDL_GetError());
