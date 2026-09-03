@@ -585,8 +585,6 @@ std::string LSG_Window::OpenFolder()
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
 
-	SDL_MinimizeWindow(LSG_Window::window);
-	SDL_Delay(10);
 	SDL_RestoreWindow(LSG_Window::window);
 	SDL_Delay(10);
 	LSG_UI::Layout();
@@ -633,8 +631,6 @@ std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
 
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
 
-	SDL_MinimizeWindow(LSG_Window::window);
-	SDL_Delay(10);
 	SDL_RestoreWindow(LSG_Window::window);
 	SDL_Delay(10);
 	LSG_UI::Layout();
