@@ -5,8 +5,7 @@ SDL_Renderer* LSG_Window::renderer  = nullptr;
 SDL_Window*   LSG_Window::window    = nullptr;
 
 #if defined _android
-    std::function<void(const std::string&)> LSG_Window::openFileCB   = nullptr;
-    std::function<void(const std::string&)> LSG_Window::openFolderCB = nullptr;
+    std::function<void(const std::string&)> LSG_Window::openCB = nullptr;
 #elif defined _ios
     UIWindow* LSG_Window::uiWindow = nil;
 #elif defined _linux
@@ -135,14 +134,13 @@ std::string LSG_Window::GetTitle()
 void LSG_Window::InitJNI()
 {
 	JNINativeMethod jniMethods[] = {
-		{ "handleOpenFileJNI",   "(Ljava/lang/String;)V", (void*)&LSG_Window::handleOpenFileJNI },
-		{ "handleOpenFolderJNI", "(Ljava/lang/String;)V", (void*)&LSG_Window::handleOpenFolderJNI }
+		{ "handleOpenJNI", "(Ljava/lang/String;)V", (void*)&LSG_Window::handleOpenJNI }
 	};
 
 	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
 
-	jniEnvironment->RegisterNatives(jniActivity, jniMethods, 2);
+	jniEnvironment->RegisterNatives(jniActivity, jniMethods, 1);
 }
 #endif
 
@@ -581,19 +579,18 @@ LSG_Strings LSG_Window::OpenFolders()
 #endif
 
 #if defined _android
-void LSG_Window::handleOpenFileJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath)
+void LSG_Window::handleOpenJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath)
 {
-	LSG_Window::openFileCB(LSG_AndroidJNI::GetString(jniPath));
-}
+	auto path = LSG_AndroidJNI::GetString(jniPath);
 
-void LSG_Window::handleOpenFolderJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath)
-{
-	LSG_Window::openFolderCB(LSG_AndroidJNI::GetString(jniPath));
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "HANDLE_SELECTED_PATH: %s\n", path.c_str());
+
+	LSG_Window::openCB(path);
 }
 
 void LSG_Window::OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters)
 {
-	LSG_Window::openFileCB = resultsCallback;
+	LSG_Window::openCB = resultsCallback;
 
 	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
@@ -611,7 +608,7 @@ void LSG_Window::OpenFile(std::function<void(const std::string&)> resultsCallbac
 
 void LSG_Window::OpenFolder(std::function<void(const std::string&)> resultsCallback)
 {
-	LSG_Window::openFolderCB = resultsCallback;
+	LSG_Window::openCB = resultsCallback;
 
 	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
 	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);

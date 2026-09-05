@@ -25,11 +25,9 @@ public class SDLUIActivity extends SDLActivity
 	private static final int REQUEST_CODE_OPEN_FOLDER  = 2000;
 	private static final int REQUEST_CODE_READ_STORAGE = 3000;
 
-	private static Uri selectedFileUri   = null;
-	private static Uri selectedFolderUri = null;
+	private static Uri selectedUri = null;
 
-    public static native void handleOpenFileJNI(String   path);
-    public static native void handleOpenFolderJNI(String path);
+    public static native void handleOpenJNI(String path);
 
 	public static boolean IsAutoRotate()
 	{
@@ -75,32 +73,15 @@ public class SDLUIActivity extends SDLActivity
 		mSingleton.requestPermissions(new String[]{ permission }, requestCode);
 	}
 
-	private static void handleContentInvalid(int requestCode)
+	private static void handleContentRequest()
 	{
-		switch (requestCode) {
-			case REQUEST_CODE_OPEN_FILE:   handleOpenFileJNI("");   break;
-			case REQUEST_CODE_OPEN_FOLDER: handleOpenFolderJNI(""); break;
-			default: break;
-		}
-	}
-
-	private static void handleContentRequest(int requestCode)
-	{
-		Uri uri = null;
-
-		switch (requestCode) {
-			case REQUEST_CODE_OPEN_FILE:   uri = selectedFileUri;   break;
-			case REQUEST_CODE_OPEN_FOLDER: uri = selectedFolderUri; break;
-			default: break;
-		}
-
-		if (uri == null)
+		if (selectedUri == null)
 			return;
 
-		String  uriPath = uri.getPath();
+		String  uriPath = selectedUri.getPath();
 		boolean isDir   = ((uriPath != null) && uriPath.startsWith("/tree/"));
 
-		String   docId    = (isDir ? DocumentsContract.getTreeDocumentId(uri) : DocumentsContract.getDocumentId(uri));
+		String   docId    = (isDir ? DocumentsContract.getTreeDocumentId(selectedUri) : DocumentsContract.getDocumentId(selectedUri));
 		String[] docProps = docId.split(":");
 		String   docPath  = (docProps.length > 1 ? ("/" + docProps[1]) : "");
 		String   docType  = (docProps.length > 0 ? docProps[0] : "");
@@ -108,28 +89,20 @@ public class SDLUIActivity extends SDLActivity
 		String docsDir    = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
 		String storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-		String  docAuth     = uri.getAuthority();
+		String  docAuth     = selectedUri.getAuthority();
 		boolean isHomeDocs  = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
 		String  storagePath = (isHomeDocs ? docsDir : storageDir);
 
 		String path = (storagePath + docPath);
 
-		switch (requestCode) {
-			case REQUEST_CODE_OPEN_FILE:   handleOpenFileJNI(path);   break;
-			case REQUEST_CODE_OPEN_FOLDER: handleOpenFolderJNI(path); break;
-			default: break;
-		}
+		handleOpenJNI(path);
 	}
 
-	private static void handleContentUri(Uri uri, int requestCode)
+	private static void handleContentUri(Uri uri)
 	{
 		String path = (uri.getScheme() + "://" + uri.getAuthority() + uri.getPath());
 
-		switch (requestCode) {
-			case REQUEST_CODE_OPEN_FILE:   handleOpenFileJNI(path);   break;
-			case REQUEST_CODE_OPEN_FOLDER: handleOpenFolderJNI(path); break;
-			default: break;
-		}
+		handleOpenJNI(path);
 	}
 
 	private static boolean isMissingPermission(String permission)
@@ -152,28 +125,22 @@ public class SDLUIActivity extends SDLActivity
 	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
 	{
 		if (resultCode != RESULT_OK) {
-			handleContentInvalid(requestCode);
+			handleOpenJNI("");
 			return;
 		}
 
-		Uri uri = resultData.getData();
-
-		switch (requestCode) {
-			case REQUEST_CODE_OPEN_FILE:   selectedFileUri   = uri; break;
-			case REQUEST_CODE_OPEN_FOLDER: selectedFolderUri = uri; break;
-			default: break;
-		}
+		selectedUri = resultData.getData();
 
 		ContentResolver contentResolver = mSingleton.getContentResolver();
 
 		int flags = (resultData.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
 		if (flags > 0)
-			contentResolver.takePersistableUriPermission(uri, flags);
+			contentResolver.takePersistableUriPermission(selectedUri, flags);
 
 		boolean isRequestRead = ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));
 
-		String mediaType = contentResolver.getType(uri);
+		String mediaType = contentResolver.getType(selectedUri);
 
 		boolean isAudio = (mediaType != null && mediaType.startsWith("audio"));
 		boolean isImage = (mediaType != null && mediaType.startsWith("image"));
@@ -192,21 +159,21 @@ public class SDLUIActivity extends SDLActivity
 		else if (isRequestRead && isApi33 && isVideo && isMissingPermission(permission.READ_MEDIA_VIDEO))
 			getPermission(permission.READ_MEDIA_VIDEO, REQUEST_CODE_READ_STORAGE);
 		else if (isRequestRead && isApi33 && (isAudio || isImage || isVideo))
-			handleContentRequest(requestCode);
+			handleContentRequest();
 		else if (isRequestRead && isApi33)
-			handleContentUri(uri, requestCode);
+			handleContentUri(selectedUri);
 		else if (isRequestRead && isMissingPermission(permission.READ_EXTERNAL_STORAGE))
 			getPermission(permission.READ_EXTERNAL_STORAGE, REQUEST_CODE_READ_STORAGE);
 		else
-			handleContentRequest(requestCode);
+			handleContentRequest();
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
 		if (isRequestStorage(requestCode) && isPermissionGranted(grantResults))
-			handleContentRequest(requestCode);
+			handleContentRequest();
 		else
-			handleContentInvalid(requestCode);
+			handleOpenJNI("");
 	}
 }

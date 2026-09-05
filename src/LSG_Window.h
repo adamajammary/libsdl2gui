@@ -15,8 +15,7 @@ private:
     static SDL_Window*   window;
 
     #if defined _android
-        static std::function<void(const std::string&)> openFileCB;
-        static std::function<void(const std::string&)> openFolderCB;
+        static std::function<void(const std::string&)> openCB;
     #elif defined _ios
         static UIWindow* uiWindow;
     #elif defined _linux
@@ -109,8 +108,7 @@ private:
     #endif
 
     #if defined _android
-        static void handleOpenFileJNI(JNIEnv*   jniEnv, jclass jniClass, jstring jniPath);
-        static void handleOpenFolderJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath);
+        static void handleOpenJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath);
     #endif
 
     #if defined _linux || defined _macosx
