@@ -14,7 +14,10 @@ private:
     static SDL_Renderer* renderer;
     static SDL_Window*   window;
 
-    #if defined _ios
+    #if defined _android
+        static std::function<void(const std::string&)> openFileCB;
+        static std::function<void(const std::string&)> openFolderCB;
+    #elif defined _ios
         static UIWindow* uiWindow;
     #elif defined _linux
         static std::string path;
@@ -54,7 +57,9 @@ public:
         static std::wstring              OpenFolder();
         static std::vector<std::wstring> OpenFolders();
         static std::wstring              SaveFile(const LSG_Strings& filters);
-    #elif defined _linux || defined _macosx
+    #endif
+
+    #if defined _linux || defined _macosx
         static std::string OpenFile(const  LSG_Strings& filters);
         static LSG_Strings OpenFiles(const LSG_Strings& filters);
 
@@ -62,14 +67,18 @@ public:
         static LSG_Strings OpenFolders();
 
         static std::string SaveFile(const LSG_Strings& filters);
-    #elif defined _android
-        static std::string OpenFile(const LSG_Strings& filters);
-        static std::string OpenFolder();
+    #endif
 
-        static std::string SaveFile(const LSG_Strings& filters);
-    #elif defined _ios
-        static void OpenFileDocuments(std::function<void(NSArray<NSURL*>*)> resultsCallback, bool allowMultipleSelection);
-        static void OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback, bool allowMultipleSelection);
+    #if defined _android
+        static void InitJNI();
+
+        static void OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters = {});
+        static void OpenFolder(std::function<void(const std::string&)> resultsCallback);
+    #endif
+
+    #if defined _ios
+        static void OpenFileDocuments(std::function<void(NSArray<NSURL*>*)>       resultsCallback, bool allowMultipleSelection);
+        static void OpenFileMedia(std::function<void(NSArray<MPMediaItem*>*)>     resultsCallback, bool allowMultipleSelection);
         static void OpenFilePhotos(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback, bool allowMultipleSelection);
         static void OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback);
     #endif
@@ -83,10 +92,6 @@ private:
         static std::vector<std::wstring> getFiltersWide(const LSG_Strings& filters);
         static std::vector<std::wstring> openFiles(bool allowMultipleSelection, const LSG_Strings& filters);
         static std::vector<std::wstring> openFolders(bool allowMultipleSelection);
-    #elif defined _linux || defined _macosx
-        static LSG_Strings openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters);
-    #elif defined _android
-        static std::string pickFile(const LSG_Strings& filters, bool saveFile = false);
     #endif
 
     #if defined _linux
@@ -101,6 +106,15 @@ private:
         static void saveFileCB(GObject* source, GAsyncResult* result, gpointer user_data);
 
         static void setFilters(const LSG_Strings& filters, GtkFileDialog* dialog);
+    #endif
+
+    #if defined _android
+        static void handleOpenFileJNI(JNIEnv*   jniEnv, jclass jniClass, jstring jniPath);
+        static void handleOpenFolderJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath);
+    #endif
+
+    #if defined _linux || defined _macosx
+        static LSG_Strings openFiles(bool openFolder, bool allowMultipleSelection, const LSG_Strings& filters);
     #endif
 };
 

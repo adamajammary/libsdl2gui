@@ -883,15 +883,14 @@ DLLEXPORT void DLL LSG_NavigateEnd(const std::string& id, const std::string& tex
  */
 DLLEXPORT void DLL LSG_NavigateTo(const std::string& id, int position, const std::string& text = "");
 
+#if defined _linux || defined _macosx || defined _windows
 /**
  * @brief Displays an Open File dialog where you can select a single file.
  * @returns the selected file path or an empty string if cancelled
  * @param filters Optional filter by file type
  * @throws runtime_error
  */
-#if defined _android || defined _linux || defined _macosx || defined _windows
 DLLEXPORT std::string DLL LSG_OpenFile(const LSG_Strings& filters = {});
-#endif
 
 /**
  * @brief Displays an Open File dialog where you can select multiple files.
@@ -899,71 +898,89 @@ DLLEXPORT std::string DLL LSG_OpenFile(const LSG_Strings& filters = {});
  * @param filters Optional filter by file type
  * @throws runtime_error
  */
-#if defined _linux || defined _macosx || _windows
 DLLEXPORT LSG_Strings DLL LSG_OpenFiles(const LSG_Strings& filters = {});
-#endif
 
 /**
  * @brief Displays an Open Folder dialog where you can select a single folder.
  * @returns the selected folder path or an empty string if cancelled
  * @throws runtime_error
  */
-#if defined _android || defined _linux || defined _macosx || defined _windows
 DLLEXPORT std::string DLL LSG_OpenFolder();
-#endif
 
 /**
  * @brief Displays an Open Folder dialog where you can select multiple folders.
  * @returns the selected folder paths or an empty list if cancelled
  * @throws runtime_error
  */
-#if defined _linux || defined _macosx || defined _windows
 DLLEXPORT LSG_Strings DLL LSG_OpenFolders();
 #endif
 
+#if defined _android
+/**
+ * @brief Displays asynchronously an Open File dialog where you can select a single file.
+ * @param resultsCallback Callback function with the selected file path, or an empty string if cancelled or denied access.
+ * @param filters Optional filter by file type
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters = {});
+
+/**
+ * @brief Displays asynchronously an Open Folder dialog where you can select a single folder.
+ * @param resultsCallback Callback function with the selected folder path, or an empty string if cancelled or denied access.
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenFolder(std::function<void(const std::string&)> resultsCallback);
+#endif
+
+#if defined _ios
 /**
  * @brief Displays asynchronously a Document Picker dialog where you can select a single item file.
  * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
  * @throws runtime_error
  */
-#if defined _ios
 DLLEXPORT void DLL LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback);
-#endif
 
 /**
  * @brief Displays asynchronously a Document Picker dialog where you can select multiple item files.
  * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
  * @throws runtime_error
  */
-#if defined _ios
 DLLEXPORT void DLL LSG_OpenFiles(std::function<void(NSArray<NSURL*>*)> resultsCallback);
-#endif
 
 /**
  * @brief Displays asynchronously a Document Picker dialog where you can select a single folder.
  * @param resultsCallback Callback function with an array containing the selected folder, or an empty array if cancelled or denied access.
  * @throws runtime_error
  */
-#if defined _ios
 DLLEXPORT void DLL LSG_OpenFolder(std::function<void(NSArray<NSURL*>*)> resultsCallback);
-#endif
 
 /**
  * @brief Displays asynchronously an Open Music dialog where you can select a single media file.
  * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
  * @throws runtime_error
  */
-#if defined _ios
 DLLEXPORT void DLL LSG_OpenMediaFile(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback);
-#endif
 
 /**
  * @brief Displays asynchronously an Open Music dialog where you can select multiple media files.
  * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
  * @throws runtime_error
  */
-#if defined _ios
 DLLEXPORT void DLL LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)> resultsCallback);
+
+/**
+ * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
+ * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
+
+/**
+ * @brief Displays asynchronously an Open Photo dialog where you can select multiple image files.
+ * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
+ * @throws runtime_error
+ */
+DLLEXPORT void DLL LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
 #endif
 
 /**
@@ -981,24 +998,6 @@ DLLEXPORT void DLL LSG_OpenMenu(const std::string& id);
  * @throws runtime_error
  */
 DLLEXPORT void DLL LSG_OpenModal(const std::string& id);
-
-/**
- * @brief Displays asynchronously an Open Photo dialog where you can select a single image file.
- * @param resultsCallback Callback function with an array containing the selected file, or an empty array if cancelled or denied access.
- * @throws runtime_error
- */
-#if defined _ios
-DLLEXPORT void DLL LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
-#endif
-
-/**
- * @brief Displays asynchronously an Open Photo dialog where you can select multiple image files.
- * @param resultsCallback Callback function with an array of selected files, or an empty array if cancelled or denied access.
- * @throws runtime_error
- */
-#if defined _ios
-DLLEXPORT void DLL LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback);
-#endif
 
 /**
  * @brief Opens the sub-menu.
@@ -1125,7 +1124,7 @@ DLLEXPORT std::vector<SDL_Event> DLL LSG_Run();
  * @param filters Optional filter by file type
  * @throws runtime_error
  */
-#if defined _android || defined _linux || defined _macosx || defined _windows
+#if defined _linux || defined _macosx || defined _windows
 DLLEXPORT std::string DLL LSG_SaveFile(const LSG_Strings& filters = {});
 #endif
 

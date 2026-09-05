@@ -60,4 +60,15 @@ JNIEnv* LSG_AndroidJNI::GetEnvironment()
 
 	return jniEnvironment;
 }
+
+std::string LSG_AndroidJNI::GetString(jstring jniString)
+{
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniStringUTF8  = jniEnvironment->GetStringUTFChars(jniString, nullptr);
+	auto resultString   = std::string(jniStringUTF8);
+
+	jniEnvironment->ReleaseStringUTFChars(jniString, jniStringUTF8);
+
+	return resultString;
+}
 #endif

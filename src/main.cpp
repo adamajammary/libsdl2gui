@@ -133,6 +133,10 @@ static SDL_Renderer* init(const std::string& title, int width, int height)
 
 	SDL_StopTextInput(SDL_GetRenderWindow(renderer));
 
+	#if defined _android
+		LSG_Window::InitJNI();
+	#endif
+
 	isRunning = true;
 
 	return renderer;
@@ -1229,7 +1233,7 @@ std::string LSG_OpenFile(const LSG_Strings& filters)
 
 	return filePath;
 }
-#elif defined _android || defined _linux || defined _macosx
+#elif defined _linux || defined _macosx
 std::string LSG_OpenFile(const LSG_Strings& filters)
 {
 	if (!isRunning)
@@ -1270,7 +1274,7 @@ LSG_Strings LSG_OpenFiles(const LSG_Strings& filters)
 }
 #endif
 
-#if defined _android || defined _linux || defined _macosx || defined _windows
+#if defined _linux || defined _macosx || defined _windows
 std::string LSG_OpenFolder()
 {
 	if (!isRunning)
@@ -1288,9 +1292,7 @@ std::string LSG_OpenFolder()
 		return LSG_Window::OpenFolder();
 	#endif
 }
-#endif
 
-#if defined _linux || defined _macosx || defined _windows
 LSG_Strings LSG_OpenFolders()
 {
 	if (!isRunning)
@@ -1314,6 +1316,24 @@ LSG_Strings LSG_OpenFolders()
     #else
 		return LSG_Window::OpenFolders();
 	#endif
+}
+#endif
+
+#if defined _android
+void LSG_OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	LSG_Window::OpenFile(resultsCallback, filters);
+}
+
+void LSG_OpenFolder(std::function<void(const std::string&)> resultsCallback)
+{
+	if (!isRunning)
+		throw std::runtime_error(ERROR_NOT_STARTED);
+
+	LSG_Window::OpenFolder(resultsCallback);
 }
 #endif
 
@@ -1357,6 +1377,22 @@ void LSG_OpenMediaFiles(std::function<void(NSArray<MPMediaItem*>*)> resultsCallb
 
     LSG_Window::OpenFileMedia(resultsCallback, true);
 }
+
+void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
+{
+    if (!isRunning)
+        throw std::runtime_error(ERROR_NOT_STARTED);
+
+    LSG_Window::OpenFilePhotos(resultsCallback, false);
+}
+
+void LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
+{
+    if (!isRunning)
+        throw std::runtime_error(ERROR_NOT_STARTED);
+
+    LSG_Window::OpenFilePhotos(resultsCallback, true);
+}
 #endif
 
 void LSG_OpenMenu(const std::string& id)
@@ -1384,24 +1420,6 @@ void LSG_OpenModal(const std::string& id)
 
 	static_cast<LSG_Modal*>(component)->Open();
 }
-
-#if defined _ios
-void LSG_OpenPhotoFile(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
-{
-    if (!isRunning)
-        throw std::runtime_error(ERROR_NOT_STARTED);
-
-    LSG_Window::OpenFilePhotos(resultsCallback, false);
-}
-
-void LSG_OpenPhotoFiles(std::function<void(NSArray<PHPickerResult*>*)> resultsCallback)
-{
-    if (!isRunning)
-        throw std::runtime_error(ERROR_NOT_STARTED);
-
-    LSG_Window::OpenFilePhotos(resultsCallback, true);
-}
-#endif
 
 void LSG_OpenSubMenu(const std::string& id)
 {
@@ -1614,7 +1632,7 @@ std::string LSG_SaveFile(const LSG_Strings& filters)
 
 	return filePath;
 }
-#elif defined _android || defined _linux || defined _macosx
+#elif defined _linux || defined _macosx
 std::string LSG_SaveFile(const LSG_Strings& filters)
 {
 	if (!isRunning)

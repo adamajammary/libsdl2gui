@@ -4,7 +4,10 @@ float         LSG_Window::dpiScale  = 1.0f;
 SDL_Renderer* LSG_Window::renderer  = nullptr;
 SDL_Window*   LSG_Window::window    = nullptr;
 
-#if defined _ios
+#if defined _android
+    std::function<void(const std::string&)> LSG_Window::openFileCB   = nullptr;
+    std::function<void(const std::string&)> LSG_Window::openFolderCB = nullptr;
+#elif defined _ios
     UIWindow* LSG_Window::uiWindow = nil;
 #elif defined _linux
 	std::string LSG_Window::path  = "";
@@ -13,6 +16,13 @@ SDL_Window*   LSG_Window::window    = nullptr;
 
 void LSG_Window::Close()
 {
+    #if defined _android
+		auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+		auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+
+		jniEnvironment->UnregisterNatives(jniActivity);
+    #endif
+
 	if (LSG_Window::renderer) {
 		SDL_DestroyRenderer(LSG_Window::renderer);
 		LSG_Window::renderer = nullptr;
@@ -120,6 +130,21 @@ std::string LSG_Window::GetTitle()
 {
 	return SDL_GetWindowTitle(LSG_Window::window);
 }
+
+#if defined _android
+void LSG_Window::InitJNI()
+{
+	JNINativeMethod jniMethods[] = {
+		{ "handleOpenFileJNI",   "(Ljava/lang/String;)V", (void*)&LSG_Window::handleOpenFileJNI },
+		{ "handleOpenFolderJNI", "(Ljava/lang/String;)V", (void*)&LSG_Window::handleOpenFolderJNI }
+	};
+
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+
+	jniEnvironment->RegisterNatives(jniActivity, jniMethods, 2);
+}
+#endif
 
 /**
  * @throws runtime_error
@@ -527,7 +552,9 @@ std::vector<std::wstring> LSG_Window::OpenFolders()
 {
 	return LSG_Window::openFolders(true);
 }
-#elif defined _linux || defined _macosx
+#endif
+
+#if defined _linux || defined _macosx
 std::string LSG_Window::OpenFile(const LSG_Strings& filters)
 {
 	auto files = LSG_Window::openFiles(false, false, filters);
@@ -551,95 +578,53 @@ LSG_Strings LSG_Window::OpenFolders()
 {
 	return LSG_Window::openFiles(true, true, {});
 }
-#elif defined _android
-std::string LSG_Window::OpenFile(const LSG_Strings& filters)
+#endif
+
+#if defined _android
+void LSG_Window::handleOpenFileJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath)
 {
-	return LSG_Window::pickFile(filters);
+	LSG_Window::openFileCB(LSG_AndroidJNI::GetString(jniPath));
 }
 
-std::string LSG_Window::OpenFolder()
+void LSG_Window::handleOpenFolderJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath)
 {
-	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
-	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
-	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity,  "IsPickingContent", "Z");
-	auto jniOpenFolder       = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder", "()V");
+	LSG_Window::openFolderCB(LSG_AndroidJNI::GetString(jniPath));
+}
 
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "OPEN_FOLDER\n");
+void LSG_Window::OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters)
+{
+	LSG_Window::openFileCB = resultsCallback;
+
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+	
+	auto jniOpenFile = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFile", "(Ljava/lang/String;)V");
+
+	auto filter    = LSG_TextJoin(filters, " ");
+	auto jniFilter = jniEnvironment->NewStringUTF(filter.c_str());
+
+	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFile, jniFilter);
+
+	jniEnvironment->DeleteLocalRef(jniFilter);
+	jniEnvironment->DeleteLocalRef(jniActivity);
+}
+
+void LSG_Window::OpenFolder(std::function<void(const std::string&)> resultsCallback)
+{
+	LSG_Window::openFolderCB = resultsCallback;
+
+	auto jniEnvironment = LSG_AndroidJNI::GetEnvironment();
+	auto jniActivity    = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
+
+	auto jniOpenFolder = jniEnvironment->GetStaticMethodID(jniActivity, "OpenFolder", "()V");
 
 	jniEnvironment->CallStaticVoidMethod(jniActivity, jniOpenFolder);
 
-	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-		SDL_Delay(10);
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "DONE_OPENED_FOLDER\n");
-
-	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
-	auto openedFolder   = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
-	auto folderUTF8     = jniEnvironment->GetStringUTFChars(openedFolder, nullptr);
-	auto selectedFolder = std::string(folderUTF8);
-
-	jniEnvironment->ReleaseStringUTFChars(openedFolder, folderUTF8);
 	jniEnvironment->DeleteLocalRef(jniActivity);
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "FOLDER: %s\n", selectedFolder.c_str());
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
-
-	SDL_RestoreWindow(LSG_Window::window);
-	SDL_Delay(10);
-	LSG_UI::Layout();
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR2: %s\n", SDL_GetError());
-
-	return selectedFolder;
 }
+#endif
 
-std::string LSG_Window::pickFile(const LSG_Strings& filters, bool saveFile)
-{
-	auto jniEnvironment      = LSG_AndroidJNI::GetEnvironment();
-	auto jniActivity         = LSG_AndroidJNI::GetClass(LSG_ConstAndroid::ActivityClassPath, jniEnvironment);
-	auto jniIsPickingContent = jniEnvironment->GetStaticFieldID(jniActivity, "IsPickingContent", "Z");
-	auto jniPickMethod       = (saveFile ? "SaveFile" : "OpenFile");
-	auto jniPickFile         = jniEnvironment->GetStaticMethodID(jniActivity, jniPickMethod, "(Ljava/lang/String;)V");
-
-	std::string filter = "";
-
-	for (size_t i = 0; i < filters.size(); i++)
-		filter.append(filters[i]).append(i < (filters.size() - 1) ? " " : "");
-
-	auto jniFilter = jniEnvironment->NewStringUTF(filter.c_str());
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "PICK_FILE\n");
-
-	jniEnvironment->CallStaticVoidMethod(jniActivity, jniPickFile, jniFilter);
-
-	while (jniEnvironment->GetStaticBooleanField(jniActivity, jniIsPickingContent))
-		SDL_Delay(10);
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "DONE_PICKED_FILE\n");
-
-	auto jniContentPath = jniEnvironment->GetStaticFieldID(jniActivity, "ContentPath", "Ljava/lang/String;");
-	auto pickedFile     = (jstring)jniEnvironment->GetStaticObjectField(jniActivity, jniContentPath);
-	auto fileUTF8       = jniEnvironment->GetStringUTFChars(pickedFile, nullptr);
-	auto selectedFile   = std::string(fileUTF8);
-
-	jniEnvironment->ReleaseStringUTFChars(pickedFile, fileUTF8);
-	jniEnvironment->DeleteLocalRef(jniFilter);
-	jniEnvironment->DeleteLocalRef(jniActivity);
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "FILE: %s\n", selectedFile.c_str());
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR1: %s\n", SDL_GetError());
-
-	SDL_RestoreWindow(LSG_Window::window);
-	SDL_Delay(10);
-	LSG_UI::Layout();
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR2: %s\n", SDL_GetError());
-
-	return selectedFile;
-}
-#elif defined _ios
+#if defined _ios
 @interface MyDocumentPicker : UIViewController<UIDocumentPickerDelegate>
 @property std::function<void(NSArray<NSURL*>*)> resultsCallback;
 @end
@@ -836,12 +821,7 @@ SDL_Texture* LSG_Window::RotateTexture(SDL_Texture* texture, const LSG_ImageOrie
 	return newTexture;
 }
 
-#if defined _android
-std::string LSG_Window::SaveFile(const LSG_Strings& filters)
-{
-	return LSG_Window::pickFile(filters, true);
-}
-#elif defined _linux
+#if defined _linux
 void LSG_Window::saveFileCB(GObject* source, GAsyncResult* result, gpointer user_data)
 {
 	auto file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source), result, nullptr);

@@ -2561,10 +2561,10 @@ Exceptions
 ### LSG_OpenFile
 
 ```cpp
-std::string LSG_OpenFile(const LSG_Strings& filters = {}); // Android, Linux, macOS and Windows
+std::string LSG_OpenFile(const LSG_Strings& filters = {}); // Linux, macOS and Windows
 ```
 
-> Only supported on Android, Linux, macOS and Windows.
+> Only supported on Linux, macOS and Windows.
 
 Displays an Open File dialog where you can select a single file.
 
@@ -2577,12 +2577,6 @@ Parameters
 Exceptions
 
 - runtime_error
-
-Android
-
-```cpp
-LSG_OpenFile({ "application/*", "audio/*", "image/*", "text/*", "video/*" });
-```
 
 Linux
 
@@ -2627,10 +2621,10 @@ See [LSG_OpenFile](#lsg_openfile) for examples.
 ### LSG_OpenFolder
 
 ```cpp
-std::string LSG_OpenFolder(); // Android, Linux, macOS and Windows
+std::string LSG_OpenFolder(); // Linux, macOS and Windows
 ```
 
-> Only supported on Android, Linux, macOS and Windows.
+> Only supported on Linux, macOS and Windows.
 
 Displays an Open Folder dialog where you can select a single folder.
 
@@ -2656,6 +2650,58 @@ Exceptions
 
 - runtime_error
 
+### LSG_OpenFile (Android)
+
+```cpp
+void LSG_OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters = {}); // Android
+```
+
+> Only supported on Android.
+
+Displays an Open File dialog where you can select a single file.
+
+Parameters
+
+- **resultsCallback** Callback function with the selected file path, or an empty string if cancelled or denied access.
+- **filters** Optional filter by file type
+
+Exceptions
+
+- runtime_error
+
+```cpp
+LSG_OpenFile([](const std::string& filePath) -> void
+  {
+    // TODO: use filePath
+  },
+  { "application/*", "audio/*", "image/*", "text/*", "video/*" } // optional
+);
+```
+
+### LSG_OpenFolder (Android)
+
+```cpp
+void LSG_OpenFolder(std::function<void(const std::string&)> resultsCallback); // Android
+```
+
+> Only supported on Android.
+
+Displays asynchronously an Open Folder dialog where you can select a single folder.
+
+Parameters
+
+- **resultsCallback** Callback function with the selected folder path, or an empty string if cancelled or denied access.
+
+Exceptions
+
+- runtime_error
+
+```cpp
+LSG_OpenFolder([](const std::string& folderPath) -> void {
+  // TODO: use folderPath
+});
+```
+
 ### LSG_OpenFile (iOS)
 
 ```cpp
@@ -2664,7 +2710,7 @@ void LSG_OpenFile(std::function<void(NSArray<NSURL*>*)> resultsCallback); // iOS
 
 > Only supported on iOS.
 
- Displays asynchronously a Document Picker dialog where you can select a single item file.
+Displays asynchronously a Document Picker dialog where you can select a single item file.
 
 Parameters
 
@@ -2673,8 +2719,6 @@ Parameters
 Exceptions
 
 - runtime_error
-
-iOS
 
 See [Accessing items outside the app's sandbox](https://developer.apple.com/documentation/uikit/providing-access-to-directories?language=objc) for more details.
 
@@ -2773,8 +2817,6 @@ Parameters
 Exceptions
 
 - runtime_error
-
-iOS
 
 See [MPMediaItem](https://developer.apple.com/documentation/mediaplayer/mpmediaitem?language=objc), [valueForProperty:](https://developer.apple.com/documentation/mediaplayer/mpmediaentity/value(forproperty:)?language=objc) and [General media item property keys](https://developer.apple.com/documentation/mediaplayer/general-media-item-property-keys?language=objc) for more details.
 
@@ -3201,10 +3243,10 @@ Exceptions
 ### LSG_SaveFile
 
 ```cpp
-std::string LSG_SaveFile(const LSG_Strings& filters = {}); // Android, Linux, macOS and Windows
+std::string LSG_SaveFile(const LSG_Strings& filters = {}); // Linux, macOS and Windows
 ```
 
-> Only supported on Android, Linux, macOS and Windows.
+> Only supported on Linux, macOS and Windows.
 
 Displays a Save File dialog where you can select a single file.
 

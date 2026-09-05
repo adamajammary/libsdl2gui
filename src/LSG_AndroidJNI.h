@@ -14,6 +14,7 @@ public:
 	static AAssetManager* GetAssetManager();
 	static jclass         GetClass(const std::string& classPath, JNIEnv* jniEnvironment);
 	static JNIEnv*        GetEnvironment();
+	static std::string    GetString(jstring jniString);
 };
 
 #endif
