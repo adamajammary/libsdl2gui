@@ -640,7 +640,7 @@ bool LSG_Cards::Select(int row, bool toggle)
 		this->select(LSG_EVENT_ROW_UNSELECTED);
 	} else {
 		this->selectedRows = { row };
-		this->select(SDL_HasMouse() ? LSG_EVENT_ROW_SELECTED : LSG_EVENT_ROW_ACTIVATED);
+		this->select(LSG_EVENT_ROW_SELECTED);
 	}
 
 	return true;
