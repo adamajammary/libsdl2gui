@@ -581,11 +581,7 @@ LSG_Strings LSG_Window::OpenFolders()
 #if defined _android
 void LSG_Window::handleOpenJNI(JNIEnv* jniEnv, jclass jniClass, jstring jniPath)
 {
-	auto path = LSG_AndroidJNI::GetString(jniPath);
-
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "HANDLE_SELECTED_PATH: %s\n", path.c_str());
-
-	LSG_Window::openCB(path);
+	LSG_Window::openCB(LSG_AndroidJNI::GetString(jniPath));
 }
 
 void LSG_Window::OpenFile(std::function<void(const std::string&)> resultsCallback, const LSG_Strings& filters)

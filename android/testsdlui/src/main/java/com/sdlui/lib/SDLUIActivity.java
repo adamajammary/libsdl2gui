@@ -3,19 +3,33 @@
 package com.sdlui.lib;
 
 import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.Manifest.permission;
 import android.net.Uri;
+import android.os.Build;
+import android.util.Log;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 
-import android.os.Build;
-import android.os.Environment;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
 
-import android.provider.DocumentsContract;
+import android.provider.MediaStore.MediaColumns;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
+
+import androidx.documentfile.provider.DocumentFile;
+import androidx.media3.extractor.metadata.id3.Id3Util;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 import org.libsdl.app.SDLActivity;
 
@@ -29,19 +43,146 @@ public class SDLUIActivity extends SDLActivity
 
     public static native void handleOpenJNI(String path);
 
+	public static boolean DeleteFile(String filePath)
+	{
+		File file = new File(filePath);
+
+		if (file.exists())
+			return file.delete();
+
+		return false;
+	}
+
+	public static String DownloadContentUri(String contentUri)
+	{
+		String filePath = "";
+
+		try {
+			InputStream inputStream = mSingleton.getContentResolver().openInputStream(Uri.parse(contentUri));
+
+			File             outputFile   = new File(mSingleton.getFilesDir(), UUID.randomUUID().toString());
+			FileOutputStream outputStream = new FileOutputStream(outputFile);
+
+			int    length;
+			byte[] buffer = new byte[1024];
+
+			while ((length = inputStream.read(buffer)) > 0)
+				outputStream.write(buffer, 0, length);
+
+			outputStream.close();
+			inputStream.close();
+
+			filePath = outputFile.getAbsolutePath();
+		} catch (Exception e) {
+			Log.e("SDL/APP", "DownloadContentUri failed", e);
+		}
+
+		return filePath;
+	}
+
+	public static Object[] GetFilesFromFolder(String contentUri)
+	{
+		ArrayList<String> files = new ArrayList<>();
+
+		DocumentFile file = DocumentFile.fromTreeUri(mSingleton, Uri.parse(contentUri));
+
+		addToFiles(file, files);
+
+		return files.toArray();
+	}
+
+	public static Object[] GetMediaMeta(String contentUri)
+	{
+		Uri               documentUri = Uri.parse(contentUri);
+		ArrayList<String> mediaMeta   = new ArrayList<>();
+
+		Cursor cursor = mSingleton.getContentResolver().query(
+			documentUri,
+			new String[]{ OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE, MediaColumns.MIME_TYPE },
+			null,
+			null,
+			null
+		);
+
+		if ((cursor != null) && cursor.moveToFirst())
+		{
+			addCursorColumn(cursor, OpenableColumns.DISPLAY_NAME, Cursor.FIELD_TYPE_STRING,  "display_name", mediaMeta);
+			addCursorColumn(cursor, OpenableColumns.SIZE,         Cursor.FIELD_TYPE_INTEGER, "file_size",    mediaMeta);
+			addCursorColumn(cursor, MediaColumns.MIME_TYPE,       Cursor.FIELD_TYPE_STRING,  "mime_type",    mediaMeta);
+
+			cursor.close();
+		}
+
+		try {
+			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+			retriever.setDataSource(mSingleton, documentUri);
+
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_ALBUM,           "album",        mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,     "album_artist", mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_ARTIST,          "artist",       mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_BITRATE,         "bit_rate",     mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER, "track",        mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_DURATION,        "duration",     mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_GENRE,           "genre",        mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_SAMPLERATE,      "sample_rate",  mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_TITLE,           "title",        mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT,    "video_height", mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH,     "video_width",  mediaMeta);
+			addMediaMetaData(retriever, MediaMetadataRetriever.METADATA_KEY_YEAR,            "year",         mediaMeta);
+
+			retriever.close();
+		} catch (Exception e) {
+			Log.e("SDL/APP", "GetMediaMeta:MediaMetadataRetriever failed", e);
+		}
+
+		try {
+			MediaExtractor extractor = new MediaExtractor();
+
+			extractor.setDataSource(mSingleton, documentUri, null);
+
+			addMediaFormat(extractor, mediaMeta);
+
+			extractor.release();
+		} catch (Exception e) {
+			Log.e("SDL/APP", "GetMediaMeta:MediaExtractor failed", e);
+		}
+
+		return mediaMeta.toArray();
+	}
+
+	public static byte[] GetMediaThumbnail(String contentUri)
+	{
+		byte[] buffer = null;
+
+		try {
+			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+			retriever.setDataSource(mSingleton, Uri.parse(contentUri));
+
+			buffer = retriever.getEmbeddedPicture();
+
+			retriever.close();
+		} catch (Exception e) {
+			Log.e("SDL/APP", "GetMediaThumbnail failed", e);
+		}
+
+		return buffer;
+	}
+
 	public static boolean IsAutoRotate()
 	{
-		ContentResolver contentResolver = mSingleton.getContentResolver();
-		String          rotationSetting = Settings.System.ACCELEROMETER_ROTATION;
-		int             rotationValue   = Settings.System.getInt(contentResolver, rotationSetting, 0);
+		String rotationSetting = Settings.System.ACCELEROMETER_ROTATION;
+		int    rotationValue   = Settings.System.getInt(mSingleton.getContentResolver(), rotationSetting, 0);
 
 		return (rotationValue == 1);
 	}
 
 	public static boolean IsDarkMode()
 	{
-		Configuration config    = mSingleton.getResources().getConfiguration();
-		int           nightMask = (config.uiMode & Configuration.UI_MODE_NIGHT_MASK);
+		Configuration config = mSingleton.getResources().getConfiguration();
+
+		int nightMask = (config.uiMode & Configuration.UI_MODE_NIGHT_MASK);
 
 		return (nightMask == Configuration.UI_MODE_NIGHT_YES);
 	}
@@ -68,41 +209,136 @@ public class SDLUIActivity extends SDLActivity
 		mSingleton.startActivityForResult(intent, REQUEST_CODE_OPEN_FOLDER);
 	}
 
-	private static void getPermission(String permission, int requestCode)
+	private static void addCursorColumn(Cursor cursor, String column, int type, String key, ArrayList<String> mediaMeta)
 	{
-		mSingleton.requestPermissions(new String[]{ permission }, requestCode);
-	}
+		int index = cursor.getColumnIndex(column);
 
-	private static void handleContentRequest()
-	{
-		if (selectedUri == null)
+		if (index < 0)
 			return;
 
-		String  uriPath = selectedUri.getPath();
-		boolean isDir   = ((uriPath != null) && uriPath.startsWith("/tree/"));
+		String value = "";
 
-		String   docId    = (isDir ? DocumentsContract.getTreeDocumentId(selectedUri) : DocumentsContract.getDocumentId(selectedUri));
-		String[] docProps = docId.split(":");
-		String   docPath  = (docProps.length > 1 ? ("/" + docProps[1]) : "");
-		String   docType  = (docProps.length > 0 ? docProps[0] : "");
+		switch (type) {
+			case Cursor.FIELD_TYPE_FLOAT:   value = String.valueOf(cursor.getFloat(index)); break;
+			case Cursor.FIELD_TYPE_INTEGER: value = String.valueOf(cursor.getInt(index)); break;
+			case Cursor.FIELD_TYPE_STRING:  value = cursor.getString(index); break;
+			default: break;
+		}
 
-		String docsDir    = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-		String storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-		String  docAuth     = selectedUri.getAuthority();
-		boolean isHomeDocs  = (docType.equals("home") && (docAuth != null) && docAuth.equals("com.android.externalstorage.documents"));
-		String  storagePath = (isHomeDocs ? docsDir : storageDir);
-
-		String path = (storagePath + docPath);
-
-		handleOpenJNI(path);
+		if (value != null)
+			addToMediaMeta(key, value, mediaMeta);
 	}
 
-	private static void handleContentUri(Uri uri)
+	private static void addMediaFormat(MediaExtractor extractor, ArrayList<String> mediaMeta)
 	{
-		String path = (uri.getScheme() + "://" + uri.getAuthority() + uri.getPath());
+		int audioCount = 0, subtitleCount = 0, videoCount = 0;
 
-		handleOpenJNI(path);
+		for (int i = 0; i < extractor.getTrackCount(); i++)
+		{
+			MediaFormat format = extractor.getTrackFormat(i);
+
+			String mimeType  = format.getString(MediaFormat.KEY_MIME);
+			String codecName = mimeType.contains("/") ? mimeType.split("/")[1] : mimeType;
+
+			if (codecName.startsWith("x-"))
+				codecName = codecName.substring(2);
+
+			if (mimeType.startsWith("audio"))
+			{
+				addToMediaMeta("audio_codec_name", codecName, mediaMeta);
+
+				if (format.containsKey(MediaFormat.KEY_CHANNEL_COUNT))
+					addToMediaMeta("channel_count", String.valueOf(format.getInteger(MediaFormat.KEY_CHANNEL_COUNT)), mediaMeta);
+
+				audioCount++;
+			}
+			else if (mimeType.startsWith("text"))
+			{
+				addToMediaMeta("subtitle_codec_name", codecName, mediaMeta);
+
+				subtitleCount++;
+			}
+			else if (mimeType.startsWith("video"))
+			{
+				addToMediaMeta("video_codec_name", codecName, mediaMeta);
+
+				if (format.containsKey(MediaFormat.KEY_FRAME_RATE))
+					addToMediaMeta("frame_rate", String.valueOf(format.getInteger(MediaFormat.KEY_FRAME_RATE)), mediaMeta);
+
+				videoCount++;
+			}
+		}
+
+		addToMediaMeta("audio_count",    String.valueOf(audioCount),    mediaMeta);
+		addToMediaMeta("subtitle_count", String.valueOf(subtitleCount), mediaMeta);
+		addToMediaMeta("video_count",    String.valueOf(videoCount),    mediaMeta);
+	}
+
+	private static void addMediaMetaData(MediaMetadataRetriever retriever, int keyCode, String key, ArrayList<String> mediaMeta)
+	{
+		String value = retriever.extractMetadata(keyCode);
+
+		if (value == null)
+			return;
+
+		// https://en.wikipedia.org/wiki/List_of_ID3v1_genres
+		// "(32)" => 32 => "Classical"
+		if ((key == "genre") && value.startsWith("(") && value.endsWith(")"))
+			value = Id3Util.resolveV1Genre(Integer.parseInt(value.substring(1, value.length() - 1)));
+
+		addToMediaMeta(key, value, mediaMeta);
+	}
+
+	private static void addToFiles(DocumentFile file, ArrayList<String> files)
+	{
+		if (file.isFile()) {
+			files.add(file.getUri().toString());
+			return;
+		}
+
+		if (!file.isDirectory())
+			return;
+		
+		DocumentFile[] dirFiles = file.listFiles();
+
+		for (DocumentFile dirFile : dirFiles)
+		{
+			if (dirFile.isFile())
+				files.add(dirFile.getUri().toString());
+			else if (dirFile.isDirectory())
+				addToFiles(dirFile, files);
+		}
+	}
+
+	private static void addToMediaMeta(String key, String value, ArrayList<String> mediaMeta)
+	{
+		mediaMeta.add(key);
+		mediaMeta.add(value);
+	}
+
+	private static boolean isApi33()
+	{
+		return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
+	}
+
+	private static boolean isApi34()
+	{
+		return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+	}
+
+	private static boolean isMediaTypeAudio(String mediaType)
+	{
+		return ((mediaType != null) && mediaType.startsWith("audio"));
+	}
+
+	private static boolean isMediaTypeImage(String mediaType)
+	{
+		return ((mediaType != null) && mediaType.startsWith("image"));
+	}
+
+	private static boolean isMediaTypeVideo(String mediaType)
+	{
+		return ((mediaType != null) && mediaType.startsWith("video"));
 	}
 
 	private static boolean isMissingPermission(String permission)
@@ -110,9 +346,27 @@ public class SDLUIActivity extends SDLActivity
 		return (mSingleton.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED);
 	}
 
-	private static boolean isRequestStorage(int requestCode)
+	private static boolean isMissingPermissionAudio(String mediaType)
 	{
-		return (requestCode == REQUEST_CODE_READ_STORAGE);
+		return (isApi33() && isMediaTypeAudio(mediaType) && isMissingPermission(permission.READ_MEDIA_AUDIO));
+	}
+
+	private static boolean isMissingPermissionImage(String mediaType)
+	{
+		return (isApi33() && isMediaTypeImage(mediaType) && isMissingPermission(permission.READ_MEDIA_IMAGES));
+	}
+
+	private static boolean isMissingPermissionVideo(String mediaType)
+	{
+		return (isApi33() && isMediaTypeVideo(mediaType) && isMissingPermission(permission.READ_MEDIA_VIDEO));
+	}
+
+	private static boolean isMissingPermissionVisual(String mediaType)
+	{
+		boolean isImage = isMediaTypeImage(mediaType);
+		boolean isVideo = isMediaTypeVideo(mediaType);
+
+		return (isApi34() && (isImage || isVideo) && isMissingPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED));
 	}
 
 	private static boolean isPermissionGranted(int[] grantResults)
@@ -120,10 +374,31 @@ public class SDLUIActivity extends SDLActivity
 		return (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED);
 	}
 
+	private static boolean isRequestOpen(int requestCode)
+	{
+		return ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));
+	}
+
+	private static void persistPermissionAcrossDeviceReboots(Intent resultData)
+	{
+		int flags = (resultData.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+		if (flags > 0)
+			mSingleton.getContentResolver().takePersistableUriPermission(selectedUri, flags);
+	}
+
+	private static void requestPermission(String permission)
+	{
+		mSingleton.requestPermissions(new String[]{ permission }, REQUEST_CODE_READ_STORAGE);
+	}
+
 	@SuppressLint("WrongConstant")
     @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
 	{
+		if (!isRequestOpen(requestCode))
+			return;
+
 		if (resultCode != RESULT_OK) {
 			handleOpenJNI("");
 			return;
@@ -131,48 +406,29 @@ public class SDLUIActivity extends SDLActivity
 
 		selectedUri = resultData.getData();
 
-		ContentResolver contentResolver = mSingleton.getContentResolver();
+		persistPermissionAcrossDeviceReboots(resultData);
 
-		int flags = (resultData.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		String mediaType = mSingleton.getContentResolver().getType(selectedUri);
 
-		if (flags > 0)
-			contentResolver.takePersistableUriPermission(selectedUri, flags);
-
-		boolean isRequestRead = ((requestCode == REQUEST_CODE_OPEN_FILE) || (requestCode == REQUEST_CODE_OPEN_FOLDER));
-
-		String mediaType = contentResolver.getType(selectedUri);
-
-		boolean isAudio = (mediaType != null && mediaType.startsWith("audio"));
-		boolean isImage = (mediaType != null && mediaType.startsWith("image"));
-		boolean isVideo = (mediaType != null && mediaType.startsWith("video"));
-
-		boolean isApi34 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
-		boolean isApi33 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
-		boolean isApi30 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
-
-		if (isRequestRead && isApi34 && (isImage || isVideo) && isMissingPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED))
-			getPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED, REQUEST_CODE_READ_STORAGE);
-		else if (isRequestRead && isApi33 && isAudio && isMissingPermission(permission.READ_MEDIA_AUDIO))
-			getPermission(permission.READ_MEDIA_AUDIO, REQUEST_CODE_READ_STORAGE);
-		else if (isRequestRead && isApi33 && isImage && isMissingPermission(permission.READ_MEDIA_IMAGES))
-			getPermission(permission.READ_MEDIA_IMAGES, REQUEST_CODE_READ_STORAGE);
-		else if (isRequestRead && isApi33 && isVideo && isMissingPermission(permission.READ_MEDIA_VIDEO))
-			getPermission(permission.READ_MEDIA_VIDEO, REQUEST_CODE_READ_STORAGE);
-		else if (isRequestRead && isApi33 && (isAudio || isImage || isVideo))
-			handleContentRequest();
-		else if (isRequestRead && isApi33)
-			handleContentUri(selectedUri);
-		else if (isRequestRead && isMissingPermission(permission.READ_EXTERNAL_STORAGE))
-			getPermission(permission.READ_EXTERNAL_STORAGE, REQUEST_CODE_READ_STORAGE);
+		if (isMissingPermissionVisual(mediaType))
+			requestPermission(permission.READ_MEDIA_VISUAL_USER_SELECTED);
+		else if (isMissingPermissionAudio(mediaType))
+			requestPermission(permission.READ_MEDIA_AUDIO);
+		else if (isMissingPermissionImage(mediaType))
+			requestPermission(permission.READ_MEDIA_IMAGES);
+		else if (isMissingPermissionVideo(mediaType))
+			requestPermission(permission.READ_MEDIA_VIDEO);
+		else if (isMissingPermission(permission.READ_EXTERNAL_STORAGE))
+			requestPermission(permission.READ_EXTERNAL_STORAGE);
 		else
-			handleContentRequest();
+			handleOpenJNI(selectedUri.toString());
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
-		if (isRequestStorage(requestCode) && isPermissionGranted(grantResults))
-			handleContentRequest();
+		if ((requestCode == REQUEST_CODE_READ_STORAGE) && isPermissionGranted(grantResults))
+			handleOpenJNI(selectedUri.toString());
 		else
 			handleOpenJNI("");
 	}
